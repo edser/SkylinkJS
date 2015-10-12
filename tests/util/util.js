@@ -1,17 +1,3 @@
-/*! skylinkjs - v1.0.0 - Fri Oct 09 2015 11:53:58 GMT+0800 (SGT) */
-
-//mocha.bail();
-//mocha.run();
-
-var expect = chai.expect;
-var assert = chai.assert;
-var should = chai.should;
-
-/* Test timeouts */
-var testTimeout = 35000;
-var gUMTimeout = 25000;
-var testItemTimeout = 4000;
-
 /* Shared functions */
 // Checking the bytes of the canvas
 var checkCanvas = function (ctx, width, height) {
@@ -150,76 +136,6 @@ var printJSON = function (obj, spaces) {
   return outputStr;
 };
 
-/* Template */
-describe('streamtrack | events', function () {
-  this.timeout(testTimeout + 2000);
-  this.slow(2000);
-
-  var stream = null;
-var audioTrack = null;
-
-describe('#on("streaming"', function () {
-
-  it('has the correct payload', function (done) {
-    this.timeout(testItemTimeout);
-
-    stream = new Stream();
-
-    stream.once('streaming', function () {
-      audioTrack = stream.getAudioTracks()[0];
-
-      audioTrack.once('streaming', function (payload) {
-        expect(payload).to.deep.equal({});
-        done();
-      });
-    });
-
-    stream.start({ audio: true, video: true });
-  });
-});
-
-describe('#on("mute"', function () {
-
-  it('has the correct payload', function (done) {
-    this.timeout(testItemTimeout);
-
-    audioTrack.once('mute', function (payload) {
-      expect(payload).to.deep.equal({});
-      done();
-    });
-
-    audioTrack.mute();
-  });
-
-});
-
-describe('#on("unmute"', function () {
-
-  it('has the correct payload', function (done) {
-    this.timeout(testItemTimeout);
-
-    audioTrack.once('unmute', function (payload) {
-      expect(payload).to.deep.equal({});
-      done();
-    });
-
-    audioTrack.unmute();
-  });
-
-});
-
-describe('#on("stopped"', function () {
-
-  it('has the correct payload', function (done) {
-    this.timeout(testItemTimeout);
-
-    audioTrack.once('stopped', function (payload) {
-      expect(payload).to.deep.equal({});
-      done();
-    });
-
-    audioTrack.stop();
-  });
-
-});
-});
+module.exports.checkCanvas = checkCanvas;
+module.exports.drawCanvas = drawCanvas;
+module.exports.printJSON = printJSON;

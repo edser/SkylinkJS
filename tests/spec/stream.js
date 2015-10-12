@@ -1,9 +1,191 @@
+//-------------------CONSTRUCTOR-------------------
+
+var successCase = function (options) {
+  describe('new Stream()', function () {
+
+    var stream = null;
+
+    it('does not throw an error', function (done) {
+      this.timeout(testItemTimeout);
+
+      expect(function () {
+        stream = new Stream();
+      }).to.not.throw(Error);
+
+      done();
+    });
+
+    it('returns a new Stream object', function (done) {
+      this.timeout(testItemTimeout);
+
+      (typeof stream).should.be.eql('object');
+
+      assert.instanceOf(stream, Stream);
+
+      done();
+    });
+
+  });
+};
+
+// none for the moment
+var failureCase = function (options) {};
+
+// new Stream();
+successCase();
+
+//-------------------CONSTRUCTOR-------------------
+
+//-------------------ATTRIBUTES-------------------
+
 var stream = null;
 
 before(function (done)  {
   stream = new Stream();
   done();
 });
+
+
+describe('#readyState', function () {
+
+  it('is typeof "string"', function (done) {
+    this.timeout(testItemTimeout);
+
+    assert.typeOf(stream.readyState, 'string');
+
+    done();
+  });
+
+  it('has a value of "constructed" in the beginning', function (done) {
+    this.timeout(testItemTimeout);
+
+    expect(stream.readyState).to.equal('constructed');
+
+    done();
+  });
+
+});
+
+describe('#_objectRef', function () {
+
+  it('has a value of null in the beginning', function (done) {
+    this.timeout(testItemTimeout);
+
+    expect(stream._objectRef).to.equal(null);
+
+    done();
+  });
+
+});
+
+describe('#_audioTracks', function () {
+
+  it('is typeof "object"', function (done) {
+    this.timeout(testItemTimeout);
+
+    (typeof stream._audioTracks).should.be.eql('object');
+
+    done();
+  });
+
+  it('is instanceof Array', function (done) {
+    this.timeout(testItemTimeout);
+
+    assert.instanceOf(stream._audioTracks, Array);
+
+    done();
+  });
+
+  it('has empty tracks at the beginning', function (done) {
+    this.timeout(testItemTimeout);
+
+    expect(stream._audioTracks).to.deep.equal([]);
+    expect(stream._audioTracks).to.have.length(0);
+
+    done();
+  });
+
+});
+
+describe('#_videoTracks', function () {
+
+  it('is typeof "object"', function (done) {
+    this.timeout(testItemTimeout);
+
+    (typeof stream._videoTracks).should.be.eql('object');
+
+    done();
+  });
+
+  it('is instanceof Array', function (done) {
+    this.timeout(testItemTimeout);
+
+    assert.instanceOf(stream._videoTracks, Array);
+
+    done();
+  });
+
+  it('has empty tracks at the beginning', function (done) {
+    this.timeout(testItemTimeout);
+
+    expect(stream._videoTracks).to.deep.equal([]);
+    expect(stream._videoTracks).to.have.length(0);
+
+    done();
+  });
+
+});
+
+describe('#_constraints', function () {
+
+  it('has a value of null in the beginning', function (done) {
+    this.timeout(testItemTimeout);
+
+    expect(stream._constraints).to.equal(null);
+
+    done();
+  });
+
+});
+
+//-------------------ATTRIBUTES-------------------
+
+//-------------------EVENTS-------------------
+
+describe('#on("streaming"', function () {
+
+  it('has the correct payload', function (done) {
+    this.timeout(testItemTimeout);
+
+    stream.once('streaming', function (payload) {
+      expect(payload).to.deep.equal({});
+
+      done();
+    });
+
+    stream.start({ audio: true, video: true });
+  });
+});
+
+describe('#on("stopped"', function () {
+
+  it('has the correct payload', function (done) {
+    this.timeout(testItemTimeout);
+
+    stream.once('stopped', function (payload) {
+      expect(payload).to.deep.equal({});
+
+      done();
+    });
+
+    stream.stop();
+  });
+
+});
+
+//-------------------EVENTS-------------------
+
+//-------------------METHODS-------------------
 
 /* Beginning of #start() */
 describe('#start()', function () {
@@ -300,7 +482,7 @@ describe('#attachStream()', function () {
 
     // only supported from IE 9.0 and above
     video.onplaying = function () {
-      drawCanvas(video, function (hasStream) {
+      util.drawCanvas(video, function (hasStream) {
         expect(hasStream).to.equal(true);
         done();
       });
@@ -421,3 +603,5 @@ describe('#stop()', function () {
 
 });
 /* End of #stop() */
+
+//-------------------METHODS-------------------
