@@ -88,7 +88,7 @@ var successCase = function (options) {
         done();
       });
     } else {
-      it('#secure default value is 20000'), function (done) {
+      it('#secure default value is 20000', function (done) {
         this.timeout(testItemTimeout);
 
         expect(socket._timeout).to.equal(20000);
@@ -184,6 +184,7 @@ var requestProtocolTestVal = {
 
 before(function (done)  {
   socket = new Socket({});
+  done();
 });
 
 describe('#type', function () {
@@ -425,7 +426,7 @@ describe('#on("error"', function () {
     this.timeout(testItemTimeout);
 
     socket.once('error', function (payload) {
-      expect(payload).to.have.all.keys({'errorType': 1, 'error', 1});
+      expect(payload).to.have.all.keys({'errorType': 1, 'error': 1});
       assert.typeOf(payload.errorType, 'string');
       assert.instanceOf(payload.error, Error);
     });
@@ -444,7 +445,7 @@ describe('#on("error"', function () {
       this.timeout(testItemTimeout);
 
       socket.once('error', function (payload) {
-        expect(payload).to.have.all.keys({'errorType': 1, 'error', 1});
+        expect(payload).to.have.all.keys({'errorType': 1, 'error': 1});
         assert.typeOf(payload.errorType, 'string');
         assert.instanceOf(payload.error, Error);
       });
@@ -455,7 +456,7 @@ describe('#on("error"', function () {
     this.timeout(testItemTimeout);
 
     socket.once('error', function (payload) {
-      expect(payload).to.have.all.keys({'errorType': 1, 'error', 1});
+      expect(payload).to.have.all.keys({'errorType': 1, 'error': 1});
       assert.typeOf(payload.errorType, 'string');
       assert.instanceOf(payload.error, Error);
     });

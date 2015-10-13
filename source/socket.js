@@ -34,5 +34,5 @@ var Socket = function () {
   self._currentSignalingServerPort = null;
 
   // Append events settings in here
-  Event.mixin(self);
+  Event._mixin(self);
 };
