@@ -167,99 +167,102 @@ var options = {
   httpsPorts: [443, 3443]
 };
 
-before(function (done)  {
+before(function ()  {
   socket = new Socket({});
-  done();
 });
 
-describe('#type', function () {
+describe('#ATTRIBUTES', function(){
 
-  it('has a default value of "WebSocket"', function () {
-    this.timeout(testItemTimeout);
+  describe('#type', function () {
 
-    assert.typeOf(socket.type, 'string');
-    expect(socket.type).to.equal('WebSocket');
+    it('has a default value of "WebSocket"', function () {
+      this.timeout(testItemTimeout);
+
+      assert.typeOf(socket.type, 'string');
+      expect(socket.type).to.equal('WebSocket');
+
+    });
 
   });
 
-});
+  describe('#readyState', function () {
 
-describe('#readyState', function () {
+    it('has a default value of \'constructed\'', function () {
+      this.timeout(testItemTimeout);
 
-  it('has a default value of \'constructed\'', function () {
-    this.timeout(testItemTimeout);
+      assert.typeOf(socket.readyState, 'string');
+      expect(socket.readyState).to.equal('constructed');
 
-    assert.typeOf(socket.readyState, 'string');
-    expect(socket.readyState).to.equal('constructed');
-
-  });
-
-});
-
-describe('#isSecure', function () {
-
-  it('has a default value of false', function () {
-    this.timeout(testItemTimeout);
-
-    assert.typeOf(socket.isSecure, 'boolean');
-    expect(socket.isSecure).to.equal(false);
+    });
 
   });
 
-});
+  describe('#isSecure', function () {
 
-describe('#_socketTimeout', function () {
+    it('has a default value of false', function () {
+      this.timeout(testItemTimeout);
 
-  it('has a default value of 20000', function () {
-    this.timeout(testItemTimeout);
+      assert.typeOf(socket.isSecure, 'boolean');
+      expect(socket.isSecure).to.equal(false);
 
-    assert.typeOf(socket._socketTimeout, 'number');
-    expect(socket._socketTimeout).to.equal(20000);
-
-  });
-
-});
-
-describe('#_socketMessageQueue', function () {
-
-  it('is an empty array by default', function () {
-    this.timeout(testItemTimeout);
-
-    assert.instanceOf(socket._socketMessageQueue, Array);
-    expect(socket._socketMessageQueue).to.deep.equal([]);
+    });
 
   });
 
-});
+  describe('#_socketTimeout', function () {
 
-describe('#_isXDR', function () {
+    it('has a default value of 20000', function () {
+      this.timeout(testItemTimeout);
 
-  it('is typeof "boolean"', function (done) {
-    this.timeout(testItemTimeout);
+      assert.typeOf(socket._socketTimeout, 'number');
+      expect(socket._socketTimeout).to.equal(20000);
 
-    assert.typeOf(socket._isXDR, 'boolean');
-
-    done();
-  });
-
-  it('has a value of false', function () {
-    this.timeout(testItemTimeout);
-
-    assert.typeOf(socket._isXDR, 'boolean');
-    expect(socket._isXDR).to.equal(false);
+    });
 
   });
 
-});
+  describe('#_socketMessageQueue', function () {
 
-describe('#_objectRef', function () {
+    it('is an empty array by default', function () {
+      this.timeout(testItemTimeout);
 
-  it('has a value of null in the beginning', function (done) {
-    this.timeout(testItemTimeout);
+      assert.instanceOf(socket._socketMessageQueue, Array);
+      expect(socket._socketMessageQueue).to.deep.equal([]);
 
-    expect(socket._objectRef).to.equal(null);
+    });
 
-    done();
+  });
+
+  describe('#_isXDR', function () {
+
+    it('is typeof "boolean"', function (done) {
+      this.timeout(testItemTimeout);
+
+      assert.typeOf(socket._isXDR, 'boolean');
+
+      done();
+    });
+
+    it('has a value of false', function () {
+      this.timeout(testItemTimeout);
+
+      assert.typeOf(socket._isXDR, 'boolean');
+      expect(socket._isXDR).to.equal(false);
+
+    });
+
+  });
+
+  describe('#_objectRef', function () {
+
+    it('has a value of null in the beginning', function (done) {
+      this.timeout(testItemTimeout);
+
+      expect(socket._objectRef).to.equal(null);
+
+      done();
+    });
+
   });
 
 });
@@ -279,82 +282,89 @@ var failureOptions = {
   httpsPorts: [243, 4443]
 };
 
-describe('#on("connected"', function () {
+describe('#EVENTS', function(){
 
-  it('has the correct payload', function (done) {
-    this.timeout(testItemTimeout);
+  describe('#on connected', function () {
 
-    socket = new Socket(successOptions);
+    it('has the correct payload and readyState equals to \'connected\'', function (done) {
+      this.timeout(testItemTimeout);
 
-    socket.once('connected', function (payload) {
-      expect(payload).to.deep.equal({ socketType: 'webSocket' });
-      done();
+      socket = new Socket(successOptions);
+
+      socket.once('connected', function (payload) {
+        expect(socket.readyState).to.equal('connected');
+        expect(payload).to.deep.equal({ socketType: 'webSocket' });
+        done();
+      });
+
+      socket.connect();
     });
 
-    socket.connect();
   });
 
-  it('#readyState has a value is "connected"', function (done) {
-    this.timeout(testItemTimeout);
+  describe('#on disconnected', function () {
 
-    expect(socket.readyState).to.equal('connected');
+    it('has the correct payload', function (done) {
+      this.timeout(testItemTimeout);
 
-    done();
-  });
-});
+      socket.once('disconnected', function (payload) {
+        expect(payload).to.deep.equal({ socketType: 'webSocket' });
+        done();
+      });
 
-describe('#on("disconnected"', function () {
-
-  it('has the correct payload', function (done) {
-    this.timeout(testItemTimeout);
-
-    socket.once('disconnected', function (payload) {
-      expect(payload).to.deep.equal({ socketType: 'webSocket' });
-      done();
-    });
-
-    socket.disconnect();
-  });
-
-  it('#readyState has a value is "disconnected"', function (done) {
-    this.timeout(testItemTimeout);
-
-    expect(socket.readyState).to.equal('disconnected');
-
-    done();
-  });
-});
-
-// No available test scenario to test a solo messaging connection
-describe.skip('#on("message | No available test scenerio"', function () { });
-
-describe('#on("error"', function () {
-
-  before(function () {
-    socket = new Socket(failureOptions);
-    done();
-  });
-
-  it('has the correct payload', function (done) {
-    this.timeout(testItemTimeout);
-
-    socket.once('error', function (payload) {
-      expect(payload).to.have.all.keys({'errorType': 1, 'error': 1});
-      assert.typeOf(payload.errorType, 'string');
-      assert.instanceOf(payload.error, Error);
-    });
-
-    socket.connect();
-  });
-
-  /* Beginning of Scenario: When reconnection fails */
-  describe('Scenario: When reconnection fails till connection timeout', function () {
-
-    before(function () {
       socket.disconnect();
     });
 
-    it('triggers "error" as many times as failed reconnection attempts', function (done) {
+    it('#readyState has a value is "disconnected"', function (done) {
+      this.timeout(testItemTimeout);
+
+      expect(socket.readyState).to.equal('disconnected');
+
+      done();
+    });
+  });
+
+  // No available test scenario to test a solo messaging connection
+  describe.skip('#on("message | No available test scenerio"', function () { });
+
+  describe('#on error', function () {
+
+    before(function () {
+      socket = new Socket(failureOptions);
+      done();
+    });
+
+    it('has the correct payload', function (done) {
+      this.timeout(testItemTimeout);
+
+      socket.once('error', function (payload) {
+        expect(payload).to.have.all.keys({'errorType': 1, 'error': 1});
+        assert.typeOf(payload.errorType, 'string');
+        assert.instanceOf(payload.error, Error);
+      });
+
+      socket.connect();
+    });
+
+    /* Beginning of Scenario: When reconnection fails */
+    describe('Scenario: When reconnection fails till connection timeout', function () {
+
+      before(function () {
+        socket.disconnect();
+      });
+
+      it('triggers "error" as many times as failed reconnection attempts', function (done) {
+        this.timeout(testItemTimeout);
+
+        socket.once('error', function (payload) {
+          expect(payload).to.have.all.keys({'errorType': 1, 'error': 1});
+          assert.typeOf(payload.errorType, 'string');
+          assert.instanceOf(payload.error, Error);
+        });
+      });
+    });
+
+    it('triggers ', function (done) {
       this.timeout(testItemTimeout);
 
       socket.once('error', function (payload) {
@@ -363,51 +373,13 @@ describe('#on("error"', function () {
         assert.instanceOf(payload.error, Error);
       });
     });
-  });
 
-  it('triggers ', function (done) {
-    this.timeout(testItemTimeout);
+    /* End of Scenario: When reconnection fails */
 
-    socket.once('error', function (payload) {
-      expect(payload).to.have.all.keys({'errorType': 1, 'error': 1});
-      assert.typeOf(payload.errorType, 'string');
-      assert.instanceOf(payload.error, Error);
-    });
-  });
-
-  /* End of Scenario: When reconnection fails */
-
-});
-
-describe('#on("unmute"', function () {
-
-  it('has the correct payload', function (done) {
-    this.timeout(testItemTimeout);
-
-    audioTrack.once('unmute', function (payload) {
-      expect(payload).to.deep.equal({});
-      done();
-    });
-
-    audioTrack.unmute();
   });
 
 });
 
-describe('#on("stopped"', function () {
-
-  it('has the correct payload', function (done) {
-    this.timeout(testItemTimeout);
-
-    audioTrack.once('stopped', function (payload) {
-      expect(payload).to.deep.equal({});
-      done();
-    });
-
-    audioTrack.stop();
-  });
-
-});
 //-------------------EVENTS-------------------
 
 //-------------------METHODS-------------------
@@ -419,85 +391,89 @@ before(function (done)  {
   done();
 });
 
-/* Beginning of #connect() */
-describe('#connect()', function () {
+describe('#METHODS', function(){
 
-  it('is typeof "function"', function (done) {
-    this.timeout(testItemTimeout);
+  /* Beginning of #connect() */
+  describe('#connect()', function () {
 
-    assert.typeOf(socket.connect, 'function');
+    it('is typeof "function"', function (done) {
+      this.timeout(testItemTimeout);
 
-    done();
-  });
+      assert.typeOf(socket.connect, 'function');
 
-  it('triggers "connected" event', function (done) {
-    this.timeout(testItemTimeout);
-
-    socket.once('connected', function () {
       done();
     });
-  });
 
-  it('#readyState has a value of "connected"', function (done) {
-    this.timeout(testItemTimeout);
+    it('triggers "connected" event', function (done) {
+      this.timeout(testItemTimeout);
 
-    expect(socket.readyState).to.equal('connected');
+      socket.once('connected', function () {
+        done();
+      });
+    });
 
-    done();
-  });
+    it('#readyState has a value of "connected"', function (done) {
+      this.timeout(testItemTimeout);
 
-  it('#_objectRef is typeof "object"', function (done) {
-    this.timeout(testItemTimeout);
+      expect(socket.readyState).to.equal('connected');
 
-    (typeof socket._objectRef).should.be.eql('object');
-
-    done();
-  });
-
-});
-/* End of #connect() */
-
-/* Beginning of #message() */
-describe('#message()', function () {
-
-  it('is typeof "function"', function (done) {
-    this.timeout(testItemTimeout);
-
-    assert.typeOf(socket.message, 'function');
-
-    done();
-  });
-
-});
-/* End of #message() */
-
-/* Beginning of #disconnect() */
-describe('#disconnect()', function () {
-
-  it('is typeof "function"', function (done) {
-    this.timeout(testItemTimeout);
-
-    assert.typeOf(socket.disconnect, 'function');
-
-    done();
-  });
-
-  it('triggers "disconnected" event', function (done) {
-    this.timeout(testItemTimeout);
-
-    audioTrack.once('disconnected', function () {
       done();
     });
+
+    it('#_objectRef is typeof "object"', function (done) {
+      this.timeout(testItemTimeout);
+
+      (typeof socket._objectRef).should.be.eql('object');
+
+      done();
+    });
+
   });
+  /* End of #connect() */
 
-  it('#readyState has a value of "disconnected"', function (done) {
-    this.timeout(testItemTimeout);
+  /* Beginning of #message() */
+  describe('#message()', function () {
 
-    expect(socket.readyState).to.equal('disconnected');
+    it('is typeof "function"', function (done) {
+      this.timeout(testItemTimeout);
 
-    done();
+      assert.typeOf(socket.message, 'function');
+
+      done();
+    });
+
   });
+  /* End of #message() */
 
+  /* Beginning of #disconnect() */
+  describe('#disconnect()', function () {
+
+    it('is typeof "function"', function (done) {
+      this.timeout(testItemTimeout);
+
+      assert.typeOf(socket.disconnect, 'function');
+
+      done();
+    });
+
+    it('triggers "disconnected" event', function (done) {
+      this.timeout(testItemTimeout);
+
+      audioTrack.once('disconnected', function () {
+        done();
+      });
+    });
+
+    it('#readyState has a value of "disconnected"', function (done) {
+      this.timeout(testItemTimeout);
+
+      expect(socket.readyState).to.equal('disconnected');
+
+      done();
+    });
+
+  });
+  /* End of #disconnect() */
+  
 });
-/* End of #disconnect() */
 //-------------------METHODS-------------------
