@@ -145,8 +145,3 @@ var generateUUID = function() {
   return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
     s4() + '-' + s4() + s4() + s4();
 };
-
-window.checkCanvas = checkCanvas;
-window.drawCanvas = drawCanvas;
-window.printJSON = printJSON;
-window.generateUUID = generateUUID;

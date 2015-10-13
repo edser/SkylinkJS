@@ -11,7 +11,7 @@ describe('Event', function() {
 	describe('#_mixin()', function(){
 
 		it('should embed event functions to the object', function(){
-
+			
 			Event._mixin(obj);
 			Event._mixin(obj2);
 			(typeof obj.on).should.be.eql('function');

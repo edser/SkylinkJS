@@ -76,7 +76,8 @@ module.exports = function(grunt) {
           options: {
             variables: {
               'test': item,
-              'script': grunt.file.read(url, { encoding: 'UTF-8' })
+              'script': grunt.file.read(url, { encoding: 'UTF-8' }),
+              'util': grunt.file.read('tests/util/util.js', { encoding: 'UTF-8' }) 
             },
             prefix: '@@'
           },
@@ -112,7 +113,6 @@ module.exports = function(grunt) {
                 'spec': '../units/' + unit +'.js',
                 'port': parseInt('50' + i + j, 10),
                 'source': '../../../publish/skylink.complete.js',
-                'util': '../../util/util.js'
               },
               prefix: '@@'
             },
