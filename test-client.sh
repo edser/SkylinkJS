@@ -1,5 +1,7 @@
 #!/bin/sh
 
+grunt test
+
 test="$1";
 browser="$2";
 
