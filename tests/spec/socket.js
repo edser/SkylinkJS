@@ -126,7 +126,7 @@ var failureCase = function (options) {
   });
 };
 
-
+/*
 // new Socket();
 failureCase();
 
@@ -155,7 +155,7 @@ failureCase({ httpPorts: [443, 3443], httpsPorts: [443, 3443], type: 'unknown' }
 successCase({ httpPorts: [443, 3443], httpsPorts: [443, 3443], secure: true });
 
 // new Socket({ httpPorts: [443, 3443], httpsPorts: [443, 3443], timeout: 2500 })
-successCase({ httpPorts: [443, 3443], httpsPorts: [443, 3443], timeout: 2500 });
+successCase({ httpPorts: [443, 3443], httpsPorts: [443, 3443], timeout: 2500 });*/
 
 //-------------------CONSTRUCTOR-------------------
 
@@ -167,21 +167,6 @@ var options = {
   httpsPorts: [443, 3443]
 };
 
-var requestProtocolTestVal = {
-  secure: {
-    'http:': 'false (http)',
-    'https:': 'true (https)'
-  },
-  _port: {
-    'http:': 'httpPorts (http)',
-    'https:': 'httpsPort (https)'
-  },
-  _isXDR: {
-    'undefined': false,
-    'function': true
-  }
-};
-
 before(function (done)  {
   socket = new Socket({});
   done();
@@ -189,130 +174,60 @@ before(function (done)  {
 
 describe('#type', function () {
 
-  it('is typeof "string"', function (done) {
+  it('has a default value of "WebSocket"', function () {
     this.timeout(testItemTimeout);
 
     assert.typeOf(socket.type, 'string');
+    expect(socket.type).to.equal('WebSocket');
 
-    done();
-  });
-
-  it('has a default value of "webSocket"', function (done) {
-    this.timeout(testItemTimeout);
-
-    expect(socket.type).to.equal('webSocket');
-
-    done();
   });
 
 });
 
 describe('#readyState', function () {
 
-  it('is typeof "string"', function (done) {
+  it('has a default value of \'constructed\'', function () {
     this.timeout(testItemTimeout);
 
     assert.typeOf(socket.readyState, 'string');
-
-    done();
-  });
-
-  it('has a value of "constructed" in the beginning', function (done) {
-    this.timeout(testItemTimeout);
-
     expect(socket.readyState).to.equal('constructed');
 
-    done();
   });
 
 });
 
-describe('#secure', function () {
+describe('#isSecure', function () {
 
-  it('is typeof "boolean"', function (done) {
+  it('has a default value of false', function () {
     this.timeout(testItemTimeout);
 
-    assert.typeOf(socket.secure, 'boolean');
+    assert.typeOf(socket.isSecure, 'boolean');
+    expect(socket.isSecure).to.equal(false);
 
-    done();
-  });
-
-  it('has a default value of ' + requestProtocolTestVal.secure[window.location.protocol], function (done) {
-    this.timeout(testItemTimeout);
-
-    expect(socket.secure).to.equal(false);
-
-    done();
   });
 
 });
 
-describe('#_port', function () {
+describe('#_socketTimeout', function () {
 
-  it('is typeof "number"', function (done) {
+  it('has a default value of 20000', function () {
     this.timeout(testItemTimeout);
 
-    assert.typeOf(socket._port, 'number');
+    assert.typeOf(socket._socketTimeout, 'number');
+    expect(socket._socketTimeout).to.equal(20000);
 
-    done();
-  });
-
-  it('has the same value as the first ' + requestProtocolTestVal._port[window.location.protocol], function (done) {
-    this.timeout(testItemTimeout);
-
-    var expectedPort = window.location.protocol === 'https:' ? options.httpsPorts[0] : options.httpPorts[0];
-
-    expect(socket._port).to.equal(expectedPort);
-
-    done();
   });
 
 });
 
-describe('#_timeout', function () {
+describe('#_socketMessageQueue', function () {
 
-  it('is typeof "number"', function (done) {
+  it('is an empty array by default', function () {
     this.timeout(testItemTimeout);
 
-    assert.typeOf(socket._timeout, 'number');
+    assert.instanceOf(socket._socketMessageQueue, Array);
+    expect(socket._socketMessageQueue).to.deep.equal([]);
 
-    done();
-  });
-
-  it('has a default value of 20000', function (done) {
-    this.timeout(testItemTimeout);
-
-    expect(socket._timeout).to.equal(20000);
-
-    done();
-  });
-
-});
-
-describe('#_messageQueue', function () {
-
-  it('is typeof "object"', function (done) {
-    this.timeout(testItemTimeout);
-
-    (typeof socket._messageQueue).should.be.eql('object');
-
-    done();
-  });
-
-  it('is instanceof Array', function (done) {
-    this.timeout(testItemTimeout);
-
-    assert.instanceOf(socket._messageQueue, Array);
-
-    done();
-  });
-
-  it('has an empty value at first', function (done) {
-    this.timeout(testItemTimeout);
-
-    expect(socket._messageQueue).to.deep.equal([]);
-
-    done();
   });
 
 });
@@ -327,14 +242,12 @@ describe('#_isXDR', function () {
     done();
   });
 
-  it('has a value of ' + requestProtocolTestVal._isXDR[typeof window.XDomainRequest], function (done) {
+  it('has a value of false', function () {
     this.timeout(testItemTimeout);
 
-    var expectedXDR = requestProtocolTestVal._isXDR[typeof window.XDomainRequest]
+    assert.typeOf(socket._isXDR, 'boolean');
+    expect(socket._isXDR).to.equal(false);
 
-    expect(socket._isXDR).to.equal(expectedXDR);
-
-    done();
   });
 
 });
