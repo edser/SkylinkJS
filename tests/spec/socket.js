@@ -173,37 +173,37 @@ before(function ()  {
 
 describe('#ATTRIBUTES', function(){
 
-  describe('#type', function () {
+  describe('#_type', function () {
 
     it('has a default value of "WebSocket"', function () {
       this.timeout(testItemTimeout);
 
-      assert.typeOf(socket.type, 'string');
-      expect(socket.type).to.equal('WebSocket');
+      assert.typeOf(socket._type, 'string');
+      expect(socket._type).to.equal('WebSocket');
 
     });
 
   });
 
-  describe('#readyState', function () {
+  describe('#_readyState', function () {
 
     it('has a default value of \'constructed\'', function () {
       this.timeout(testItemTimeout);
 
-      assert.typeOf(socket.readyState, 'string');
-      expect(socket.readyState).to.equal('constructed');
+      assert.typeOf(socket._readyState, 'string');
+      expect(socket._readyState).to.equal('constructed');
 
     });
 
   });
 
-  describe('#isSecure', function () {
+  describe('#_isSecure', function () {
 
     it('has a default value of false', function () {
       this.timeout(testItemTimeout);
 
-      assert.typeOf(socket.isSecure, 'boolean');
-      expect(socket.isSecure).to.equal(false);
+      assert.typeOf(socket._isSecure, 'boolean');
+      expect(socket._isSecure).to.equal(false);
 
     });
 
@@ -474,6 +474,6 @@ describe('#METHODS', function(){
 
   });
   /* End of #disconnect() */
-  
+
 });
 //-------------------METHODS-------------------

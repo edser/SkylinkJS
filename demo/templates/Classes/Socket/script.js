@@ -2,12 +2,12 @@ var socket;
 var output = document.getElementById('output');
 var status = document.getElementById('status');
 
-function handler(event, data) {
+function update(event, data) {
   output.innerHTML += '<p><b>' + event +
     '</b> ' + JSON.stringify(data) + '</p>';
 }
 
-function clearL() {
+function clear() {
   output.innerHTML = '';
 }
 
@@ -16,11 +16,11 @@ function failConnect() {
     server: document.getElementById('server').value,
     httpsPortList: document.getElementById('https').value.split(','),
     httpPortList: document.getElementById('http').value.split(',')
-  }, handler);
+  });
 
   socket.connect();
 
-  handler('Connecting', '...');
+  update('Connecting', '...');
 }
 
 function successConnect() {
@@ -31,11 +31,11 @@ function successConnect() {
     httpPortList: [500, 6001],
     httpsPortList: [443],
     type: socketType
-  }, handler);
+  });
 
   socket.connect();
 
-  handler('Connecting', socketType);
+  update('Connecting', socketType);
 }
 
 function disconnect() {

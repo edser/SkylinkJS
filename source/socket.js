@@ -4,22 +4,22 @@ var Socket = function (options) {
 
   var self = this;
 
-  self.type = 'WebSocket'; // Default
-
-  self.readyState = 'constructed';
-
-  self.options = options;
-
-  self.isSecure = false;
-
-  self._isXDR = false;
+  self._signalingServer = options.server || 'signaling.temasys.com.sg';
 
   self._socketPorts = {
-    'http': [80, 3000],
-    'https': [443, 3443]
+    'http': options.httpPorts || [80, 3000],
+    'https': options.httpsPorts || [443, 3443]
   };
 
-  self._socketTimeout = 20000;
+  self._type = options.type || 'WebSocket'; // Default
+
+  self._socketTimeout = options.socketTimeout || 20000;
+
+  self._readyState = 'constructed';
+
+  self._isSecure = false;
+
+  self._isXDR = false;
 
   self._signalingServerProtocol = window.location.protocol;
 
