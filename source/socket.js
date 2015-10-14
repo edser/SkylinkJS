@@ -15,9 +15,9 @@ var Socket = function (options) {
 
   self._socketTimeout = options.socketTimeout || 20000;
 
-  self._readyState = 'constructed';
+  self._isSecure = options.secure || false;
 
-  self._isSecure = false;
+  self._readyState = 'constructed';
 
   self._isXDR = false;
 
@@ -50,3 +50,72 @@ var Socket = function (options) {
   // Append events settings in here
   Event._mixin(self);
 };
+
+Socket.prototype.connect = function(){
+  var self = this;
+  self._objectRef = io.connect(self._signalingServer, options);
+  self.bindHandlers();
+};
+
+Socket.prototype.disconnect = function(){
+  var self = this;
+  if (self._objectRef){
+    self._objectRef.disconnect();
+  }
+};
+
+Socket.prototype.bindHandlers = function(){
+
+  self._objectRef.on('connect', function(){
+    self._readyState = 'connected';
+    self._trigger('connected');
+  });
+
+  self._objectRef.on('error', function(){
+
+  });
+
+  self._objectRef.on('disconnect', function(){
+    self._readyState = 'disconnected';
+    self._trigger('disconnected');
+  });
+
+  self._objectRef.on('reconnect', function(attempt){
+
+  });  
+
+  self._objectRef.on('reconnect_attempt', function(){
+
+  });  
+
+  self._objectRef.on('reconnecting', function(attempt){
+
+  });
+
+  self._objectRef.on('reconnect_error', function(error){
+
+  });  
+
+  self._objectRef.on('reconnect_failed', function(){
+
+  });
+
+  self._objectRef.on('connect_error', function(error){
+
+  });
+
+  self._objectRef.on('connect_timeout', function(error){
+
+  });
+
+  self._objectRef.on('message', function(){
+
+  });  
+
+};
+
+
+
+
+
+
