@@ -45,6 +45,8 @@ var Socket = function (options) {
 
   self._currentSignalingServerPort = null;
 
+  self._channelOpen = false;
+
   self._objectRef = null; // The native socket.io client object
 
   // Append events settings in here
@@ -59,9 +61,24 @@ Socket.prototype.connect = function(){
 
 Socket.prototype.disconnect = function(){
   var self = this;
+  if (!self._channelOpen){
+    return;
+  }
   if (self._objectRef){
+    self._objectRef.removeAllListeners('connect');
+    self._objectRef.removeAllListeners('disconnect');
+    self._objectRef.removeAllListeners('reconnect');
+    self._objectRef.removeAllListeners('reconnect_attempt');
+    self._objectRef.removeAllListeners('reconnecting');
+    self._objectRef.removeAllListeners('reconnect_error');
+    self._objectRef.removeAllListeners('reconnect_failed');
+    self._objectRef.removeAllListeners('connect_error');
+    self._objectRef.removeAllListeners('connect_timeout');
+    self._objectRef.removeAllListeners('message');
+    self._channelOpen = false;
     self._objectRef.disconnect();
   }
+  self._trigger('channelClose');
 };
 
 Socket.prototype.bindHandlers = function(){
