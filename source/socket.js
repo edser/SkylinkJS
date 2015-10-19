@@ -53,11 +53,64 @@ var Socket = function (options) {
   Event._mixin(self);
 };
 
+Socket.prototype._assignPort = function(options){
+
+  var ports = self._socketPorts[self._signalingServerProtocol];
+
+  var currentPortIndex = ports.indexOf(self._currentSignalingServerPort);
+
+  // First time connecting. Trying first port
+  if (currentPortIndex === -1){
+    self._currentSignalingServerPort = ports[0];
+  }
+  // Trying next port
+  else if (currentPortIndex > -1 && currentPortIndex < ports.length-1){
+    self._currentSignalingServerPort = ports[currentPortIndex+1];
+  }
+  // Reached the last port
+  else{
+
+    // Fallback to long polling and restart port index
+    if (self._type === 'WebSocket'){
+      self._type = 'Polling';
+      self._currentSignalingServerPort = ports[0];
+    }
+    // Long polling already. Keep retrying
+    else if (self._type === 'Polling'){
+      options.reconnection = true;
+      options.reconnectionAttempts = 4;
+      options.reconectionDelayMax = 1000;
+    }
+
+  }
+
+};
+
 Socket.prototype.connect = function(){
   var self = this;
+
+  var options = {
+    // TODO: Currently WebSocket reconnection = false, while Polling reconnection = true. 
+    // Why so intolerant to WebSocket ?
+    // What if WebSocket reconnection = true ?
+    // If it affects Polling fallback we can set a max number of retries for WebSocket.
+  };
+
   self.disconnect();
-  self._objectRef = io.connect(self._signalingServer, options);
-  self.bindHandlers();
+
+  self._assignPort(options);
+
+  var url = self._signalingServerProtocol + '//' + self._signalingServer + ':' + self._currentSignalingServerPort;
+
+  if (self._type === 'WebSocket') {
+    options.transports = ['websocket'];
+  } else if (self._type === 'Polling') {
+    options.transports = ['xhr-polling', 'jsonp-polling', 'polling'];
+  }
+
+  self._objectRef = io.connect(url, options);
+
+  self._bindHandlers();
 };
 
 Socket.prototype.disconnect = function(){
@@ -82,7 +135,7 @@ Socket.prototype.disconnect = function(){
   self._trigger('channelClose');
 };
 
-Socket.prototype.bindHandlers = function(){
+Socket.prototype._bindHandlers = function(){
 
   self._objectRef.on('connect', function(){
     self._channelOpen = true;
