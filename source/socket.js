@@ -84,45 +84,62 @@ Socket.prototype.disconnect = function(){
 Socket.prototype.bindHandlers = function(){
 
   self._objectRef.on('connect', function(){
+    self._channelOpen = true;
     self._readyState = 'connected';
     self._trigger('connected');
   });
 
   self._objectRef.on('error', function(){
-
+    self._channelOpen = false;
+    self._readyState = 'error';
+    self._trigger('error');
   });
 
   self._objectRef.on('disconnect', function(){
+    self._channelOpen = false;
     self._readyState = 'disconnected';
     self._trigger('disconnected');
   });
 
   self._objectRef.on('reconnect', function(attempt){
-
+    self._channelOpen = true;
+    self._readyState = 'reconnect';
+    self._trigger('reconnect',attempt);
   });  
 
   self._objectRef.on('reconnect_attempt', function(){
-
+    self._channelOpen = false;
+    self._readyState = 'reconnect_attempt';
+    self._trigger('reconnect_attempt');
   });  
 
   self._objectRef.on('reconnecting', function(attempt){
-
+    self._readyState = 'reconnecting';
+    self._trigger('reconnecting', attempt);
   });
 
   self._objectRef.on('reconnect_error', function(error){
-
+    self._channelOpen = false;
+    self._readyState = 'reconnect_error';
+    self._trigger('reconnect_error', error);
   });  
 
   self._objectRef.on('reconnect_failed', function(){
-
+    self._channelOpen = false;
+    self._readyState = 'reconnect_failed';
+    self._trigger('reconnect_failed');
   });
 
   self._objectRef.on('connect_error', function(error){
-
+    self._channelOpen = false;
+    self._readyState = 'connect_error';
+    self._trigger('connect_error', error);
   });
 
   self._objectRef.on('connect_timeout', function(error){
-
+    self._channelOpen = false;
+    self._readyState = 'connect_timeout';
+    self._trigger('connect_timeout', error);
   });
 
   self._objectRef.on('message', function(){
