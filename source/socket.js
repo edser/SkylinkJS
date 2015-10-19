@@ -55,6 +55,7 @@ var Socket = function (options) {
 
 Socket.prototype.connect = function(){
   var self = this;
+  self.disconnect();
   self._objectRef = io.connect(self._signalingServer, options);
   self.bindHandlers();
 };
