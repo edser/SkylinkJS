@@ -67,7 +67,7 @@ Socket.prototype._assignPort = function(options){
   else if (currentPortIndex > -1 && currentPortIndex < ports.length-1){
     self._currentSignalingServerPort = ports[currentPortIndex+1];
   }
-  // Reached the last port
+  // Reached the last port. Try polling next time
   else{
 
     // Fallback to long polling and restart port index
@@ -77,7 +77,6 @@ Socket.prototype._assignPort = function(options){
     }
     // Long polling already. Keep retrying
     else if (self._type === 'Polling'){
-      options.reconnection = true;
       options.reconnectionAttempts = 4;
       options.reconectionDelayMax = 1000;
     }
@@ -90,10 +89,8 @@ Socket.prototype.connect = function(){
   var self = this;
 
   var options = {
-    // TODO: Currently WebSocket reconnection = false, while Polling reconnection = true. 
-    // Why so intolerant to WebSocket ?
-    // What if WebSocket reconnection = true ?
-    // If it affects Polling fallback we can set a max number of retries for WebSocket.
+    reconnection: true,
+    reconnectionAttempts: 1
   };
 
   self.disconnect();
@@ -137,59 +134,70 @@ Socket.prototype.disconnect = function(){
 
 Socket.prototype._bindHandlers = function(){
 
+  // Fired upon connecting
   self._objectRef.on('connect', function(){
     self._channelOpen = true;
     self._readyState = 'connected';
     self._trigger('connected');
   });
 
+  // Fired upon a connection error
   self._objectRef.on('error', function(){
     self._channelOpen = false;
     self._readyState = 'error';
     self._trigger('error');
   });
 
+  // Fired upon a disconnection
   self._objectRef.on('disconnect', function(){
     self._channelOpen = false;
     self._readyState = 'disconnected';
     self._trigger('disconnected');
   });
 
+  // Fired upon a successful reconnection
   self._objectRef.on('reconnect', function(attempt){
     self._channelOpen = true;
     self._readyState = 'reconnect';
     self._trigger('reconnect',attempt);
   });  
 
+  // Fired upon an attempt to reconnect
   self._objectRef.on('reconnect_attempt', function(){
     self._channelOpen = false;
     self._readyState = 'reconnect_attempt';
     self._trigger('reconnect_attempt');
   });  
 
+  // Fired upon an attempt to reconnect
+  // attempt: reconnection attempt count
   self._objectRef.on('reconnecting', function(attempt){
     self._readyState = 'reconnecting';
     self._trigger('reconnecting', attempt);
   });
 
+  // Fired upon a reconnection attempt error
   self._objectRef.on('reconnect_error', function(error){
     self._channelOpen = false;
     self._readyState = 'reconnect_error';
     self._trigger('reconnect_error', error);
   });  
 
+  // Fired when couldn't reconnect within reconnectionAttempts
   self._objectRef.on('reconnect_failed', function(){
     self._channelOpen = false;
     self._readyState = 'reconnect_failed';
     self._trigger('reconnect_failed');
   });
 
+  // Fired upon a connection error
   self._objectRef.on('connect_error', function(error){
     self._channelOpen = false;
     self._readyState = 'connect_error';
     self._trigger('connect_error', error);
   });
 
+  // Fired upon a connection timeout
   self._objectRef.on('connect_timeout', function(error){
     self._channelOpen = false;
     self._readyState = 'connect_timeout';
