@@ -4,6 +4,10 @@ var Socket = function (options) {
 
   var self = this;
 
+  if (!options){
+    options = {};
+  }
+
   self._signalingServer = options.server || 'signaling.temasys.com.sg';
 
   self._socketPorts = {
@@ -21,7 +25,7 @@ var Socket = function (options) {
 
   self._isXDR = false;
 
-  self._signalingServerProtocol = window.location.protocol;
+  self._signalingServerProtocol = window.location.protocol.substring(0,window.location.protocol.length-1);
 
   self._socketMessageTimeout = null;
 
@@ -54,6 +58,11 @@ var Socket = function (options) {
 };
 
 Socket.prototype._assignPort = function(options){
+
+  var self = this;
+
+  console.log(self._signalingServerProtocol);
+  console.log(self._socketPorts);
 
   var ports = self._socketPorts[self._signalingServerProtocol];
 
@@ -97,13 +106,15 @@ Socket.prototype.connect = function(){
 
   self._assignPort(options);
 
-  var url = self._signalingServerProtocol + '//' + self._signalingServer + ':' + self._currentSignalingServerPort;
+  var url = self._signalingServerProtocol + '://' + self._signalingServer + ':' + self._currentSignalingServerPort;
 
   if (self._type === 'WebSocket') {
     options.transports = ['websocket'];
   } else if (self._type === 'Polling') {
     options.transports = ['xhr-polling', 'jsonp-polling', 'polling'];
   }
+
+  console.log(url);
 
   self._objectRef = io.connect(url, options);
 
@@ -112,6 +123,7 @@ Socket.prototype.connect = function(){
 
 Socket.prototype.disconnect = function(){
   var self = this;
+
   if (!self._channelOpen){
     return;
   }
@@ -134,11 +146,14 @@ Socket.prototype.disconnect = function(){
 
 Socket.prototype._bindHandlers = function(){
 
+  var self = this;
+
   // Fired upon connecting
   self._objectRef.on('connect', function(){
     self._channelOpen = true;
     self._readyState = 'connected';
     self._trigger('connected');
+    console.log('connected');
   });
 
   // Fired upon a connection error

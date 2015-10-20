@@ -73,12 +73,12 @@ var SkylinkEvent = {
 	_mixin: function(object){
 		var methods = ['on','off','once','_trigger','_removeListener'];
 		for (var i=0; i<methods.length; i++){
-			if (Event.hasOwnProperty(methods[i]) ){
+			if (SkylinkEvent.hasOwnProperty(methods[i]) ){
 				if (typeof object === 'function'){
-					object.prototype[methods[i]]=Event[methods[i]];	
+					object.prototype[methods[i]]=SkylinkEvent[methods[i]];	
 				}
 				else{
-					object[methods[i]]=Event[methods[i]];
+					object[methods[i]]=SkylinkEvent[methods[i]];
 				}
 			}
 		}

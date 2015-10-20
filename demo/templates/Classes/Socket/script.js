@@ -14,8 +14,8 @@ function clear() {
 function failConnect() {
   socket = new Socket({
     server: document.getElementById('server').value,
-    httpPorts: document.getElementById('https').value.split(','),
-    httpsPorts: document.getElementById('http').value.split(',')
+    httpPorts: document.getElementById('http').value.split(','),
+    httpsPorts: document.getElementById('https').value.split(',')
   });
 
   socket.connect();
