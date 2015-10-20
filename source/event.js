@@ -51,10 +51,10 @@ var SkylinkEvent = {
 		}
 
 		if (this.listeners.once[event]){
-			for (var i=0; i<this.listeners.once[event].length; i++){
-		    	this.listeners.once[event][i].apply(this, args);
-		    	this.listeners.once[event].splice(i,1);
-		    	i--;
+			for (var j=0; j<this.listeners.once[event].length; j++){
+		    	this.listeners.once[event][j].apply(this, args);
+		    	this.listeners.once[event].splice(j,1);
+		    	j--;
 		    }
 		}
 
@@ -86,7 +86,7 @@ var SkylinkEvent = {
 		object.listeners = {
 			on: {},
 			once: {}
-		}
+		};
 
 		return object;
 	}

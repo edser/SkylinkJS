@@ -29,4 +29,4 @@ var DataChannel = function(channel){
 DataChannel.prototype.disconnect = function(){
 	var self = this;
 	objectRef.close();
-}
+};
