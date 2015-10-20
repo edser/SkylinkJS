@@ -1,4 +1,4 @@
-var Event = {
+var SkylinkEvent = {
 
 	on: function(event, callback){
 		this.listeners.on[event] = this.listeners.on[event] || [];

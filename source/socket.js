@@ -50,7 +50,7 @@ var Socket = function (options) {
   self._objectRef = null; // The native socket.io client object
 
   // Append events settings in here
-  Event._mixin(self);
+  SkylinkEvent._mixin(self);
 };
 
 Socket.prototype._assignPort = function(options){
