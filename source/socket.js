@@ -53,6 +53,8 @@ var Socket = function (options) {
 
   self._objectRef = null; // The native socket.io client object
 
+  self._firstConnect = false;
+
   // Append events settings in here
   SkylinkEvent._mixin(self);
 };
@@ -60,9 +62,6 @@ var Socket = function (options) {
 Socket.prototype._assignPort = function(options){
 
   var self = this;
-
-  console.log(self._signalingServerProtocol);
-  console.log(self._socketPorts);
 
   var ports = self._socketPorts[self._signalingServerProtocol];
 
@@ -99,7 +98,7 @@ Socket.prototype.connect = function(){
 
   var options = {
     reconnection: true,
-    reconnectionAttempts: 1
+    reconnectionAttempts: 2
   };
 
   self.disconnect();
@@ -114,11 +113,14 @@ Socket.prototype.connect = function(){
     options.transports = ['xhr-polling', 'jsonp-polling', 'polling'];
   }
 
-  console.log(url);
+  console.log(url,options);
 
   self._objectRef = io.connect(url, options);
 
-  self._bindHandlers();
+  if (!self._firstConnect){
+    self._bindHandlers();
+  }
+
 };
 
 Socket.prototype.disconnect = function(){
@@ -127,6 +129,7 @@ Socket.prototype.disconnect = function(){
   if (!self._channelOpen){
     return;
   }
+
   if (self._objectRef){
     self._objectRef.removeAllListeners('connect');
     self._objectRef.removeAllListeners('disconnect');
@@ -141,26 +144,29 @@ Socket.prototype.disconnect = function(){
     self._channelOpen = false;
     self._objectRef.disconnect();
   }
+
   self._trigger('channelClose');
+
 };
 
 Socket.prototype._bindHandlers = function(){
 
   var self = this;
 
+  self._firstConnect = false; // No need to bind handlers next time
+
   // Fired upon connecting
   self._objectRef.on('connect', function(){
     self._channelOpen = true;
     self._readyState = 'connected';
     self._trigger('connected');
-    console.log('connected');
   });
 
   // Fired upon a connection error
-  self._objectRef.on('error', function(){
+  self._objectRef.on('error', function(error){
     self._channelOpen = false;
     self._readyState = 'error';
-    self._trigger('error');
+    self._trigger('error',error);
   });
 
   // Fired upon a disconnection
@@ -203,6 +209,7 @@ Socket.prototype._bindHandlers = function(){
     self._channelOpen = false;
     self._readyState = 'reconnect_failed';
     self._trigger('reconnect_failed');
+    self.connect();
   });
 
   // Fired upon a connection error

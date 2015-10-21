@@ -20,6 +20,7 @@ function clear() {
 
 function failConnect() {
   socket = new Socket({
+    type: 'Polling',
     server: server.value,
     httpPorts: http.value.split(','),
     httpsPorts: https.value.split(',')
