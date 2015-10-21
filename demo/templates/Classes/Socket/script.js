@@ -1,6 +1,13 @@
-var socket;
-var output = document.getElementById('output');
-var status = document.getElementById('status');
+$(document).ready(function(){
+  output = document.getElementById('output');
+  status = document.getElementById('status');
+  type = document.getElementById('type');
+  server = document.getElementById('server');
+  http = document.getElementById('http');
+  https = document.getElementById('https');
+});
+
+var socket, output, status, type, server, http, https;
 
 function update(event, data) {
   output.innerHTML += '<p><b>' + event +
@@ -13,18 +20,57 @@ function clear() {
 
 function failConnect() {
   socket = new Socket({
-    server: document.getElementById('server').value,
-    httpPorts: document.getElementById('http').value.split(','),
-    httpsPorts: document.getElementById('https').value.split(',')
+    server: server.value,
+    httpPorts: http.value.split(','),
+    httpsPorts: https.value.split(',')
   });
 
   socket.connect();
 
-  update('Connecting', '...');
+  socket.on('connected', function(){
+    console.log('connected');
+  });
+
+  socket.on('error', function(error){
+    console.log('error',error);
+  });
+
+  socket.on('disconnected', function(){
+    console.log('disconnected');
+  });
+
+  socket.on('reconnect', function(attemtp){
+    console.log('reconnect');
+  });
+
+  socket.on('reconnect_attempt', function(){
+    console.log('reconnect_attempt');
+  });  
+
+  socket.on('reconnecting', function(attemtp){
+    console.log('reconnecting', attemtp);
+  });  
+
+  socket.on('reconnect_error', function(error){
+    console.log('reconnect_error', error);
+  });  
+
+  socket.on('reconnect_failed', function(){
+    console.log('reconnect_failed');
+  }); 
+
+  socket.on('connect_error', function(error){
+    console.log('connect_error',error);
+  });    
+
+  socket.on('connect_timeout', function(error){
+    console.log('connect_timeout',error);
+  }); 
+
 }
 
 function successConnect() {
-  var socketType = document.getElementById('type').value;
+  var socketType = type.value;
 
   socket = new Socket({
     server: 'sg-signaling.temasys.com.sg',
