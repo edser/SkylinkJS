@@ -18,12 +18,16 @@
         </pre>
 
       <div class="input-group">
+        <span class="input-group-addon">Type</span>
+        <input id="type" type="text" class="form-control" value="WebSocket">
+      </div>
+      <div class="input-group">
         <span class="input-group-addon">Server</span>
-        <input id="server" type="text" class="form-control">
+        <input id="server" type="text" class="form-control" value="localhost">
       </div>
       <div class="input-group">
         <span class="input-group-addon">Http ports</span>
-        <input id="http" type="text" class="form-control">
+        <input id="http" type="text" class="form-control" value="6002,6003">
       </div>
       <div class="input-group">
         <span class="input-group-addon">Https ports</span>
@@ -32,28 +36,6 @@
 
       <button onclick="failConnect()">Start</button>
 
-
-
-      <h4>Example 2:</h4>
-      <p>Success case of connection after a failed attempt</p>
-      <pre>
-          var socket = new Socket({
-            server: 'signaling.channel.com',
-            httpPortList: [1, 2, 3],
-            httpsPortList: [1, 2]
-          }, function (event, data){ });
-          
-          socket.connect();
-        </pre>
-
-      <div class="input-group">
-        <span class="input-group-addon">Connection type</span>
-        <select id="type" class="form-control">
-          <option value="WebSocket" selected>WebSocket</option>
-          <option value="XHRPolling">XHRPolling</option>
-        </select>
-      </div>
-      <button onclick="successConnect()">Start</button>
 
     </div>
   </div>

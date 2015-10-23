@@ -55,11 +55,17 @@ var Socket = function (options) {
 
   self._firstConnect = false;
 
+  self._socketOptions = {
+    reconnection: true,
+    reconnectionAttempts: 2,
+    forceNew: true
+  };
+
   // Append events settings in here
   SkylinkEvent._mixin(self);
 };
 
-Socket.prototype._assignPort = function(options){
+Socket.prototype._assignPort = function(){
 
   var self = this;
 
@@ -69,24 +75,28 @@ Socket.prototype._assignPort = function(options){
 
   // First time connecting. Trying first port
   if (currentPortIndex === -1){
+    console.log('first try',currentPortIndex);
     self._currentSignalingServerPort = ports[0];
   }
   // Trying next port
   else if (currentPortIndex > -1 && currentPortIndex < ports.length-1){
+    console.log('second try',currentPortIndex);
     self._currentSignalingServerPort = ports[currentPortIndex+1];
   }
   // Reached the last port. Try polling next time
   else{
-
+    console.log('last try',currentPortIndex);
     // Fallback to long polling and restart port index
     if (self._type === 'WebSocket'){
+      console.log('falling back',currentPortIndex);
       self._type = 'Polling';
       self._currentSignalingServerPort = ports[0];
     }
     // Long polling already. Keep retrying
     else if (self._type === 'Polling'){
-      options.reconnectionAttempts = 4;
-      options.reconectionDelayMax = 1000;
+      console.log('desperate',currentPortIndex);
+      self._socketOptions.reconnectionAttempts = 4;
+      self._socketOptions.reconectionDelayMax = 1000;
     }
 
   }
@@ -96,26 +106,24 @@ Socket.prototype._assignPort = function(options){
 Socket.prototype.connect = function(){
   var self = this;
 
-  var options = {
-    reconnection: true,
-    reconnectionAttempts: 2
-  };
-
   self.disconnect();
 
-  self._assignPort(options);
+  self._assignPort();
 
   var url = self._signalingServerProtocol + '://' + self._signalingServer + ':' + self._currentSignalingServerPort;
 
   if (self._type === 'WebSocket') {
-    options.transports = ['websocket'];
+    console.log('setting WebSocket');
+    self._socketOptions.transports = ['websocket'];
   } else if (self._type === 'Polling') {
-    options.transports = ['xhr-polling', 'jsonp-polling', 'polling'];
+    console.log('setting Polling');
+    self._socketOptions.transports = ['xhr-polling', 'jsonp-polling', 'polling'];
+    // self._socketOptions.transports = ['polling'];
   }
 
-  console.log(url,options);
+  console.log(url,self._socketOptions);
 
-  self._objectRef = io.connect(url, options);
+  self._objectRef = io.connect(url, self._socketOptions);
 
   if (!self._firstConnect){
     self._bindHandlers();
