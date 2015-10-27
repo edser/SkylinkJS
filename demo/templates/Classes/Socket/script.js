@@ -1,41 +1,88 @@
-var socket;
-var output = document.getElementById('output');
-var status = document.getElementById('status');
+$(document).ready(function(){
+  output = document.getElementById('output');
+  status = document.getElementById('status');
+  type = document.getElementById('type');
+  server = document.getElementById('server');
+  http = document.getElementById('http');
+  https = document.getElementById('https');
+});
 
-function handler(event, data) {
+var socket, output, status, type, server, http, https;
+
+function update(event, data) {
   output.innerHTML += '<p><b>' + event +
     '</b> ' + JSON.stringify(data) + '</p>';
 }
 
-function clearL() {
+function clear() {
   output.innerHTML = '';
 }
 
 function failConnect() {
   socket = new Socket({
-    server: document.getElementById('server').value,
-    httpsPortList: document.getElementById('https').value.split(','),
-    httpPortList: document.getElementById('http').value.split(',')
-  }, handler);
+    type: type.value,
+    server: server.value,
+    httpPorts: http.value.split(','),
+    httpsPorts: https.value.split(',')
+  });
 
   socket.connect();
 
-  handler('Connecting', '...');
+  socket.on('connected', function(){
+    console.log('connected');
+  });
+
+  socket.on('error', function(error){
+    console.log('error',error);
+  });
+
+  socket.on('disconnected', function(){
+    console.log('disconnected');
+  });
+
+  socket.on('reconnect', function(attemtp){
+    console.log('reconnect');
+  });
+
+  socket.on('reconnect_attempt', function(){
+    console.log('reconnect_attempt');
+  });  
+
+  socket.on('reconnecting', function(attemtp){
+    console.log('reconnecting', attemtp);
+  });  
+
+  socket.on('reconnect_error', function(error){
+    console.log('reconnect_error', error);
+  });  
+
+  socket.on('reconnect_failed', function(){
+    console.log('reconnect_failed');
+  }); 
+
+  socket.on('connect_error', function(error){
+    console.log('connect_error',error);
+  });    
+
+  socket.on('connect_timeout', function(error){
+    console.log('connect_timeout',error);
+  }); 
+
 }
 
 function successConnect() {
-  var socketType = document.getElementById('type').value;
+  var socketType = type.value;
 
   socket = new Socket({
     server: 'sg-signaling.temasys.com.sg',
     httpPortList: [500, 6001],
     httpsPortList: [443],
     type: socketType
-  }, handler);
+  });
 
   socket.connect();
 
-  handler('Connecting', socketType);
+  update('Connecting', socketType);
 }
 
 function disconnect() {

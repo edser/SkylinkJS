@@ -90,7 +90,7 @@ module.exports = function(grunt) {
         };
         testUnits.push(item);
       }
-    }
+    };
 
     var generateTestConfigs = function(browsers){
       // generate configs for each test scripts and each browsers
@@ -125,7 +125,7 @@ module.exports = function(grunt) {
           };
         }
       }
-    }
+    };
 
     generateTestUnits(components);
     generateTestConfigs(testBrowsers);

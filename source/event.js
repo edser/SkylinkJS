@@ -1,4 +1,4 @@
-var Event = {
+var SkylinkEvent = {
 
 	on: function(event, callback){
 		this.listeners.on[event] = this.listeners.on[event] || [];
@@ -51,10 +51,10 @@ var Event = {
 		}
 
 		if (this.listeners.once[event]){
-			for (var i=0; i<this.listeners.once[event].length; i++){
-		    	this.listeners.once[event][i].apply(this, args);
-		    	this.listeners.once[event].splice(i,1);
-		    	i--;
+			for (var j=0; j<this.listeners.once[event].length; j++){
+		    	this.listeners.once[event][j].apply(this, args);
+		    	this.listeners.once[event].splice(j,1);
+		    	j--;
 		    }
 		}
 
@@ -73,12 +73,12 @@ var Event = {
 	_mixin: function(object){
 		var methods = ['on','off','once','_trigger','_removeListener'];
 		for (var i=0; i<methods.length; i++){
-			if (Event.hasOwnProperty(methods[i]) ){
+			if (SkylinkEvent.hasOwnProperty(methods[i]) ){
 				if (typeof object === 'function'){
-					object.prototype[methods[i]]=Event[methods[i]];	
+					object.prototype[methods[i]]=SkylinkEvent[methods[i]];	
 				}
 				else{
-					object[methods[i]]=Event[methods[i]];
+					object[methods[i]]=SkylinkEvent[methods[i]];
 				}
 			}
 		}
@@ -86,7 +86,7 @@ var Event = {
 		object.listeners = {
 			on: {},
 			once: {}
-		}
+		};
 
 		return object;
 	}
