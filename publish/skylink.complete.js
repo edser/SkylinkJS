@@ -1,4 +1,4 @@
-/*! skylinkjs - v0.6.10 - Sat Mar 19 2016 00:36:18 GMT+0800 (SGT) */
+/*! skylinkjs - v0.6.10 - Sat Mar 19 2016 10:33:32 GMT+0800 (SGT) */
 
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.io = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
 
@@ -9189,7 +9189,7 @@ if ( navigator.mozGetUserMedia
     console.warn('Opera does not support screensharing feature in getUserMedia');
   }
 })();
-/*! skylinkjs - v0.6.10 - Sat Mar 19 2016 00:36:18 GMT+0800 (SGT) */
+/*! skylinkjs - v0.6.10 - Sat Mar 19 2016 10:33:32 GMT+0800 (SGT) */
 
 (function() {
 
@@ -16085,22 +16085,71 @@ Skylink.prototype._createPeer = function (peerId, peerData) {
 
     // Handle Firefox 46 and above using .ontrack and deprecating .onaddstream
     if (window.webrtcDetectedBrowser === 'firefox' && window.webrtcDetectedVersion > 45) {
-      var stream = new MediaStream();
-      var hasTriggeredStreamEvent = false;
+      var currentStreamIds = {};
 
       ref._RTCPeerConnection.ontrack = function (evt) {
         var track = evt.track || evt;
 
         log.log([ref.id, 'Peer', 'MediaStreamTrack', 'Received remote track ->'], track);
 
-        stream.addTrack(track);
+        // Stores the currently existing stream IDs
+        var existingStreamIds = [];
+        var currentStreams = ref._RTCPeerConnection.getRemoteStreams();
 
-        if (!hasTriggeredStreamEvent) {
+        // Check and get the remote MediaStreamTracks received
+        currentStreams.forEach(function (stream) {
+          var readyToRender = true;
+
+          if (existingStreamIds.indexOf(stream.id) === -1) {
+            existingStreamIds.push(stream.id);
+          }
+
+          if (!currentStreamIds[stream.id]) {
+            currentStreamIds[stream.id] = {
+              ready: false,
+              triggered: false
+            };
+          }
+
+          // Loop out every remote MediaStreamTrack for this remote MediaStream to
+          // check what required MediaStreamTracks we have to wait before rendering it
+          stream.getTracks().forEach(function (streamTrack) {
+            if (streamTrack.kind === 'video') {
+              readyToRender = false;
+
+              if (track.id === streamTrack.id) {
+                readyToRender = true;
+              }
+            }
+          });
+
+          currentStreamIds[stream.id].ready = readyToRender;
+        });
+
+        // Filter and clear out all the removed remote MediaStreams
+        Object.keys(currentStreamIds).forEach(function (streamId) {
+          if (existingStreamIds.indexOf(streamId) === -1) {
+            delete currentStreamIds[streamId];
+          }
+        });
+
+        // Check and render the remote MediaStreams when ready
+        currentStreams.forEach(function (stream) {
+          if (!currentStreamIds[stream.id].triggered && currentStreamIds[stream.id].ready) {
+            log.log([ref.id, 'Peer', 'MediaStream', 'Received remote stream ->'], stream);
+
+            currentStreamIds[stream.id].triggered = true;
+
+            superRef._trigger('incomingStream', ref.id, stream, false, ref.getInfo());
+          }
+        });
+
+        /*if (!hasTriggeredStreamEvent) {
           log.log([ref.id, 'Peer', 'MediaStream', 'Constructing remote stream ->'], stream);
 
           superRef._trigger('incomingStream', ref.id, stream, false, ref.getInfo());
           hasTriggeredStreamEvent = true;
-        }
+        }*/
       };
 
     } else {
