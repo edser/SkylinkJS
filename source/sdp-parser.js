@@ -286,7 +286,8 @@ Skylink.prototype._SDPParser = {
       var rtpmapLine = sdpLines[i];
 
       if (rtpmapLine.indexOf('a=rtpmap:') === 0) {
-        if (rtpmapLine.indexOf(codec) > 0) {
+        if (rtpmapLine.indexOf(codec) > 0 || (window.webrtcDetectedBrowser === 'edge' &&
+          codec === 'opus' && rtpmapLine.indexOf('OPUS') > 0)) {
           codecFound = true;
           codecPayload = rtpmapLine.split(':')[1].split(' ')[0];
         }
@@ -417,5 +418,105 @@ Skylink.prototype._SDPParser = {
 
     return currentSdpCreds.username !== newSdpCreds.username ||
       currentSdpCreds.password !== newSdpCreds.password;
+  },
+
+  /**
+   * Creates the "spoofed" Edge's "endOfCandidate" RTCIceCandidate
+   *   required for interopability by parsing the audio mid ID
+   *   from the local RTCSessionDescription.
+   * @method configureEdgeEndOfCandidates
+   * @param {RTCSessionDescription} currentSdp The current local RTCSessionDescription.
+   * @return {RTCIceCandidate} endOfCandidate The local "endOfCandidates" candidate
+   *   to be returned to Edge for interopability.
+   * @private
+   * @for Skylink
+   * @since 0.6.x
+   */
+  configureEdgeEndOfCandidates: function (currentSdp) {
+    var candidate = new RTCIceCandidate({
+      sdpMLineIndex: 0,
+      sdpMid: '',
+      candidate: 'candidate:1 1 udp 1 0.0.0.0 9 typ endOfCandidates'
+    });
+
+    if (!!currentSdp && !!currentSdp.sdp) {
+      var sdpLines = currentSdp.sdp.split('\r\n');
+
+      // Parse and find that one a:mid line since we are only sending and receiving audio only.
+      for (var i = 0; i < sdpLines.length; i++) {
+        if (sdpLines[i].indexOf('a=mid:') === 0) {
+          candidate.sdpMid = sdpLines[i].split(':')[1] || '';
+          break;
+        }
+      }
+    }
+
+    return candidate;
+  },
+
+  /**
+   * Removes the SILK codec from Edge to other browsers connection
+   *   as other browsers do not support the SILK codec.
+   * @method removeEdgeSILKCodec
+   * @param {String} sdpString The local offer RTCSessionDescription.sdp.
+   * @return {String} updatedSdpString The modified local offer RTCSessionDescription.sdp
+   *   with removed SILK codec references.
+   * @private
+   * @for Skylink
+   * @since 0.6.x
+   */
+  removeEdgeSILKCodec: function (sdpString) {
+    var sdpLines = sdpString.split('\r\n'),
+        codecPayload = null;
+
+    // Find the SILK codec reference first
+    for (var i = 0; i < sdpLines.length; i++) {
+      if (sdpLines[i].indexOf('a=rtpmap:') === 0 && sdpLines[i].indexOf('SILK') > 0) {
+        codecPayload = (sdpLines[i].split(':')[1] || '').split(' ')[0];
+        break;
+      }
+    }
+
+    if (codecPayload) {
+      for (var j = 0; j < sdpLines.length; j++) {
+        if (sdpLines[j].indexOf('m=audio') === 0) {
+          var parts = sdpLines[j].split(' ');
+
+          for (var p = 0; p < parts.length; p++) {
+            if (parts[p] === codecPayload) {
+              parts.splice(p, 1);
+              break;
+            }
+          }
+
+          sdpLines[j] = parts.join(' ');
+          break;
+        }
+      }
+    }
+
+    // Return modified RTCSessionDescription.sdp
+    return sdpLines.join('\r\n');
+  },
+
+  /**
+   * Handles the connection issues with Edge browsers with other browsers (non-Edge).
+   * @method configureEdgeToOtherBrowsers
+   * @param {String} sdpString The local offer RTCSessionDescription.sdp.
+   * @return {String} updatedSdpString The modified local offer RTCSessionDescription.sdp
+   *   with connection interopability from Edge with other browsers (non-Edge).
+   * @private
+   * @for Skylink
+   * @since 0.6.x
+   */
+  configureEdgeToOtherBrowsers: function (sdpString) {
+    var newSdpString = '';
+
+    // Remove all rtcp-fb lines with this reference -> x-message app send:dsh recv:dsh
+    //   This somehow causes connectivity issues with other browsers (non-Edge)
+    newSdpString = sdpString.replace(/a=rtcp-fb:.*\r\n/g, '');
+
+    // Return modified RTCSessionDescription.sdp
+    return newSdpString;
   }
 };
