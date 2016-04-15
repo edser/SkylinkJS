@@ -88,6 +88,10 @@ Skylink.prototype._createPeer = function (peerId, peerData) {
     // Update the new streaming information
     this.update(peerData);
 
+    if (window.webrtcDetectedBrowser === 'blink' || this.agent.name === 'blink') {
+      this._connectionSettings.enableIceTrickle = false;
+    }
+
     // Construct the RTCPeerConnection object reference
     this._construct();
 
@@ -280,7 +284,7 @@ Skylink.prototype._createPeer = function (peerId, peerData) {
     };
 
     // Fallback to the older mandatory format as Safari / IE does not support the new format yet
-    if (['IE', 'safari'].indexOf(window.webrtcDetectedBrowser) === -1) {
+    if (['IE', 'safari', 'blink'].indexOf(window.webrtcDetectedBrowser) === -1) {
       options = {
         offerToReceiveAudio: true,
         offerToReceiveVideo: true,
@@ -401,6 +405,10 @@ Skylink.prototype._createPeer = function (peerId, peerData) {
    */
   SkylinkPeer.prototype.handshakeRestart = function () {
     var ref = this;
+
+    if (ref.agent.name === 'blink' || window.webrtcDetectedBrowser === 'blink') {
+      return;
+    }
 
     // Check if RTCPeerConnection.signalingState is at "have-local-offer",
     //   which we resend the local offer RTCSessionDescription
@@ -1227,8 +1235,7 @@ Skylink.prototype._createPeer = function (peerId, peerData) {
      * Parse SDP: Configure the connection issues with Chrome 50 to Safari/IE browsers
      *   when Chrome is offerer
      */
-    if (['chrome', 'opera'].indexOf(window.webrtcDetectedBrowser) > -1 &&
-      ['IE', 'safari'].indexOf(ref.agent.name) > -1 && sessionDescription.type === 'offer') {
+    if (['chrome', 'opera'].indexOf(window.webrtcDetectedBrowser) > -1) {
 
       log.debug([ref.id, 'Peer', 'RTCSessionDescription', 'Configurating local offer for connection from ' +
         'Chrome/Opera browsers to Safari/IE browsers']);
@@ -1335,6 +1342,10 @@ Skylink.prototype._createPeer = function (peerId, peerData) {
 
       sessionDescription.sdp = superRef._SDPParser.configureCodec(sessionDescription.sdp, 'audio',
         superRef.AUDIO_CODEC.OPUS);
+    }
+
+    if (window.webrtcDetectedBrowser !== 'blink' && ref.agent.name === 'blink') {
+      sessionDescription.sdp = superRef._SDPParser.configureBlinkFromOtherBrowsers(sessionDescription.sdp);
     }
 
     log.debug([ref.id, 'Peer', 'RTCSessionDescription', 'Setting local ' +
@@ -1456,7 +1467,7 @@ Skylink.prototype._createPeer = function (peerId, peerData) {
     }
 
     log.debug([ref.id, 'Peer', 'RTCSessionDescription', 'Setting remote ' +
-      sessionDescription.type + ' ->'], sessionDescription);
+      sessionDescription.type + ' ->'], sessionDescription.sdp);
 
     // Prevent setting the remote RTCSessionDescription if the
     //   RTCPeerConnection object is currently processing another remote RTCSessionDescription

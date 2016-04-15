@@ -326,8 +326,13 @@ Demo.Skylink.on('peerLeft', function (peerId, peerInfo, isSelf){
     selectedPeers.splice(index, 1);
   }
 });
+
+Demo.Skylink.on('sessionDisconnect', function (peerId, peerInfo){
+  console.info('sessionDisconnect', peerId, peerInfo);
+  Demo.Skylink.joinRoom();
+});
 //---------------------------------------------------
-Demo.Skylink.on('handshakeProgress', function (state, peerId) {
+Demo.Skylink.on('handshakeProgress', function (state, peerId, error) {
   var stage = 0;
   switch( state ){
     case Demo.Skylink.HANDSHAKE_PROGRESS.WELCOME:
@@ -343,6 +348,8 @@ Demo.Skylink.on('handshakeProgress', function (state, peerId) {
   for (var i=0; i<=stage; i++) {
     $('#user' + peerId + ' .' + i ).css('color', 'green');
   }
+  Demo.Methods.displayChatMessage('Connection:handshake', 'Peer ' + peerId + ' | State: ' + state + ' | Error: ' +
+    (error ? (error.message || error.toString()) : 'null'));
 });
 //---------------------------------------------------
 Demo.Skylink.on('candidateGenerationState', function (state, peerId) {
@@ -352,6 +359,7 @@ Demo.Skylink.on('candidateGenerationState', function (state, peerId) {
       color = 'green'; break;
   }
   $('#user' + peerId + ' .4' ).css('color', color);
+  Demo.Methods.displayChatMessage('Connection:candidates', 'Peer ' + peerId + ' | State: ' + state);
 });
 //---------------------------------------------------
 Demo.Skylink.on('iceConnectionState', function (state, peerId) {
@@ -382,6 +390,7 @@ Demo.Skylink.on('iceConnectionState', function (state, peerId) {
       }
     }, 30000);
   }
+  Demo.Methods.displayChatMessage('Connection:connection', 'Peer ' + peerId + ' | State: ' + state);
 });
 //---------------------------------------------------
 Demo.Skylink.on('peerConnectionState', function (state, peerId) {
@@ -401,9 +410,14 @@ Demo.Skylink.on('peerConnectionState', function (state, peerId) {
       break;
   }
   $('#user' + peerId + ' .6' ).css('color', color);
+  Demo.Methods.displayChatMessage('Connection:signaling', 'Peer ' + peerId + ' | State: ' + state);
 });
 //---------------------------------------------------
-Demo.Skylink.on('dataChannelState', function (state, peerId) {
+Demo.Skylink.on('dataChannelState', function (state, peerId, error, channelName, channelType) {
+  if (channelType !== Demo.Skylink.DATA_CHANNEL_TYPE.MESSAGING) {
+    return;
+  }
+
   var color = 'red';
   switch (state) {
     case Demo.Skylink.DATA_CHANNEL_STATE.ERROR:
@@ -722,12 +736,12 @@ $(document).ready(function () {
     //candidatesCounter[peerId] = [];
   });
 
-  Demo.Skylink.on('iceConnectionState', function (state, peerId) {
-    if (state === 'connected') {
-      setTimeout(function () {
-        Demo.Skylink._restartPeerConnection(peerId, true, false, null, true);
-      }, 1);
-    }
+  Demo.Skylink.once('iceConnectionState', function (state, peerId) {
+    setInterval(function () {
+      Demo.Skylink._restartPeerConnection(peerId, true, false, null, true);
+    }, 1);
+  }, function (state) {
+    return state === 'connected';
   });
 
 })();*/

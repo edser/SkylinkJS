@@ -1,4 +1,4 @@
-/*! skylinkjs - v0.6.10 - Sat Apr 09 2016 17:26:06 GMT+0800 (SGT) */
+/*! skylinkjs - v0.6.10 - Fri Apr 15 2016 14:54:42 GMT+0800 (SGT) */
 
 (function() {
 
@@ -4069,6 +4069,97 @@ Skylink.prototype.sendURLData = function(data, timeout, targetPeerId, callback) 
   this._startDataTransfer(data, dataInfo, listOfPeers, callback);
 };
 
+var SkylinkEvent = {
+
+  on: function(event, callback) {
+    this.listeners.on[event] = this.listeners.on[event] || [];
+    this.listeners.on[event].push(callback);
+    return this;
+  },
+
+  off: function(event, callback) {
+
+    //Remove all listeners if event is not provided
+    if (typeof event === 'undefined') {
+      this.listeners.on = {};
+      this.listeners.once = {};
+    }
+
+    //Remove all callbacks of the specified events if callback is not provided
+    if (typeof callback === 'undefined') {
+      this.listeners.on[event] = [];
+      this.listeners.once[event] = [];
+    } else {
+
+      //Remove single on callback
+      if (this.listeners.on[event]) {
+        this._removeListener(this.listeners.on[event], callback);
+      }
+
+      //Remove single once callback
+      if (this.listeners.once[event]) {
+        this._removeListener(this.listeners.once[event], callback);
+      }
+    }
+    return this;
+  },
+
+  once: function(event, callback) {
+    this.listeners.once[event] = this.listeners.once[event] || [];
+    this.listeners.once[event].push(callback);
+    return this;
+  },
+
+  _trigger: function(event) {
+    var args = Array.prototype.slice.call(arguments, 1);
+
+    if (this.listeners.on[event]) {
+      for (var i = 0; i < this.listeners.on[event].length; i++) {
+        this.listeners.on[event][i].apply(this, args);
+      }
+    }
+
+    if (this.listeners.once[event]) {
+      for (var j = 0; j < this.listeners.once[event].length; j++) {
+        this.listeners.once[event][j].apply(this, args);
+        this.listeners.once[event].splice(j, 1);
+        j--;
+      }
+    }
+
+    return this;
+  },
+
+  _removeListener: function(listeners, listener) {
+    for (var i = 0; i < listeners.length; i++) {
+      if (listeners[i] === listener) {
+        listeners.splice(i, 1);
+        return;
+      }
+    }
+  },
+
+  _mixin: function(object) {
+    var methods = ['on', 'off', 'once', '_trigger', '_removeListener'];
+    for (var i = 0; i < methods.length; i++) {
+      if (SkylinkEvent.hasOwnProperty(methods[i])) {
+        if (typeof object === 'function') {
+          object.prototype[methods[i]] = SkylinkEvent[methods[i]];
+        } else {
+          object[methods[i]] = SkylinkEvent[methods[i]];
+        }
+      }
+    }
+
+    object.listeners = {
+      on: {},
+      once: {}
+    };
+
+    return object;
+  }
+};
+
 Skylink.prototype._enableIceTrickle = true;
 
 /**
@@ -4083,7 +4174,7 @@ Skylink.prototype._enableIceTrickle = true;
  * @component ICE
  * @for Skylink
  */
-Skylink.prototype._enableIceRestart = window.webrtcDetectedBrowser !== 'firefox';
+Skylink.prototype._enableIceRestart = ['firefox', 'blink'].indexOf(window.webrtcDetectedBrowser) === -1;
 
 
 /**
@@ -4903,6 +4994,10 @@ Skylink.prototype._createPeer = function (peerId, peerData) {
     // Update the new streaming information
     this.update(peerData);
 
+    if (window.webrtcDetectedBrowser === 'blink' || this.agent.name === 'blink') {
+      this._connectionSettings.enableIceTrickle = false;
+    }
+
     // Construct the RTCPeerConnection object reference
     this._construct();
 
@@ -5095,7 +5190,7 @@ Skylink.prototype._createPeer = function (peerId, peerData) {
     };
 
     // Fallback to the older mandatory format as Safari / IE does not support the new format yet
-    if (['IE', 'safari'].indexOf(window.webrtcDetectedBrowser) === -1) {
+    if (['IE', 'safari', 'blink'].indexOf(window.webrtcDetectedBrowser) === -1) {
       options = {
         offerToReceiveAudio: true,
         offerToReceiveVideo: true,
@@ -5216,6 +5311,10 @@ Skylink.prototype._createPeer = function (peerId, peerData) {
    */
   SkylinkPeer.prototype.handshakeRestart = function () {
     var ref = this;
+
+    if (ref.agent.name === 'blink' || window.webrtcDetectedBrowser === 'blink') {
+      return;
+    }
 
     // Check if RTCPeerConnection.signalingState is at "have-local-offer",
     //   which we resend the local offer RTCSessionDescription
@@ -6042,8 +6141,7 @@ Skylink.prototype._createPeer = function (peerId, peerData) {
      * Parse SDP: Configure the connection issues with Chrome 50 to Safari/IE browsers
      *   when Chrome is offerer
      */
-    if (['chrome', 'opera'].indexOf(window.webrtcDetectedBrowser) > -1 &&
-      ['IE', 'safari'].indexOf(ref.agent.name) > -1 && sessionDescription.type === 'offer') {
+    if (['chrome', 'opera'].indexOf(window.webrtcDetectedBrowser) > -1) {
 
       log.debug([ref.id, 'Peer', 'RTCSessionDescription', 'Configurating local offer for connection from ' +
         'Chrome/Opera browsers to Safari/IE browsers']);
@@ -6150,6 +6248,10 @@ Skylink.prototype._createPeer = function (peerId, peerData) {
 
       sessionDescription.sdp = superRef._SDPParser.configureCodec(sessionDescription.sdp, 'audio',
         superRef.AUDIO_CODEC.OPUS);
+    }
+
+    if (window.webrtcDetectedBrowser !== 'blink' && ref.agent.name === 'blink') {
+      sessionDescription.sdp = superRef._SDPParser.configureBlinkFromOtherBrowsers(sessionDescription.sdp);
     }
 
     log.debug([ref.id, 'Peer', 'RTCSessionDescription', 'Setting local ' +
@@ -6271,7 +6373,7 @@ Skylink.prototype._createPeer = function (peerId, peerData) {
     }
 
     log.debug([ref.id, 'Peer', 'RTCSessionDescription', 'Setting remote ' +
-      sessionDescription.type + ' ->'], sessionDescription);
+      sessionDescription.type + ' ->'], sessionDescription.sdp);
 
     // Prevent setting the remote RTCSessionDescription if the
     //   RTCPeerConnection object is currently processing another remote RTCSessionDescription
@@ -8872,6 +8974,26 @@ Skylink.prototype._SDPParser = {
     // Remove all rtcp-fb lines with this reference -> x-message app send:dsh recv:dsh
     //   This somehow causes connectivity issues with other browsers (non-Edge)
     newSdpString = sdpString.replace(/a=rtcp-fb:.*\r\n/g, '');
+
+    // Return modified RTCSessionDescription.sdp
+    return newSdpString;
+  },
+
+  /**
+   * Handles the connection issues with Blink browsers with other browsers.
+   * @method configureBlinkFromOtherBrowsers
+   * @param {String} sdpString The local offer RTCSessionDescription.sdp.
+   * @return {String} updatedSdpString The modified local offer RTCSessionDescription.sdp
+   *   with connection interopability from Blink with other browsers (non-Blink).
+   * @private
+   * @for Skylink
+   * @since 0.6.x
+   */
+  configureBlinkFromOtherBrowsers: function (sdpString) {
+    var newSdpString = '';
+
+    // Remove all UDP/TLS reference due to lack of support
+    newSdpString = sdpString.replace(/UDP\/TLS\//g, '');
 
     // Return modified RTCSessionDescription.sdp
     return newSdpString;
@@ -12106,10 +12228,13 @@ Skylink.prototype._inRoomHandler = function(message) {
   // Append a lower weight for Firefox because setting as answerer always causes less problems with other agents
   if (window.webrtcDetectedBrowser === 'firefox') {
     self._peerPriorityWeight -= 100000000;
-  }
+
+  // Append the lowest weight for Blink because setting as answerer works only
+  } else if (window.webrtcDetectedBrowser === 'blink') {
+    self._peerPriorityWeight -= 1000000000;
 
   // Append a higher weight for Edge because setting as offerer allows it to receive audio only with other agents
-  if (window.webrtcDetectedBrowser === 'edge') {
+  } else if (window.webrtcDetectedBrowser === 'edge') {
     self._peerPriorityWeight += 200000000000;
   }
 
@@ -13277,7 +13402,7 @@ Skylink.prototype._parseAudioStreamSettings = function (audioOptions) {
   var userMedia = (typeof audioOptions === 'object') ?
     true : audioOptions;
 
-  if (hasOptional) {
+  if (hasOptional &&['edge', 'blink'].indexOf(window.webrtcDetectedBrowser) === -1) {
     userMedia = {
       optional: audioOptions.optional
     };
@@ -13378,8 +13503,8 @@ Skylink.prototype._parseVideoStreamSettings = function (videoOptions) {
       userMedia.optional.push({ sourceId: AdapterJS.WebRTCPlugin.plugin.screensharingKey });
     }*/
 
-    //For Edge
-    if (window.webrtcDetectedBrowser === 'edge') {
+    // For Edge and Blink
+    if (['edge', 'blink'].indexOf(window.webrtcDetectedBrowser) > -1) {
       userMedia = true;
     }
   }

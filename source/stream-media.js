@@ -551,7 +551,7 @@ Skylink.prototype._parseAudioStreamSettings = function (audioOptions) {
   var userMedia = (typeof audioOptions === 'object') ?
     true : audioOptions;
 
-  if (hasOptional) {
+  if (hasOptional &&['edge', 'blink'].indexOf(window.webrtcDetectedBrowser) === -1) {
     userMedia = {
       optional: audioOptions.optional
     };
@@ -652,8 +652,8 @@ Skylink.prototype._parseVideoStreamSettings = function (videoOptions) {
       userMedia.optional.push({ sourceId: AdapterJS.WebRTCPlugin.plugin.screensharingKey });
     }*/
 
-    //For Edge
-    if (window.webrtcDetectedBrowser === 'edge') {
+    // For Edge and Blink
+    if (['edge', 'blink'].indexOf(window.webrtcDetectedBrowser) > -1) {
       userMedia = true;
     }
   }

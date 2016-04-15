@@ -518,5 +518,25 @@ Skylink.prototype._SDPParser = {
 
     // Return modified RTCSessionDescription.sdp
     return newSdpString;
+  },
+
+  /**
+   * Handles the connection issues with Blink browsers with other browsers.
+   * @method configureBlinkFromOtherBrowsers
+   * @param {String} sdpString The local offer RTCSessionDescription.sdp.
+   * @return {String} updatedSdpString The modified local offer RTCSessionDescription.sdp
+   *   with connection interopability from Blink with other browsers (non-Blink).
+   * @private
+   * @for Skylink
+   * @since 0.6.x
+   */
+  configureBlinkFromOtherBrowsers: function (sdpString) {
+    var newSdpString = '';
+
+    // Remove all UDP/TLS reference due to lack of support
+    newSdpString = sdpString.replace(/UDP\/TLS\//g, '');
+
+    // Return modified RTCSessionDescription.sdp
+    return newSdpString;
   }
 };

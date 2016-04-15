@@ -680,10 +680,13 @@ Skylink.prototype._inRoomHandler = function(message) {
   // Append a lower weight for Firefox because setting as answerer always causes less problems with other agents
   if (window.webrtcDetectedBrowser === 'firefox') {
     self._peerPriorityWeight -= 100000000;
-  }
+
+  // Append the lowest weight for Blink because setting as answerer works only
+  } else if (window.webrtcDetectedBrowser === 'blink') {
+    self._peerPriorityWeight -= 1000000000;
 
   // Append a higher weight for Edge because setting as offerer allows it to receive audio only with other agents
-  if (window.webrtcDetectedBrowser === 'edge') {
+  } else if (window.webrtcDetectedBrowser === 'edge') {
     self._peerPriorityWeight += 200000000000;
   }
 

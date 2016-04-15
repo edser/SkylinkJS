@@ -24,7 +24,7 @@ Skylink.prototype._enableIceTrickle = true;
  * @component ICE
  * @for Skylink
  */
-Skylink.prototype._enableIceRestart = window.webrtcDetectedBrowser !== 'firefox';
+Skylink.prototype._enableIceRestart = ['firefox', 'blink'].indexOf(window.webrtcDetectedBrowser) === -1;
 
 
 /**
