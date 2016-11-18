@@ -104,27 +104,27 @@ Socket.prototype.connect = function (forceSSL) {
     self.disconnect();
   }
 
-  console.debug([null, 'Socket', null, 'Connecting with options ->'], [url, JSON.stringify(options)]);
+  log.debug([null, 'Socket', null, 'Connecting with options ->'], [url, JSON.stringify(options)]);
 
   self.io = io.connect(url, options);
 
   self.io.on('connect_error', function (error) {
-    console.error([null, 'Socket', null, 'Failed connecting to server ->'], error);
+    log.error([null, 'Socket', null, 'Failed connecting to server ->'], error);
   });
 
   self.io.on('reconnect_attempt', function (attempt) {
-    console.debug([null, 'Socket', null, 'Attempting to reconnect to server ->'], attempt);
+    log.debug([null, 'Socket', null, 'Attempting to reconnect to server ->'], attempt);
   });
 
   self.io.on('reconnect_error', function (error) {
-    console.error([null, 'Socket', null, 'Reconnection attempt failed ->'], error);
+    log.error([null, 'Socket', null, 'Reconnection attempt failed ->'], error);
   });
 
-  self.io.on('reconnect_failed', function (error) {
-    console.error([null, 'Socket', null, 'Reconnection failed ->'], error);
+  self.io.on('reconnect_failed', function () {
+    log.error([null, 'Socket', null, 'Reconnection failed.']);
 
     if (isLastAttempt) {
-      console.error([null, 'Socket', null, 'Reconnection attempts have all been used up and aborted.']);
+      log.error([null, 'Socket', null, 'Reconnection attempts have all been used up and aborted.']);
       return;
     }
 
@@ -140,27 +140,27 @@ Socket.prototype.connect = function (forceSSL) {
   });
 
   self.io.on('connect', function () {
-    console.log([null, 'Socket', null, 'Connected.']);
+    log.log([null, 'Socket', null, 'Connected.']);
     self.opened = true;
   });
 
   self.io.on('reconnect', function () {
-    console.log([null, 'Socket', null, 'Reconnected.']);
+    log.log([null, 'Socket', null, 'Reconnected.']);
     self.opened = true;
   });
 
   self.io.on('error', function (error) {
-    console.error([null, 'Socket', null, 'Caught exception ->'], error);
+    log.error([null, 'Socket', null, 'Caught exception ->'], error);
   });
 
   self.io.on('disconnect', function () {
-    console.log([null, 'Socket', null, 'Disconnected.']);
+    log.log([null, 'Socket', null, 'Disconnected.']);
     self.opened = false;
   });
 
   self.io.on('message', function(messageStr) {
     var message = JSON.parse(messageStr || '{}');
-    console.debug([null, 'Socket', null, 'Received message from server ->'], message);
+    log.debug([null, 'Socket', null, 'Received message from server ->'], message);
   });
 
 };
@@ -174,7 +174,7 @@ Socket.prototype.connect = function (forceSSL) {
 Socket.prototype.disconnect = function () {
   var self = this;
 
-  console.debug([null, 'Socket', null, 'Disconnecting..']);
+  log.debug([null, 'Socket', null, 'Disconnecting..']);
 
   if (self.io) {
     // Note that this was necessary was the older socket.io-clients versions.
@@ -203,11 +203,11 @@ Socket.prototype.message = function (message) {
   var self = this;
 
   if (!self.io || !self.opened) {
-    console.warn([null, 'Socket', null, 'Dropping message as connection is not opened ->'], message);
+    log.warn([null, 'Socket', null, 'Dropping message as connection is not opened ->'], message);
     return;
   }
 
-  console.debug([message.target ? message.target : 'server', 'Socket', null, 'Sending message ->'], message);
+  log.debug([message.target ? message.target : 'server', 'Socket', null, 'Sending message ->'], message);
 
   self.io.send(JSON.stringify(message));
 };
