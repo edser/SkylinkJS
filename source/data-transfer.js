@@ -1749,6 +1749,20 @@ Skylink.prototype._processDataChannelData = function(rawData, peerId, channelNam
     try {
       var protocolData = JSON.parse(rawData);
 
+      if (Array.isArray(protocolData.target)) {
+        var targets = [];
+        for (var i = 0; i < protocolData.target.length; i++) {
+          targets[i] = self._parsePeerId(protocolData.target[i]);
+        }
+        protocolData.target = targets;
+      } else if (protocolData.target && typeof protocolData.target === 'string') {
+        protocolData.target = self._parsePeerId(protocolData.target);
+      }
+
+      if (protocolData.sender) {
+        protocolData.sender = self._parsePeerId(protocolData.sender);
+      }
+
       log.debug([peerId, 'RTCDataChannel', channelProp, 'Received protocol message ->'], protocolData);
 
       // Ignore ACK, ERROR and CANCEL if there is no data transfer session in-progress

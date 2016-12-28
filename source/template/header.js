@@ -1103,4 +1103,14 @@ function Skylink() {
    * @since 0.6.16
    */
   this._mcuUseRenegoRestart = false;
+
+  /**
+   * Stores the original Peer IDs.
+   * @attribute _peerIds
+   * @type JSON
+   * @private
+   * @for Skylink
+   * @since 0.6.16
+   */
+  this._peerIds = {};
 }

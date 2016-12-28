@@ -307,7 +307,23 @@ Skylink.prototype._sendMessageToDataChannel = function(peerId, data, channelProp
     if (!doNotConvert && typeof data === 'object') {
       log.debug([peerId, 'RTCDataChannel', 'prop:' + channelProp, 'Sending message ->'], data);
 
-      self._dataChannels[peerId][channelProp].channel.send(JSON.stringify(data));
+      var newData = clone(data);
+
+      if (Array.isArray(newData.target)) {
+        var targets = [];
+        for (var i = 0; i < newData.target.length; i++) {
+          targets[i] = self._parsePeerId(newData.target[i], true);
+        }
+        newData.target = targets;
+      } else if (newData.target && typeof newData.target === 'string') {
+        newData.target = self._parsePeerId(newData.target, true);
+      }
+
+      if (newData.sender) {
+        newData.sender = self._parsePeerId(newData.sender, true);
+      }
+
+      self._dataChannels[peerId][channelProp].channel.send(JSON.stringify(newData));
 
     } else {
       log.debug([peerId, 'RTCDataChannel', 'prop:' + channelProp, 'Sending data with size ->'], data.size || data.length);

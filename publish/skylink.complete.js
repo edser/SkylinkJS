@@ -1,4 +1,4 @@
-/*! skylinkjs - v0.6.16 - Fri Dec 23 2016 17:10:08 GMT+0800 (SGT) */
+/*! skylinkjs - v0.6.16 - Wed Dec 28 2016 17:38:29 GMT+0800 (SGT) */
 
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.io = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
 
@@ -11531,7 +11531,7 @@ if ( (navigator.mozGetUserMedia ||
   }
 })();
 
-/*! skylinkjs - v0.6.16 - Fri Dec 23 2016 17:10:08 GMT+0800 (SGT) */
+/*! skylinkjs - v0.6.16 - Wed Dec 28 2016 17:38:29 GMT+0800 (SGT) */
 
 (function(refThis) {
 
@@ -12638,6 +12638,16 @@ function Skylink() {
    * @since 0.6.16
    */
   this._mcuUseRenegoRestart = false;
+
+  /**
+   * Stores the original Peer IDs.
+   * @attribute _peerIds
+   * @type JSON
+   * @private
+   * @for Skylink
+   * @since 0.6.16
+   */
+  this._peerIds = {};
 }
 Skylink.prototype.DATA_CHANNEL_STATE = {
   CONNECTING: 'connecting',
@@ -12917,7 +12927,23 @@ Skylink.prototype._sendMessageToDataChannel = function(peerId, data, channelProp
     if (!doNotConvert && typeof data === 'object') {
       log.debug([peerId, 'RTCDataChannel', 'prop:' + channelProp, 'Sending message ->'], data);
 
-      self._dataChannels[peerId][channelProp].channel.send(JSON.stringify(data));
+      var newData = clone(data);
+
+      if (Array.isArray(newData.target)) {
+        var targets = [];
+        for (var i = 0; i < newData.target.length; i++) {
+          targets[i] = self._parsePeerId(newData.target[i], true);
+        }
+        newData.target = targets;
+      } else if (newData.target && typeof newData.target === 'string') {
+        newData.target = self._parsePeerId(newData.target, true);
+      }
+
+      if (newData.sender) {
+        newData.sender = self._parsePeerId(newData.sender, true);
+      }
+
+      self._dataChannels[peerId][channelProp].channel.send(JSON.stringify(newData));
 
     } else {
       log.debug([peerId, 'RTCDataChannel', 'prop:' + channelProp, 'Sending data with size ->'], data.size || data.length);
@@ -14906,6 +14932,20 @@ Skylink.prototype._processDataChannelData = function(rawData, peerId, channelNam
   if (typeof rawData === 'string') {
     try {
       var protocolData = JSON.parse(rawData);
+
+      if (Array.isArray(protocolData.target)) {
+        var targets = [];
+        for (var i = 0; i < protocolData.target.length; i++) {
+          targets[i] = self._parsePeerId(protocolData.target[i]);
+        }
+        protocolData.target = targets;
+      } else if (protocolData.target && typeof protocolData.target === 'string') {
+        protocolData.target = self._parsePeerId(protocolData.target);
+      }
+
+      if (protocolData.sender) {
+        protocolData.sender = self._parsePeerId(protocolData.sender);
+      }
 
       log.debug([peerId, 'RTCDataChannel', channelProp, 'Received protocol message ->'], protocolData);
 
@@ -18635,6 +18675,7 @@ Skylink.prototype.leaveRoom = function(stopMediaOptions, callback) {
   }
 
   self._inRoom = false;
+  self._peerIds = {};
   self._closeChannel();
 
   if (isNotInRoom) {
@@ -21680,6 +21721,34 @@ Skylink.prototype._sendChannelMessage = function(message) {
     };
   }
 
+  if (message.mid) {
+    message.mid = self._parsePeerId(message.mid, true);
+  }
+
+  if (message.target) {
+    message.target = self._parsePeerId(message.target, true);
+  }
+
+  if (message.send) {
+    message.target = self._parsePeerId(message.target, true);
+  }
+
+  if (message.target) {
+    message.target = self._parsePeerId(message.target, true);
+  }
+
+  if (message.sendingPeerId) {
+    message.sendingPeerId = self._parsePeerId(message.sendingPeerId, true);
+  }
+
+  if (message.receivingPeerId) {
+    message.receivingPeerId = self._parsePeerId(message.receivingPeerId, true);
+  }
+
+  if (message.parentId) {
+    message.parentId = self._parsePeerId(message.parentId, true);
+  }
+
   var checkStampFn = function (statusMessage) {
     if (statusMessage.type === self._SIG_MESSAGE_TYPE.UPDATE_USER) {
       if (!self._user.sid) {
@@ -22531,6 +22600,31 @@ Skylink.prototype._processSigMessage = function(messageString) {
  */
 Skylink.prototype._processSingleMessage = function(message) {
   this._trigger('channelMessage', message);
+
+  if (message.mid) {
+    message.mid = this._parsePeerId(message.mid);
+  }
+
+  if (message.target) {
+    message.target = this._parsePeerId(message.target);
+  }
+
+  if (message.sid) {
+    message.sid = this._parsePeerId(message.sid);
+  }
+
+  if (message.sendingPeerId) {
+    message.sendingPeerId = this._parsePeerId(message.sendingPeerId);
+  }
+
+  if (message.receivingPeerId) {
+    message.receivingPeerId = this._parsePeerId(message.receivingPeerId);
+  }
+
+  if (message.parentId) {
+    message.parentId = this._parsePeerId(message.parentId);
+  }
+
   var origin = message.mid;
   if (!origin || origin === this._user.sid) {
     origin = 'Server';
@@ -22542,6 +22636,7 @@ Skylink.prototype._processSingleMessage = function(message) {
     log.debug([origin, null, null, 'Ignoring message ->'], message.type);
     return;
   }
+
   switch (message.type) {
   //--- BASIC API Messages ----
   case this._SIG_MESSAGE_TYPE.PUBLIC_MESSAGE:
@@ -23016,7 +23111,7 @@ Skylink.prototype._recordingEventHandler = function (message) {
 
     if (Array.isArray(message.urls)) {
       for (var i = 0; i < message.urls.length; i++) {
-        links[messages.urls[i].id || ''] = essages.urls[i].url || '';
+        links[self._parsePeerId(messages.urls[i].id || '')] = messages.urls[i].url || '';
       }
     } else if (typeof message.url === 'string') {
       links.mixin = message.url;
@@ -23824,6 +23919,35 @@ Skylink.prototype._isLowerThanVersion = function (agentVer, requiredVer) {
   }
 
   return false;
+};
+
+/**
+ * Function that parses the socket.io 1.4.x version of Peer IDs.
+ * @method _parsePeerId
+ * @private
+ * @for Skylink
+ * @since 0.6.16
+ */
+Skylink.prototype._parsePeerId = function (peerId, isReturn) {
+  var self = this;
+
+  if (isReturn) {
+    if (self._peerIds[peerId]) {
+      return self._peerIds[peerId];
+    }
+    return peerId;
+
+  } else if (peerId.indexOf('#') > -1 || peerId.indexOf('/') > -1) {
+    var newPeerId = peerId.replace(/\//g, '_').replace(/#/g, '-');
+
+    if (!self._peerIds[newPeerId]) {
+      self._peerIds[newPeerId] = peerId;
+    }
+
+    return newPeerId;
+  }
+
+  return peerId;
 };
 
 Skylink.prototype.VIDEO_CODEC = {

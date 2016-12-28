@@ -89,6 +89,34 @@ Skylink.prototype._sendChannelMessage = function(message) {
     };
   }
 
+  if (message.mid) {
+    message.mid = self._parsePeerId(message.mid, true);
+  }
+
+  if (message.target) {
+    message.target = self._parsePeerId(message.target, true);
+  }
+
+  if (message.send) {
+    message.target = self._parsePeerId(message.target, true);
+  }
+
+  if (message.target) {
+    message.target = self._parsePeerId(message.target, true);
+  }
+
+  if (message.sendingPeerId) {
+    message.sendingPeerId = self._parsePeerId(message.sendingPeerId, true);
+  }
+
+  if (message.receivingPeerId) {
+    message.receivingPeerId = self._parsePeerId(message.receivingPeerId, true);
+  }
+
+  if (message.parentId) {
+    message.parentId = self._parsePeerId(message.parentId, true);
+  }
+
   var checkStampFn = function (statusMessage) {
     if (statusMessage.type === self._SIG_MESSAGE_TYPE.UPDATE_USER) {
       if (!self._user.sid) {

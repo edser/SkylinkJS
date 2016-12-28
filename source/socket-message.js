@@ -458,6 +458,31 @@ Skylink.prototype._processSigMessage = function(messageString) {
  */
 Skylink.prototype._processSingleMessage = function(message) {
   this._trigger('channelMessage', message);
+
+  if (message.mid) {
+    message.mid = this._parsePeerId(message.mid);
+  }
+
+  if (message.target) {
+    message.target = this._parsePeerId(message.target);
+  }
+
+  if (message.sid) {
+    message.sid = this._parsePeerId(message.sid);
+  }
+
+  if (message.sendingPeerId) {
+    message.sendingPeerId = this._parsePeerId(message.sendingPeerId);
+  }
+
+  if (message.receivingPeerId) {
+    message.receivingPeerId = this._parsePeerId(message.receivingPeerId);
+  }
+
+  if (message.parentId) {
+    message.parentId = this._parsePeerId(message.parentId);
+  }
+
   var origin = message.mid;
   if (!origin || origin === this._user.sid) {
     origin = 'Server';
@@ -469,6 +494,7 @@ Skylink.prototype._processSingleMessage = function(message) {
     log.debug([origin, null, null, 'Ignoring message ->'], message.type);
     return;
   }
+
   switch (message.type) {
   //--- BASIC API Messages ----
   case this._SIG_MESSAGE_TYPE.PUBLIC_MESSAGE:
@@ -943,7 +969,7 @@ Skylink.prototype._recordingEventHandler = function (message) {
 
     if (Array.isArray(message.urls)) {
       for (var i = 0; i < message.urls.length; i++) {
-        links[messages.urls[i].id || ''] = essages.urls[i].url || '';
+        links[self._parsePeerId(messages.urls[i].id || '')] = messages.urls[i].url || '';
       }
     } else if (typeof message.url === 'string') {
       links.mixin = message.url;
@@ -1751,4 +1777,33 @@ Skylink.prototype._isLowerThanVersion = function (agentVer, requiredVer) {
   }
 
   return false;
+};
+
+/**
+ * Function that parses the socket.io 1.4.x version of Peer IDs.
+ * @method _parsePeerId
+ * @private
+ * @for Skylink
+ * @since 0.6.16
+ */
+Skylink.prototype._parsePeerId = function (peerId, isReturn) {
+  var self = this;
+
+  if (isReturn) {
+    if (self._peerIds[peerId]) {
+      return self._peerIds[peerId];
+    }
+    return peerId;
+
+  } else if (peerId.indexOf('#') > -1 || peerId.indexOf('/') > -1) {
+    var newPeerId = peerId.replace(/\//g, '_').replace(/#/g, '-');
+
+    if (!self._peerIds[newPeerId]) {
+      self._peerIds[newPeerId] = peerId;
+    }
+
+    return newPeerId;
+  }
+
+  return peerId;
 };
