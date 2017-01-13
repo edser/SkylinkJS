@@ -161,6 +161,9 @@ var clone = function (obj) {
  * [See License (Apache 2.0)](https://github.com/Temasys/SkylinkJS/blob/master/LICENSE)
  *
  * @class Skylink
+ * @param {String} [instanceLabel] The Skylink object instance label ID for identification.
+ * - When not provided, an instance label ID would be generated.
+ *   <small>It is recommended to provide an unique instance label ID.</small>
  * @constructor
  * @example
  *   // Here's a simple example on how you can start using Skylink.
@@ -204,7 +207,18 @@ var clone = function (obj) {
  * @for Skylink
  * @since 0.5.0
  */
-function Skylink() {
+function Skylink(instanceLabel) {
+  /**
+   * The Skylink object instance label ID.
+   * @attribute INSTANCE_LABEL
+   * @type String
+   * @readOnly
+   * @for Skylink
+   * @since 0.6.18
+   */
+  this.INSTANCE_LABEL = typeof instanceLabel === 'string' && instanceLabel && instanceLabel !== '_' ?
+    instanceLabel : (new Date()).getTime() + '_' + (Math.random() * 1000);
+
   /**
    * Stores the flag if Peers should have any Datachannel connections.
    * @attribute _enableDataChannel
@@ -1143,4 +1157,55 @@ function Skylink() {
    * @since 0.6.18
    */
   this._sdpSessions = {};
+
+  /**
+   * Stores the current SDK log level.
+   * Default is ERROR (<code>0</code>).
+   * @attribute _logLevel
+   * @type String
+   * @default 0
+   * @private
+   * @scoped true
+   * @for Skylink
+   * @since 0.5.4
+   */
+  this._logLevel = 0;
+
+  /**
+   * Stores the flag if debugging mode is enabled.
+   * This manipulates the SkylinkLogs interface.
+   * @attribute _enableDebugMode
+   * @type Boolean
+   * @default false
+   * @private
+   * @scoped true
+   * @for Skylink
+   * @since 0.5.4
+   */
+  this._enableDebugMode = false;
+
+  /**
+   * Stores the flag if logs should be stored in SkylinkLogs interface.
+   * @attribute _enableDebugStack
+   * @type Boolean
+   * @default false
+   * @private
+   * @scoped true
+   * @for Skylink
+   * @since 0.5.5
+   */
+  this._enableDebugStack = false;
+
+  /**
+   * Stores the flag if logs should trace if available.
+   * This uses the <code>console.trace</code> API.
+   * @attribute _enableDebugTrace
+   * @type Boolean
+   * @default false
+   * @private
+   * @scoped true
+   * @for Skylink
+   * @since 0.5.5
+   */
+  this._enableDebugTrace = false;
 }

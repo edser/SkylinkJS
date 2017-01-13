@@ -480,7 +480,7 @@ Skylink.prototype.sendBlobData = function(data, timeout, targetPeerId, sendChunk
 
   // Function that returns the error emitted before data transfer has started
   var emitErrorBeforeDataTransferFn = function (error) {
-    log.error(error);
+    self._log(&#x27;error&#x27;, error);
 
     if (typeof callback === &#x27;function&#x27;) {
       var transferErrors = {};
@@ -547,7 +547,7 @@ Skylink.prototype.sendBlobData = function(data, timeout, targetPeerId, sendChunk
   }
 
   if (self._hasMCU &amp;&amp; transferInfo.chunkType === self.DATA_TRANSFER_DATA_TYPE.ARRAY_BUFFER) {
-    log.warn(&#x27;Binary data chunks transfer is not yet supported with MCU environment. &#x27; +
+    self._log(&#x27;warn&#x27;, &#x27;Binary data chunks transfer is not yet supported with MCU environment. &#x27; +
       &#x27;Fallbacking to binary string data chunks transfer.&#x27;);
     transferInfo.chunkType = self.DATA_TRANSFER_DATA_TYPE.BINARY_STRING;
     transferInfo.chunkSize = self._CHUNK_FILE_SIZE;
@@ -755,7 +755,7 @@ Skylink.prototype.sendURLData = function(data, timeout, targetPeerId, callback) 
 
   // Function that returns the error emitted before data transfer has started
   var emitErrorBeforeDataTransferFn = function (error) {
-    log.error(error);
+    self._log(&#x27;error&#x27;, error);
 
     if (typeof callback === &#x27;function&#x27;) {
       var transferErrors = {};
@@ -862,19 +862,19 @@ Skylink.prototype.acceptDataTransfer = function (peerId, transferId, accept) {
   var self = this;
 
   if (typeof transferId !== &#x27;string&#x27; &amp;&amp; typeof peerId !== &#x27;string&#x27;) {
-    log.error([peerId, &#x27;RTCDataChannel&#x27;, transferId, &#x27;Aborting accept data transfer as &#x27; +
+    self._log(&#x27;error&#x27;, [peerId, &#x27;RTCDataChannel&#x27;, transferId, &#x27;Aborting accept data transfer as &#x27; +
       &#x27;data transfer ID or peer ID is not provided&#x27;]);
     return;
   }
 
   if (!self._dataChannels[peerId]) {
-    log.error([peerId, &#x27;RTCDataChannel&#x27;, transferId, &#x27;Aborting accept data transfer as &#x27; +
+    self._log(&#x27;error&#x27;, [peerId, &#x27;RTCDataChannel&#x27;, transferId, &#x27;Aborting accept data transfer as &#x27; +
       &#x27;Peer does not have any Datachannel connections&#x27;]);
     return;
   }
 
   if (!self._dataTransfers[transferId]) {
-    log.error([peerId, &#x27;RTCDataChannel&#x27;, transferId, &#x27;Aborting accept data transfer as &#x27; +
+    self._log(&#x27;error&#x27;, [peerId, &#x27;RTCDataChannel&#x27;, transferId, &#x27;Aborting accept data transfer as &#x27; +
       &#x27;invalid transfer ID is provided&#x27;]);
     return;
   }
@@ -887,7 +887,7 @@ Skylink.prototype.acceptDataTransfer = function (peerId, transferId, accept) {
   }
 
   if (accept) {
-    log.debug([peerId, &#x27;RTCDataChannel&#x27;, transferId, &#x27;Accepted data transfer and starting ...&#x27;]);
+    self._log(&#x27;debug&#x27;, [peerId, &#x27;RTCDataChannel&#x27;, transferId, &#x27;Accepted data transfer and starting ...&#x27;]);
 
     var dataChannelStateCbFn = function (state, evtPeerId, error, cN, cT) {
       console.info(evtPeerId, error, cN, cT);
@@ -943,7 +943,7 @@ Skylink.prototype.acceptDataTransfer = function (peerId, transferId, accept) {
       self._getTransferInfo(transferId, peerId, true, false, false), null);
 
   } else {
-    log.warn([peerId, &#x27;RTCDataChannel&#x27;, transferId, &#x27;Rejected data transfer and data transfer request has been aborted&#x27;]);
+    self._log(&#x27;warn&#x27;, [peerId, &#x27;RTCDataChannel&#x27;, transferId, &#x27;Rejected data transfer and data transfer request has been aborted&#x27;]);
 
     // Send ACK protocol to terminate data transfer request
     // MCU sends the data transfer from the &quot;P2P&quot; Datachannel
@@ -1006,22 +1006,22 @@ Skylink.prototype.cancelDataTransfer = function (peerId, transferId) {
   var self = this;
 
   if (!(transferId &amp;&amp; typeof transferId === &#x27;string&#x27;)) {
-    log.error([peerId, &#x27;RTCDataChannel&#x27;, transferId, &#x27;Aborting cancel data transfer as data transfer ID is not provided&#x27;]);
+    self._log(&#x27;error&#x27;, [peerId, &#x27;RTCDataChannel&#x27;, transferId, &#x27;Aborting cancel data transfer as data transfer ID is not provided&#x27;]);
     return;
   }
 
   if (!(peerId &amp;&amp; typeof peerId === &#x27;string&#x27;)) {
-    log.error([peerId, &#x27;RTCDataChannel&#x27;, transferId, &#x27;Aborting cancel data transfer as peer ID is not provided&#x27;]);
+    self._log(&#x27;error&#x27;, [peerId, &#x27;RTCDataChannel&#x27;, transferId, &#x27;Aborting cancel data transfer as peer ID is not provided&#x27;]);
     return;
   }
 
   if (!self._dataTransfers[transferId]) {
-    log.error([peerId, &#x27;RTCDataChannel&#x27;, transferId, &#x27;Aborting cancel data transfer as &#x27; +
+    self._log(&#x27;error&#x27;, [peerId, &#x27;RTCDataChannel&#x27;, transferId, &#x27;Aborting cancel data transfer as &#x27; +
       &#x27;data transfer session does not exists.&#x27;]);
     return;
   }
 
-  log.debug([peerId, &#x27;RTCDataChannel&#x27;, transferId, &#x27;Canceling data transfer ...&#x27;]);
+  self._log(&#x27;debug&#x27;, [peerId, &#x27;RTCDataChannel&#x27;, transferId, &#x27;Canceling data transfer ...&#x27;]);
 
   /**
    * Emit data state event function.
@@ -1039,13 +1039,13 @@ Skylink.prototype.cancelDataTransfer = function (peerId, transferId) {
   // For uploading from Peer to MCU case of broadcast
   if (self._hasMCU &amp;&amp; self._dataTransfers[transferId].direction === self.DATA_TRANSFER_TYPE.UPLOAD) {
     if (!self._dataChannels.MCU) {
-      log.error([peerId, &#x27;RTCDataChannel&#x27;, transferId, &#x27;Aborting cancel data transfer as &#x27; +
+      self._log(&#x27;error&#x27;, [peerId, &#x27;RTCDataChannel&#x27;, transferId, &#x27;Aborting cancel data transfer as &#x27; +
         &#x27;Peer does not have any Datachannel connections&#x27;]);
       return;
     }
 
     // We abort all data transfers to all Peers if uploading via MCU since it broadcasts to MCU
-    log.warn([peerId, &#x27;RTCDataChannel&#x27;, transferId, &#x27;Aborting all data transfers to Peers&#x27;]);
+    self._log(&#x27;warn&#x27;, [peerId, &#x27;RTCDataChannel&#x27;, transferId, &#x27;Aborting all data transfers to Peers&#x27;]);
 
     // If data transfer to MCU broadcast has interop Peers, send to MCU via the &quot;main&quot; Datachannel
     if (Object.keys(self._dataTransfers[transferId].peers.main).length &gt; 0) {
@@ -1075,7 +1075,7 @@ Skylink.prototype.cancelDataTransfer = function (peerId, transferId) {
     var channelProp = &#x27;main&#x27;;
 
     if (!self._dataChannels[peerId]) {
-      log.error([peerId, &#x27;RTCDataChannel&#x27;, transferId, &#x27;Aborting cancel data transfer as &#x27; +
+      self._log(&#x27;error&#x27;, [peerId, &#x27;RTCDataChannel&#x27;, transferId, &#x27;Aborting cancel data transfer as &#x27; +
         &#x27;Peer does not have any Datachannel connections&#x27;]);
       return;
     }
@@ -1168,12 +1168,12 @@ Skylink.prototype.sendP2PMessage = function(message, targetPeerId) {
   }
 
   if (!this._inRoom || !this._user) {
-    log.error(&#x27;Unable to send message as User is not in Room. -&gt;&#x27;, message);
+    this._log(&#x27;error&#x27;, &#x27;Unable to send message as User is not in Room. -&gt;&#x27;, message);
     return;
   }
 
   if (!this._enableDataChannel) {
-    log.error(&#x27;Unable to send message as User does not have Datachannel enabled. -&gt;&#x27;, message);
+    this._log(&#x27;error&#x27;, &#x27;Unable to send message as User does not have Datachannel enabled. -&gt;&#x27;, message);
     return;
   }
 
@@ -1182,7 +1182,7 @@ Skylink.prototype.sendP2PMessage = function(message, targetPeerId) {
     var peerId = listOfPeers[i];
 
     if (!this._dataChannels[peerId]) {
-      log.error([peerId, &#x27;RTCDataChannel&#x27;, null, &#x27;Dropping of sending message to Peer as &#x27; +
+      this._log(&#x27;error&#x27;, [peerId, &#x27;RTCDataChannel&#x27;, null, &#x27;Dropping of sending message to Peer as &#x27; +
         &#x27;Datachannel connection does not exists&#x27;]);
       listOfPeers.splice(i, 1);
       i--;
@@ -1190,7 +1190,7 @@ Skylink.prototype.sendP2PMessage = function(message, targetPeerId) {
       listOfPeers.splice(i, 1);
       i--;
     } else if (!this._hasMCU) {
-      log.debug([peerId, &#x27;RTCDataChannel&#x27;, null, &#x27;Sending &#x27; + (isPrivate ? &#x27;private&#x27; : &#x27;&#x27;) +
+      this._log(&#x27;debug&#x27;, [peerId, &#x27;RTCDataChannel&#x27;, null, &#x27;Sending &#x27; + (isPrivate ? &#x27;private&#x27; : &#x27;&#x27;) +
         &#x27; P2P message to Peer&#x27;]);
 
       this._sendMessageToDataChannel(peerId, {
@@ -1204,12 +1204,12 @@ Skylink.prototype.sendP2PMessage = function(message, targetPeerId) {
   }
 
   if (listOfPeers.length === 0) {
-    log.warn(&#x27;Currently there are no Peers to send P2P message to (unless the message is queued &#x27; +
+    this._log(&#x27;warn&#x27;, &#x27;Currently there are no Peers to send P2P message to (unless the message is queued &#x27; +
       &#x27;and there are Peer connected by then).&#x27;);
   }
 
   if (this._hasMCU) {
-    log.debug([&#x27;MCU&#x27;, &#x27;RTCDataChannel&#x27;, null, &#x27;Broadcasting &#x27; + (isPrivate ? &#x27;private&#x27; : &#x27;&#x27;) +
+    this._log(&#x27;debug&#x27;, [&#x27;MCU&#x27;, &#x27;RTCDataChannel&#x27;, null, &#x27;Broadcasting &#x27; + (isPrivate ? &#x27;private&#x27; : &#x27;&#x27;) +
       &#x27; P2P message to Peers&#x27;]);
 
     this._sendMessageToDataChannel(&#x27;MCU&#x27;, {
@@ -1293,7 +1293,7 @@ Skylink.prototype._startDataTransfer = function(chunks, transferInfo, listOfPeer
       return;
     }
 
-    log.debug([peerId, &#x27;RTCDataChannel&#x27;, transferId, &#x27;Data transfer result. Is errors present? -&gt;&#x27;], error);
+    self._log(&#x27;debug&#x27;, [peerId, &#x27;RTCDataChannel&#x27;, transferId, &#x27;Data transfer result. Is errors present? -&gt;&#x27;], error);
 
     transferCompleted.push(peerId);
 
@@ -1302,7 +1302,7 @@ Skylink.prototype._startDataTransfer = function(chunks, transferInfo, listOfPeer
     }
 
     if (listOfPeers.length === transferCompleted.length) {
-      log.log([null, &#x27;RTCDataChannel&#x27;, transferId, &#x27;Data transfer request completed&#x27;]);
+      self._log(&#x27;log&#x27;, [null, &#x27;RTCDataChannel&#x27;, transferId, &#x27;Data transfer request completed&#x27;]);
 
       if (typeof callback === &#x27;function&#x27;) {
         if (Object.keys(transferErrors).length &gt; 0) {
@@ -1398,7 +1398,7 @@ Skylink.prototype._startDataTransferToPeer = function (transferId, peerId, callb
     var chunkType = self._dataTransfers[transferId].chunkType;
 
     if (self._dataTransfers[transferId].enforceBSPeers.indexOf(peerId) &gt; -1) {
-      log.warn([peerId, &#x27;RTCDataChannel&#x27;, transferId,
+      self._log(&#x27;warn&#x27;, [peerId, &#x27;RTCDataChannel&#x27;, transferId,
         &#x27;Binary data chunks transfer is not yet supported with Peer connecting from &#x27; +
         &#x27;Android, iOS and C++ SDK. Fallbacking to binary string data chunks transfer.&#x27;]);
 
@@ -1729,11 +1729,11 @@ Skylink.prototype._handleDataTransferTimeoutForPeer = function (transferId, peer
   var self = this;
 
   if (!(self._dataTransfers[transferId] &amp;&amp; self._dataTransfers[transferId].sessions[peerId])) {
-    log.debug([peerId, &#x27;RTCDataChannel&#x27;, transferId, &#x27;Data transfer does not exists for Peer. Ignoring timeout.&#x27;]);
+    self._log(&#x27;debug&#x27;, [peerId, &#x27;RTCDataChannel&#x27;, transferId, &#x27;Data transfer does not exists for Peer. Ignoring timeout.&#x27;]);
     return;
   }
 
-  log.debug([peerId, &#x27;RTCDataChannel&#x27;, transferId, &#x27;Clearing data transfer timer for Peer.&#x27;]);
+  self._log(&#x27;debug&#x27;, [peerId, &#x27;RTCDataChannel&#x27;, transferId, &#x27;Clearing data transfer timer for Peer.&#x27;]);
 
   if (self._dataTransfers[transferId].sessions[peerId].timer) {
     clearTimeout(self._dataTransfers[transferId].sessions[peerId].timer);
@@ -1742,25 +1742,25 @@ Skylink.prototype._handleDataTransferTimeoutForPeer = function (transferId, peer
   self._dataTransfers[transferId].sessions[peerId].timer = null;
 
   if (setPeerTO) {
-    log.debug([peerId, &#x27;RTCDataChannel&#x27;, transferId, &#x27;Setting data transfer timer for Peer.&#x27;]);
+    self._log(&#x27;debug&#x27;, [peerId, &#x27;RTCDataChannel&#x27;, transferId, &#x27;Setting data transfer timer for Peer.&#x27;]);
 
     self._dataTransfers[transferId].sessions[peerId].timer = setTimeout(function () {
       if (!(self._dataTransfers[transferId] &amp;&amp; self._dataTransfers[transferId].sessions[peerId])) {
-        log.debug([peerId, &#x27;RTCDataChannel&#x27;, transferId, &#x27;Data transfer already ended for Peer. Ignoring expired timeout.&#x27;]);
+        self._log(&#x27;debug&#x27;, [peerId, &#x27;RTCDataChannel&#x27;, transferId, &#x27;Data transfer already ended for Peer. Ignoring expired timeout.&#x27;]);
         return;
       }
 
       if (!self._user) {
-        log.debug([peerId, &#x27;RTCDataChannel&#x27;, transferId, &#x27;User is not in Room. Ignoring expired timeout.&#x27;]);
+        self._log(&#x27;debug&#x27;, [peerId, &#x27;RTCDataChannel&#x27;, transferId, &#x27;User is not in Room. Ignoring expired timeout.&#x27;]);
         return;
       }
 
       if (!self._dataChannels[peerId]) {
-        log.debug([peerId, &#x27;RTCDataChannel&#x27;, transferId, &#x27;Datachannel connection does not exists. Ignoring expired timeout.&#x27;]);
+        self._log(&#x27;debug&#x27;, [peerId, &#x27;RTCDataChannel&#x27;, transferId, &#x27;Datachannel connection does not exists. Ignoring expired timeout.&#x27;]);
         return;
       }
 
-      log.error([peerId, &#x27;RTCDataChannel&#x27;, transferId, &#x27;Data transfer response has timed out.&#x27;]);
+      self._log(&#x27;error&#x27;, [peerId, &#x27;RTCDataChannel&#x27;, transferId, &#x27;Data transfer response has timed out.&#x27;]);
 
       /**
        * Emit event for Peers function.
@@ -1824,13 +1824,13 @@ Skylink.prototype._processDataChannelData = function(rawData, peerId, channelNam
   var transferId = channelProp === &#x27;main&#x27; ? self._dataChannels[peerId].main.transferId : channelName;
 
   if (!self._peerConnections[peerId]) {
-    log.warn([peerId, &#x27;RTCDataChannel&#x27;, channelName, &#x27;Dropping data received from Peer &#x27; +
+    self._log(&#x27;warn&#x27;, [peerId, &#x27;RTCDataChannel&#x27;, channelName, &#x27;Dropping data received from Peer &#x27; +
       &#x27;as connection is not present -&gt;&#x27;], rawData);
     return;
   }
 
   if (!(self._dataChannels[peerId] &amp;&amp; self._dataChannels[peerId][channelProp])) {
-    log.warn([peerId, &#x27;RTCDataChannel&#x27;, channelName, &#x27;Dropping data received from Peer &#x27; +
+    self._log(&#x27;warn&#x27;, [peerId, &#x27;RTCDataChannel&#x27;, channelName, &#x27;Dropping data received from Peer &#x27; +
       &#x27;as Datachannel connection is not present -&gt;&#x27;], rawData);
     return;
   }
@@ -1840,12 +1840,12 @@ Skylink.prototype._processDataChannelData = function(rawData, peerId, channelNam
     try {
       var protocolData = JSON.parse(rawData);
 
-      log.debug([peerId, &#x27;RTCDataChannel&#x27;, channelProp, &#x27;Received protocol message -&gt;&#x27;], protocolData);
+      self._log(&#x27;debug&#x27;, [peerId, &#x27;RTCDataChannel&#x27;, channelProp, &#x27;Received protocol message -&gt;&#x27;], protocolData);
 
       // Ignore ACK, ERROR and CANCEL if there is no data transfer session in-progress
       if ([self._DC_PROTOCOL_TYPE.ACK, self._DC_PROTOCOL_TYPE.ERROR, self._DC_PROTOCOL_TYPE.CANCEL].indexOf(protocolData.type) &gt; -1 &amp;&amp;
         !(transferId &amp;&amp; self._dataTransfers[transferId] &amp;&amp; self._dataTransfers[transferId].sessions[peerId])) {
-          log.warn([peerId, &#x27;RTCDataChannel&#x27;, channelProp, &#x27;Discarded protocol message as data transfer session &#x27; +
+          self._log(&#x27;warn&#x27;, [peerId, &#x27;RTCDataChannel&#x27;, channelProp, &#x27;Discarded protocol message as data transfer session &#x27; +
             &#x27;is not present -&gt;&#x27;], protocolData);
           return;
       }
@@ -1854,7 +1854,7 @@ Skylink.prototype._processDataChannelData = function(rawData, peerId, channelNam
         case self._DC_PROTOCOL_TYPE.WRQ:
           // Discard iOS bidirectional upload when Datachannel is in-progress for data transfers
           if (transferId &amp;&amp; self._dataTransfers[transferId] &amp;&amp; self._dataTransfers[transferId].sessions[peerId]) {
-            log.warn([peerId, &#x27;RTCDataChannel&#x27;, channelProp, &#x27;Rejecting bidirectional data transfer request as &#x27; +
+            self._log(&#x27;warn&#x27;, [peerId, &#x27;RTCDataChannel&#x27;, channelProp, &#x27;Rejecting bidirectional data transfer request as &#x27; +
               &#x27;it is currently not supported in the SDK&#x27;]);
 
             self._sendMessageToDataChannel(peerId, {
@@ -1879,32 +1879,32 @@ Skylink.prototype._processDataChannelData = function(rawData, peerId, channelNam
           self._MESSAGEProtocolHandler(peerId, protocolData, channelProp);
           break;
         default:
-          log.warn([peerId, &#x27;RTCDataChannel&#x27;, channelProp, &#x27;Discarded unknown protocol message -&gt;&#x27;], protocolData);
+          self._log(&#x27;warn&#x27;, [peerId, &#x27;RTCDataChannel&#x27;, channelProp, &#x27;Discarded unknown protocol message -&gt;&#x27;], protocolData);
       }
 
     } catch (error) {
       if (rawData.indexOf(&#x27;{&#x27;) &gt; -1 &amp;&amp; rawData.indexOf(&#x27;}&#x27;) &gt; 0) {
-        log.error([peerId, &#x27;RTCDataChannel&#x27;, channelProp, &#x27;Received error -&gt;&#x27;], error);
+        self._log(&#x27;error&#x27;, [peerId, &#x27;RTCDataChannel&#x27;, channelProp, &#x27;Received error -&gt;&#x27;], error);
 
         self._trigger(&#x27;dataChannelState&#x27;, self.DATA_CHANNEL_STATE.ERROR, peerId, error, channelName, channelType, null);
         throw error;
       }
 
       if (!(transferId &amp;&amp; self._dataTransfers[transferId] &amp;&amp; self._dataTransfers[transferId].sessions[peerId])) {
-        log.warn([peerId, &#x27;RTCDataChannel&#x27;, channelProp, &#x27;Discarded data chunk as data transfer session &#x27; +
+        self._log(&#x27;warn&#x27;, [peerId, &#x27;RTCDataChannel&#x27;, channelProp, &#x27;Discarded data chunk as data transfer session &#x27; +
           &#x27;is not present -&gt;&#x27;], rawData);
         return;
       }
 
       if (self._dataTransfers[transferId].chunks[self._dataTransfers[transferId].sessions[peerId].ackN]) {
-        log.warn([peerId, &#x27;RTCDataChannel&#x27;, transferId, &#x27;Dropping data chunk as it has already been added -&gt;&#x27;], rawData);
+        self._log(&#x27;warn&#x27;, [peerId, &#x27;RTCDataChannel&#x27;, transferId, &#x27;Dropping data chunk as it has already been added -&gt;&#x27;], rawData);
         return;
       }
 
       var chunkType = self.DATA_TRANSFER_DATA_TYPE.BINARY_STRING;
 
       if (self._dataTransfers[transferId].dataType === self.DATA_TRANSFER_SESSION_TYPE.DATA_URL) {
-        log.debug([peerId, &#x27;RTCDataChannel&#x27;, channelProp, &#x27;Received string data chunk @&#x27; +
+        self._log(&#x27;debug&#x27;, [peerId, &#x27;RTCDataChannel&#x27;, channelProp, &#x27;Received string data chunk @&#x27; +
           self._dataTransfers[transferId].sessions[peerId].ackN + &#x27; with size -&gt;&#x27;], rawData.length || rawData.size);
 
         self._DATAProtocolHandler(peerId, rawData, self.DATA_TRANSFER_DATA_TYPE.STRING,
@@ -1913,7 +1913,7 @@ Skylink.prototype._processDataChannelData = function(rawData, peerId, channelNam
       } else {
         var removeSpaceData = rawData.replace(/\s|\r|\n/g, &#x27;&#x27;);
 
-        log.debug([peerId, &#x27;RTCDataChannel&#x27;, channelProp, &#x27;Received binary string data chunk @&#x27; +
+        self._log(&#x27;debug&#x27;, [peerId, &#x27;RTCDataChannel&#x27;, channelProp, &#x27;Received binary string data chunk @&#x27; +
           self._dataTransfers[transferId].sessions[peerId].ackN + &#x27; with size -&gt;&#x27;],
           removeSpaceData.length || removeSpaceData.size);
 
@@ -1923,7 +1923,7 @@ Skylink.prototype._processDataChannelData = function(rawData, peerId, channelNam
     }
   } else {
     if (rawData instanceof Blob) {
-      log.debug([peerId, &#x27;RTCDataChannel&#x27;, channelProp, &#x27;Received blob data chunk @&#x27; +
+      self._log(&#x27;debug&#x27;, [peerId, &#x27;RTCDataChannel&#x27;, channelProp, &#x27;Received blob data chunk @&#x27; +
         self._dataTransfers[transferId].sessions[peerId].ackN + &#x27; with size -&gt;&#x27;], rawData.size);
 
       self._DATAProtocolHandler(peerId, rawData, self.DATA_TRANSFER_DATA_TYPE.BLOB, rawData.size, channelProp);
@@ -1938,7 +1938,7 @@ Skylink.prototype._processDataChannelData = function(rawData, peerId, channelNam
 
       var blob = new Blob([byteArray]);
 
-      log.debug([peerId, &#x27;RTCDataChannel&#x27;, channelProp, &#x27;Received arraybuffer data chunk @&#x27; +
+      self._log(&#x27;debug&#x27;, [peerId, &#x27;RTCDataChannel&#x27;, channelProp, &#x27;Received arraybuffer data chunk @&#x27; +
         self._dataTransfers[transferId].sessions[peerId].ackN + &#x27; with size -&gt;&#x27;], blob.size);
 
       self._DATAProtocolHandler(peerId, blob, self.DATA_TRANSFER_DATA_TYPE.ARRAY_BUFFER, blob.size, channelProp);
@@ -2013,7 +2013,7 @@ Skylink.prototype._ACKProtocolHandler = function(peerId, data, channelProp) {
   var emitEventFn = function (cb) {
     if (peerId === &#x27;MCU&#x27;) {
       if (!self._dataTransfers[transferId].peers[channelProp]) {
-        log.warn([peerId, &#x27;RTCDataChannel&#x27;, channelProp, &#x27;Dropping triggering of ACK event as &#x27; +
+        self._log(&#x27;warn&#x27;, [peerId, &#x27;RTCDataChannel&#x27;, channelProp, &#x27;Dropping triggering of ACK event as &#x27; +
           &#x27;Peers list does not exists&#x27;]);
         return;
       }
@@ -2100,7 +2100,7 @@ Skylink.prototype._ACKProtocolHandler = function(peerId, data, channelProp) {
 Skylink.prototype._MESSAGEProtocolHandler = function(peerId, data, channelProp) {
   var senderPeerId = data.sender || peerId;
 
-  log.log([senderPeerId, &#x27;RTCDataChannel&#x27;, channelProp, &#x27;Received P2P message from peer:&#x27;], data);
+  this._log(&#x27;log&#x27;, [senderPeerId, &#x27;RTCDataChannel&#x27;, channelProp, &#x27;Received P2P message from peer:&#x27;], data);
 
   this._trigger(&#x27;incomingMessage&#x27;, {
     content: data.data,
@@ -2136,7 +2136,7 @@ Skylink.prototype._ERRORProtocolHandler = function(peerId, data, channelProp) {
   var emitEventFn = function (cb) {
     if (peerId === &#x27;MCU&#x27;) {
       if (!self._dataTransfers[transferId].peers[channelProp]) {
-        log.warn([peerId, &#x27;RTCDataChannel&#x27;, channelProp, &#x27;Dropping triggering of ERROR event as &#x27; +
+        self._log(&#x27;warn&#x27;, [peerId, &#x27;RTCDataChannel&#x27;, channelProp, &#x27;Dropping triggering of ERROR event as &#x27; +
           &#x27;Peers list does not exists&#x27;]);
         return;
       }
@@ -2151,7 +2151,7 @@ Skylink.prototype._ERRORProtocolHandler = function(peerId, data, channelProp) {
     }
   };
 
-  log.error([peerId, &#x27;RTCDataChannel&#x27;, channelProp, &#x27;Received an error from peer -&gt;&#x27;], data);
+  self._log(&#x27;error&#x27;, [peerId, &#x27;RTCDataChannel&#x27;, channelProp, &#x27;Received an error from peer -&gt;&#x27;], data);
 
   emitEventFn(function (evtPeerId) {
     self._trigger(&#x27;dataTransferState&#x27;, self.DATA_TRANSFER_STATE.ERROR, transferId, evtPeerId,
@@ -2185,7 +2185,7 @@ Skylink.prototype._CANCELProtocolHandler = function(peerId, data, channelProp) {
   var emitEventFn = function (cb) {
     if (peerId === &#x27;MCU&#x27;) {
       if (!self._dataTransfers[transferId].peers[channelProp]) {
-        log.warn([peerId, &#x27;RTCDataChannel&#x27;, channelProp, &#x27;Dropping triggering of CANCEL event as &#x27; +
+        self._log(&#x27;warn&#x27;, [peerId, &#x27;RTCDataChannel&#x27;, channelProp, &#x27;Dropping triggering of CANCEL event as &#x27; +
           &#x27;Peers list does not exists&#x27;]);
         return;
       }
@@ -2200,7 +2200,7 @@ Skylink.prototype._CANCELProtocolHandler = function(peerId, data, channelProp) {
     }
   };
 
-  log.error([peerId, &#x27;RTCDataChannel&#x27;, channelProp, &#x27;Received data transfer termination from peer -&gt;&#x27;], data);
+  self._log(&#x27;error&#x27;, [peerId, &#x27;RTCDataChannel&#x27;, channelProp, &#x27;Received data transfer termination from peer -&gt;&#x27;], data);
 
   emitEventFn(function (evtPeerId) {
     self._trigger(&#x27;dataTransferState&#x27;, self.DATA_TRANSFER_STATE.CANCEL, transferId, evtPeerId,
@@ -2238,7 +2238,7 @@ Skylink.prototype._DATAProtocolHandler = function(peerId, chunk, chunkType, chun
   self._dataTransfers[transferId].chunks[self._dataTransfers[transferId].sessions[peerId].ackN] = chunk;
 
   if (self._dataTransfers[transferId].sessions[peerId].receivedSize &gt;= self._dataTransfers[transferId].size) {
-    log.log([peerId, &#x27;RTCDataChannel&#x27;, channelProp, &#x27;Data transfer has been completed. Computed size -&gt;&#x27;], 
+    self._log(&#x27;log&#x27;, [peerId, &#x27;RTCDataChannel&#x27;, channelProp, &#x27;Data transfer has been completed. Computed size -&gt;&#x27;], 
       self._dataTransfers[transferId].sessions[peerId].receivedSize);
 
     // Send last ACK to Peer to indicate completion of data transfers

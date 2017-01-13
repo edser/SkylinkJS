@@ -1,4 +1,4 @@
-/*! skylinkjs - v0.6.17 - Thu Jan 12 2017 18:11:44 GMT+0800 (SGT) */
+/*! skylinkjs - v0.6.17 - Fri Jan 13 2017 19:13:01 GMT+0800 (SGT) */
 
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.io = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
 
@@ -11532,7 +11532,7 @@ if ( (navigator.mozGetUserMedia ||
   }
 })();
 
-/*! skylinkjs - v0.6.17 - Thu Jan 12 2017 18:11:44 GMT+0800 (SGT) */
+/*! skylinkjs - v0.6.17 - Fri Jan 13 2017 19:13:01 GMT+0800 (SGT) */
 
 (function(refThis) {
 
@@ -11697,6 +11697,9 @@ var clone = function (obj) {
  * [See License (Apache 2.0)](https://github.com/Temasys/SkylinkJS/blob/master/LICENSE)
  *
  * @class Skylink
+ * @param {String} [instanceLabel] The Skylink object instance label ID for identification.
+ * - When not provided, an instance label ID would be generated.
+ *   <small>It is recommended to provide an unique instance label ID.</small>
  * @constructor
  * @example
  *   // Here's a simple example on how you can start using Skylink.
@@ -11740,7 +11743,18 @@ var clone = function (obj) {
  * @for Skylink
  * @since 0.5.0
  */
-function Skylink() {
+function Skylink(instanceLabel) {
+  /**
+   * The Skylink object instance label ID.
+   * @attribute INSTANCE_LABEL
+   * @type String
+   * @readOnly
+   * @for Skylink
+   * @since 0.6.18
+   */
+  this.INSTANCE_LABEL = typeof instanceLabel === 'string' && instanceLabel && instanceLabel !== '_' ?
+    instanceLabel : (new Date()).getTime() + '_' + (Math.random() * 1000);
+
   /**
    * Stores the flag if Peers should have any Datachannel connections.
    * @attribute _enableDataChannel
@@ -12679,6 +12693,57 @@ function Skylink() {
    * @since 0.6.18
    */
   this._sdpSessions = {};
+
+  /**
+   * Stores the current SDK log level.
+   * Default is ERROR (<code>0</code>).
+   * @attribute _logLevel
+   * @type String
+   * @default 0
+   * @private
+   * @scoped true
+   * @for Skylink
+   * @since 0.5.4
+   */
+  this._logLevel = 0;
+
+  /**
+   * Stores the flag if debugging mode is enabled.
+   * This manipulates the SkylinkLogs interface.
+   * @attribute _enableDebugMode
+   * @type Boolean
+   * @default false
+   * @private
+   * @scoped true
+   * @for Skylink
+   * @since 0.5.4
+   */
+  this._enableDebugMode = false;
+
+  /**
+   * Stores the flag if logs should be stored in SkylinkLogs interface.
+   * @attribute _enableDebugStack
+   * @type Boolean
+   * @default false
+   * @private
+   * @scoped true
+   * @for Skylink
+   * @since 0.5.5
+   */
+  this._enableDebugStack = false;
+
+  /**
+   * Stores the flag if logs should trace if available.
+   * This uses the <code>console.trace</code> API.
+   * @attribute _enableDebugTrace
+   * @type Boolean
+   * @default false
+   * @private
+   * @scoped true
+   * @for Skylink
+   * @since 0.5.5
+   */
+  this._enableDebugTrace = false;
 }
 Skylink.prototype.DATA_CHANNEL_STATE = {
   CONNECTING: 'connecting',
@@ -12752,14 +12817,14 @@ Skylink.prototype._createDataChannel = function(peerId, dataChannel, createAsMes
   var self = this;
 
   if (!self._user) {
-    log.error([peerId, 'RTCDataChannel', null,
-      'Aborting of creating or initializing Datachannel as User does not have Room session']);
+    self._log('error', [peerId, 'RTCDataChannel', null,
+      'Aborting of creating or initializing Datachannel as User does not have Room session'], null, self._useStrict);
     return;
   }
 
   if (!(self._peerConnections[peerId] &&
     self._peerConnections[peerId].signalingState !== self.PEER_CONNECTION_STATE.CLOSED)) {
-    log.error([peerId, 'RTCDataChannel', null,
+    self._log('error', [peerId, 'RTCDataChannel', null,
       'Aborting of creating or initializing Datachannel as Peer connection does not exists']);
     return;
   }
@@ -12780,14 +12845,14 @@ Skylink.prototype._createDataChannel = function(peerId, dataChannel, createAsMes
       dataChannel = self._peerConnections[peerId].createDataChannel(channelName);
 
     } catch (error) {
-      log.error([peerId, 'RTCDataChannel', channelName, 'Failed creating Datachannel ->'], error);
+      self._log('error', [peerId, 'RTCDataChannel', channelName, 'Failed creating Datachannel ->'], error);
       self._trigger('dataChannelState', self.DATA_CHANNEL_STATE.CREATE_ERROR, peerId, error, channelName, channelType, null);
       return;
     }
   }
 
   if (!self._dataChannels[peerId]) {
-    log.debug([peerId, 'RTCDataChannel', channelName, 'initializing main DataChannel']);
+    self._log('debug', [peerId, 'RTCDataChannel', channelName, 'initializing main DataChannel']);
 
     channelType = self.DATA_CHANNEL_TYPE.MESSAGING;
 
@@ -12803,13 +12868,13 @@ Skylink.prototype._createDataChannel = function(peerId, dataChannel, createAsMes
   dataChannel.onerror = function (evt) {
     var channelError = evt.error || evt;
 
-    log.error([peerId, 'RTCDataChannel', channelName, 'Datachannel has an exception ->'], channelError);
+    self._log('error', [peerId, 'RTCDataChannel', channelName, 'Datachannel has an exception ->'], channelError);
 
     self._trigger('dataChannelState', self.DATA_CHANNEL_STATE.ERROR, peerId, channelError, channelName, channelType, null);
   };
 
   dataChannel.onbufferedamountlow = function () {
-    log.debug([peerId, 'RTCDataChannel', channelName, 'Datachannel buffering data transfer low']);
+    self._log('debug', [peerId, 'RTCDataChannel', channelName, 'Datachannel buffering data transfer low']);
 
     // TODO: Should we add an event here
     self._trigger('dataChannelState', self.DATA_CHANNEL_STATE.BUFFERED_AMOUNT_LOW, peerId, null, channelName, channelType, null);
@@ -12820,7 +12885,7 @@ Skylink.prototype._createDataChannel = function(peerId, dataChannel, createAsMes
   };
 
   var onOpenHandlerFn = function () {
-    log.debug([peerId, 'RTCDataChannel', channelName, 'Datachannel has opened']);
+    self._log('debug', [peerId, 'RTCDataChannel', channelName, 'Datachannel has opened']);
 
     self._trigger('dataChannelState', self.DATA_CHANNEL_STATE.OPEN, peerId, null, channelName, channelType, null);
   };
@@ -12835,7 +12900,7 @@ Skylink.prototype._createDataChannel = function(peerId, dataChannel, createAsMes
   }
 
   var onCloseHandlerFn = function () {
-    log.debug([peerId, 'RTCDataChannel', channelName, 'Datachannel has closed']);
+    self._log('debug', [peerId, 'RTCDataChannel', channelName, 'Datachannel has closed']);
 
     self._trigger('dataChannelState', self.DATA_CHANNEL_STATE.CLOSED, peerId, null, channelName, channelType, null);
 
@@ -12851,7 +12916,7 @@ Skylink.prototype._createDataChannel = function(peerId, dataChannel, createAsMes
           self._peerConnections[peerId].signalingState !== self.PEER_CONNECTION_STATE.CLOSED &&
           (self._peerConnections[peerId].localDescription &&
           self._peerConnections[peerId].localDescription.type === self.HANDSHAKE_PROGRESS.OFFER)) {
-          log.debug([peerId, 'RTCDataChannel', channelName, 'Reviving Datachannel connection']);
+          self._log('debug', [peerId, 'RTCDataChannel', channelName, 'Reviving Datachannel connection']);
           self._createDataChannel(peerId, channelName, true);
         }
       }, 100);
@@ -12925,19 +12990,19 @@ Skylink.prototype._sendMessageToDataChannel = function(peerId, data, channelProp
 
   // TODO: What happens when we want to send binary data over or ArrayBuffers?
   if (!(typeof data === 'object' && data) && !(data && typeof data === 'string')) {
-    log.warn([peerId, 'RTCDataChannel', 'prop:' + channelProp, 'Dropping invalid data ->'], data);
+    self._log('warn', [peerId, 'RTCDataChannel', 'prop:' + channelProp, 'Dropping invalid data ->'], data);
     return;
   }
 
   if (!(self._peerConnections[peerId] &&
     self._peerConnections[peerId].signalingState !== self.PEER_CONNECTION_STATE.CLOSED)) {
-    log.warn([peerId, 'RTCDataChannel', 'prop:' + channelProp,
+    self._log('warn', [peerId, 'RTCDataChannel', 'prop:' + channelProp,
       'Dropping for sending message as Peer connection does not exists or is closed ->'], data);
     return;
   }
 
   if (!(self._dataChannels[peerId] && self._dataChannels[peerId][channelProp])) {
-    log.warn([peerId, 'RTCDataChannel', 'prop:' + channelProp,
+    self._log('warn', [peerId, 'RTCDataChannel', 'prop:' + channelProp,
       'Dropping for sending message as Datachannel connection does not exists ->'], data);
     return;
   }
@@ -12952,7 +13017,7 @@ Skylink.prototype._sendMessageToDataChannel = function(peerId, data, channelProp
     var notOpenError = 'Failed sending message as Datachannel connection state is not opened. Current ' +
       'readyState is "' + readyState + '"';
 
-    log.error([peerId, 'RTCDataChannel', 'prop:' + channelProp, notOpenError + ' ->'], data);
+    self._log('error', [peerId, 'RTCDataChannel', 'prop:' + channelProp, notOpenError + ' ->'], data);
 
     self._trigger('dataChannelState', self.DATA_CHANNEL_STATE.SEND_MESSAGE_ERROR, peerId,
       new Error(notOpenError), channelName, channelType, messageType);
@@ -12962,17 +13027,17 @@ Skylink.prototype._sendMessageToDataChannel = function(peerId, data, channelProp
 
   try {
     if (!doNotConvert && typeof data === 'object') {
-      log.debug([peerId, 'RTCDataChannel', 'prop:' + channelProp, 'Sending message ->'], data);
+      self._log('debug', [peerId, 'RTCDataChannel', 'prop:' + channelProp, 'Sending message ->'], data);
 
       self._dataChannels[peerId][channelProp].channel.send(JSON.stringify(data));
 
     } else {
-      log.debug([peerId, 'RTCDataChannel', 'prop:' + channelProp, 'Sending data with size ->'], data.size || data.length);
+      self._log('debug', [peerId, 'RTCDataChannel', 'prop:' + channelProp, 'Sending data with size ->'], data.size || data.length);
 
       self._dataChannels[peerId][channelProp].channel.send(data);
     }
   } catch (error) {
-    log.error([peerId, 'RTCDataChannel', 'prop:' + channelProp, 'Failed sending message ->'], error);
+    self._log('error', [peerId, 'RTCDataChannel', 'prop:' + channelProp, 'Failed sending message ->'], error);
 
     self._trigger('dataChannelState', self.DATA_CHANNEL_STATE.SEND_MESSAGE_ERROR, peerId,
       error, channelName, channelType, messageType);
@@ -12992,7 +13057,7 @@ Skylink.prototype._closeDataChannel = function(peerId, channelProp) {
   var self = this;
 
   if (!self._dataChannels[peerId]) {
-    log.warn([peerId, 'RTCDataChannel', channelProp || null,
+    self._log('warn', [peerId, 'RTCDataChannel', channelProp || null,
       'Aborting closing Datachannels as Peer connection does not have Datachannel sessions']);
     return;
   }
@@ -13002,7 +13067,7 @@ Skylink.prototype._closeDataChannel = function(peerId, channelProp) {
     var channelType = self._dataChannels[peerId][rChannelProp].channelType;
 
     if (self._dataChannels[peerId][rChannelProp].readyState !== self.DATA_CHANNEL_STATE.CLOSED) {
-      log.debug([peerId, 'RTCDataChannel', channelName, 'Closing Datachannel']);
+      self._log('debug', [peerId, 'RTCDataChannel', channelName, 'Closing Datachannel']);
 
       self._trigger('dataChannelState', self.DATA_CHANNEL_STATE.CLOSING, peerId, null, channelName, channelType, null);
 
@@ -13022,7 +13087,7 @@ Skylink.prototype._closeDataChannel = function(peerId, channelProp) {
     }
   } else {
     if (!self._dataChannels[peerId][channelProp]) {
-      log.warn([peerId, 'RTCDataChannel', channelProp, 'Aborting closing Datachannel as it does not exists']);
+      self._log('warn', [peerId, 'RTCDataChannel', channelProp, 'Aborting closing Datachannel as it does not exists']);
       return;
     }
 
@@ -13594,7 +13659,7 @@ Skylink.prototype.sendBlobData = function(data, timeout, targetPeerId, sendChunk
 
   // Function that returns the error emitted before data transfer has started
   var emitErrorBeforeDataTransferFn = function (error) {
-    log.error(error);
+    self._log('error', error);
 
     if (typeof callback === 'function') {
       var transferErrors = {};
@@ -13661,7 +13726,7 @@ Skylink.prototype.sendBlobData = function(data, timeout, targetPeerId, sendChunk
   }
 
   if (self._hasMCU && transferInfo.chunkType === self.DATA_TRANSFER_DATA_TYPE.ARRAY_BUFFER) {
-    log.warn('Binary data chunks transfer is not yet supported with MCU environment. ' +
+    self._log('warn', 'Binary data chunks transfer is not yet supported with MCU environment. ' +
       'Fallbacking to binary string data chunks transfer.');
     transferInfo.chunkType = self.DATA_TRANSFER_DATA_TYPE.BINARY_STRING;
     transferInfo.chunkSize = self._CHUNK_FILE_SIZE;
@@ -13869,7 +13934,7 @@ Skylink.prototype.sendURLData = function(data, timeout, targetPeerId, callback) 
 
   // Function that returns the error emitted before data transfer has started
   var emitErrorBeforeDataTransferFn = function (error) {
-    log.error(error);
+    self._log('error', error);
 
     if (typeof callback === 'function') {
       var transferErrors = {};
@@ -13976,19 +14041,19 @@ Skylink.prototype.acceptDataTransfer = function (peerId, transferId, accept) {
   var self = this;
 
   if (typeof transferId !== 'string' && typeof peerId !== 'string') {
-    log.error([peerId, 'RTCDataChannel', transferId, 'Aborting accept data transfer as ' +
+    self._log('error', [peerId, 'RTCDataChannel', transferId, 'Aborting accept data transfer as ' +
       'data transfer ID or peer ID is not provided']);
     return;
   }
 
   if (!self._dataChannels[peerId]) {
-    log.error([peerId, 'RTCDataChannel', transferId, 'Aborting accept data transfer as ' +
+    self._log('error', [peerId, 'RTCDataChannel', transferId, 'Aborting accept data transfer as ' +
       'Peer does not have any Datachannel connections']);
     return;
   }
 
   if (!self._dataTransfers[transferId]) {
-    log.error([peerId, 'RTCDataChannel', transferId, 'Aborting accept data transfer as ' +
+    self._log('error', [peerId, 'RTCDataChannel', transferId, 'Aborting accept data transfer as ' +
       'invalid transfer ID is provided']);
     return;
   }
@@ -14001,7 +14066,7 @@ Skylink.prototype.acceptDataTransfer = function (peerId, transferId, accept) {
   }
 
   if (accept) {
-    log.debug([peerId, 'RTCDataChannel', transferId, 'Accepted data transfer and starting ...']);
+    self._log('debug', [peerId, 'RTCDataChannel', transferId, 'Accepted data transfer and starting ...']);
 
     var dataChannelStateCbFn = function (state, evtPeerId, error, cN, cT) {
       console.info(evtPeerId, error, cN, cT);
@@ -14057,7 +14122,7 @@ Skylink.prototype.acceptDataTransfer = function (peerId, transferId, accept) {
       self._getTransferInfo(transferId, peerId, true, false, false), null);
 
   } else {
-    log.warn([peerId, 'RTCDataChannel', transferId, 'Rejected data transfer and data transfer request has been aborted']);
+    self._log('warn', [peerId, 'RTCDataChannel', transferId, 'Rejected data transfer and data transfer request has been aborted']);
 
     // Send ACK protocol to terminate data transfer request
     // MCU sends the data transfer from the "P2P" Datachannel
@@ -14120,22 +14185,22 @@ Skylink.prototype.cancelDataTransfer = function (peerId, transferId) {
   var self = this;
 
   if (!(transferId && typeof transferId === 'string')) {
-    log.error([peerId, 'RTCDataChannel', transferId, 'Aborting cancel data transfer as data transfer ID is not provided']);
+    self._log('error', [peerId, 'RTCDataChannel', transferId, 'Aborting cancel data transfer as data transfer ID is not provided']);
     return;
   }
 
   if (!(peerId && typeof peerId === 'string')) {
-    log.error([peerId, 'RTCDataChannel', transferId, 'Aborting cancel data transfer as peer ID is not provided']);
+    self._log('error', [peerId, 'RTCDataChannel', transferId, 'Aborting cancel data transfer as peer ID is not provided']);
     return;
   }
 
   if (!self._dataTransfers[transferId]) {
-    log.error([peerId, 'RTCDataChannel', transferId, 'Aborting cancel data transfer as ' +
+    self._log('error', [peerId, 'RTCDataChannel', transferId, 'Aborting cancel data transfer as ' +
       'data transfer session does not exists.']);
     return;
   }
 
-  log.debug([peerId, 'RTCDataChannel', transferId, 'Canceling data transfer ...']);
+  self._log('debug', [peerId, 'RTCDataChannel', transferId, 'Canceling data transfer ...']);
 
   /**
    * Emit data state event function.
@@ -14153,13 +14218,13 @@ Skylink.prototype.cancelDataTransfer = function (peerId, transferId) {
   // For uploading from Peer to MCU case of broadcast
   if (self._hasMCU && self._dataTransfers[transferId].direction === self.DATA_TRANSFER_TYPE.UPLOAD) {
     if (!self._dataChannels.MCU) {
-      log.error([peerId, 'RTCDataChannel', transferId, 'Aborting cancel data transfer as ' +
+      self._log('error', [peerId, 'RTCDataChannel', transferId, 'Aborting cancel data transfer as ' +
         'Peer does not have any Datachannel connections']);
       return;
     }
 
     // We abort all data transfers to all Peers if uploading via MCU since it broadcasts to MCU
-    log.warn([peerId, 'RTCDataChannel', transferId, 'Aborting all data transfers to Peers']);
+    self._log('warn', [peerId, 'RTCDataChannel', transferId, 'Aborting all data transfers to Peers']);
 
     // If data transfer to MCU broadcast has interop Peers, send to MCU via the "main" Datachannel
     if (Object.keys(self._dataTransfers[transferId].peers.main).length > 0) {
@@ -14189,7 +14254,7 @@ Skylink.prototype.cancelDataTransfer = function (peerId, transferId) {
     var channelProp = 'main';
 
     if (!self._dataChannels[peerId]) {
-      log.error([peerId, 'RTCDataChannel', transferId, 'Aborting cancel data transfer as ' +
+      self._log('error', [peerId, 'RTCDataChannel', transferId, 'Aborting cancel data transfer as ' +
         'Peer does not have any Datachannel connections']);
       return;
     }
@@ -14282,12 +14347,12 @@ Skylink.prototype.sendP2PMessage = function(message, targetPeerId) {
   }
 
   if (!this._inRoom || !this._user) {
-    log.error('Unable to send message as User is not in Room. ->', message);
+    this._log('error', 'Unable to send message as User is not in Room. ->', message);
     return;
   }
 
   if (!this._enableDataChannel) {
-    log.error('Unable to send message as User does not have Datachannel enabled. ->', message);
+    this._log('error', 'Unable to send message as User does not have Datachannel enabled. ->', message);
     return;
   }
 
@@ -14296,7 +14361,7 @@ Skylink.prototype.sendP2PMessage = function(message, targetPeerId) {
     var peerId = listOfPeers[i];
 
     if (!this._dataChannels[peerId]) {
-      log.error([peerId, 'RTCDataChannel', null, 'Dropping of sending message to Peer as ' +
+      this._log('error', [peerId, 'RTCDataChannel', null, 'Dropping of sending message to Peer as ' +
         'Datachannel connection does not exists']);
       listOfPeers.splice(i, 1);
       i--;
@@ -14304,7 +14369,7 @@ Skylink.prototype.sendP2PMessage = function(message, targetPeerId) {
       listOfPeers.splice(i, 1);
       i--;
     } else if (!this._hasMCU) {
-      log.debug([peerId, 'RTCDataChannel', null, 'Sending ' + (isPrivate ? 'private' : '') +
+      this._log('debug', [peerId, 'RTCDataChannel', null, 'Sending ' + (isPrivate ? 'private' : '') +
         ' P2P message to Peer']);
 
       this._sendMessageToDataChannel(peerId, {
@@ -14318,12 +14383,12 @@ Skylink.prototype.sendP2PMessage = function(message, targetPeerId) {
   }
 
   if (listOfPeers.length === 0) {
-    log.warn('Currently there are no Peers to send P2P message to (unless the message is queued ' +
+    this._log('warn', 'Currently there are no Peers to send P2P message to (unless the message is queued ' +
       'and there are Peer connected by then).');
   }
 
   if (this._hasMCU) {
-    log.debug(['MCU', 'RTCDataChannel', null, 'Broadcasting ' + (isPrivate ? 'private' : '') +
+    this._log('debug', ['MCU', 'RTCDataChannel', null, 'Broadcasting ' + (isPrivate ? 'private' : '') +
       ' P2P message to Peers']);
 
     this._sendMessageToDataChannel('MCU', {
@@ -14407,7 +14472,7 @@ Skylink.prototype._startDataTransfer = function(chunks, transferInfo, listOfPeer
       return;
     }
 
-    log.debug([peerId, 'RTCDataChannel', transferId, 'Data transfer result. Is errors present? ->'], error);
+    self._log('debug', [peerId, 'RTCDataChannel', transferId, 'Data transfer result. Is errors present? ->'], error);
 
     transferCompleted.push(peerId);
 
@@ -14416,7 +14481,7 @@ Skylink.prototype._startDataTransfer = function(chunks, transferInfo, listOfPeer
     }
 
     if (listOfPeers.length === transferCompleted.length) {
-      log.log([null, 'RTCDataChannel', transferId, 'Data transfer request completed']);
+      self._log('log', [null, 'RTCDataChannel', transferId, 'Data transfer request completed']);
 
       if (typeof callback === 'function') {
         if (Object.keys(transferErrors).length > 0) {
@@ -14512,7 +14577,7 @@ Skylink.prototype._startDataTransferToPeer = function (transferId, peerId, callb
     var chunkType = self._dataTransfers[transferId].chunkType;
 
     if (self._dataTransfers[transferId].enforceBSPeers.indexOf(peerId) > -1) {
-      log.warn([peerId, 'RTCDataChannel', transferId,
+      self._log('warn', [peerId, 'RTCDataChannel', transferId,
         'Binary data chunks transfer is not yet supported with Peer connecting from ' +
         'Android, iOS and C++ SDK. Fallbacking to binary string data chunks transfer.']);
 
@@ -14843,11 +14908,11 @@ Skylink.prototype._handleDataTransferTimeoutForPeer = function (transferId, peer
   var self = this;
 
   if (!(self._dataTransfers[transferId] && self._dataTransfers[transferId].sessions[peerId])) {
-    log.debug([peerId, 'RTCDataChannel', transferId, 'Data transfer does not exists for Peer. Ignoring timeout.']);
+    self._log('debug', [peerId, 'RTCDataChannel', transferId, 'Data transfer does not exists for Peer. Ignoring timeout.']);
     return;
   }
 
-  log.debug([peerId, 'RTCDataChannel', transferId, 'Clearing data transfer timer for Peer.']);
+  self._log('debug', [peerId, 'RTCDataChannel', transferId, 'Clearing data transfer timer for Peer.']);
 
   if (self._dataTransfers[transferId].sessions[peerId].timer) {
     clearTimeout(self._dataTransfers[transferId].sessions[peerId].timer);
@@ -14856,25 +14921,25 @@ Skylink.prototype._handleDataTransferTimeoutForPeer = function (transferId, peer
   self._dataTransfers[transferId].sessions[peerId].timer = null;
 
   if (setPeerTO) {
-    log.debug([peerId, 'RTCDataChannel', transferId, 'Setting data transfer timer for Peer.']);
+    self._log('debug', [peerId, 'RTCDataChannel', transferId, 'Setting data transfer timer for Peer.']);
 
     self._dataTransfers[transferId].sessions[peerId].timer = setTimeout(function () {
       if (!(self._dataTransfers[transferId] && self._dataTransfers[transferId].sessions[peerId])) {
-        log.debug([peerId, 'RTCDataChannel', transferId, 'Data transfer already ended for Peer. Ignoring expired timeout.']);
+        self._log('debug', [peerId, 'RTCDataChannel', transferId, 'Data transfer already ended for Peer. Ignoring expired timeout.']);
         return;
       }
 
       if (!self._user) {
-        log.debug([peerId, 'RTCDataChannel', transferId, 'User is not in Room. Ignoring expired timeout.']);
+        self._log('debug', [peerId, 'RTCDataChannel', transferId, 'User is not in Room. Ignoring expired timeout.']);
         return;
       }
 
       if (!self._dataChannels[peerId]) {
-        log.debug([peerId, 'RTCDataChannel', transferId, 'Datachannel connection does not exists. Ignoring expired timeout.']);
+        self._log('debug', [peerId, 'RTCDataChannel', transferId, 'Datachannel connection does not exists. Ignoring expired timeout.']);
         return;
       }
 
-      log.error([peerId, 'RTCDataChannel', transferId, 'Data transfer response has timed out.']);
+      self._log('error', [peerId, 'RTCDataChannel', transferId, 'Data transfer response has timed out.']);
 
       /**
        * Emit event for Peers function.
@@ -14938,13 +15003,13 @@ Skylink.prototype._processDataChannelData = function(rawData, peerId, channelNam
   var transferId = channelProp === 'main' ? self._dataChannels[peerId].main.transferId : channelName;
 
   if (!self._peerConnections[peerId]) {
-    log.warn([peerId, 'RTCDataChannel', channelName, 'Dropping data received from Peer ' +
+    self._log('warn', [peerId, 'RTCDataChannel', channelName, 'Dropping data received from Peer ' +
       'as connection is not present ->'], rawData);
     return;
   }
 
   if (!(self._dataChannels[peerId] && self._dataChannels[peerId][channelProp])) {
-    log.warn([peerId, 'RTCDataChannel', channelName, 'Dropping data received from Peer ' +
+    self._log('warn', [peerId, 'RTCDataChannel', channelName, 'Dropping data received from Peer ' +
       'as Datachannel connection is not present ->'], rawData);
     return;
   }
@@ -14954,12 +15019,12 @@ Skylink.prototype._processDataChannelData = function(rawData, peerId, channelNam
     try {
       var protocolData = JSON.parse(rawData);
 
-      log.debug([peerId, 'RTCDataChannel', channelProp, 'Received protocol message ->'], protocolData);
+      self._log('debug', [peerId, 'RTCDataChannel', channelProp, 'Received protocol message ->'], protocolData);
 
       // Ignore ACK, ERROR and CANCEL if there is no data transfer session in-progress
       if ([self._DC_PROTOCOL_TYPE.ACK, self._DC_PROTOCOL_TYPE.ERROR, self._DC_PROTOCOL_TYPE.CANCEL].indexOf(protocolData.type) > -1 &&
         !(transferId && self._dataTransfers[transferId] && self._dataTransfers[transferId].sessions[peerId])) {
-          log.warn([peerId, 'RTCDataChannel', channelProp, 'Discarded protocol message as data transfer session ' +
+          self._log('warn', [peerId, 'RTCDataChannel', channelProp, 'Discarded protocol message as data transfer session ' +
             'is not present ->'], protocolData);
           return;
       }
@@ -14968,7 +15033,7 @@ Skylink.prototype._processDataChannelData = function(rawData, peerId, channelNam
         case self._DC_PROTOCOL_TYPE.WRQ:
           // Discard iOS bidirectional upload when Datachannel is in-progress for data transfers
           if (transferId && self._dataTransfers[transferId] && self._dataTransfers[transferId].sessions[peerId]) {
-            log.warn([peerId, 'RTCDataChannel', channelProp, 'Rejecting bidirectional data transfer request as ' +
+            self._log('warn', [peerId, 'RTCDataChannel', channelProp, 'Rejecting bidirectional data transfer request as ' +
               'it is currently not supported in the SDK']);
 
             self._sendMessageToDataChannel(peerId, {
@@ -14993,32 +15058,32 @@ Skylink.prototype._processDataChannelData = function(rawData, peerId, channelNam
           self._MESSAGEProtocolHandler(peerId, protocolData, channelProp);
           break;
         default:
-          log.warn([peerId, 'RTCDataChannel', channelProp, 'Discarded unknown protocol message ->'], protocolData);
+          self._log('warn', [peerId, 'RTCDataChannel', channelProp, 'Discarded unknown protocol message ->'], protocolData);
       }
 
     } catch (error) {
       if (rawData.indexOf('{') > -1 && rawData.indexOf('}') > 0) {
-        log.error([peerId, 'RTCDataChannel', channelProp, 'Received error ->'], error);
+        self._log('error', [peerId, 'RTCDataChannel', channelProp, 'Received error ->'], error);
 
         self._trigger('dataChannelState', self.DATA_CHANNEL_STATE.ERROR, peerId, error, channelName, channelType, null);
         throw error;
       }
 
       if (!(transferId && self._dataTransfers[transferId] && self._dataTransfers[transferId].sessions[peerId])) {
-        log.warn([peerId, 'RTCDataChannel', channelProp, 'Discarded data chunk as data transfer session ' +
+        self._log('warn', [peerId, 'RTCDataChannel', channelProp, 'Discarded data chunk as data transfer session ' +
           'is not present ->'], rawData);
         return;
       }
 
       if (self._dataTransfers[transferId].chunks[self._dataTransfers[transferId].sessions[peerId].ackN]) {
-        log.warn([peerId, 'RTCDataChannel', transferId, 'Dropping data chunk as it has already been added ->'], rawData);
+        self._log('warn', [peerId, 'RTCDataChannel', transferId, 'Dropping data chunk as it has already been added ->'], rawData);
         return;
       }
 
       var chunkType = self.DATA_TRANSFER_DATA_TYPE.BINARY_STRING;
 
       if (self._dataTransfers[transferId].dataType === self.DATA_TRANSFER_SESSION_TYPE.DATA_URL) {
-        log.debug([peerId, 'RTCDataChannel', channelProp, 'Received string data chunk @' +
+        self._log('debug', [peerId, 'RTCDataChannel', channelProp, 'Received string data chunk @' +
           self._dataTransfers[transferId].sessions[peerId].ackN + ' with size ->'], rawData.length || rawData.size);
 
         self._DATAProtocolHandler(peerId, rawData, self.DATA_TRANSFER_DATA_TYPE.STRING,
@@ -15027,7 +15092,7 @@ Skylink.prototype._processDataChannelData = function(rawData, peerId, channelNam
       } else {
         var removeSpaceData = rawData.replace(/\s|\r|\n/g, '');
 
-        log.debug([peerId, 'RTCDataChannel', channelProp, 'Received binary string data chunk @' +
+        self._log('debug', [peerId, 'RTCDataChannel', channelProp, 'Received binary string data chunk @' +
           self._dataTransfers[transferId].sessions[peerId].ackN + ' with size ->'],
           removeSpaceData.length || removeSpaceData.size);
 
@@ -15037,7 +15102,7 @@ Skylink.prototype._processDataChannelData = function(rawData, peerId, channelNam
     }
   } else {
     if (rawData instanceof Blob) {
-      log.debug([peerId, 'RTCDataChannel', channelProp, 'Received blob data chunk @' +
+      self._log('debug', [peerId, 'RTCDataChannel', channelProp, 'Received blob data chunk @' +
         self._dataTransfers[transferId].sessions[peerId].ackN + ' with size ->'], rawData.size);
 
       self._DATAProtocolHandler(peerId, rawData, self.DATA_TRANSFER_DATA_TYPE.BLOB, rawData.size, channelProp);
@@ -15052,7 +15117,7 @@ Skylink.prototype._processDataChannelData = function(rawData, peerId, channelNam
 
       var blob = new Blob([byteArray]);
 
-      log.debug([peerId, 'RTCDataChannel', channelProp, 'Received arraybuffer data chunk @' +
+      self._log('debug', [peerId, 'RTCDataChannel', channelProp, 'Received arraybuffer data chunk @' +
         self._dataTransfers[transferId].sessions[peerId].ackN + ' with size ->'], blob.size);
 
       self._DATAProtocolHandler(peerId, blob, self.DATA_TRANSFER_DATA_TYPE.ARRAY_BUFFER, blob.size, channelProp);
@@ -15127,7 +15192,7 @@ Skylink.prototype._ACKProtocolHandler = function(peerId, data, channelProp) {
   var emitEventFn = function (cb) {
     if (peerId === 'MCU') {
       if (!self._dataTransfers[transferId].peers[channelProp]) {
-        log.warn([peerId, 'RTCDataChannel', channelProp, 'Dropping triggering of ACK event as ' +
+        self._log('warn', [peerId, 'RTCDataChannel', channelProp, 'Dropping triggering of ACK event as ' +
           'Peers list does not exists']);
         return;
       }
@@ -15214,7 +15279,7 @@ Skylink.prototype._ACKProtocolHandler = function(peerId, data, channelProp) {
 Skylink.prototype._MESSAGEProtocolHandler = function(peerId, data, channelProp) {
   var senderPeerId = data.sender || peerId;
 
-  log.log([senderPeerId, 'RTCDataChannel', channelProp, 'Received P2P message from peer:'], data);
+  this._log('log', [senderPeerId, 'RTCDataChannel', channelProp, 'Received P2P message from peer:'], data);
 
   this._trigger('incomingMessage', {
     content: data.data,
@@ -15250,7 +15315,7 @@ Skylink.prototype._ERRORProtocolHandler = function(peerId, data, channelProp) {
   var emitEventFn = function (cb) {
     if (peerId === 'MCU') {
       if (!self._dataTransfers[transferId].peers[channelProp]) {
-        log.warn([peerId, 'RTCDataChannel', channelProp, 'Dropping triggering of ERROR event as ' +
+        self._log('warn', [peerId, 'RTCDataChannel', channelProp, 'Dropping triggering of ERROR event as ' +
           'Peers list does not exists']);
         return;
       }
@@ -15265,7 +15330,7 @@ Skylink.prototype._ERRORProtocolHandler = function(peerId, data, channelProp) {
     }
   };
 
-  log.error([peerId, 'RTCDataChannel', channelProp, 'Received an error from peer ->'], data);
+  self._log('error', [peerId, 'RTCDataChannel', channelProp, 'Received an error from peer ->'], data);
 
   emitEventFn(function (evtPeerId) {
     self._trigger('dataTransferState', self.DATA_TRANSFER_STATE.ERROR, transferId, evtPeerId,
@@ -15299,7 +15364,7 @@ Skylink.prototype._CANCELProtocolHandler = function(peerId, data, channelProp) {
   var emitEventFn = function (cb) {
     if (peerId === 'MCU') {
       if (!self._dataTransfers[transferId].peers[channelProp]) {
-        log.warn([peerId, 'RTCDataChannel', channelProp, 'Dropping triggering of CANCEL event as ' +
+        self._log('warn', [peerId, 'RTCDataChannel', channelProp, 'Dropping triggering of CANCEL event as ' +
           'Peers list does not exists']);
         return;
       }
@@ -15314,7 +15379,7 @@ Skylink.prototype._CANCELProtocolHandler = function(peerId, data, channelProp) {
     }
   };
 
-  log.error([peerId, 'RTCDataChannel', channelProp, 'Received data transfer termination from peer ->'], data);
+  self._log('error', [peerId, 'RTCDataChannel', channelProp, 'Received data transfer termination from peer ->'], data);
 
   emitEventFn(function (evtPeerId) {
     self._trigger('dataTransferState', self.DATA_TRANSFER_STATE.CANCEL, transferId, evtPeerId,
@@ -15352,7 +15417,7 @@ Skylink.prototype._DATAProtocolHandler = function(peerId, chunk, chunkType, chun
   self._dataTransfers[transferId].chunks[self._dataTransfers[transferId].sessions[peerId].ackN] = chunk;
 
   if (self._dataTransfers[transferId].sessions[peerId].receivedSize >= self._dataTransfers[transferId].size) {
-    log.log([peerId, 'RTCDataChannel', channelProp, 'Data transfer has been completed. Computed size ->'], 
+    self._log('log', [peerId, 'RTCDataChannel', channelProp, 'Data transfer has been completed. Computed size ->'], 
       self._dataTransfers[transferId].sessions[peerId].receivedSize);
 
     // Send last ACK to Peer to indicate completion of data transfers
@@ -15437,14 +15502,14 @@ Skylink.prototype._onIceCandidate = function(targetMid, candidate) {
   var pc = self._peerConnections[targetMid];
 
   if (!pc) {
-    log.warn([targetMid, 'RTCIceCandidate', null, 'Ignoring of ICE candidate event as ' +
+    self._log('warn', [targetMid, 'RTCIceCandidate', null, 'Ignoring of ICE candidate event as ' +
       'Peer connection does not exists ->'], candidate);
     return;
   }
 
   if (candidate.candidate) {
     if (!pc.gathering) {
-      log.log([targetMid, 'RTCIceCandidate', null, 'ICE gathering has started.']);
+      self._log('log', [targetMid, 'RTCIceCandidate', null, 'ICE gathering has started.']);
 
       pc.gathering = true;
       pc.gathered = false;
@@ -15454,22 +15519,22 @@ Skylink.prototype._onIceCandidate = function(targetMid, candidate) {
 
     var candidateType = candidate.candidate.split(' ')[7];
 
-    log.debug([targetMid, 'RTCIceCandidate', candidateType, 'Generated ICE candidate ->'], candidate);
+    self._log('debug', [targetMid, 'RTCIceCandidate', candidateType, 'Generated ICE candidate ->'], candidate);
 
     if (candidateType === 'endOfCandidates') {
-      log.warn([targetMid, 'RTCIceCandidate', candidateType, 'Dropping of sending ICE candidate ' +
+      self._log('warn', [targetMid, 'RTCIceCandidate', candidateType, 'Dropping of sending ICE candidate ' +
         'end-of-candidates signal to prevent errors ->'], candidate);
       return;
     }
 
     if (self._filterCandidatesType[candidateType]) {
       if (!(self._hasMCU && self._forceTURN)) {
-        log.warn([targetMid, 'RTCIceCandidate', candidateType, 'Dropping of sending ICE candidate as ' +
+        self._log('warn', [targetMid, 'RTCIceCandidate', candidateType, 'Dropping of sending ICE candidate as ' +
           'it matches ICE candidate filtering flag ->'], candidate);
         return;
       }
 
-      log.warn([targetMid, 'RTCIceCandidate', candidateType, 'Not dropping of sending ICE candidate as ' +
+      self._log('warn', [targetMid, 'RTCIceCandidate', candidateType, 'Not dropping of sending ICE candidate as ' +
         'TURN connections are enforced as MCU is present (and act as a TURN itself) so filtering of ICE candidate ' +
         'flags are not honoured ->'], candidate);
     }
@@ -15488,12 +15553,12 @@ Skylink.prototype._onIceCandidate = function(targetMid, candidate) {
     });
 
     if (!self._enableIceTrickle) {
-      log.warn([targetMid, 'RTCIceCandidate', candidateType, 'Dropping of sending ICE candidate as ' +
+      self._log('warn', [targetMid, 'RTCIceCandidate', candidateType, 'Dropping of sending ICE candidate as ' +
         'trickle ICE is disabled ->'], candidate);
       return;
     }
 
-    log.debug([targetMid, 'RTCIceCandidate', candidateType, 'Sending ICE candidate ->'], candidate);
+    self._log('debug', [targetMid, 'RTCIceCandidate', candidateType, 'Sending ICE candidate ->'], candidate);
 
     self._sendChannelMessage({
       type: self._SIG_MESSAGE_TYPE.CANDIDATE,
@@ -15506,7 +15571,7 @@ Skylink.prototype._onIceCandidate = function(targetMid, candidate) {
     });
 
   } else {
-    log.log([targetMid, 'RTCIceCandidate', null, 'ICE gathering has completed.']);
+    self._log('log', [targetMid, 'RTCIceCandidate', null, 'ICE gathering has completed.']);
 
     pc.gathering = false;
     pc.gathered = true;
@@ -15518,7 +15583,7 @@ Skylink.prototype._onIceCandidate = function(targetMid, candidate) {
       var sessionDescription = self._peerConnections[targetMid].localDescription;
 
       if (!(sessionDescription && sessionDescription.type && sessionDescription.sdp)) {
-        log.warn([targetMid, 'RTCSessionDescription', null, 'Not sending any session description after ' +
+        self._log('warn', [targetMid, 'RTCSessionDescription', null, 'Not sending any session description after ' +
           'ICE gathering completed as it is not present.']);
         return;
       }
@@ -15557,7 +15622,7 @@ Skylink.prototype._onIceCandidate = function(targetMid, candidate) {
 Skylink.prototype._addIceCandidateToQueue = function(targetMid, canId, candidate) {
   var candidateType = candidate.candidate.split(' ')[7];
 
-  log.debug([targetMid, 'RTCIceCandidate', canId + ':' + candidateType, 'Buffering ICE candidate.']);
+  this._log('debug', [targetMid, 'RTCIceCandidate', canId + ':' + candidateType, 'Buffering ICE candidate.']);
 
   this._trigger('candidateProcessingState', this.CANDIDATE_PROCESSING_STATE.BUFFERED,
     targetMid, canId, candidateType, {
@@ -15587,12 +15652,12 @@ Skylink.prototype._addIceCandidateFromQueue = function(targetMid) {
     if (canArray) {
       var candidateType = canArray[1].candidate.split(' ')[7];
 
-      log.debug([targetMid, 'RTCIceCandidate', canArray[0] + ':' + candidateType, 'Adding buffered ICE candidate.']);
+      this._log('debug', [targetMid, 'RTCIceCandidate', canArray[0] + ':' + candidateType, 'Adding buffered ICE candidate.']);
 
       this._addIceCandidate(targetMid, canArray[0], canArray[1]);
     } else if (this._peerConnections[targetMid] &&
       this._peerConnections[targetMid].signalingState !== this.PEER_CONNECTION_STATE.CLOSED) {
-      log.debug([targetMid, 'RTCPeerConnection', null, 'Signaling of end-of-candidates remote ICE gathering.']);
+      this._log('debug', [targetMid, 'RTCPeerConnection', null, 'Signaling of end-of-candidates remote ICE gathering.']);
       this._peerConnections[targetMid].addIceCandidate(null);
     }
   }
@@ -15614,7 +15679,7 @@ Skylink.prototype._addIceCandidate = function (targetMid, canId, candidate) {
   var candidateType = candidate.candidate.split(' ')[7];
 
   var onSuccessCbFn = function () {
-    log.log([targetMid, 'RTCIceCandidate', canId + ':' + candidateType,
+    self._log('log', [targetMid, 'RTCIceCandidate', canId + ':' + candidateType,
       'Added ICE candidate successfully.']);
     self._trigger('candidateProcessingState', self.CANDIDATE_PROCESSING_STATE.PROCESS_SUCCESS,
       targetMid, canId, candidateType, {
@@ -15625,7 +15690,7 @@ Skylink.prototype._addIceCandidate = function (targetMid, canId, candidate) {
   };
 
   var onErrorCbFn = function (error) {
-    log.error([targetMid, 'RTCIceCandidate', canId + ':' + candidateType,
+    self._log('error', [targetMid, 'RTCIceCandidate', canId + ':' + candidateType,
       'Failed adding ICE candidate ->'], error);
     self._trigger('candidateProcessingState', self.CANDIDATE_PROCESSING_STATE.PROCESS_ERROR,
       targetMid, canId, candidateType, {
@@ -15635,7 +15700,7 @@ Skylink.prototype._addIceCandidate = function (targetMid, canId, candidate) {
     }, error);
   };
 
-  log.debug([targetMid, 'RTCIceCandidate', canId + ':' + candidateType, 'Adding ICE candidate.']);
+  self._log('debug', [targetMid, 'RTCIceCandidate', canId + ':' + candidateType, 'Adding ICE candidate.']);
 
   self._trigger('candidateProcessingState', self.CANDIDATE_PROCESSING_STATE.PROCESSING,
     targetMid, canId, candidateType, {
@@ -15646,7 +15711,7 @@ Skylink.prototype._addIceCandidate = function (targetMid, canId, candidate) {
 
   if (!(self._peerConnections[targetMid] &&
     self._peerConnections[targetMid].signalingState !== self.PEER_CONNECTION_STATE.CLOSED)) {
-    log.warn([targetMid, 'RTCIceCandidate', canId + ':' + candidateType, 'Dropping ICE candidate ' +
+    self._log('warn', [targetMid, 'RTCIceCandidate', canId + ':' + candidateType, 'Dropping ICE candidate ' +
       'as Peer connection does not exists or is closed']);
     self._trigger('candidateProcessingState', self.CANDIDATE_PROCESSING_STATE.DROPPED,
       targetMid, canId, candidateType, {
@@ -15748,7 +15813,7 @@ Skylink.prototype._setIceServers = function(givenConfig) {
     }
   }
 
-  log.log('TURN server connections SSL configuration', {
+  self._log('log', 'TURN server connections SSL configuration', {
     useTURNSSLProtocol: useTURNSSLProtocol,
     useTURNSSLPort: useTURNSSLPort
   });
@@ -15785,29 +15850,29 @@ Skylink.prototype._setIceServers = function(givenConfig) {
     var server = givenIceServers[i];
 
     if (typeof server.url !== 'string') {
-      log.warn('Ignoring ICE server provided at index ' + i, clone(server));
+      self._log('warn', 'Ignoring ICE server provided at index ' + i, clone(server));
       continue;
     }
 
     if (server.url.indexOf('stun') === 0) {
       if (!self._enableSTUN) {
-        log.warn('Ignoring STUN server provided at index ' + i, clone(server));
+        self._log('warn', 'Ignoring STUN server provided at index ' + i, clone(server));
         continue;
       }
 
       if (!self._usePublicSTUN && server.url.indexOf('temasys') === -1) {
-        log.warn('Ignoring public STUN server provided at index ' + i, clone(server));
+        self._log('warn', 'Ignoring public STUN server provided at index ' + i, clone(server));
         continue;
       }
 
     } else if (server.url.indexOf('turn') === 0) {
       if (!self._enableTURN) {
-        log.warn('Ignoring TURN server provided at index ' + i, clone(server));
+        self._log('warn', 'Ignoring TURN server provided at index ' + i, clone(server));
         continue;
       }
 
       if (server.url.indexOf(':443') === -1 && useTURNSSLPort) {
-        log.log('Ignoring TURN Server (non-SSL port) provided at index ' + i, clone(server));
+        self._log('log', 'Ignoring TURN Server (non-SSL port) provided at index ' + i, clone(server));
         continue;
       }
 
@@ -15858,7 +15923,7 @@ Skylink.prototype._setIceServers = function(givenConfig) {
           pushIceServer(username, credential, rawUrl + '?transport=tcp');
           pushIceServer(username, credential, rawUrl + '?transport=udp');
         } else {
-          log.warn('Invalid TURN transport option "' + self._TURNTransport +
+          self._log('warn', 'Invalid TURN transport option "' + self._TURNTransport +
             '". Ignoring TURN server at index' + i, clone(server));
           continue;
         }
@@ -15941,7 +16006,7 @@ Skylink.prototype._setIceServers = function(givenConfig) {
     }
   }
 
-  log.log('Output iceServers configuration:', newIceServers);
+  self._log('log', 'Output iceServers configuration:', newIceServers);
 
   return {
     iceServers: newIceServers
@@ -16139,7 +16204,7 @@ Skylink.prototype.refreshConnection = function(targetPeerId, iceRestart, callbac
   }
 
   var emitErrorForPeersFn = function (error) {
-    log.error(error);
+    self._log('error', error);
 
     if (typeof callback === 'function') {
       var listOfPeerErrors = {};
@@ -16194,7 +16259,7 @@ Skylink.prototype._refreshPeerConnection = function(listOfPeers, doIceRestart, c
     return function (error) {
       if (listOfPeerRestarts.indexOf(peerId) === -1) {
         if (error) {
-          log.error([peerId, 'RTCPeerConnection', null, 'Failed restarting for peer'], error);
+          self._log('error', [peerId, 'RTCPeerConnection', null, 'Failed restarting for peer'], error);
           listOfPeerRestartErrors[peerId] = error;
         }
         listOfPeerRestarts.push(peerId);
@@ -16202,7 +16267,7 @@ Skylink.prototype._refreshPeerConnection = function(listOfPeers, doIceRestart, c
 
       if (listOfPeerRestarts.length === listOfPeers.length) {
         if (typeof callback === 'function') {
-          log.log([null, 'PeerConnection', null, 'Invoked all peers to restart. Firing callback']);
+          self._log('log', [null, 'PeerConnection', null, 'Invoked all peers to restart. Firing callback']);
 
           if (Object.keys(listOfPeerRestartErrors).length > 0) {
             callback({
@@ -16223,12 +16288,12 @@ Skylink.prototype._refreshPeerConnection = function(listOfPeers, doIceRestart, c
     if (!self._peerConnections[peerId]) {
       error = 'There is currently no existing peer connection made ' +
         'with the peer. Unable to restart connection';
-      log.error([peerId, null, null, error]);
+      self._log('error', [peerId, null, null, error]);
       peerCallback(error);
       return;
     }
 
-    log.log([peerId, 'PeerConnection', null, 'Restarting peer connection']);
+    self._log('log', [peerId, 'PeerConnection', null, 'Restarting peer connection']);
 
     // do a hard reset on variable object
     self._restartPeerConnection(peerId, doIceRestart, peerCallback);
@@ -16244,7 +16309,7 @@ Skylink.prototype._refreshPeerConnection = function(listOfPeers, doIceRestart, c
         refreshSinglePeer(peerId, refreshSinglePeerCallback(peerId));
       } else {
         error = 'Peer connection with peer does not exists. Unable to restart';
-        log.error([peerId, 'PeerConnection', null, error]);
+        self._log('error', [peerId, 'PeerConnection', null, error]);
         refreshSinglePeerCallback(peerId)(error);
       }
     }
@@ -16415,7 +16480,7 @@ Skylink.prototype.getConnectionStatus = function (targetPeerId, callback) {
   if (listOfPeers.length === 0) {
     listOfPeerErrors.self = new Error('There is currently no peer connections to retrieve connection status');
 
-    log.error([null, 'RTCStatsReport', null, 'Retrieving request failure ->'], listOfPeerErrors.self);
+    self._log('error', [null, 'RTCStatsReport', null, 'Retrieving request failure ->'], listOfPeerErrors.self);
 
     if (typeof callback === 'function') {
       callback({
@@ -16454,7 +16519,7 @@ Skylink.prototype.getConnectionStatus = function (targetPeerId, callback) {
   };
 
   var statsFn = function (peerId) {
-    log.debug([peerId, 'RTCStatsReport', null, 'Retrieivng connection status']);
+    self._log('debug', [peerId, 'RTCStatsReport', null, 'Retrieivng connection status']);
 
     if (!self._peerStats[peerId]) {
       self._peerStats[peerId] = {};
@@ -16600,7 +16665,7 @@ Skylink.prototype.getConnectionStatus = function (targetPeerId, callback) {
     };
 
     pc.getStats(null, function (stats) {
-      log.debug([peerId, 'RTCStatsReport', null, 'Retrieval success ->'], stats);
+      self._log('debug', [peerId, 'RTCStatsReport', null, 'Retrieval success ->'], stats);
 
       result.raw = stats;
 
@@ -16775,7 +16840,7 @@ Skylink.prototype.getConnectionStatus = function (targetPeerId, callback) {
                 }
               }
             } catch (error) {
-              log.warn([peerId, 'RTCStatsReport', null, 'Failed retrieving e2e delay ->'], error);
+              self._log('warn', [peerId, 'RTCStatsReport', null, 'Failed retrieving e2e delay ->'], error);
             }
 
             // Receiving/Sending RTP packets
@@ -16871,7 +16936,7 @@ Skylink.prototype.getConnectionStatus = function (targetPeerId, callback) {
       checkCompletedFn(peerId);
 
     }, function (error) {
-      log.error([peerId, 'RTCStatsReport', null, 'Retrieval failure ->'], error);
+      self._log('error', [peerId, 'RTCStatsReport', null, 'Retrieval failure ->'], error);
 
       listOfPeerErrors[peerId] = error;
 
@@ -16896,7 +16961,7 @@ Skylink.prototype.getConnectionStatus = function (targetPeerId, callback) {
     } else {
       listOfPeerErrors[peerId] = new Error('The peer connection object does not exists');
 
-      log.error([peerId, 'RTCStatsReport', null, 'Retrieval failure ->'], listOfPeerErrors[peerId]);
+      self._log('error', [peerId, 'RTCStatsReport', null, 'Retrieval failure ->'], listOfPeerErrors[peerId]);
 
       self._trigger('getConnectionStatusStateChange', self.GET_CONNECTION_STATUS_STATE.RETRIEVE_ERROR,
         peerId, null, listOfPeerErrors[peerId]);
@@ -16917,24 +16982,24 @@ Skylink.prototype.getConnectionStatus = function (targetPeerId, callback) {
 Skylink.prototype._addPeer = function(targetMid, peerBrowser, toOffer, restartConn, receiveOnly, isSS) {
   var self = this;
   if (self._peerConnections[targetMid] && !restartConn) {
-    log.error([targetMid, null, null, 'Connection to peer has already been made']);
+    self._log('error', [targetMid, null, null, 'Connection to peer has already been made']);
     return;
   }
-  log.log([targetMid, null, null, 'Starting the connection to peer. Options provided:'], {
+  self._log('log', [targetMid, null, null, 'Starting the connection to peer. Options provided:'], {
     peerBrowser: peerBrowser,
     toOffer: toOffer,
     receiveOnly: receiveOnly,
     enableDataChannel: self._enableDataChannel
   });
 
-  log.info('Adding peer', isSS);
+  self._log('info', 'Adding peer', isSS);
 
   if (!restartConn) {
     self._peerConnections[targetMid] = self._createPeerConnection(targetMid, !!isSS);
   }
 
   if (!self._peerConnections[targetMid]) {
-    log.error([targetMid, null, null, 'Failed creating the connection to peer']);
+    self._log('error', [targetMid, null, null, 'Failed creating the connection to peer']);
     return;
   }
 
@@ -16953,7 +17018,7 @@ Skylink.prototype._restartPeerConnection = function (peerId, doIceRestart, callb
   var self = this;
 
   if (!self._peerConnections[peerId]) {
-    log.error([peerId, null, null, 'Peer does not have an existing ' +
+    self._log('error', [peerId, null, null, 'Peer does not have an existing ' +
       'connection. Unable to restart']);
     return;
   }
@@ -16966,11 +17031,11 @@ Skylink.prototype._restartPeerConnection = function (peerId, doIceRestart, callb
     var notSupportedError = new Error('Failed restarting with other agents connecting from other SDKs as ' +
       're-negotiation is not supported by other SDKs');
 
-    log.warn([peerId, 'RTCPeerConnection', null, 'Ignoring restart request as agent\'s SDK does not support it'],
+    self._log('warn', [peerId, 'RTCPeerConnection', null, 'Ignoring restart request as agent\'s SDK does not support it'],
         notSupportedError);
 
     if (typeof callback === 'function') {
-      log.debug([peerId, 'RTCPeerConnection', null, 'Firing restart failure callback']);
+      self._log('debug', [peerId, 'RTCPeerConnection', null, 'Firing restart failure callback']);
       callback(notSupportedError);
     }
     return;
@@ -16979,7 +17044,7 @@ Skylink.prototype._restartPeerConnection = function (peerId, doIceRestart, callb
   // This is when the state is stable and re-handshaking is possible
   // This could be due to previous connection handshaking that is already done
   if (pc.signalingState === self.PEER_CONNECTION_STATE.STABLE && self._peerConnections[peerId]) {
-    log.log([peerId, null, null, 'Sending restart message to signaling server']);
+    self._log('log', [peerId, null, null, 'Sending restart message to signaling server']);
 
     var restartMsg = {
       type: self._SIG_MESSAGE_TYPE.RESTART,
@@ -17018,7 +17083,7 @@ Skylink.prototype._restartPeerConnection = function (peerId, doIceRestart, callb
     self._trigger('peerRestart', peerId, self.getPeerInfo(peerId), true, doIceRestart === true);
 
     if (typeof callback === 'function') {
-      log.debug([peerId, 'RTCPeerConnection', null, 'Firing restart callback']);
+      self._log('debug', [peerId, 'RTCPeerConnection', null, 'Firing restart callback']);
       callback(null);
     }
 
@@ -17042,21 +17107,21 @@ Skylink.prototype._restartPeerConnection = function (peerId, doIceRestart, callb
       } else {
         var noLocalDescriptionError = 'Failed re-sending localDescription as there is ' +
           'no localDescription set to connection. There could be a handshaking step error';
-        log.error([peerId, 'RTCPeerConnection', null, noLocalDescriptionError], {
+        self._log('error', [peerId, 'RTCPeerConnection', null, noLocalDescriptionError], {
             localDescription: pc.localDescription,
             remoteDescription: pc.remoteDescription
         });
         if (typeof callback === 'function') {
-          log.debug([peerId, 'RTCPeerConnection', null, 'Firing restart failure callback']);
+          self._log('debug', [peerId, 'RTCPeerConnection', null, 'Firing restart failure callback']);
           callback(new Error(noLocalDescriptionError));
         }
       }
     // It could have connection state closed
     } else {
       var unableToRestartError = 'Failed restarting as peer connection state is ' + pc.signalingState;
-      log.warn([peerId, 'RTCPeerConnection', null, unableToRestartError]);
+      self._log('warn', [peerId, 'RTCPeerConnection', null, unableToRestartError]);
       if (typeof callback === 'function') {
-        log.debug([peerId, 'RTCPeerConnection', null, 'Firing restart failure callback']);
+        self._log('debug', [peerId, 'RTCPeerConnection', null, 'Firing restart failure callback']);
         callback(new Error(unableToRestartError));
       }
     }
@@ -17072,7 +17137,7 @@ Skylink.prototype._restartPeerConnection = function (peerId, doIceRestart, callb
  */
 Skylink.prototype._removePeer = function(peerId) {
   if (!this._peerConnections[peerId] && !this._peerInformations[peerId]) {
-    log.debug([peerId, 'RTCPeerConnection', null, 'Dropping the hangup from Peer as not connected to Peer at all.']);
+    this._log('debug', [peerId, 'RTCPeerConnection', null, 'Dropping the hangup from Peer as not connected to Peer at all.']);
     return;
   }
 
@@ -17089,7 +17154,7 @@ Skylink.prototype._removePeer = function(peerId) {
     this._trigger('peerLeft', peerId, peerInfo, false);
   } else {
     this._hasMCU = false;
-    log.log([peerId, null, null, 'MCU has stopped listening and left']);
+    this._log('log', [peerId, null, null, 'MCU has stopped listening and left']);
     this._trigger('serverPeerLeft', peerId, this.SERVER_PEER_TYPE.MCU);
   }
 
@@ -17134,7 +17199,7 @@ Skylink.prototype._removePeer = function(peerId) {
     this._closeDataChannel(peerId);
   }
 
-  log.log([peerId, null, null, 'Successfully removed peer']);
+  this._log('log', [peerId, null, null, 'Successfully removed peer']);
 };
 
 /**
@@ -17161,11 +17226,11 @@ Skylink.prototype._createPeerConnection = function(targetMid, isScreenSharing) {
         { googIPv6: true }
       ]
     });
-    log.info([targetMid, null, null, 'Created peer connection']);
-    log.debug([targetMid, null, null, 'Peer connection config:'], self._room.connection.peerConfig);
-    log.debug([targetMid, null, null, 'Peer connection constraints:'], self._room.connection.peerConstraints);
+    self._log('info', [targetMid, null, null, 'Created peer connection']);
+    self._log('debug', [targetMid, null, null, 'Peer connection config:'], self._room.connection.peerConfig);
+    self._log('debug', [targetMid, null, null, 'Peer connection constraints:'], self._room.connection.peerConstraints);
   } catch (error) {
-    log.error([targetMid, null, null, 'Failed creating peer connection:'], error);
+    self._log('error', [targetMid, null, null, 'Failed creating peer connection:'], error);
     return null;
   }
   // attributes (added on by Temasys)
@@ -17194,7 +17259,7 @@ Skylink.prototype._createPeerConnection = function(targetMid, isScreenSharing) {
   // standard not implemented: onnegotiationneeded,
   pc.ondatachannel = function(event) {
     var dc = event.channel || event;
-    log.debug([targetMid, 'RTCDataChannel', dc.label, 'Received datachannel ->'], dc);
+    self._log('debug', [targetMid, 'RTCDataChannel', dc.label, 'Received datachannel ->'], dc);
     if (self._enableDataChannel && self._peerInformations[targetMid] &&
       self._peerInformations[targetMid].config.enableDataChannel) {
       var channelType = self.DATA_CHANNEL_TYPE.DATA;
@@ -17210,7 +17275,7 @@ Skylink.prototype._createPeerConnection = function(targetMid, isScreenSharing) {
       self._createDataChannel(targetMid, dc);
 
     } else {
-      log.warn([targetMid, 'RTCDataChannel', dc.label, 'Not adding datachannel as enable datachannel ' +
+      self._log('warn', [targetMid, 'RTCDataChannel', dc.label, 'Not adding datachannel as enable datachannel ' +
         'is set to false']);
     }
   };
@@ -17220,10 +17285,10 @@ Skylink.prototype._createPeerConnection = function(targetMid, isScreenSharing) {
     var streamId = stream.id || stream.label;
 
     if (targetMid === 'MCU') {
-      log.warn([targetMid, 'MediaStream', streamId, 'Ignoring received remote stream from MCU ->'], stream);
+      self._log('warn', [targetMid, 'MediaStream', streamId, 'Ignoring received remote stream from MCU ->'], stream);
       return;
     } else if (!self._sdpSettings.direction.audio.receive && !self._sdpSettings.direction.video.receive) {
-      log.warn([targetMid, 'MediaStream', streamId, 'Ignoring received empty remote stream ->'], stream);
+      self._log('warn', [targetMid, 'MediaStream', streamId, 'Ignoring received empty remote stream ->'], stream);
       return;
     }
 
@@ -17233,7 +17298,7 @@ Skylink.prototype._createPeerConnection = function(targetMid, isScreenSharing) {
       pc.getRemoteStreams().length > 1 && pc.remoteDescription && pc.remoteDescription.sdp) {
 
       if (pc.remoteDescription.sdp.indexOf(' msid:' + streamId + ' ') === -1) {
-        log.warn([targetMid, 'MediaStream', streamId, 'Ignoring received empty remote stream ->'], stream);
+        self._log('warn', [targetMid, 'MediaStream', streamId, 'Ignoring received empty remote stream ->'], stream);
         return;
       }
     }
@@ -17256,7 +17321,7 @@ Skylink.prototype._createPeerConnection = function(targetMid, isScreenSharing) {
   pc.oniceconnectionstatechange = function(evt) {
     var iceConnectionState = pc.iceConnectionState;
 
-    log.debug([targetMid, 'RTCIceConnectionState', null, 'Ice connection state changed ->'], iceConnectionState);
+    self._log('debug', [targetMid, 'RTCIceConnectionState', null, 'Ice connection state changed ->'], iceConnectionState);
 
     if (window.webrtcDetectedBrowser === 'edge') {
       if (iceConnectionState === 'connecting') {
@@ -17274,11 +17339,11 @@ Skylink.prototype._createPeerConnection = function(targetMid, isScreenSharing) {
   };
 
   pc.onsignalingstatechange = function() {
-    log.debug([targetMid, 'RTCSignalingState', null, 'Peer connection state changed ->'], pc.signalingState);
+    self._log('debug', [targetMid, 'RTCSignalingState', null, 'Peer connection state changed ->'], pc.signalingState);
     self._trigger('peerConnectionState', pc.signalingState, targetMid);
   };
   pc.onicegatheringstatechange = function() {
-    log.log([targetMid, 'RTCIceGatheringState', null, 'Ice gathering state changed ->'], pc.iceGatheringState);
+    self._log('log', [targetMid, 'RTCIceGatheringState', null, 'Ice gathering state changed ->'], pc.iceGatheringState);
     self._trigger('candidateGenerationState', pc.iceGatheringState, targetMid);
   };
 
@@ -17346,7 +17411,7 @@ Skylink.prototype._restartMCUConnection = function(callback, doIceRestart) {
       }
     }
 
-    log.log([listOfPeers[i], 'RTCPeerConnection', null, 'Sending restart message to signaling server ->'], restartMsg);
+    self._log('log', [peerId, 'RTCPeerConnection', null, 'Sending restart message to signaling server ->'], restartMsg);
 
     self._sendChannelMessage(restartMsg);
   };
@@ -17354,7 +17419,7 @@ Skylink.prototype._restartMCUConnection = function(callback, doIceRestart) {
   for (var i = 0; i < listOfPeers.length; i++) {
     if (!self._peerConnections[listOfPeers[i]]) {
       var error = 'Peer connection with peer does not exists. Unable to restart';
-      log.error([listOfPeers[i], 'PeerConnection', null, error]);
+      self._log('error', [listOfPeers[i], 'PeerConnection', null, error]);
       listOfPeerRestartErrors[listOfPeers[i]] = new Error(error);
       continue;
     }
@@ -17377,7 +17442,7 @@ Skylink.prototype._restartMCUConnection = function(callback, doIceRestart) {
   } else {
     // Restart with MCU = peer leaves then rejoins room
     var peerJoinedFn = function (peerId, peerInfo, isSelf) {
-      log.log([null, 'PeerConnection', null, 'Invoked all peers to restart with MCU. Firing callback']);
+      self._log('log', [null, 'PeerConnection', null, 'Invoked all peers to restart with MCU. Firing callback']);
 
       if (typeof callback === 'function') {
         if (Object.keys(listOfPeerRestartErrors).length > 0) {
@@ -17460,7 +17525,7 @@ Skylink.prototype._signalingEndOfCandidates = function(targetMid) {
     (self._peerCandidatesQueue[targetMid] ? self._peerCandidatesQueue[targetMid].length === 0 : true) &&
   // If it has not been set yet
     !self._peerEndOfCandidatesCounter[targetMid].hasSet) {
-    log.debug([targetMid, 'RTCPeerConnection', null, 'Signaling of end-of-candidates remote ICE gathering.']);
+    self._log('debug', [targetMid, 'RTCPeerConnection', null, 'Signaling of end-of-candidates remote ICE gathering.']);
     self._peerEndOfCandidatesCounter[targetMid].hasSet = true;
     try {
       if (window.webrtcDetectedBrowser === 'edge') {
@@ -17499,7 +17564,7 @@ Skylink.prototype._signalingEndOfCandidates = function(targetMid) {
       }
 
     } catch (error) {
-      log.error([targetMid, 'RTCPeerConnection', null, 'Failed signaling end-of-candidates ->'], error);
+      self._log('error', [targetMid, 'RTCPeerConnection', null, 'Failed signaling end-of-candidates ->'], error);
     }
   }
 };
@@ -17514,10 +17579,10 @@ Skylink.prototype.setUserData = function(userData) {
     updatedUserData = userData;
   }
 
-  this._userData = updatedUserData;
+  self._userData = updatedUserData;
 
   if (self._inRoom) {
-    log.log('Updated userData -> ', updatedUserData);
+    self._log('log', 'Updated userData -> ', updatedUserData);
     self._sendChannelMessage({
       type: self._SIG_MESSAGE_TYPE.UPDATE_USER,
       mid: self._user.sid,
@@ -17527,7 +17592,7 @@ Skylink.prototype.setUserData = function(userData) {
     });
     self._trigger('peerUpdated', self._user.sid, self.getPeerInfo(), true);
   } else {
-    log.warn('User is not in the room. Broadcast of updated information will be dropped');
+    self._log('warn', 'User is not in the room. Broadcast of updated information will be dropped');
   }
 };
 
@@ -17886,18 +17951,18 @@ Skylink.prototype._doOffer = function(targetMid, iceRestart, peerBrowser) {
   var self = this;
   var pc = self._peerConnections[targetMid] || self._addPeer(targetMid, peerBrowser);
 
-  log.log([targetMid, null, null, 'Checking caller status'], peerBrowser);
+  self._log('log', [targetMid, null, null, 'Checking caller status'], peerBrowser);
 
   // Added checks to ensure that connection object is defined first
   if (!pc) {
-    log.warn([targetMid, 'RTCSessionDescription', 'offer', 'Dropping of creating of offer ' +
+    self._log('warn', [targetMid, 'RTCSessionDescription', 'offer', 'Dropping of creating of offer ' +
       'as connection does not exists']);
     return;
   }
 
   // Added checks to ensure that state is "stable" if setting local "offer"
   if (pc.signalingState !== self.PEER_CONNECTION_STATE.STABLE) {
-    log.warn([targetMid, 'RTCSessionDescription', 'offer',
+    self._log('warn', [targetMid, 'RTCSessionDescription', 'offer',
       'Dropping of creating of offer as signalingState is not "' +
       self.PEER_CONNECTION_STATE.STABLE + '" ->'], pc.signalingState);
     return;
@@ -17947,19 +18012,19 @@ Skylink.prototype._doOffer = function(targetMid, iceRestart, peerBrowser) {
     }
   }
 
-  log.debug([targetMid, null, null, 'Creating offer with config:'], offerConstraints);
+  self._log('debug', [targetMid, null, null, 'Creating offer with config:'], offerConstraints);
 
   pc.endOfCandidates = false;
 
   pc.createOffer(function(offer) {
-    log.debug([targetMid, null, null, 'Created offer'], offer);
+    self._log('debug', [targetMid, null, null, 'Created offer'], offer);
 
     self._setLocalAndSendMessage(targetMid, offer);
 
   }, function(error) {
     self._trigger('handshakeProgress', self.HANDSHAKE_PROGRESS.ERROR, targetMid, error);
 
-    log.error([targetMid, null, null, 'Failed creating an offer:'], error);
+    self._log('error', [targetMid, null, null, 'Failed creating an offer:'], error);
 
   }, offerConstraints);
 };
@@ -17974,20 +18039,20 @@ Skylink.prototype._doOffer = function(targetMid, iceRestart, peerBrowser) {
  */
 Skylink.prototype._doAnswer = function(targetMid) {
   var self = this;
-  log.log([targetMid, null, null, 'Creating answer with config:'],
+  self._log('log', [targetMid, null, null, 'Creating answer with config:'],
     self._room.connection.sdpConstraints);
   var pc = self._peerConnections[targetMid];
 
   // Added checks to ensure that connection object is defined first
   if (!pc) {
-    log.warn([targetMid, 'RTCSessionDescription', 'answer', 'Dropping of creating of answer ' +
+    self._log('warn', [targetMid, 'RTCSessionDescription', 'answer', 'Dropping of creating of answer ' +
       'as connection does not exists']);
     return;
   }
 
   // Added checks to ensure that state is "have-remote-offer" if setting local "answer"
   if (pc.signalingState !== self.PEER_CONNECTION_STATE.HAVE_REMOTE_OFFER) {
-    log.warn([targetMid, 'RTCSessionDescription', 'answer',
+    self._log('warn', [targetMid, 'RTCSessionDescription', 'answer',
       'Dropping of creating of answer as signalingState is not "' +
       self.PEER_CONNECTION_STATE.HAVE_REMOTE_OFFER + '" ->'], pc.signalingState);
     return;
@@ -18001,10 +18066,10 @@ Skylink.prototype._doAnswer = function(targetMid) {
   // No ICE restart constraints for createAnswer as it fails in chrome 48
   // { iceRestart: true }
   pc.createAnswer(function(answer) {
-    log.debug([targetMid, null, null, 'Created answer'], answer);
+    self._log('debug', [targetMid, null, null, 'Created answer'], answer);
     self._setLocalAndSendMessage(targetMid, answer);
   }, function(error) {
-    log.error([targetMid, null, null, 'Failed creating an answer:'], error);
+    self._log('error', [targetMid, null, null, 'Failed creating an answer:'], error);
     self._trigger('handshakeProgress', self.HANDSHAKE_PROGRESS.ERROR, targetMid, error);
   });
 };
@@ -18024,32 +18089,32 @@ Skylink.prototype._setLocalAndSendMessage = function(targetMid, sessionDescripti
 
   // Added checks to ensure that sessionDescription is defined first
   if (!(!!sessionDescription && !!sessionDescription.sdp)) {
-    log.warn([targetMid, 'RTCSessionDescription', null, 'Local session description is undefined ->'], sessionDescription);
+    self._log('warn', [targetMid, 'RTCSessionDescription', null, 'Local session description is undefined ->'], sessionDescription);
     return;
   }
 
   // Added checks to ensure that connection object is defined first
   if (!pc) {
-    log.warn([targetMid, 'RTCSessionDescription', sessionDescription.type,
+    self._log('warn', [targetMid, 'RTCSessionDescription', sessionDescription.type,
       'Local session description will not be set as connection does not exists ->'], sessionDescription);
     return;
 
   } else if (sessionDescription.type === self.HANDSHAKE_PROGRESS.OFFER &&
     pc.signalingState !== self.PEER_CONNECTION_STATE.STABLE) {
-    log.warn([targetMid, 'RTCSessionDescription', sessionDescription.type, 'Local session description ' +
+    self._log('warn', [targetMid, 'RTCSessionDescription', sessionDescription.type, 'Local session description ' +
       'will not be set as signaling state is "' + pc.signalingState + '" ->'], sessionDescription);
     return;
 
   // Added checks to ensure that state is "have-remote-offer" if setting local "answer"
   } else if (sessionDescription.type === self.HANDSHAKE_PROGRESS.ANSWER &&
     pc.signalingState !== self.PEER_CONNECTION_STATE.HAVE_REMOTE_OFFER) {
-    log.warn([targetMid, 'RTCSessionDescription', sessionDescription.type, 'Local session description ' +
+    self._log('warn', [targetMid, 'RTCSessionDescription', sessionDescription.type, 'Local session description ' +
       'will not be set as signaling state is "' + pc.signalingState + '" ->'], sessionDescription);
     return;
 
   // Added checks if there is a current local sessionDescription being processing before processing this one
   } else if (pc.processingLocalSDP) {
-    log.warn([targetMid, 'RTCSessionDescription', sessionDescription.type,
+    self._log('warn', [targetMid, 'RTCSessionDescription', sessionDescription.type,
       'Local session description will not be set as another is being processed ->'], sessionDescription);
     return;
   }
@@ -18066,11 +18131,11 @@ Skylink.prototype._setLocalAndSendMessage = function(targetMid, sessionDescripti
   //sessionDescription.sdp = self._setSDPBitrate(targetMid, sessionDescription);
   sessionDescription.sdp = self._removeSDPREMBPackets(targetMid, sessionDescription);
 
-  log.log([targetMid, 'RTCSessionDescription', sessionDescription.type,
+  self._log('log', [targetMid, 'RTCSessionDescription', sessionDescription.type,
     'Local session description updated ->'], sessionDescription.sdp);
 
   pc.setLocalDescription(sessionDescription, function() {
-    log.debug([targetMid, 'RTCSessionDescription', sessionDescription.type,
+    self._log('debug', [targetMid, 'RTCSessionDescription', sessionDescription.type,
       'Local session description has been set ->'], sessionDescription);
 
     pc.processingLocalSDP = false;
@@ -18084,7 +18149,7 @@ Skylink.prototype._setLocalAndSendMessage = function(targetMid, sessionDescripti
     }
 
     if (!self._enableIceTrickle && !pc.gathered) {
-      log.log([targetMid, 'RTCSessionDescription', sessionDescription.type,
+      self._log('log', [targetMid, 'RTCSessionDescription', sessionDescription.type,
         'Local session description sending is halted to complete ICE gathering.']);
       return;
     }
@@ -18099,7 +18164,7 @@ Skylink.prototype._setLocalAndSendMessage = function(targetMid, sessionDescripti
     });
 
   }, function(error) {
-    log.error([targetMid, 'RTCSessionDescription', sessionDescription.type, 'Local description failed setting ->'], error);
+    self._log('error', [targetMid, 'RTCSessionDescription', sessionDescription.type, 'Local description failed setting ->'], error);
 
     pc.processingLocalSDP = false;
 
@@ -18198,11 +18263,11 @@ Skylink.prototype.INTRODUCE_STATE = {
 Skylink.prototype.getPeers = function(showAll, callback){
 	var self = this;
 	if (!self._isPrivileged){
-		log.warn('Please upgrade your key to privileged to use this function');
+		self._log('warn', 'Please upgrade your key to privileged to use this function');
 		return;
 	}
 	if (!self._appKey){
-		log.warn('App key is not defined. Please authenticate again.');
+		self._log('warn', 'App key is not defined. Please authenticate again.');
 		return;
 	}
 
@@ -18219,7 +18284,7 @@ Skylink.prototype.getPeers = function(showAll, callback){
 
 	self._trigger('getPeersStateChange',self.GET_PEERS_STATE.ENQUIRED, self._user.sid, null);
 
-	log.log('Enquired server for peers within the realm');
+	self._log('log', 'Enquired server for peers within the realm');
 
 	if (typeof callback === 'function'){
 		self.once('getPeersStateChange', function(state, privilegedPeerId, peerList){
@@ -18275,7 +18340,7 @@ Skylink.prototype.getPeers = function(showAll, callback){
 Skylink.prototype.introducePeer = function(sendingPeerId, receivingPeerId){
 	var self = this;
 	if (!self._isPrivileged){
-		log.warn('Please upgrade your key to privileged to use this function');
+		self._log('warn', 'Please upgrade your key to privileged to use this function');
 		self._trigger('introduceStateChange', self.INTRODUCE_STATE.ERROR, self._user.sid, sendingPeerId, receivingPeerId, 'notPrivileged');
 		return;
 	}
@@ -18285,7 +18350,7 @@ Skylink.prototype.introducePeer = function(sendingPeerId, receivingPeerId){
 		receivingPeerId: receivingPeerId
 	});
 	self._trigger('introduceStateChange', self.INTRODUCE_STATE.INTRODUCING, self._user.sid, sendingPeerId, receivingPeerId, null);
-	log.log('Introducing',sendingPeerId,'to',receivingPeerId);
+	self._log('log', 'Introducing',sendingPeerId,'to',receivingPeerId);
 };
 
 
@@ -18627,7 +18692,7 @@ Skylink.prototype.joinRoom = function(room, options, callback) {
   }
 
   var resolveAsErrorFn = function (error, tryRoom, readyState) {
-    log.error(error);
+    self._log('error', error);
 
     if (typeof callback === 'function') {
       callback({
@@ -18653,7 +18718,7 @@ Skylink.prototype.joinRoom = function(room, options, callback) {
 
         self.once('peerJoined', function(peerId, peerInfo, isSelf) {
           if (typeof callback === 'function') {
-            log.info([null, 'Room', selectedRoom, 'Connected to Room ->'], peerInfo);
+            self._log('info', [null, 'Room', selectedRoom, 'Connected to Room ->'], peerInfo);
 
             callback(null, {
               room: self._selectedRoom,
@@ -18698,7 +18763,7 @@ Skylink.prototype.joinRoom = function(room, options, callback) {
     var stopStream = mediaOptions.audio === false && mediaOptions.video === false;
 
     self.leaveRoom(stopStream, function (lRError, lRSuccess) {
-      log.debug([null, 'Room', previousRoom, 'Leave Room callback result ->'], [lRError, lRSuccess]);
+      self._log('debug', [null, 'Room', previousRoom, 'Leave Room callback result ->'], [lRError, lRSuccess]);
       joinRoomFn();
     });
   } else {
@@ -18793,7 +18858,7 @@ Skylink.prototype.leaveRoom = function(stopMediaOptions, callback) {
 
   if (isNotInRoom) {
     var notInRoomError = 'Unable to leave room as user is not in any room';
-    log.error([null, 'Room', previousRoom, notInRoomError]);
+    self._log('error', [null, 'Room', previousRoom, notInRoomError]);
 
     if (typeof callback === 'function') {
       callback(new Error(notInRoomError), null);
@@ -18807,7 +18872,7 @@ Skylink.prototype.leaveRoom = function(stopMediaOptions, callback) {
   });
 
   self._wait(function () {
-    log.log([null, 'Room', previousRoom, 'User left the room']);
+    self._log('log', [null, 'Room', previousRoom, 'User left the room']);
 
     self._trigger('peerLeft', previousUserPeerId, self.getPeerInfo(), true,
       self._publishOnly && self._publishOnly.parentId ? self._publishOnly.parentId : null);
@@ -18846,7 +18911,7 @@ Skylink.prototype.lockRoom = function() {
   if (!(this._user && this._user.sid)) {
     return;
   }
-  log.log('Update to isRoomLocked status ->', true);
+  this._log('log', 'Update to isRoomLocked status ->', true);
   this._sendChannelMessage({
     type: this._SIG_MESSAGE_TYPE.ROOM_LOCK,
     mid: this._user.sid,
@@ -18880,7 +18945,7 @@ Skylink.prototype.unlockRoom = function() {
   if (!(this._user && this._user.sid)) {
     return;
   }
-  log.log('Update to isRoomLocked status ->', false);
+  this._log('log', 'Update to isRoomLocked status ->', false);
   this._sendChannelMessage({
     type: this._SIG_MESSAGE_TYPE.ROOM_LOCK,
     mid: this._user.sid,
@@ -19046,7 +19111,6 @@ Skylink.prototype._waitForOpenChannel = function(mediaOptions, callback) {
   }, function() {
     return self._readyState === self.READY_STATE_CHANGE.COMPLETED;
   });
-
 };
 
 Skylink.prototype.VERSION = '0.6.17';
@@ -19492,7 +19556,7 @@ Skylink.prototype.init = function(options, callback) {
 
   if (!options) {
     var error = 'No API key provided';
-    log.error(error);
+    self._log('error', error);
     if (typeof callback === 'function'){
       callback(error,null);
     }
@@ -19535,7 +19599,7 @@ Skylink.prototype.init = function(options, callback) {
   var iceServer = null;
   var socketServer = null;
 
-  log.log('Provided init options:', options);
+  self._log('log', 'Provided init options:', options);
 
   if (typeof options === 'string') {
     // set all the default api key, default room and room
@@ -19724,7 +19788,7 @@ Skylink.prototype.init = function(options, callback) {
   self._turnServer = iceServer;
   self._socketServer = socketServer;
 
-  log.log('Init configuration:', {
+  self._log('log', 'Init configuration:', {
     serverUrl: self._path,
     readyState: self._readyState,
     appKey: self._appKey,
@@ -19764,7 +19828,7 @@ Skylink.prototype.init = function(options, callback) {
     var readyStateChangeFn = function (readyState, error) {
       if (!hasTriggered) {
         if (readyState === self.READY_STATE_CHANGE.COMPLETED) {
-          log.log([null, 'Socket', null, 'Firing callback. ' +
+          self._log('log', [null, 'Socket', null, 'Firing callback. ' +
           'Ready state change has met provided state ->'], readyState);
           hasTriggered = true;
           self.off('readyStateChange', readyStateChangeFn);
@@ -19799,9 +19863,9 @@ Skylink.prototype.init = function(options, callback) {
             socketServer: self._socketServer
           });
         } else if (readyState === self.READY_STATE_CHANGE.ERROR) {
-          log.log([null, 'Socket', null, 'Firing callback. ' +
+          self._log('log', [null, 'Socket', null, 'Firing callback. ' +
             'Ready state change has met provided state ->'], readyState);
-          log.debug([null, 'Socket', null, 'Ready state met failure'], error);
+          self._log('debug', [null, 'Socket', null, 'Ready state met failure'], error);
           hasTriggered = true;
           self.off('readyStateChange', readyStateChangeFn);
           callback({
@@ -19839,7 +19903,7 @@ Skylink.prototype._requestServerInfo = function(method, url, callback, params) {
   url = (self._forceSSL) ? 'https:' + url : url;
 
   if (useXDomainRequest) {
-    log.debug([null, 'XMLHttpRequest', method, 'Using XDomainRequest. ' +
+    self._log('debug', [null, 'XMLHttpRequest', method, 'Using XDomainRequest. ' +
       'XMLHttpRequest is now XDomainRequest'], {
       agent: window.webrtcDetectedBrowser,
       version: window.webrtcDetectedVersion
@@ -19849,7 +19913,7 @@ Skylink.prototype._requestServerInfo = function(method, url, callback, params) {
       xhr.contentType = contentType;
     };
   } else {
-    log.debug([null, 'XMLHttpRequest', method, 'Using XMLHttpRequest'], {
+    self._log('debug', [null, 'XMLHttpRequest', method, 'Using XMLHttpRequest'], {
       agent: window.webrtcDetectedBrowser,
       version: window.webrtcDetectedVersion
     });
@@ -19862,13 +19926,13 @@ Skylink.prototype._requestServerInfo = function(method, url, callback, params) {
   xhr.onload = function () {
     var response = xhr.responseText || xhr.response;
     var status = xhr.status || 200;
-    log.debug([null, 'XMLHttpRequest', method, 'Received sessions parameters'],
+    self._log('debug', [null, 'XMLHttpRequest', method, 'Received sessions parameters'],
       JSON.parse(response || '{}'));
     callback(status, JSON.parse(response || '{}'));
   };
 
   xhr.onerror = function (error) {
-    log.error([null, 'XMLHttpRequest', method, 'Failed retrieving information:'],
+    self._log('error', [null, 'XMLHttpRequest', method, 'Failed retrieving information:'],
       { status: xhr.status });
     self._readyState = -1;
     self._trigger('readyStateChange', self.READY_STATE_CHANGE.ERROR, {
@@ -19879,9 +19943,9 @@ Skylink.prototype._requestServerInfo = function(method, url, callback, params) {
   };
 
   xhr.onprogress = function () {
-    log.debug([null, 'XMLHttpRequest', method,
+    self._log('debug', [null, 'XMLHttpRequest', method,
       'Retrieving information and config from webserver. Url:'], url);
-    log.debug([null, 'XMLHttpRequest', method, 'Provided parameters:'], params);
+    self._log('debug', [null, 'XMLHttpRequest', method, 'Provided parameters:'], params);
   };
 
   xhr.open(method, url, true);
@@ -19901,18 +19965,18 @@ Skylink.prototype._requestServerInfo = function(method, url, callback, params) {
  * @since 0.5.2
  */
 Skylink.prototype._parseInfo = function(info) {
-  log.log('Parsing parameter from server', info);
+  this._log('log', 'Parsing parameter from server', info);
   if (!info.pc_constraints && !info.offer_constraints) {
     this._trigger('readyStateChange', this.READY_STATE_CHANGE.ERROR, {
       status: 200,
       content: info.info,
       errorCode: info.error
-    }, self._selectedRoom);
+    }, this._selectedRoom);
     return;
   }
 
-  log.debug('Peer connection constraints:', info.pc_constraints);
-  log.debug('Offer constraints:', info.offer_constraints);
+  this._log('debug', 'Peer connection constraints:', info.pc_constraints);
+  this._log('debug', 'Offer constraints:', info.offer_constraints);
 
   this._key = info.cid;
   this._appKeyOwner = info.apiOwner;
@@ -19961,7 +20025,7 @@ Skylink.prototype._parseInfo = function(info) {
   //this._streamSettings.video = info.video;
   this._readyState = 2;
   this._trigger('readyStateChange', this.READY_STATE_CHANGE.COMPLETED, null, this._selectedRoom);
-  log.info('Parsed parameters from webserver. ' +
+  this._log('info', 'Parsed parameters from webserver. ' +
     'Ready for web-realtime communication');
 
 };
@@ -19995,7 +20059,7 @@ Skylink.prototype._loadInfo = function() {
     return;
   }
   if (!window.io) {
-    log.error('Socket.io not loaded. Please load socket.io');
+    self._log('error', 'Socket.io not loaded. Please load socket.io');
     self._readyState = -1;
     self._trigger('readyStateChange', self.READY_STATE_CHANGE.ERROR, {
       status: null,
@@ -20005,7 +20069,7 @@ Skylink.prototype._loadInfo = function() {
     return;
   }
   if (!window.XMLHttpRequest) {
-    log.error('XMLHttpRequest not supported. Please upgrade your browser');
+    self._log('error', 'XMLHttpRequest not supported. Please upgrade your browser');
     self._readyState = -1;
     self._trigger('readyStateChange', self.READY_STATE_CHANGE.ERROR, {
       status: null,
@@ -20015,7 +20079,7 @@ Skylink.prototype._loadInfo = function() {
     return;
   }
   if (!self._path) {
-    log.error('Skylink is not initialised. Please call init() first');
+    self._log('error', 'Skylink is not initialised. Please call init() first');
     self._readyState = -1;
     self._trigger('readyStateChange', self.READY_STATE_CHANGE.ERROR, {
       status: null,
@@ -20028,7 +20092,7 @@ Skylink.prototype._loadInfo = function() {
     self._isUsingPlugin = !!adapter.WebRTCPlugin.plugin && !!adapter.WebRTCPlugin.plugin.VERSION;
 
     if (!window.RTCPeerConnection) {
-      log.error('WebRTC not supported. Please upgrade your browser');
+      self._log('error', 'WebRTC not supported. Please upgrade your browser');
       self._readyState = -1;
       self._trigger('readyStateChange', self.READY_STATE_CHANGE.ERROR, {
         status: null,
@@ -20040,7 +20104,7 @@ Skylink.prototype._loadInfo = function() {
 
     self._getCodecsSupport(function (error) {
       if (error) {
-        log.error(error);
+        self._log('error', error);
         self._readyState = -1;
         self._trigger('readyStateChange', self.READY_STATE_CHANGE.ERROR, {
           status: null,
@@ -20051,7 +20115,7 @@ Skylink.prototype._loadInfo = function() {
       }
 
       if (Object.keys(self._currentCodecSupport.audio).length === 0 && Object.keys(self._currentCodecSupport.video).length === 0) {
-        log.error('No audio/video codecs available to start connection.');
+        self._log('error', 'No audio/video codecs available to start connection.');
         self._readyState = -1;
         self._trigger('readyStateChange', self.READY_STATE_CHANGE.ERROR, {
           status: null,
@@ -20094,7 +20158,7 @@ Skylink.prototype._loadInfo = function() {
 Skylink.prototype._initSelectedRoom = function(room, callback) {
   var self = this;
   if (typeof room === 'function' || typeof room === 'undefined') {
-    log.error('Invalid room provided. Room:', room);
+    self._log('error', 'Invalid room provided. Room:', room);
     return;
   }
   var defaultRoom = self._defaultRoom;
@@ -20153,152 +20217,21 @@ Skylink.prototype.LOG_LEVEL = {
 };
 
 /**
- * Stores the log message starting header string.
- * E.g. "<header> - <the log message>".
- * @attribute _LOG_KEY
- * @type String
- * @private
- * @scoped true
- * @for Skylink
- * @since 0.5.4
- */
-var _LOG_KEY = 'SkylinkJS';
-
-/**
- * Stores the list of available SDK log levels.
- * @attribute _LOG_LEVELS
- * @type Array
- * @private
- * @scoped true
- * @for Skylink
- * @since 0.5.5
- */
-var _LOG_LEVELS = ['error', 'warn', 'info', 'log', 'debug'];
-
-/**
- * Stores the current SDK log level.
- * Default is ERROR (<code>0</code>).
- * @attribute _logLevel
- * @type String
- * @default 0
- * @private
- * @scoped true
- * @for Skylink
- * @since 0.5.4
- */
-var _logLevel = 0;
-
-/**
- * Stores the flag if debugging mode is enabled.
- * This manipulates the SkylinkLogs interface.
- * @attribute _enableDebugMode
- * @type Boolean
- * @default false
- * @private
- * @scoped true
- * @for Skylink
- * @since 0.5.4
- */
-var _enableDebugMode = false;
-
-/**
- * Stores the flag if logs should be stored in SkylinkLogs interface.
- * @attribute _enableDebugStack
- * @type Boolean
- * @default false
- * @private
- * @scoped true
- * @for Skylink
- * @since 0.5.5
- */
-var _enableDebugStack = false;
-
-/**
- * Stores the flag if logs should trace if available.
- * This uses the <code>console.trace</code> API.
- * @attribute _enableDebugTrace
- * @type Boolean
- * @default false
- * @private
- * @scoped true
- * @for Skylink
- * @since 0.5.5
- */
-var _enableDebugTrace = false;
-
-/**
  * Stores the logs used for SkylinkLogs object.
- * @attribute _storedLogs
- * @type Array
+ * @attribute storedLogs
+ * @type JSON
  * @private
  * @scoped true
  * @for Skylink
  * @since 0.5.5
  */
-var _storedLogs = [];
-
-/**
- * Function that gets the stored logs.
- * @method _getStoredLogsFn
- * @private
- * @scoped true
- * @for Skylink
- * @since 0.5.5
- */
-var _getStoredLogsFn = function (logLevel) {
-  if (typeof logLevel === 'undefined') {
-    return _storedLogs;
-  }
-  var returnLogs = [];
-  for (var i = 0; i < _storedLogs.length; i++) {
-    if (_storedLogs[i][1] === _LOG_LEVELS[logLevel]) {
-      returnLogs.push(_storedLogs[i]);
-    }
-  }
-  return returnLogs;
-};
-
-/**
- * Function that clears the stored logs.
- * @method _clearAllStoredLogsFn
- * @private
- * @scoped true
- * @for Skylink
- * @since 0.5.5
- */
-var _clearAllStoredLogsFn = function () {
-  _storedLogs = [];
-};
-
-/**
- * Function that prints in the Web Console interface the stored logs.
- * @method _printAllStoredLogsFn
- * @private
- * @scoped true
- * @for Skylink
- * @since 0.5.5
- */
-var _printAllStoredLogsFn = function () {
-  for (var i = 0; i < _storedLogs.length; i++) {
-    var timestamp = _storedLogs[i][0];
-    var log = (console[_storedLogs[i][1]] !== 'undefined') ?
-      _storedLogs[i][1] : 'log';
-    var message = _storedLogs[i][2];
-    var debugObject = _storedLogs[i][3];
-
-    if (typeof debugObject !== 'undefined') {
-      console[log](message, debugObject, timestamp);
-    } else {
-      console[log](message, timestamp);
-    }
-  }
-};
+var storedLogs = {};
 
 /**
  * <blockquote class="info">
  *   To utilise and enable the <code>SkylinkLogs</code> API functionalities, the
  *   <a href="#method_setDebugMode"><code>setDebugMode()</code> method</a>
- *   <code>options.storeLogs</code> parameter has to be enabled.
+ *   <code>options.storedLogs</code> parameter has to be enabled.
  * </blockquote>
  * The object interface to manage the SDK <a href="https://developer.mozilla.org/en/docs/Web/API/console">
  * Javascript Web Console</a> logs.
@@ -20320,8 +20253,9 @@ window.SkylinkLogs = {
    *   <li><code>0</code><var><b>{</b>Date<b>}</b></var><p>The DateTime of when the log was stored.</p></li>
    *   <li><code>1</code><var><b>{</b>String<b>}</b></var><p>The log level. [Rel: Skylink.LOG_LEVEL]</p></li>
    *   <li><code>2</code><var><b>{</b>String<b>}</b></var><p>The log message.</p></li>
-   *   <li><code>3</code><var><b>{</b>Any<b>}</b></var><span class="label">Optional</span><p>The log message object.
-   *   </p></li></ul></li></ul>
+   *   <li><code>3</code><var><b>{</b>Any<b>}</b></var><span class="label">Optional</span><p>The log message object.</li>
+   *   <li><code>4</code><var><b>{</b>String<b>}</b></var><span class="label">Optional</span><p>The Skylink object
+   *   instance label.</li></p></li></ul></li></ul>
    * @example
    *  // Example 1: Get logs of specific level
    *  var debugLogs = SkylinkLogs.getLogs(skylinkDemo.LOG_LEVEL.DEBUG);
@@ -20334,7 +20268,38 @@ window.SkylinkLogs = {
    * @for Skylink
    * @since 0.5.5
    */
-  getLogs: _getStoredLogsFn,
+  getLogs: function (logLevel, instanceLabel) {
+    var returnLogs = [];
+    var logProp = null;
+
+    if (typeof logLevel === 'string' && logLevel) {
+      instanceLabel = logLevel;
+      logLevel = null;
+    }
+
+    if (typeof logLevel === 'number') {
+      for (var l in Skylink.prototype.LOG_LEVEL) {
+        if (Skylink.prototype.LOG_LEVEL.hasOwnProperty(l) && Skylink.prototype.LOG_LEVEL[l] === logLevel) {
+          logProp = l;
+          break;
+        }
+      }
+    }
+
+    for (var prop in storedLogs) {
+      if (storedLogs.hasOwnProperty(prop) && storedLogs[prop]) {
+        if (instanceLabel && typeof instanceLabel === 'string' ? instanceLabel === prop : true) {
+          for (var i = 0; i < storedLogs[prop].length; i++) {
+            if (logProp ? storedLogs[prop][i][1] === logProp : true) {
+              returnLogs.push(storedLogs[prop][i]);
+            }
+          }
+        }
+      }
+    }
+
+    return returnLogs;
+  },
 
   /**
    * Function that clears all the current stored SDK <code>console</code> logs.
@@ -20348,7 +20313,40 @@ window.SkylinkLogs = {
    * @for Skylink
    * @since 0.5.5
    */
-  clearAllLogs: _clearAllStoredLogsFn,
+  clearAllLogs: function (instanceLabel, logLevel) {
+    var logProp = null;
+
+    if (typeof instanceLabel === 'number') {
+      logLevel = instanceLabel;
+      instanceLabel = null;
+    }
+
+    if (typeof logLevel === 'number') {
+      for (var l in Skylink.prototype.LOG_LEVEL) {
+        if (Skylink.prototype.LOG_LEVEL.hasOwnProperty(l) && Skylink.prototype.LOG_LEVEL[l] === logLevel) {
+          logProp = l;
+          break;
+        }
+      }
+    }
+
+    for (var prop in storedLogs) {
+      if (storedLogs.hasOwnProperty(prop) && storedLogs[prop]) {
+        if (instanceLabel && typeof instanceLabel === 'string' ? instanceLabel === prop : true) {
+          if (logProp) {
+            for (var i = 0; i < storedLogs[prop].length; i++) {
+              if (logProp ? storedLogs[prop][i][1] === logProp : true) {
+                storedLogs[prop].splice(i, 1);
+                i--;
+              }
+            }
+          } else {
+            delete storedLogs[prop];
+          }
+        }
+      }
+    }
+  },
 
   /**
    * Function that prints all the current stored SDK <code>console</code> logs into the
@@ -20363,22 +20361,58 @@ window.SkylinkLogs = {
    * @for Skylink
    * @since 0.5.5
    */
-  printAllLogs: _printAllStoredLogsFn
+  printAllLogs: function (instanceLabel, logLevel) {
+    var logProp = null;
+
+    if (typeof instanceLabel === 'number') {
+      logLevel = instanceLabel;
+      instanceLabel = null;
+    }
+
+    if (typeof logLevel === 'number') {
+      for (var l in Skylink.prototype.LOG_LEVEL) {
+        if (Skylink.prototype.LOG_LEVEL.hasOwnProperty(l) && Skylink.prototype.LOG_LEVEL[l] === logLevel) {
+          logProp = l;
+          break;
+        }
+      }
+    }
+
+    for (var prop in storedLogs) {
+      if (storedLogs.hasOwnProperty(prop) && storedLogs[prop]) {
+        if (instanceLabel && typeof instanceLabel === 'string' ? instanceLabel === prop : true) {
+          for (var i = 0; i < storedLogs[prop].length; i++) {
+            if (logProp ? storedLogs[prop][i][1] === logProp : true) {
+              var timestamp = storedLogs[prop][i][0];
+              var log = (console[storedLogs[prop][i][1]] !== 'undefined') ? storedLogs[prop][i][1] : 'log';
+              var message = storedLogs[prop][i][2];
+              var debugObject = storedLogs[prop][i][3];
+              var instanceId = storedLogs[prop][i][4];
+
+              if (typeof debugObject !== 'undefined') {
+                console[log](instanceId, message, debugObject, timestamp);
+              } else {
+                console[log](instanceId, message, timestamp);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 };
 
 /**
  * Function that handles the logs received and prints in the Web Console interface according to the log level set.
- * @method _logFn
+ * @method _log
  * @private
- * @required
- * @scoped true
  * @for Skylink
  * @since 0.5.5
  */
-var _logFn = function(logLevel, message, debugObject) {
-  var outputLog = _LOG_KEY;
+Skylink.prototype._log = function(logProp, message, debugObject) {
+  var outputLog = 'SkylinkJS';
 
-  if (typeof message === 'object') {
+  if (Array.isArray(message)) {
     outputLog += (message[0]) ? ' [' + message[0] + '] -' : ' -';
     outputLog += (message[1]) ? ' <<' + message[1] + '>>' : '';
     if (message[2]) {
@@ -20396,78 +20430,45 @@ var _logFn = function(logLevel, message, debugObject) {
     outputLog += ' - ' + message;
   }
 
-  if (_enableDebugMode && _enableDebugStack) {
+  if (this._enableDebugMode && this._enableDebugStack) {
     // store the logs
-    var logItem = [(new Date()), _LOG_LEVELS[logLevel], outputLog];
+    var logItem = [(new Date()), logProp, outputLog, this.INSTANCE_LABEL];
 
     if (typeof debugObject !== 'undefined') {
       logItem.push(debugObject);
     }
-    _storedLogs.push(logItem);
+    storedLogs[this.INSTANCE_LABEL] = storedLogs[this.INSTANCE_LABEL] || [];
+    storedLogs[this.INSTANCE_LABEL].push(logItem);
   }
 
-  if (_logLevel >= logLevel) {
+  if (this._logLevel >= this.LOG_LEVEL[logProp.toUpperCase()]) {
     // Fallback to log if failure
-    logLevel = (typeof console[_LOG_LEVELS[logLevel]] === 'undefined') ? 3 : logLevel;
+    var newLogProp = (typeof console[logProp] === 'undefined') ? 'log' : logProp;
 
-    if (_enableDebugMode && _enableDebugTrace) {
+    if (this._enableDebugMode && this._enableDebugTrace) {
       var logConsole = (typeof console.trace === 'undefined') ? logLevel[3] : 'trace';
       if (typeof debugObject !== 'undefined') {
-        console[_LOG_LEVELS[logLevel]](outputLog, debugObject);
         // output if supported
         if (typeof console.trace !== 'undefined') {
-          console.trace('');
+          console.trace('[' + logProp.toUpperCase() + ']', outputLog, debugObject);
+        } else {
+          console[newLogProp](outputLog, debugObject);
         }
       } else {
-        console[_LOG_LEVELS[logLevel]](outputLog);
         // output if supported
         if (typeof console.trace !== 'undefined') {
-          console.trace('');
+          console.trace('[' + logProp.toUpperCase() + ']', outputLog);
+        } else {
+          console[newLogProp](outputLog);
         }
       }
     } else {
       if (typeof debugObject !== 'undefined') {
-        console[_LOG_LEVELS[logLevel]](outputLog, debugObject);
+        console[newLogProp](outputLog, debugObject);
       } else {
-        console[_LOG_LEVELS[logLevel]](outputLog);
+        console[newLogProp](outputLog);
       }
     }
-  }
-};
-
-/**
- * Stores the logging functions.
- * @attribute log
- * @param {Function} debug The function that handles the DEBUG level logs.
- * @param {Function} log The function that handles the LOG level logs.
- * @param {Function} info The function that handles the INFO level logs.
- * @param {Function} warn The function that handles the WARN level logs.
- * @param {Function} error The function that handles the ERROR level logs.
- * @type JSON
- * @private
- * @scoped true
- * @for Skylink
- * @since 0.5.4
- */
-var log = {
-  debug: function (message, object) {
-    _logFn(4, message, object);
-  },
-
-  log: function (message, object) {
-    _logFn(3, message, object);
-  },
-
-  info: function (message, object) {
-    _logFn(2, message, object);
-  },
-
-  warn: function (message, object) {
-    _logFn(1, message, object);
-  },
-
-  error: function (message, object) {
-    _logFn(0, message, object);
   }
 };
 
@@ -20503,12 +20504,12 @@ Skylink.prototype.setLogLevel = function(logLevel) {
   }
   for (var level in this.LOG_LEVEL) {
     if (this.LOG_LEVEL[level] === logLevel) {
-      _logLevel = logLevel;
-      log.log([null, 'Log', level, 'Log level exists. Level is set']);
+      this._logLevel = logLevel;
+      this._log('log', [null, 'Log', level, 'Log level exists. Level is set']);
       return;
     }
   }
-  log.error([null, 'Log', level, 'Log level does not exist. Level is not set']);
+  this._log('error', [null, 'Log', level, 'Log level does not exist. Level is not set']);
 };
 
 /**
@@ -20516,21 +20517,21 @@ Skylink.prototype.setLogLevel = function(logLevel) {
  * @method setDebugMode
  * @param {Boolean|JSON} [options=false] The debugging options.
  * - When provided as a boolean, this sets both <code>options.trace</code>
- *   and <code>options.storeLogs</code> to its boolean value.
+ *   and <code>options.storedLogs</code> to its boolean value.
  * @param {Boolean} [options.trace=false] The flag if SDK <code>console</code> logs
  *   should output as <code>console.trace()</code> logs for tracing the <code>Function</code> call stack.
  *   <small>Note that the <code>console.trace()</code> output logs is determined by the log level set
  *   <a href="#method_setLogLevel"><code>setLogLevel()</code> method</a>.</small>
  *   <small>If <code>console.trace()</code> API is not supported, <code>setDebugMode()</code>
  *   will fallback to use <code>console.log()</code> API.</small>
- * @param {Boolean} [options.storeLogs=false] The flag if SDK should store the <code>console</code> logs.
+ * @param {Boolean} [options.storedLogs=false] The flag if SDK should store the <code>console</code> logs.
  *   <small>This is required to be enabled for <a href="#prop_SkylinkLogs"><code>SkylinkLogs</code> API</a>.</small>
  * @example
- *   // Example 1: Enable both options.storeLogs and options.trace
+ *   // Example 1: Enable both options.storedLogs and options.trace
  *   skylinkDemo.setDebugMode(true);
  *
- *   // Example 2: Enable only options.storeLogs
- *   skylinkDemo.setDebugMode({ storeLogs: true });
+ *   // Example 2: Enable only options.storedLogs
+ *   skylinkDemo.setDebugMode({ storedLogs: true });
  *
  *   // Example 3: Disable debugging mode
  *   skylinkDemo.setDebugMode();
@@ -20538,26 +20539,15 @@ Skylink.prototype.setLogLevel = function(logLevel) {
  * @since 0.5.2
  */
 Skylink.prototype.setDebugMode = function(isDebugMode) {
-  if (typeof isDebugMode === 'object') {
-    if (Object.keys(isDebugMode).length > 0) {
-      _enableDebugTrace = !!isDebugMode.trace;
-      _enableDebugStack = !!isDebugMode.storeLogs;
-    } else {
-      _enableDebugMode = false;
-      _enableDebugTrace = false;
-      _enableDebugStack = false;
-    }
+  if (isDebugMode && typeof isDebugMode === 'object') {
+    this._enableDebugTrace = typeof isDebugMode.trace === 'boolean' ? isDebugMode.trace : false;
+    this._enableDebugStack = typeof isDebugMode.trace === 'boolean' ? isDebugMode.storedLogs : false;
+    this._enableDebugMode = true;
+  } else {
+    this._enableDebugMode = isDebugMode === true;
+    this._enableDebugTrace = isDebugMode === true;
+    this._enableDebugStack = isDebugMode === true;
   }
-  if (isDebugMode === false) {
-    _enableDebugMode = false;
-    _enableDebugTrace = false;
-    _enableDebugStack = false;
-
-    return;
-  }
-  _enableDebugMode = true;
-  _enableDebugTrace = true;
-  _enableDebugStack = true;
 };
 var _eventsDocs = {
   /**
@@ -21650,9 +21640,9 @@ Skylink.prototype.on = function(eventName, callback) {
   if ('function' === typeof callback) {
     this._EVENTS[eventName] = this._EVENTS[eventName] || [];
     this._EVENTS[eventName].push(callback);
-    log.log([null, 'Event', eventName, 'Event is subscribed']);
+    this._log('log', [null, 'Event', eventName, 'Event is subscribed']);
   } else {
-    log.error([null, 'Event', eventName, 'Provided parameter is not a function']);
+    this._log('error', [null, 'Event', eventName, 'Provided parameter is not a function']);
   }
 };
 
@@ -21708,9 +21698,9 @@ Skylink.prototype.once = function(eventName, callback, condition, fireAlways) {
     // prevent undefined error
     this._onceEvents[eventName] = this._onceEvents[eventName] || [];
     this._onceEvents[eventName].push([callback, condition, fireAlways]);
-    log.log([null, 'Event', eventName, 'Event is subscribed on condition']);
+    this._log('log', [null, 'Event', eventName, 'Event is subscribed on condition']);
   } else {
-    log.error([null, 'Event', eventName, 'Provided callback is not a function']);
+    this._log('error', [null, 'Event', eventName, 'Provided callback is not a function']);
   }
 };
 
@@ -21737,7 +21727,7 @@ Skylink.prototype.off = function(eventName, callback) {
   if (callback === undefined) {
     this._EVENTS[eventName] = [];
     this._onceEvents[eventName] = [];
-    log.log([null, 'Event', eventName, 'All events are unsubscribed']);
+    this._log('log', [null, 'Event', eventName, 'All events are unsubscribed']);
     return;
   }
   var arr = this._EVENTS[eventName];
@@ -21746,7 +21736,7 @@ Skylink.prototype.off = function(eventName, callback) {
   // unsubscribe events that is triggered always
   for (var i = 0; i < arr.length; i++) {
     if (arr[i] === callback) {
-      log.log([null, 'Event', eventName, 'Event is unsubscribed']);
+      this._log('log', [null, 'Event', eventName, 'Event is unsubscribed']);
       arr.splice(i, 1);
       break;
     }
@@ -21755,7 +21745,7 @@ Skylink.prototype.off = function(eventName, callback) {
   if(once !== undefined) {
     for (var j = 0; j < once.length; j++) {
       if (once[j][0] === callback) {
-        log.log([null, 'Event', eventName, 'One-time Event is unsubscribed']);
+        this._log('log', [null, 'Event', eventName, 'One-time Event is unsubscribed']);
         once.splice(j, 1);
         break;
       }
@@ -21781,12 +21771,12 @@ Skylink.prototype._trigger = function(eventName) {
     // for events subscribed forever
     for (var i = 0; i < arr.length; i++) {
       try {
-        log.log([null, 'Event', eventName, 'Event is fired']);
+        this._log('log', [null, 'Event', eventName, 'Event is fired']);
         if(arr[i].apply(this, args) === false) {
           break;
         }
       } catch(error) {
-        log.error([null, 'Event', eventName, 'Exception occurred in event:'], error);
+        this._log('error', [null, 'Event', eventName, 'Exception occurred in event:'], error);
         throw error;
       }
     }
@@ -21795,24 +21785,24 @@ Skylink.prototype._trigger = function(eventName) {
     // for events subscribed on once
     for (var j = 0; j < once.length; j++) {
       if (once[j][1].apply(this, args) === true) {
-        log.log([null, 'Event', eventName, 'Condition is met. Firing event']);
+        this._log('log', [null, 'Event', eventName, 'Condition is met. Firing event']);
         if(once[j][0].apply(this, args) === false) {
           break;
         }
         if (once[j] && !once[j][2]) {
-          log.log([null, 'Event', eventName, 'Removing event after firing once']);
+          this._log('log', [null, 'Event', eventName, 'Removing event after firing once']);
           once.splice(j, 1);
           //After removing current element, the next element should be element of the same index
           j--;
         }
       } else {
-        log.log([null, 'Event', eventName, 'Condition is still not met. ' +
+        this._log('log', [null, 'Event', eventName, 'Condition is still not met. ' +
           'Holding event from being fired']);
       }
     }
   }
 
-  log.log([null, 'Event', eventName, 'Event is triggered']);
+  this._log('log', [null, 'Event', eventName, 'Event is triggered']);
 };
 
 
@@ -21832,14 +21822,14 @@ Skylink.prototype._condition = function(eventName, callback, checkFirst, conditi
   }
   if (typeof callback === 'function' && typeof checkFirst === 'function') {
     if (checkFirst()) {
-      log.log([null, 'Event', eventName, 'First condition is met. Firing callback']);
+      this._log('log', [null, 'Event', eventName, 'First condition is met. Firing callback']);
       callback();
       return;
     }
-    log.log([null, 'Event', eventName, 'First condition is not met. Subscribing to event']);
+    this._log('log', [null, 'Event', eventName, 'First condition is not met. Subscribing to event']);
     this.once(eventName, callback, condition, fireAlways);
   } else {
-    log.error([null, 'Event', eventName, 'Provided callback or checkFirst is not a function']);
+    this._log('error', [null, 'Event', eventName, 'Provided callback or checkFirst is not a function']);
   }
 };
 
@@ -21854,17 +21844,17 @@ Skylink.prototype._wait = function(callback, condition, intervalTime, fireAlways
   fireAlways = (typeof fireAlways === 'undefined' ? false : fireAlways);
   if (typeof callback === 'function' && typeof condition === 'function') {
     if (condition()) {
-      log.log([null, 'Event', null, 'Condition is met. Firing callback']);
+      this._log('log', [null, 'Event', null, 'Condition is met. Firing callback']);
       callback();
       return;
     }
-    log.log([null, 'Event', null, 'Condition is not met. Doing a check.']);
+    this._log('log', [null, 'Event', null, 'Condition is not met. Doing a check.']);
 
     intervalTime = (typeof intervalTime === 'number') ? intervalTime : 50;
 
     var doWait = setInterval(function () {
       if (condition()) {
-        log.log([null, 'Event', null, 'Condition is met after waiting. Firing callback']);
+        this._log('log', [null, 'Event', null, 'Condition is met after waiting. Firing callback']);
         if (!fireAlways){
           clearInterval(doWait);
         }
@@ -21873,10 +21863,10 @@ Skylink.prototype._wait = function(callback, condition, intervalTime, fireAlways
     }, intervalTime);
   } else {
     if (typeof callback !== 'function'){
-      log.error([null, 'Event', null, 'Provided callback is not a function']);
+      this._log('error', [null, 'Event', null, 'Provided callback is not a function']);
     }
     if (typeof condition !== 'function'){
-      log.error([null, 'Event', null, 'Provided condition is not a function']);
+      this._log('error', [null, 'Event', null, 'Provided condition is not a function']);
     }
   }
 };
@@ -21952,7 +21942,7 @@ Skylink.prototype._sendChannelMessage = function(message) {
   var throughput = 16;
 
   if (!self._channelOpen || !self._user || !self._socket) {
-    log.warn([null, 'Socket', null, 'Dropping of message as Socket connection is not opened or is at ' +
+    self._log('warn', [null, 'Socket', null, 'Dropping of message as Socket connection is not opened or is at ' +
       'incorrect step ->'], message);
     return;
   }
@@ -21996,11 +21986,11 @@ Skylink.prototype._sendChannelMessage = function(message) {
   };
 
   var setQueueFn = function () {
-    log.debug([null, 'Socket', null, 'Starting queue timeout']);
+    self._log('debug', [null, 'Socket', null, 'Starting queue timeout']);
 
     self._socketMessageTimeout = setTimeout(function () {
       if (((new Date ()).getTime() - self._timestamp.socketMessage) <= interval) {
-        log.debug([null, 'Socket', null, 'Restarting queue timeout']);
+        self._log('debug', [null, 'Socket', null, 'Restarting queue timeout']);
         setQueueFn();
         return;
       }
@@ -22025,7 +22015,7 @@ Skylink.prototype._sendChannelMessage = function(message) {
     self._socketMessageTimeout = null;
 
     if (!self._channelOpen || !(self._user && self._user.sid) || !self._socket) {
-      log.warn([null, 'Socket', null, 'Dropping of group messages as Socket connection is not opened or is at ' +
+      self._log('warn', [null, 'Socket', null, 'Dropping of group messages as Socket connection is not opened or is at ' +
         'incorrect step ->'], groupMessageList);
       return;
     }
@@ -22062,7 +22052,7 @@ Skylink.prototype._sendChannelMessage = function(message) {
           groupMessageList[i].stamp < stamps.audioMuted) ||
           (groupMessageList[i].type === self._SIG_MESSAGE_TYPE.MUTE_VIDEO &&
           groupMessageList[i].stamp < stamps.videoMuted)) {
-        log.warn([null, 'Socket', null, 'Dropping of outdated status message ->'], clone(groupMessageList[i]));
+        self._log('warn', [null, 'Socket', null, 'Dropping of outdated status message ->'], clone(groupMessageList[i]));
         groupMessageList.splice(i, 1);
         i--;
         continue;
@@ -22078,7 +22068,7 @@ Skylink.prototype._sendChannelMessage = function(message) {
         rid: self._room.id
       };
 
-      log.debug([null, 'Socket', groupMessage.type, 'Sending queued grouped message (max: 16 per group) ->'], groupMessage);
+      self._log('debug', [null, 'Socket', groupMessage.type, 'Sending queued grouped message (max: 16 per group) ->'], groupMessage);
 
       self._socket.send(JSON.stringify(groupMessage));
       self._timestamp.socketMessage = (new Date()).getTime();
@@ -22104,13 +22094,13 @@ Skylink.prototype._sendChannelMessage = function(message) {
   if (self._groupMessageList.indexOf(message.type) > -1) {
     if (!(self._timestamp.socketMessage && ((new Date ()).getTime() - self._timestamp.socketMessage) <= interval)) {
       if (!checkStampFn(message)) {
-        log.warn([null, 'Socket', message.type, 'Dropping of outdated status message ->'], message);
+        self._log('warn', [null, 'Socket', message.type, 'Dropping of outdated status message ->'], message);
         return;
       }
       if (self._socketMessageTimeout) {
         clearTimeout(self._socketMessageTimeout);
       }
-      log.warn([null, 'Socket', message.type, 'Sending message ->'], message);
+      self._log('warn', [null, 'Socket', message.type, 'Sending message ->'], message);
       self._socket.send(JSON.stringify(message));
       setStampFn(message);
       triggerEventFn(message);
@@ -22118,7 +22108,7 @@ Skylink.prototype._sendChannelMessage = function(message) {
       self._timestamp.socketMessage = (new Date()).getTime();
 
     } else {
-      log.warn([null, 'Socket', message.type, 'Queueing socket message to prevent message drop ->'], message);
+      self._log('warn', [null, 'Socket', message.type, 'Queueing socket message to prevent message drop ->'], message);
 
       self._socketMessageQueue.push(message);
 
@@ -22127,7 +22117,7 @@ Skylink.prototype._sendChannelMessage = function(message) {
       }
     }
   } else {
-    log.debug([message.target || null, 'Socket', message.type, 'Sending message ->'], message);
+    self._log('debug', [message.target || null, 'Socket', message.type, 'Sending message ->'], message);
     self._socket.send(JSON.stringify(message));
   }
 };
@@ -22214,7 +22204,7 @@ Skylink.prototype._createSocket = function (type) {
 
   self._channelOpen = false;
 
-  log.log('Opening channel with signaling server url:', clone(self._socketSession));
+  self._log('log', 'Opening channel with signaling server url:', clone(self._socketSession));
 
   self._socket = io.connect(url, options);
 
@@ -22242,7 +22232,7 @@ Skylink.prototype._createSocket = function (type) {
 
   self._socket.on('connect', function () {
     if (!self._channelOpen) {
-      log.log([null, 'Socket', null, 'Channel opened']);
+      self._log('log', [null, 'Socket', null, 'Channel opened']);
       self._channelOpen = true;
       self._trigger('channelOpen', clone(self._socketSession));
     }
@@ -22250,21 +22240,21 @@ Skylink.prototype._createSocket = function (type) {
 
   self._socket.on('reconnect', function () {
     if (!self._channelOpen) {
-      log.log([null, 'Socket', null, 'Channel opened']);
+      self._log('log', [null, 'Socket', null, 'Channel opened']);
       self._channelOpen = true;
       self._trigger('channelOpen', clone(self._socketSession));
     }
   });
 
   self._socket.on('error', function(error) {
-    log.error([null, 'Socket', null, 'Exception occurred ->'], error);
+    self._log('error', [null, 'Socket', null, 'Exception occurred ->'], error);
     self._trigger('channelError', error, clone(self._socketSession));
   });
 
   self._socket.on('disconnect', function() {
     self._channelOpen = false;
     self._trigger('channelClose', clone(self._socketSession));
-    log.log([null, 'Socket', null, 'Channel closed']);
+    self._log('log', [null, 'Socket', null, 'Channel closed']);
 
     if (self._inRoom && self._user && self._user.sid) {
       self.leaveRoom(false);
@@ -22275,10 +22265,10 @@ Skylink.prototype._createSocket = function (type) {
   self._socket.on('message', function(messageStr) {
     var message = JSON.parse(messageStr);
 
-    log.log([null, 'Socket', null, 'Received message ->'], message);
+    self._log('log', [null, 'Socket', null, 'Received message ->'], message);
 
     if (message.type === self._SIG_MESSAGE_TYPE.GROUP) {
-      log.debug('Bundle of ' + message.lists.length + ' messages');
+      self._log('debug', 'Bundle of ' + message.lists.length + ' messages');
       for (var i = 0; i < message.lists.length; i++) {
         var indiMessage = JSON.parse(message.lists[i]);
         self._processSigMessage(indiMessage);
@@ -22302,13 +22292,13 @@ Skylink.prototype._createSocket = function (type) {
 Skylink.prototype._openChannel = function() {
   var self = this;
   if (self._channelOpen) {
-    log.error([null, 'Socket', null, 'Unable to instantiate a new channel connection ' +
+    self._log('error', [null, 'Socket', null, 'Unable to instantiate a new channel connection ' +
       'as there is already an ongoing channel connection']);
     return;
   }
 
   if (self._readyState !== self.READY_STATE_CHANGE.COMPLETED) {
-    log.error([null, 'Socket', null, 'Unable to instantiate a new channel connection ' +
+    self._log('error', [null, 'Socket', null, 'Unable to instantiate a new channel connection ' +
       'as readyState is not ready']);
     return;
   }
@@ -22469,7 +22459,7 @@ Skylink.prototype.sendMessage = function(message, targetPeerId) {
   }
 
   if (!this._inRoom || !this._socket || !this._user) {
-    log.error('Unable to send message as User is not in Room. ->', message);
+    this._log('error', 'Unable to send message as User is not in Room. ->', message);
     return;
   }
 
@@ -22478,7 +22468,7 @@ Skylink.prototype.sendMessage = function(message, targetPeerId) {
     var peerId = listOfPeers[i];
 
     if (!this._peerInformations[peerId]) {
-      log.error([peerId, 'Socket', null, 'Dropping of sending message to Peer as ' +
+      this._log('error', [peerId, 'Socket', null, 'Dropping of sending message to Peer as ' +
         'Peer session does not exists']);
       listOfPeers.splice(i, 1);
       i--;
@@ -22486,7 +22476,7 @@ Skylink.prototype.sendMessage = function(message, targetPeerId) {
       listOfPeers.splice(i, 1);
       i--;
     } else if (isPrivate) {
-      log.debug([peerId, 'Socket', null, 'Sending private message to Peer']);
+      this._log('debug', [peerId, 'Socket', null, 'Sending private message to Peer']);
 
       this._sendChannelMessage({
         cid: this._key,
@@ -22500,12 +22490,12 @@ Skylink.prototype.sendMessage = function(message, targetPeerId) {
   }
 
   if (listOfPeers.length === 0) {
-    log.warn('Currently there are no Peers to send message to (unless the message is queued and ' +
+    this._log('warn', 'Currently there are no Peers to send message to (unless the message is queued and ' +
       'there are Peer connected by then).');
   }
 
   if (!isPrivate) {
-    log.debug([null, 'Socket', null, 'Broadcasting message to Peers']);
+    this._log('debug', [null, 'Socket', null, 'Broadcasting message to Peers']);
 
     this._sendChannelMessage({
       cid: this._key,
@@ -22569,7 +22559,7 @@ Skylink.prototype.startRecording = function (callback) {
 
   if (!self._hasMCU) {
     var noMCUError = 'Unable to start recording as MCU is not connected';
-    log.error(noMCUError);
+    self._log('error', noMCUError);
     if (typeof callback === 'function') {
       callback(new Error(noMCUError), null);
     }
@@ -22578,7 +22568,7 @@ Skylink.prototype.startRecording = function (callback) {
 
   if (self._currentRecordingId) {
     var hasRecordingSessionError = 'Unable to start recording as there is an existing recording in-progress';
-    log.error(hasRecordingSessionError);
+    self._log('error', hasRecordingSessionError);
     if (typeof callback === 'function') {
       callback(new Error(hasRecordingSessionError), null);
     }
@@ -22599,7 +22589,7 @@ Skylink.prototype.startRecording = function (callback) {
     target: 'MCU'
   });
 
-  log.debug(['MCU', 'Recording', null, 'Starting recording']);
+  self._log('debug', ['MCU', 'Recording', null, 'Starting recording']);
 };
 
 /**
@@ -22675,7 +22665,7 @@ Skylink.prototype.stopRecording = function (callback, callbackSuccessWhenLink) {
 
   if (!self._hasMCU) {
     var noMCUError = 'Unable to stop recording as MCU is not connected';
-    log.error(noMCUError);
+    self._log('error', noMCUError);
     if (typeof callback === 'function') {
       callback(new Error(noMCUError), null);
     }
@@ -22684,7 +22674,7 @@ Skylink.prototype.stopRecording = function (callback, callbackSuccessWhenLink) {
 
   if (!self._currentRecordingId) {
     var noRecordingSessionError = 'Unable to stop recording as there is no recording in-progress';
-    log.error(noRecordingSessionError);
+    self._log('error', noRecordingSessionError);
     if (typeof callback === 'function') {
       callback(new Error(noRecordingSessionError), null);
     }
@@ -22693,7 +22683,7 @@ Skylink.prototype.stopRecording = function (callback, callbackSuccessWhenLink) {
 
   if (self._recordingStartInterval) {
     var recordingSecsRequiredError = 'Unable to stop recording as 4 seconds has not been recorded yet';
-    log.error(recordingSecsRequiredError);
+    self._log('error', recordingSecsRequiredError);
     if (typeof callback === 'function') {
       callback(new Error(recordingSecsRequiredError), null);
     }
@@ -22735,7 +22725,7 @@ Skylink.prototype.stopRecording = function (callback, callbackSuccessWhenLink) {
     target: 'MCU'
   });
 
-  log.debug(['MCU', 'Recording', null, 'Stopping recording']);
+  self._log('debug', ['MCU', 'Recording', null, 'Stopping recording']);
 };
 
 /**
@@ -22791,11 +22781,11 @@ Skylink.prototype._processSigMessage = function(message, session) {
   if (!origin || origin === this._user.sid) {
     origin = 'Server';
   }
-  log.debug([origin, null, null, 'Received from peer ->'], message.type);
+  this._log('debug', [origin, null, null, 'Received from peer ->'], message.type);
   if (message.mid === this._user.sid &&
     message.type !== this._SIG_MESSAGE_TYPE.REDIRECT &&
     message.type !== this._SIG_MESSAGE_TYPE.IN_ROOM) {
-    log.debug([origin, null, null, 'Ignoring message ->'], message.type);
+    this._log('debug', [origin, null, null, 'Ignoring message ->'], message.type);
     return;
   }
   switch (message.type) {
@@ -22865,7 +22855,7 @@ Skylink.prototype._processSigMessage = function(message, session) {
     this._endOfCandidatesHandler(message);
     break;
   default:
-    log.error([message.mid, null, null, 'Unsupported message ->'], message.type);
+    this._log('error', [message.mid, null, null, 'Unsupported message ->'], message.type);
     break;
   }
 };
@@ -22882,7 +22872,7 @@ Skylink.prototype._processSigMessage = function(message, session) {
 Skylink.prototype._peerListEventHandler = function(message){
   var self = this;
   self._peerList = message.result;
-  log.log(['Server', null, message.type, 'Received list of peers'], self._peerList);
+  self._log('log', ['Server', null, message.type, 'Received list of peers'], self._peerList);
   self._trigger('getPeersStateChange',self.GET_PEERS_STATE.RECEIVED, self._user.sid, self._peerList);
 };
 
@@ -22919,7 +22909,7 @@ Skylink.prototype._endOfCandidatesHandler = function(message){
  */
 Skylink.prototype._introduceErrorEventHandler = function(message){
   var self = this;
-  log.log(['Server', null, message.type, 'Introduce failed. Reason: '+message.reason]);
+  self._log('log', ['Server', null, message.type, 'Introduce failed. Reason: '+message.reason]);
   self._trigger('introduceStateChange',self.INTRODUCE_STATE.ERROR, self._user.sid,
     message.sendingPeerId, message.receivingPeerId, message.reason);
 };
@@ -22935,7 +22925,7 @@ Skylink.prototype._introduceErrorEventHandler = function(message){
  */
 Skylink.prototype._approachEventHandler = function(message){
   var self = this;
-  log.log(['Server', null, message.type, 'Approaching peer'], message.target);
+  self._log('log', ['Server', null, message.type, 'Approaching peer'], message.target);
   // self._room.connection.peerConfig = self._setIceServers(message.pc_config);
   // self._inRoom = true;
   self._trigger('handshakeProgress', self.HANDSHAKE_PROGRESS.ENTER, self._user.sid);
@@ -22981,7 +22971,7 @@ Skylink.prototype._approachEventHandler = function(message){
  * @since 0.5.1
  */
 Skylink.prototype._redirectHandler = function(message) {
-  log.log(['Server', null, message.type, 'System action warning:'], {
+  this._log('log', ['Server', null, message.type, 'System action warning:'], {
     message: message.info,
     reason: message.reason,
     action: message.action
@@ -23014,11 +23004,11 @@ Skylink.prototype._redirectHandler = function(message) {
  */
 Skylink.prototype._updateUserEventHandler = function(message) {
   var targetMid = message.mid;
-  log.log([targetMid, null, message.type, 'Peer updated userData:'], message.userData);
+  this._log('log', [targetMid, null, message.type, 'Peer updated userData:'], message.userData);
   if (this._peerInformations[targetMid]) {
     if (this._peerMessagesStamps[targetMid] && typeof message.stamp === 'number') {
       if (message.stamp < this._peerMessagesStamps[targetMid].userData) {
-        log.warn([targetMid, null, message.type, 'Dropping outdated status ->'], message);
+        this._log('warn', [targetMid, null, message.type, 'Dropping outdated status ->'], message);
         return;
       }
       this._peerMessagesStamps[targetMid].userData = message.stamp;
@@ -23026,7 +23016,7 @@ Skylink.prototype._updateUserEventHandler = function(message) {
     this._peerInformations[targetMid].userData = message.userData || {};
     this._trigger('peerUpdated', targetMid, this.getPeerInfo(targetMid), false);
   } else {
-    log.log([targetMid, null, message.type, 'Peer does not have any user information']);
+    this._log('log', [targetMid, null, message.type, 'Peer does not have any user information']);
   }
 };
 
@@ -23041,7 +23031,7 @@ Skylink.prototype._updateUserEventHandler = function(message) {
  */
 Skylink.prototype._roomLockEventHandler = function(message) {
   var targetMid = message.mid;
-  log.log([targetMid, message.type, 'Room lock status:'], message.lock);
+  this._log('log', [targetMid, message.type, 'Room lock status:'], message.lock);
   this._trigger('roomLock', message.lock, targetMid, this.getPeerInfo(targetMid), false);
 };
 
@@ -23056,11 +23046,11 @@ Skylink.prototype._roomLockEventHandler = function(message) {
  */
 Skylink.prototype._muteAudioEventHandler = function(message) {
   var targetMid = message.mid;
-  log.log([targetMid, null, message.type, 'Peer\'s audio muted:'], message.muted);
+  this._log('log', [targetMid, null, message.type, 'Peer\'s audio muted:'], message.muted);
   if (this._peerInformations[targetMid]) {
     if (this._peerMessagesStamps[targetMid] && typeof message.stamp === 'number') {
       if (message.stamp < this._peerMessagesStamps[targetMid].audioMuted) {
-        log.warn([targetMid, null, message.type, 'Dropping outdated status ->'], message);
+        this._log('warn', [targetMid, null, message.type, 'Dropping outdated status ->'], message);
         return;
       }
       this._peerMessagesStamps[targetMid].audioMuted = message.stamp;
@@ -23071,7 +23061,7 @@ Skylink.prototype._muteAudioEventHandler = function(message) {
       this._peerInformations[targetMid].settings.video.screenshare);
     this._trigger('peerUpdated', targetMid, this.getPeerInfo(targetMid), false);
   } else {
-    log.log([targetMid, message.type, 'Peer does not have any user information']);
+    this._log('log', [targetMid, message.type, 'Peer does not have any user information']);
   }
 };
 
@@ -23086,11 +23076,11 @@ Skylink.prototype._muteAudioEventHandler = function(message) {
  */
 Skylink.prototype._muteVideoEventHandler = function(message) {
   var targetMid = message.mid;
-  log.log([targetMid, null, message.type, 'Peer\'s video muted:'], message.muted);
+  this._log('log', [targetMid, null, message.type, 'Peer\'s video muted:'], message.muted);
   if (this._peerInformations[targetMid]) {
     if (this._peerMessagesStamps[targetMid] && typeof message.stamp === 'number') {
       if (message.stamp < this._peerMessagesStamps[targetMid].videoMuted) {
-        log.warn([targetMid, null, message.type, 'Dropping outdated status ->'], message);
+        this._log('warn', [targetMid, null, message.type, 'Dropping outdated status ->'], message);
         return;
       }
       this._peerMessagesStamps[targetMid].videoMuted = message.stamp;
@@ -23101,7 +23091,7 @@ Skylink.prototype._muteVideoEventHandler = function(message) {
       this._peerInformations[targetMid].settings.video.screenshare);
     this._trigger('peerUpdated', targetMid, this.getPeerInfo(targetMid), false);
   } else {
-    log.log([targetMid, null, message.type, 'Peer does not have any user information']);
+    this._log('log', [targetMid, null, message.type, 'Peer does not have any user information']);
   }
 };
 
@@ -23116,7 +23106,7 @@ Skylink.prototype._muteVideoEventHandler = function(message) {
  */
 Skylink.prototype._streamEventHandler = function(message) {
   var targetMid = message.mid;
-  log.log([targetMid, null, message.type, 'Peer\'s stream status:'], message.status);
+  this._log('log', [targetMid, null, message.type, 'Peer\'s stream status:'], message.status);
 
   if (this._peerInformations[targetMid] && message.streamId) {
     this._streamsSession[targetMid] = this._streamsSession[targetMid] || {};
@@ -23133,7 +23123,7 @@ Skylink.prototype._streamEventHandler = function(message) {
   	}
   } else {
     // Probably left the room already
-    log.log([targetMid, null, message.type, 'Peer does not have any user information']);
+    this._log('log', [targetMid, null, message.type, 'Peer does not have any user information']);
   }
 };
 
@@ -23151,10 +23141,10 @@ Skylink.prototype._byeHandler = function(message) {
   var selfId = (this._user || {}).sid;
 
   if (selfId !== targetMid){
-    log.log([targetMid, null, message.type, 'Peer has left the room']);
+    this._log('log', [targetMid, null, message.type, 'Peer has left the room']);
     this._removePeer(targetMid);
   } else {
-    log.log([targetMid, null, message.type, 'Self has left the room']);
+    this._log('log', [targetMid, null, message.type, 'Self has left the room']);
   }
 };
 
@@ -23169,7 +23159,7 @@ Skylink.prototype._byeHandler = function(message) {
  */
 Skylink.prototype._privateMessageHandler = function(message) {
   var targetMid = message.mid;
-  log.log([targetMid, null, message.type,
+  this._log('log', [targetMid, null, message.type,
     'Received private message from peer:'], message.data);
   this._trigger('incomingMessage', {
     content: message.data,
@@ -23191,7 +23181,7 @@ Skylink.prototype._privateMessageHandler = function(message) {
  */
 Skylink.prototype._publicMessageHandler = function(message) {
   var targetMid = message.mid;
-  log.log([targetMid, null, message.type,
+  this._log('log', [targetMid, null, message.type,
     'Received public message from peer:'], message.data);
   this._trigger('incomingMessage', {
     content: message.data,
@@ -23218,11 +23208,11 @@ Skylink.prototype._publicMessageHandler = function(message) {
 Skylink.prototype._recordingEventHandler = function (message) {
   var self = this;
 
-  log.debug(['MCU', 'Recording', null, 'Received recording message ->'], message);
+  self._log('debug', ['MCU', 'Recording', null, 'Received recording message ->'], message);
 
   if (message.action === 'on') {
     if (!self._recordings[message.recordingId]) {
-      log.debug(['MCU', 'Recording', message.recordingId, 'Started recording']);
+      self._log('debug', ['MCU', 'Recording', message.recordingId, 'Started recording']);
 
       self._currentRecordingId = message.recordingId;
       self._recordings[message.recordingId] = {
@@ -23235,7 +23225,7 @@ Skylink.prototype._recordingEventHandler = function (message) {
         error: null
       };
       self._recordingStartInterval = setTimeout(function () {
-        log.log(['MCU', 'Recording', message.recordingId, '4 seconds has been recorded. Recording can be stopped now']);
+        self._log('log', ['MCU', 'Recording', message.recordingId, '4 seconds has been recorded. Recording can be stopped now']);
         self._recordingStartInterval = null;
       }, 4000);
       self._trigger('recordingState', self.RECORDING_STATE.START, message.recordingId, null, null);
@@ -23243,7 +23233,7 @@ Skylink.prototype._recordingEventHandler = function (message) {
 
   } else if (message.action === 'off') {
     if (!self._recordings[message.recordingId]) {
-      log.error(['MCU', 'Recording', message.recordingId, 'Received request of "off" but the session is empty']);
+      self._log('error', ['MCU', 'Recording', message.recordingId, 'Received request of "off" but the session is empty']);
       return;
     }
 
@@ -23251,11 +23241,11 @@ Skylink.prototype._recordingEventHandler = function (message) {
 
     if (self._recordingStartInterval) {
       clearTimeout(self._recordingStartInterval);
-      log.warn(['MCU', 'Recording', message.recordingId, 'Recording stopped abruptly before 4 seconds']);
+      self._log('warn', ['MCU', 'Recording', message.recordingId, 'Recording stopped abruptly before 4 seconds']);
       self._recordingStartInterval = null;
     }
 
-    log.debug(['MCU', 'Recording', message.recordingId, 'Stopped recording']);
+    self._log('debug', ['MCU', 'Recording', message.recordingId, 'Stopped recording']);
 
     self._recordings[message.recordingId].active = false;
     self._recordings[message.recordingId].state = self.RECORDING_STATE.STOP;
@@ -23264,7 +23254,7 @@ Skylink.prototype._recordingEventHandler = function (message) {
 
   } else if (message.action === 'url') {
     if (!self._recordings[message.recordingId]) {
-      log.error(['MCU', 'Recording', message.recordingId, 'Received URL but the session is empty']);
+      self._log('error', ['MCU', 'Recording', message.recordingId, 'Received URL but the session is empty']);
       return;
     }
 
@@ -23286,17 +23276,17 @@ Skylink.prototype._recordingEventHandler = function (message) {
   } else {
     var recordingError = new Error(message.error || 'Unknown error');
     if (!self._recordings[message.recordingId]) {
-      log.error(['MCU', 'Recording', message.recordingId, 'Received error but the session is empty ->'], recordingError);
+      self._log('error', ['MCU', 'Recording', message.recordingId, 'Received error but the session is empty ->'], recordingError);
       return;
     }
 
-    log.error(['MCU', 'Recording', message.recordingId, 'Recording failure ->'], recordingError);
+    self._log('error', ['MCU', 'Recording', message.recordingId, 'Recording failure ->'], recordingError);
 
     self._recordings[message.recordingId].state = self.RECORDING_STATE.ERROR;
     self._recordings[message.recordingId].error = recordingError;
 
     if (self._recordings[message.recordingId].active) {
-      log.debug(['MCU', 'Recording', message.recordingId, 'Stopped recording abruptly']);
+      self._log('debug', ['MCU', 'Recording', message.recordingId, 'Stopped recording abruptly']);
       self._recordings[message.recordingId].active = false;
       //self._trigger('recordingState', self.RECORDING_STATE.STOP, message.recordingId, null, recordingError);
     }
@@ -23316,7 +23306,7 @@ Skylink.prototype._recordingEventHandler = function (message) {
  */
 Skylink.prototype._inRoomHandler = function(message) {
   var self = this;
-  log.log(['Server', null, message.type, 'User is now in the room and ' +
+  self._log('log', ['Server', null, message.type, 'User is now in the room and ' +
     'functionalities are now available. Config received:'], message.pc_config);
   self._room.connection.peerConfig = self._setIceServers(message.pc_config);
   self._inRoom = true;
@@ -23422,11 +23412,11 @@ Skylink.prototype._enterHandler = function(message) {
       message.DTProtocolVersion : '0.1.0'
   };
 
-  log.log([targetMid, 'RTCPeerConnection', null, 'Peer "enter" received ->'], message);
+  self._log('log', [targetMid, 'RTCPeerConnection', null, 'Peer "enter" received ->'], message);
 
   if (self._publishOnly && ((self._hasMCU && targetMid !== 'MCU') || (self._publishOnly.parentId &&
     self._publishOnly.parentId === targetMid))) {
-    log.warn([targetMid, 'RTCPeerConnection', null, 'Discarding "enter" for publishOnly case ->'], message);
+    self._log('warn', [targetMid, 'RTCPeerConnection', null, 'Discarding "enter" for publishOnly case ->'], message);
     return;
   }
 
@@ -23445,7 +23435,7 @@ Skylink.prototype._enterHandler = function(message) {
     }, false, false, message.receiveOnly, hasScreenshare);
 
     if (targetMid === 'MCU') {
-      log.info([targetMid, 'RTCPeerConnection', null, 'MCU feature has been enabled']);
+      self._log('info', [targetMid, 'RTCPeerConnection', null, 'MCU feature has been enabled']);
 
       self._hasMCU = true;
       self._trigger('serverPeerJoined', targetMid, self.SERVER_PEER_TYPE.MCU);
@@ -23549,15 +23539,15 @@ Skylink.prototype._restartHandler = function(message){
       message.DTProtocolVersion : '0.1.0'
   };
 
-  log.log([targetMid, 'RTCPeerConnection', null, 'Peer "restart" received ->'], message);
+  self._log('log', [targetMid, 'RTCPeerConnection', null, 'Peer "restart" received ->'], message);
 
   if (!self._peerInformations[targetMid]) {
-    log.error([targetMid, 'RTCPeerConnection', null, 'Peer does not have an existing session. Ignoring restart process.']);
+    self._log('error', [targetMid, 'RTCPeerConnection', null, 'Peer does not have an existing session. Ignoring restart process.']);
     return;
   }
 
   if (self._hasMCU && !self._mcuUseRenegoRestart) {
-    log.warn([targetMid, 'RTCPeerConnection', null, 'Dropping restart request as MCU does not support re-negotiation. ' +
+    self._log('warn', [targetMid, 'RTCPeerConnection', null, 'Dropping restart request as MCU does not support re-negotiation. ' +
       'Restart workaround is to re-join Room for Peer.']);
     self._trigger('peerRestart', targetMid, self.getPeerInfo(targetMid), false, false);
     return;
@@ -23574,10 +23564,10 @@ Skylink.prototype._restartHandler = function(message){
 
   // Make peer with highest weight do the offer
   if (self._hasMCU ? message.isRestartResend : self._peerPriorityWeight > message.weight) {
-    log.debug([targetMid, 'RTCPeerConnection', null, 'Re-negotiating new offer/answer.']);
+    self._log('debug', [targetMid, 'RTCPeerConnection', null, 'Re-negotiating new offer/answer.']);
 
     if (self._peerMessagesStamps[targetMid].hasRestart) {
-      log.warn([targetMid, 'RTCPeerConnection', null, 'Discarding extra "restart" received.']);
+      self._log('warn', [targetMid, 'RTCPeerConnection', null, 'Discarding extra "restart" received.']);
       return;
     }
 
@@ -23589,7 +23579,7 @@ Skylink.prototype._restartHandler = function(message){
     }, true);
 
   } else {
-    log.debug([targetMid, 'RTCPeerConnection', null, 'Waiting for peer to start re-negotiation.']);
+    self._log('debug', [targetMid, 'RTCPeerConnection', null, 'Waiting for peer to start re-negotiation.']);
 
     var restartMsg = {
       type: self._SIG_MESSAGE_TYPE.RESTART,
@@ -23679,11 +23669,11 @@ Skylink.prototype._welcomeHandler = function(message) {
       message.DTProtocolVersion : '0.1.0'
   };
 
-  log.log([targetMid, 'RTCPeerConnection', null, 'Peer "welcome" received ->'], message);
+  self._log('log', [targetMid, 'RTCPeerConnection', null, 'Peer "welcome" received ->'], message);
 
   if (self._publishOnly && ((self._hasMCU && targetMid !== 'MCU') || (self._publishOnly.parentId &&
     self._publishOnly.parentId === targetMid))) {
-    log.warn([targetMid, 'RTCPeerConnection', null, 'Discarding "welcome" for publishOnly case ->'], message);
+    self._log('warn', [targetMid, 'RTCPeerConnection', null, 'Discarding "welcome" for publishOnly case ->'], message);
     return;
   }
 
@@ -23702,7 +23692,7 @@ Skylink.prototype._welcomeHandler = function(message) {
     }, false, false, message.receiveOnly, hasScreenshare);
 
     if (targetMid === 'MCU') {
-      log.info([targetMid, 'RTCPeerConnection', null, 'MCU feature has been enabled']);
+      self._log('info', [targetMid, 'RTCPeerConnection', null, 'MCU feature has been enabled']);
 
       self._hasMCU = true;
       self._trigger('serverPeerJoined', targetMid, self.SERVER_PEER_TYPE.MCU);
@@ -23724,11 +23714,11 @@ Skylink.prototype._welcomeHandler = function(message) {
 
   if (self._hasMCU || self._peerPriorityWeight > message.weight) {
     if (self._peerMessagesStamps[targetMid].hasWelcome) {
-      log.warn([targetMid, 'RTCPeerConnection', null, 'Discarding extra "welcome" received.']);
+      self._log('warn', [targetMid, 'RTCPeerConnection', null, 'Discarding extra "welcome" received.']);
       return;
     }
 
-    log.debug([targetMid, 'RTCPeerConnection', null, 'Starting negotiation']);
+    self._log('debug', [targetMid, 'RTCPeerConnection', null, 'Starting negotiation']);
 
     self._peerMessagesStamps[targetMid].hasWelcome = true;
     self._doOffer(targetMid, false, {
@@ -23738,7 +23728,7 @@ Skylink.prototype._welcomeHandler = function(message) {
     }, true);
 
   } else {
-    log.debug([targetMid, 'RTCPeerConnection', null, 'Waiting for peer to start negotiation.']);
+    self._log('debug', [targetMid, 'RTCPeerConnection', null, 'Waiting for peer to start negotiation.']);
 
     var welcomeMsg = {
       type: self._SIG_MESSAGE_TYPE.WELCOME,
@@ -23787,13 +23777,13 @@ Skylink.prototype._offerHandler = function(message) {
   var pc = self._peerConnections[targetMid];
 
   if (!pc) {
-    log.error([targetMid, null, message.type, 'Peer connection object ' +
+    self._log('error', [targetMid, null, message.type, 'Peer connection object ' +
       'not found. Unable to setRemoteDescription for offer']);
     return;
   }
 
   /*if (pc.localDescription ? !!pc.localDescription.sdp : false) {
-    log.warn([targetMid, null, message.type, 'Peer has an existing connection'],
+    self._log('warn', [targetMid, null, message.type, 'Peer has an existing connection'],
       pc.localDescription);
     return;
   }*/
@@ -23807,14 +23797,14 @@ Skylink.prototype._offerHandler = function(message) {
     self._peerInformations[targetMid].userData = userInfo.userData;
   }
 
-  log.log([targetMid, null, message.type, 'Received offer from peer. ' +
+  self._log('log', [targetMid, null, message.type, 'Received offer from peer. ' +
     'Session description:'], clone(message));
 
   var offer = new RTCSessionDescription({
     type: message.type,
     sdp: self._hasMCU ? message.sdp.split('\n').join('\r\n') : message.sdp
   });
-  log.log([targetMid, 'RTCSessionDescription', message.type,
+  self._log('log', [targetMid, 'RTCSessionDescription', message.type,
     'Session description object created'], offer);
 
   offer.sdp = self._removeSDPFilteredCandidates(targetMid, offer);
@@ -23825,11 +23815,11 @@ Skylink.prototype._offerHandler = function(message) {
   offer.sdp = self._removeSDPREMBPackets(targetMid, offer);
   offer.sdp = self._handleSDPConnectionSettings(targetMid, offer, 'remote');
 
-  log.log([targetMid, 'RTCSessionDescription', message.type, 'Updated remote offer ->'], offer.sdp);
+  self._log('log', [targetMid, 'RTCSessionDescription', message.type, 'Updated remote offer ->'], offer.sdp);
 
   // This is always the initial state. or even after negotiation is successful
   if (pc.signalingState !== self.PEER_CONNECTION_STATE.STABLE) {
-    log.warn([targetMid, null, message.type, 'Peer connection state is not in ' +
+    self._log('warn', [targetMid, null, message.type, 'Peer connection state is not in ' +
       '"stable" state for re-negotiation. Dropping message.'], {
         signalingState: pc.signalingState,
         isRestart: !!message.resend
@@ -23839,7 +23829,7 @@ Skylink.prototype._offerHandler = function(message) {
 
   // Added checks if there is a current remote sessionDescription being processing before processing this one
   if (pc.processingRemoteSDP) {
-    log.warn([targetMid, 'RTCSessionDescription', 'offer',
+    self._log('warn', [targetMid, 'RTCSessionDescription', 'offer',
       'Dropping of setting local offer as there is another ' +
       'sessionDescription being processed ->'], offer);
     return;
@@ -23853,7 +23843,7 @@ Skylink.prototype._offerHandler = function(message) {
   }
 
   pc.setRemoteDescription(offer, function() {
-    log.debug([targetMid, 'RTCSessionDescription', message.type, 'Remote description set']);
+    self._log('debug', [targetMid, 'RTCSessionDescription', message.type, 'Remote description set']);
     pc.setOffer = 'remote';
     pc.processingRemoteSDP = false;
     self._trigger('handshakeProgress', self.HANDSHAKE_PROGRESS.OFFER, targetMid);
@@ -23864,7 +23854,7 @@ Skylink.prototype._offerHandler = function(message) {
 
     pc.processingRemoteSDP = false;
 
-    log.error([targetMid, null, message.type, 'Failed setting remote description:'], error);
+    self._log('error', [targetMid, null, message.type, 'Failed setting remote description:'], error);
   });
 };
 
@@ -23882,7 +23872,7 @@ Skylink.prototype._candidateHandler = function(message) {
   var targetMid = message.mid;
 
   if (!message.candidate && !message.id) {
-    log.warn([targetMid, 'RTCIceCandidate', null, 'Received invalid ICE candidate message ->'], message);
+    this._log('warn', [targetMid, 'RTCIceCandidate', null, 'Received invalid ICE candidate message ->'], message);
     return;
   }
 
@@ -23894,7 +23884,7 @@ Skylink.prototype._candidateHandler = function(message) {
     sdpMid: message.id
   });
 
-  log.debug([targetMid, 'RTCIceCandidate', canId + ':' + candidateType, 'Received ICE candidate ->'], candidate);
+  this._log('debug', [targetMid, 'RTCIceCandidate', canId + ':' + candidateType, 'Received ICE candidate ->'], candidate);
 
   this._peerEndOfCandidatesCounter[targetMid] = this._peerEndOfCandidatesCounter[targetMid] || {};
   this._peerEndOfCandidatesCounter[targetMid].len = this._peerEndOfCandidatesCounter[targetMid].len || 0;
@@ -23910,7 +23900,7 @@ Skylink.prototype._candidateHandler = function(message) {
 
   if (!(this._peerConnections[targetMid] &&
     this._peerConnections[targetMid].signalingState !== this.PEER_CONNECTION_STATE.CLOSED)) {
-    log.warn([targetMid, 'RTCIceCandidate', canId + ':' + candidateType, 'Dropping ICE candidate ' +
+    this._log('warn', [targetMid, 'RTCIceCandidate', canId + ':' + candidateType, 'Dropping ICE candidate ' +
       'as Peer connection does not exists or is closed'], this._peerConnections[targetMid].signalingState);
     this._trigger('candidateProcessingState', this.CANDIDATE_PROCESSING_STATE.DROPPED,
       targetMid, canId, candidateType, {
@@ -23924,7 +23914,7 @@ Skylink.prototype._candidateHandler = function(message) {
 
   if (this._filterCandidatesType[candidateType]) {
     if (!(this._hasMCU && this._forceTURN)) {
-      log.warn([targetMid, 'RTCIceCandidate', canId + ':' + candidateType, 'Dropping received ICE candidate as ' +
+      this._log('warn', [targetMid, 'RTCIceCandidate', canId + ':' + candidateType, 'Dropping received ICE candidate as ' +
         'it matches ICE candidate filtering flag ->'], candidate);
       this._trigger('candidateProcessingState', this.CANDIDATE_PROCESSING_STATE.DROPPED,
         targetMid, canId, candidateType, {
@@ -23936,7 +23926,7 @@ Skylink.prototype._candidateHandler = function(message) {
       return;
     }
 
-    log.warn([targetMid, 'RTCIceCandidate', canId + ':' + candidateType, 'Not dropping received ICE candidate as ' +
+    this._log('warn', [targetMid, 'RTCIceCandidate', canId + ':' + candidateType, 'Not dropping received ICE candidate as ' +
       'TURN connections are enforced as MCU is present (and act as a TURN itself) so filtering of ICE candidate ' +
       'flags are not honoured ->'], candidate);
   }
@@ -23977,13 +23967,13 @@ Skylink.prototype._answerHandler = function(message) {
   var self = this;
   var targetMid = message.mid;
 
-  log.log([targetMid, null, message.type,
+  self._log('log', [targetMid, null, message.type,
     'Received answer from peer. Session description:'], clone(message));
 
   var pc = self._peerConnections[targetMid];
 
   if (!pc) {
-    log.error([targetMid, null, message.type, 'Peer connection object ' +
+    self._log('error', [targetMid, null, message.type, 'Peer connection object ' +
       'not found. Unable to setRemoteDescription for answer']);
     return;
   }
@@ -24002,17 +23992,17 @@ Skylink.prototype._answerHandler = function(message) {
     sdp: self._hasMCU ? message.sdp.split('\n').join('\r\n') : message.sdp
   });
 
-  log.log([targetMid, 'RTCSessionDescription', message.type,
+  self._log('log', [targetMid, 'RTCSessionDescription', message.type,
     'Session description object created'], answer);
 
   /*if (pc.remoteDescription ? !!pc.remoteDescription.sdp : false) {
-    log.warn([targetMid, null, message.type, 'Peer has an existing connection'],
+    self._log('warn', [targetMid, null, message.type, 'Peer has an existing connection'],
       pc.remoteDescription);
     return;
   }
 
   if (pc.signalingState === self.PEER_CONNECTION_STATE.STABLE) {
-    log.error([targetMid, null, message.type, 'Unable to set peer connection ' +
+    self._log('error', [targetMid, null, message.type, 'Unable to set peer connection ' +
       'at signalingState "stable". Ignoring remote answer'], pc.signalingState);
     return;
   }*/
@@ -24025,12 +24015,12 @@ Skylink.prototype._answerHandler = function(message) {
   answer.sdp = self._removeSDPREMBPackets(targetMid, answer);
   answer.sdp = self._handleSDPConnectionSettings(targetMid, answer, 'remote');
 
-  log.log([targetMid, 'RTCSessionDescription', message.type, 'Updated remote answer ->'], answer.sdp);
+  self._log('log', [targetMid, 'RTCSessionDescription', message.type, 'Updated remote answer ->'], answer.sdp);
 
 
   // This should be the state after offer is received. or even after negotiation is successful
   if (pc.signalingState !== self.PEER_CONNECTION_STATE.HAVE_LOCAL_OFFER) {
-    log.warn([targetMid, null, message.type, 'Peer connection state is not in ' +
+    self._log('warn', [targetMid, null, message.type, 'Peer connection state is not in ' +
       '"have-local-offer" state for re-negotiation. Dropping message.'], {
         signalingState: pc.signalingState,
         isRestart: !!message.restart
@@ -24040,7 +24030,7 @@ Skylink.prototype._answerHandler = function(message) {
 
   // Added checks if there is a current remote sessionDescription being processing before processing this one
   if (pc.processingRemoteSDP) {
-    log.warn([targetMid, 'RTCSessionDescription', 'answer',
+    self._log('warn', [targetMid, 'RTCSessionDescription', 'answer',
       'Dropping of setting local answer as there is another ' +
       'sessionDescription being processed ->'], answer);
     return;
@@ -24049,7 +24039,7 @@ Skylink.prototype._answerHandler = function(message) {
   pc.processingRemoteSDP = true;
 
   pc.setRemoteDescription(answer, function() {
-    log.debug([targetMid, null, message.type, 'Remote description set']);
+    self._log('debug', [targetMid, null, message.type, 'Remote description set']);
     pc.setAnswer = 'remote';
     pc.processingRemoteSDP = false;
     self._trigger('handshakeProgress', self.HANDSHAKE_PROGRESS.ANSWER, targetMid);
@@ -24061,7 +24051,7 @@ Skylink.prototype._answerHandler = function(message) {
 
     if (self._dataChannels[targetMid] && (pc.remoteDescription.sdp.indexOf('m=application') === -1 ||
       pc.remoteDescription.sdp.indexOf('m=application 0') > 0)) {
-      log.warn([targetMid, 'RTCPeerConnection', null, 'Closing all datachannels as they were rejected.']);
+      self._log('warn', [targetMid, 'RTCPeerConnection', null, 'Closing all datachannels as they were rejected.']);
       self._closeDataChannel(targetMid);
     }
 
@@ -24070,7 +24060,7 @@ Skylink.prototype._answerHandler = function(message) {
 
     pc.processingRemoteSDP = false;
 
-    log.error([targetMid, null, message.type, 'Failed setting remote description:'], {
+    self._log('error', [targetMid, null, message.type, 'Failed setting remote description:'], {
       error: error,
       state: pc.signalingState
     });
@@ -24577,7 +24567,7 @@ Skylink.prototype.getUserMedia = function(options,callback) {
 
     } else {
       var invalidOptionsError = 'Please provide a valid options';
-      log.error(invalidOptionsError, options);
+      self._log('error', invalidOptionsError, options);
       if (typeof callback === 'function') {
         callback(new Error(invalidOptionsError), null);
       }
@@ -24586,7 +24576,7 @@ Skylink.prototype.getUserMedia = function(options,callback) {
 
   } else if (!options.audio && !options.video) {
     var noConstraintOptionsSelectedError = 'Please select audio or video';
-    log.error(noConstraintOptionsSelectedError, options);
+    self._log('error', noConstraintOptionsSelectedError, options);
     if (typeof callback === 'function') {
       callback(new Error(noConstraintOptionsSelectedError), null);
     }
@@ -24596,7 +24586,7 @@ Skylink.prototype.getUserMedia = function(options,callback) {
   /*if (window.location.protocol !== 'https:' && window.webrtcDetectedBrowser === 'chrome' &&
     window.webrtcDetectedVersion > 46) {
     errorMsg = 'getUserMedia() has to be called in https:// application';
-    log.error(errorMsg, options);
+    self._log('error', errorMsg, options);
     if (typeof callback === 'function') {
       callback(new Error(errorMsg), null);
     }
@@ -24607,7 +24597,7 @@ Skylink.prototype.getUserMedia = function(options,callback) {
     if (!runFn) {
       if (self._throttlingShouldThrowError) {
         var throttleLimitError = 'Unable to run as throttle interval has not reached (' + self._throttlingTimeouts.getUserMedia + 'ms).';
-        log.error(throttleLimitError);
+        self._log('error', throttleLimitError);
 
         if (typeof callback === 'function') {
           callback(new Error(throttleLimitError), null);
@@ -24616,6 +24606,7 @@ Skylink.prototype.getUserMedia = function(options,callback) {
       return;
     }
 
+    /* jshint ignore:start */
     if (typeof callback === 'function') {
       var mediaAccessSuccessFn = function (stream) {
         self.off('mediaAccessError', mediaAccessErrorFn);
@@ -24634,6 +24625,7 @@ Skylink.prototype.getUserMedia = function(options,callback) {
         return !isScreensharing;
       });
     }
+    /* jshint ignore:end */
 
     // Parse stream settings
     var settings = self._parseStreamSettings(options);
@@ -24781,7 +24773,7 @@ Skylink.prototype.sendStream = function(options, callback) {
       if (Object.keys(self._peerConnections).length > 0 || self._hasMCU) {
         self._refreshPeerConnection(Object.keys(self._peerConnections), false, function (err, success) {
           if (err) {
-            log.error('Failed refreshing connections for sendStream() ->', err);
+            self._log('error', 'Failed refreshing connections for sendStream() ->', err);
             if (typeof callback === 'function') {
               callback(new Error('Failed refreshing connections.'), null);
             }
@@ -24796,7 +24788,7 @@ Skylink.prototype.sendStream = function(options, callback) {
       }
     } else {
       var notInRoomAgainError = 'Unable to send stream as user is not in the Room.';
-      log.error(notInRoomAgainError, stream);
+      self._log('error', notInRoomAgainError, stream);
       if (typeof callback === 'function') {
         callback(new Error(notInRoomAgainError), null);
       }
@@ -24805,7 +24797,7 @@ Skylink.prototype.sendStream = function(options, callback) {
 
   if (typeof options !== 'object' || options === null) {
     var invalidOptionsError = 'Provided stream settings is invalid';
-    log.error(invalidOptionsError, options);
+    self._log('error', invalidOptionsError, options);
     if (typeof callback === 'function'){
       callback(new Error(invalidOptionsError),null);
     }
@@ -24814,7 +24806,7 @@ Skylink.prototype.sendStream = function(options, callback) {
 
   if (!self._inRoom) {
     var notInRoomError = 'Unable to send stream as user is not in the Room.';
-    log.error(notInRoomError, options);
+    self._log('error', notInRoomError, options);
     if (typeof callback === 'function'){
       callback(new Error(notInRoomError),null);
     }
@@ -24834,7 +24826,7 @@ Skylink.prototype.sendStream = function(options, callback) {
 
     if (!checkActiveTracksFn( options.getAudioTracks() ) && !checkActiveTracksFn( options.getVideoTracks() )) {
       var invalidStreamError = 'Provided stream object does not have audio or video tracks.';
-      log.error(invalidStreamError, options);
+      self._log('error', invalidStreamError, options);
       if (typeof callback === 'function'){
         callback(new Error(invalidStreamError),null);
       }
@@ -24977,13 +24969,13 @@ Skylink.prototype.muteStream = function(options) {
   var self = this;
 
   if (typeof options !== 'object') {
-    log.error('Provided settings is not an object');
+    self._log('error', 'Provided settings is not an object');
     return;
   }
 
   if (!(self._streams.userMedia && self._streams.userMedia.stream) &&
     !(self._streams.screenshare && self._streams.screenshare.stream)) {
-    log.warn('No streams are available to mute / unmute!');
+    self._log('warn', 'No streams are available to mute / unmute!');
     return;
   }
 
@@ -25283,7 +25275,7 @@ Skylink.prototype.shareScreen = function (enableAudio, callback) {
     if (!runFn) {
       if (self._throttlingShouldThrowError) {
         var throttleLimitError = 'Unable to run as throttle interval has not reached (' + self._throttlingTimeouts.shareScreen + 'ms).';
-        log.error(throttleLimitError);
+        self._log('error', throttleLimitError);
 
         if (typeof callback === 'function') {
           callback(new Error(throttleLimitError), null);
@@ -25307,6 +25299,7 @@ Skylink.prototype.shareScreen = function (enableAudio, callback) {
       }
     };
 
+    /* jshint ignore:start */
     var mediaAccessSuccessFn = function (stream) {
       self.off('mediaAccessError', mediaAccessErrorFn);
 
@@ -25317,7 +25310,7 @@ Skylink.prototype.shareScreen = function (enableAudio, callback) {
         if (Object.keys(self._peerConnections).length > 0 || self._hasMCU) {
           self._refreshPeerConnection(Object.keys(self._peerConnections), false, function (err, success) {
             if (err) {
-              log.error('Failed refreshing connections for shareScreen() ->', err);
+              self._log('error', 'Failed refreshing connections for shareScreen() ->', err);
               if (typeof callback === 'function') {
                 callback(new Error('Failed refreshing connections.'), null);
               }
@@ -25350,6 +25343,7 @@ Skylink.prototype.shareScreen = function (enableAudio, callback) {
     self.once('mediaAccessError', mediaAccessErrorFn, function (error, isScreensharing) {
       return isScreensharing;
     });
+    /* jshint ignore:end */
 
     try {
       if (enableAudio && window.webrtcDetectedBrowser === 'firefox') {
@@ -25378,11 +25372,11 @@ Skylink.prototype.shareScreen = function (enableAudio, callback) {
             self._onStreamAccessSuccess(audioStream, settings, true, false);
 
           } catch (error) {
-            log.error('Failed retrieving audio stream for screensharing stream', error);
+            self._log('error', 'Failed retrieving audio stream for screensharing stream', error);
             self._onStreamAccessSuccess(stream, settings, true, false);
           }
         }, function (error) {
-          log.error('Failed retrieving audio stream for screensharing stream', error);
+          self._log('error', 'Failed retrieving audio stream for screensharing stream', error);
           self._onStreamAccessSuccess(stream, settings, true, false);
         });
 
@@ -25494,7 +25488,7 @@ Skylink.prototype._muteStreams = function () {
     muteFn(self._streams.screenshare.streamClone);
   }
 
-  log.debug('Updated Streams muted status ->', self._streamsMutedSettings);
+  self._log('debug', 'Updated Streams muted status ->', self._streamsMutedSettings);
 
   return {
     hasVideo: hasVideo,
@@ -25513,7 +25507,7 @@ Skylink.prototype._stopStreams = function (options) {
   var self = this;
   var stopFn = function (stream) {
     var streamId = stream.id || stream.label;
-    log.debug([null, 'MediaStream', streamId, 'Stopping Stream ->'], stream);
+    self._log('debug', [null, 'MediaStream', streamId, 'Stopping Stream ->'], stream);
 
     try {
       var audioTracks = stream.getAudioTracks();
@@ -25572,7 +25566,7 @@ Skylink.prototype._stopStreams = function (options) {
     self._trigger('peerUpdated', self._user.sid, self.getPeerInfo(), true);
   }
 
-  log.log('Stopping Streams with settings ->', options);
+  self._log('log', 'Stopping Streams with settings ->', options);
 };
 
 /**
@@ -25765,7 +25759,7 @@ Skylink.prototype._onStreamAccessSuccess = function(stream, settings, isScreenSh
   var self = this;
   var streamId = stream.id || stream.label;
 
-  log.log([null, 'MediaStream', streamId, 'Has access to stream ->'], stream);
+  self._log('log', [null, 'MediaStream', streamId, 'Has access to stream ->'], stream);
 
   // Stop previous stream
   if (!isScreenSharing && self._streams.userMedia) {
@@ -25782,12 +25776,12 @@ Skylink.prototype._onStreamAccessSuccess = function(stream, settings, isScreenSh
   }
 
   self._streamsStoppedCbs[streamId] = function () {
-    log.log([null, 'MediaStream', streamId, 'Stream has ended']);
+    self._log('log', [null, 'MediaStream', streamId, 'Stream has ended']);
 
     self._trigger('mediaAccessStopped', !!isScreenSharing, !!isAudioFallback, streamId);
 
     if (self._inRoom) {
-      log.debug([null, 'MediaStream', streamId, 'Sending Stream ended status to Peers']);
+      self._log('debug', [null, 'MediaStream', streamId, 'Sending Stream ended status to Peers']);
 
       self._sendChannelMessage({
         type: self._SIG_MESSAGE_TYPE.STREAM,
@@ -25858,7 +25852,7 @@ Skylink.prototype._onStreamAccessSuccess = function(stream, settings, isScreenSh
       'with ' + stream.getAudioTracks().length + ' and video ' +
       'tracks length with ' + stream.getVideoTracks().length;
 
-    log.warn([null, 'MediaStream', streamId, tracksNotSameError]);
+    self._log('warn', [null, 'MediaStream', streamId, tracksNotSameError]);
 
     var requireAudio = !!settings.settings.audio;
     var requireVideo = !!settings.settings.video;
@@ -25900,7 +25894,7 @@ Skylink.prototype._onStreamAccessError = function(error, settings, isScreenShari
   var self = this;
 
   if (!isScreenSharing && settings.settings.audio && settings.settings.video && self._audioFallback) {
-    log.debug('Fallbacking to retrieve audio only Stream');
+    self._log('debug', 'Fallbacking to retrieve audio only Stream');
 
     self._trigger('mediaAccessFallback', {
       error: error,
@@ -25913,7 +25907,7 @@ Skylink.prototype._onStreamAccessError = function(error, settings, isScreenShari
       self._onStreamAccessSuccess(stream, settings, false, true);
 
     }, function (error) {
-      log.error('Failed fallbacking to retrieve audio only Stream ->', error);
+      self._log('error', 'Failed fallbacking to retrieve audio only Stream ->', error);
 
       self._trigger('mediaAccessError', error, false, true);
       self._trigger('mediaAccessFallback', {
@@ -25924,7 +25918,7 @@ Skylink.prototype._onStreamAccessError = function(error, settings, isScreenShari
     return;
   }
 
-  log.error('Failed retrieving ' + (isScreenSharing ? 'screensharing' : 'camera') + ' Stream ->', error);
+  self._log('error', 'Failed retrieving ' + (isScreenSharing ? 'screensharing' : 'camera') + ' Stream ->', error);
 
   self._trigger('mediaAccessError', error, !!isScreenSharing, false);
 };
@@ -25940,7 +25934,7 @@ Skylink.prototype._onRemoteStreamAdded = function(targetMid, stream, isScreenSha
   var self = this;
 
   if (!self._peerInformations[targetMid]) {
-    log.warn([targetMid, 'MediaStream', stream.id,
+    self._log('warn', [targetMid, 'MediaStream', stream.id,
       'Received remote stream when peer is not connected. ' +
       'Ignoring stream ->'], stream);
     return;
@@ -25948,15 +25942,15 @@ Skylink.prototype._onRemoteStreamAdded = function(targetMid, stream, isScreenSha
 
   /*if (!self._peerInformations[targetMid].settings.audio &&
     !self._peerInformations[targetMid].settings.video && !isScreenSharing) {
-    log.log([targetMid, 'MediaStream', stream.id,
+    self._log('log', [targetMid, 'MediaStream', stream.id,
       'Receive remote stream but ignoring stream as it is empty ->'
       ], stream);
     return;
   }*/
-  log.log([targetMid, 'MediaStream', stream.id, 'Received remote stream ->'], stream);
+  self._log('log', [targetMid, 'MediaStream', stream.id, 'Received remote stream ->'], stream);
 
   if (isScreenSharing) {
-    log.log([targetMid, 'MediaStream', stream.id, 'Peer is having a screensharing session with user']);
+    self._log('log', [targetMid, 'MediaStream', stream.id, 'Peer is having a screensharing session with user']);
   }
 
   self._trigger('incomingStream', targetMid, stream, false, self.getPeerInfo(targetMid), isScreenSharing, stream.id || stream.label);
@@ -25978,7 +25972,7 @@ Skylink.prototype._addLocalMediaStreams = function(peerId) {
   // a mediastream is mainly a container, most of the info
   // are attached to the tracks. We should iterates over track and print
   try {
-    log.log([peerId, null, null, 'Adding local stream']);
+    self._log('log', [peerId, null, null, 'Adding local stream']);
 
     var pc = self._peerConnections[peerId];
 
@@ -26005,35 +25999,35 @@ Skylink.prototype._addLocalMediaStreams = function(peerId) {
         };
 
         if (self._streams.screenshare && self._streams.screenshare.stream) {
-          log.debug([peerId, 'MediaStream', null, 'Sending screen'], self._streams.screenshare.stream);
+          self._log('debug', [peerId, 'MediaStream', null, 'Sending screen'], self._streams.screenshare.stream);
 
           updateStreamFn(self._streams.screenshare.stream);
 
         } else if (self._streams.userMedia && self._streams.userMedia.stream) {
-          log.debug([peerId, 'MediaStream', null, 'Sending stream'], self._streams.userMedia.stream);
+          self._log('debug', [peerId, 'MediaStream', null, 'Sending stream'], self._streams.userMedia.stream);
 
           updateStreamFn(self._streams.userMedia.stream);
 
         } else {
-          log.warn([peerId, 'MediaStream', null, 'No media to send. Will be only receiving']);
+          self._log('warn', [peerId, 'MediaStream', null, 'No media to send. Will be only receiving']);
 
           updateStreamFn(null);
         }
 
       } else {
-        log.warn([peerId, 'MediaStream', null,
+        self._log('warn', [peerId, 'MediaStream', null,
           'Not adding any stream as signalingState is closed']);
       }
     } else {
-      log.warn([peerId, 'MediaStream', self._mediaStream,
+      self._log('warn', [peerId, 'MediaStream', self._mediaStream,
         'Not adding stream as peerconnection object does not exists']);
     }
   } catch (error) {
     if ((error.message || '').indexOf('already added') > -1) {
-      log.warn([peerId, null, null, 'Not re-adding stream as LocalMediaStream is already added'], error);
+      self._log('warn', [peerId, null, null, 'Not re-adding stream as LocalMediaStream is already added'], error);
     } else {
       // Fix errors thrown like NS_ERROR_UNEXPECTED
-      log.error([peerId, null, null, 'Failed adding local stream'], error);
+      self._log('error', [peerId, null, null, 'Failed adding local stream'], error);
     }
   }
 };
@@ -26115,7 +26109,7 @@ Skylink.prototype._setSDPOpusConfig = function(targetMid, sessionDescription) {
   }
 
   if (!payload) {
-    log.warn([targetMid, 'RTCSessionDesription', sessionDescription.type, 'Failed to find OPUS payload. Not configuring options.']);
+    this._log('warn', [targetMid, 'RTCSessionDesription', sessionDescription.type, 'Failed to find OPUS payload. Not configuring options.']);
     return sessionDescription.sdp;
   }
 
@@ -26135,17 +26129,18 @@ Skylink.prototype._setSDPOpusConfig = function(targetMid, sessionDescription) {
         if (['useinbandfec', 'usedtx', 'sprop-stereo', 'stereo', 'maxplaybackrate'].indexOf(params[0]) > -1) {
           // Get default OPUS useinbandfec
           if (params[0] === 'useinbandfec' && params[1] === '1' && opusSettings.useinbandfec === null) {
-            log.warn([targetMid, 'RTCSessionDesription', sessionDescription.type, 'Received OPUS useinbandfec as true by default.']);
+            this._log('warn', [targetMid, 'RTCSessionDesription', sessionDescription.type, 'Received OPUS useinbandfec as true by default.']);
             opusSettings.useinbandfec = true;
 
           // Get default OPUS usedtx
           } else if (params[0] === 'usedtx' && params[1] === '1' && opusSettings.usedtx === null) {
-            log.warn([targetMid, 'RTCSessionDesription', sessionDescription.type, 'Received OPUS usedtx as true by default.']);
+            this._log('warn', [targetMid, 'RTCSessionDesription', sessionDescription.type, 'Received OPUS usedtx as true by default.']);
             opusSettings.usedtx = true;
 
           // Get default OPUS maxplaybackrate
           } else if (params[0] === 'maxplaybackrate' && parseInt(params[1] || '0', 10) > 0 && opusSettings.maxplaybackrate === null) {
-            log.warn([targetMid, 'RTCSessionDesription', sessionDescription.type, 'Received OPUS maxplaybackrate as ' + params[1] + ' by default.']);
+            this._log('warn', [targetMid, 'RTCSessionDesription', sessionDescription.type,
+              'Received OPUS maxplaybackrate as ' + params[1] + ' by default.']);
             opusSettings.maxplaybackrate = params[1];
           }
         } else {
@@ -26169,7 +26164,7 @@ Skylink.prototype._setSDPOpusConfig = function(targetMid, sessionDescription) {
         updatedOpusParams += 'maxplaybackrate=' + opusSettings.maxplaybackrate + ';';
       }
 
-      log.info([targetMid, 'RTCSessionDesription', sessionDescription.type, 'Updated OPUS parameters ->'], updatedOpusParams);
+      this._log('info', [targetMid, 'RTCSessionDesription', sessionDescription.type, 'Updated OPUS parameters ->'], updatedOpusParams);
 
       sdpLines[j] = 'a=fmtp:' + payload + ' ' + updatedOpusParams;
       appendFmtpLineAtIndex = -1;
@@ -26196,7 +26191,7 @@ Skylink.prototype._setSDPOpusConfig = function(targetMid, sessionDescription) {
       newFmtpLine += 'maxplaybackrate=' + opusSettings.maxplaybackrate + ';';
     }
 
-    log.info([targetMid, 'RTCSessionDesription', sessionDescription.type, 'Created OPUS parameters ->'], newFmtpLine);
+    this._log('info', [targetMid, 'RTCSessionDesription', sessionDescription.type, 'Created OPUS parameters ->'], newFmtpLine);
 
     sdpLines.splice(appendFmtpLineAtIndex + 1, 0, newFmtpLine);
   }
@@ -26213,6 +26208,7 @@ Skylink.prototype._setSDPOpusConfig = function(targetMid, sessionDescription) {
  * @since 0.5.10
  */
 Skylink.prototype._setSDPBitrate = function(targetMid, sessionDescription) {
+  var self = this;
   var sdpLines = sessionDescription.sdp.split('\r\n');
   var parseFn = function (type, bw) {
     var mLineType = type;
@@ -26242,18 +26238,18 @@ Skylink.prototype._setSDPBitrate = function(targetMid, sessionDescription) {
     }
 
     if (!(typeof bw === 'number' && bw > 0)) {
-      log.warn([targetMid, 'RTCSessionDesription', sessionDescription.type, 'Not limiting "' + type + '" bandwidth']);
+      self._log('warn', [targetMid, 'RTCSessionDesription', sessionDescription.type, 'Not limiting "' + type + '" bandwidth']);
       return;
     }
 
     if (cLineIndex === -1) {
-      log.error([targetMid, 'RTCSessionDesription', sessionDescription.type, 'Failed setting "' +
+      self._log('error', [targetMid, 'RTCSessionDesription', sessionDescription.type, 'Failed setting "' +
         type + '" bandwidth as c-line is missing.']);
       return;
     }
 
     // Follow RFC 4566, that the b-line should follow after c-line.
-    log.info([targetMid, 'RTCSessionDesription', sessionDescription.type, 'Limiting maximum sending "' + type + '" bandwidth ->'], bw);
+    self._log('info', [targetMid, 'RTCSessionDesription', sessionDescription.type, 'Limiting maximum sending "' + type + '" bandwidth ->'], bw);
     sdpLines.splice(cLineIndex + 1, 0, window.webrtcDetectedBrowser === 'firefox' ? 'b=TIAS:' + (bw * 1024) : 'b=AS:' + bw);
   };
 
@@ -26315,10 +26311,11 @@ Skylink.prototype._setSDPBitrate = function(targetMid, sessionDescription) {
  * @since 0.6.16
  */
 Skylink.prototype._setSDPCodec = function(targetMid, sessionDescription) {
+  var self = this;
   var sdpLines = sessionDescription.sdp.split('\r\n');
   var parseFn = function (type, codec) {
     if (codec === 'auto') {
-      log.warn([targetMid, 'RTCSessionDesription', sessionDescription.type,
+      self._log('warn', [targetMid, 'RTCSessionDesription', sessionDescription.type,
         'Not preferring any codec for "' + type + '" streaming. Using browser selection.']);
       return;
     }
@@ -26329,14 +26326,14 @@ Skylink.prototype._setSDPCodec = function(targetMid, sessionDescription) {
         var payload = sdpLines[i].split(':')[1].split(' ')[0] || null;
 
         if (!payload) {
-          log.warn([targetMid, 'RTCSessionDesription', sessionDescription.type, 'Not preferring "' +
+          self._log('warn', [targetMid, 'RTCSessionDesription', sessionDescription.type, 'Not preferring "' +
             codec + '" for "' + type + '" streaming as payload is not found.']);
           return;
         }
 
         for (var j = 0; j < sdpLines.length; j++) {
           if (sdpLines[j].indexOf('m=' + type) === 0) {
-            log.info([targetMid, 'RTCSessionDesription', sessionDescription.type, 'Preferring "' +
+            self._log('info', [targetMid, 'RTCSessionDesription', sessionDescription.type, 'Preferring "' +
               codec + '" for "' + type + '" streaming.']);
 
             var parts = sdpLines[j].split(' ');
@@ -26371,7 +26368,7 @@ Skylink.prototype._setSDPCodec = function(targetMid, sessionDescription) {
  * @since 0.5.2
  */
 Skylink.prototype._removeSDPFirefoxH264Pref = function(targetMid, sessionDescription) {
-  log.info([targetMid, 'RTCSessionDesription', sessionDescription.type,
+  this._log('info', [targetMid, 'RTCSessionDesription', sessionDescription.type,
     'Removing Firefox experimental H264 flag to ensure interopability reliability']);
 
   return sessionDescription.sdp.replace(/a=fmtp:0 profile-level-id=0x42e00c;packetization-mode=1\r\n/g, '');
@@ -26386,26 +26383,27 @@ Skylink.prototype._removeSDPFirefoxH264Pref = function(targetMid, sessionDescrip
  * @since 0.6.16
  */
 Skylink.prototype._addSDPMediaStreamTrackIDs = function (targetMid, sessionDescription) {
-  if (!(this._peerConnections[targetMid] && this._peerConnections[targetMid].getLocalStreams().length > 0)) {
-    log.warn([targetMid, 'RTCSessionDesription', sessionDescription.type,
+  var self = this;
+  if (!(self._peerConnections[targetMid] && self._peerConnections[targetMid].getLocalStreams().length > 0)) {
+    self._log('warn', [targetMid, 'RTCSessionDesription', sessionDescription.type,
       'Not enforcing MediaStream IDs as no Streams is sent.']);
     return sessionDescription.sdp;
   }
 
   var sessionDescriptionStr = sessionDescription.sdp;
 
-  if (!this._enableIceTrickle) {
+  if (!self._enableIceTrickle) {
     sessionDescriptionStr = sessionDescriptionStr.replace(/a=end-of-candidates\r\n/g, '');
   }
 
   var sdpLines = sessionDescriptionStr.split('\r\n');
-  var agent = ((this._peerInformations[targetMid] || {}).agent || {}).name || '';
-  var localStream = this._peerConnections[targetMid].getLocalStreams()[0];
+  var agent = ((self._peerInformations[targetMid] || {}).agent || {}).name || '';
+  var localStream = self._peerConnections[targetMid].getLocalStreams()[0];
   var localStreamId = localStream.id || localStream.label;
 
   var parseFn = function (type, tracks) {
     if (tracks.length === 0) {
-      log.warn([targetMid, 'RTCSessionDesription', sessionDescription.type,
+      self._log('warn', [targetMid, 'RTCSessionDesription', sessionDescription.type,
         'Not enforcing "' + type + '" MediaStreamTrack IDs as no Stream "' + type + '" tracks is sent.']);
       return;
     }
@@ -26456,7 +26454,7 @@ Skylink.prototype._addSDPMediaStreamTrackIDs = function (targetMid, sessionDescr
   parseFn('video', localStream.getVideoTracks());
 
   // Append signaling of end-of-candidates
-  if (!this._enableIceTrickle){
+  if (!self._enableIceTrickle){
     for (var i = 0; i < sdpLines.length; i++) {
       if (sdpLines[i].indexOf('a=candidate:') === 0) {
         if (sdpLines[i + 1] ? !(sdpLines[i + 1].indexOf('a=candidate:') === 0 ||
@@ -26468,17 +26466,17 @@ Skylink.prototype._addSDPMediaStreamTrackIDs = function (targetMid, sessionDescr
     }
   }
 
-  if (sessionDescription.type === this.HANDSHAKE_PROGRESS.ANSWER && this._sdpSessions[targetMid]) {
+  if (sessionDescription.type === self.HANDSHAKE_PROGRESS.ANSWER && self._sdpSessions[targetMid]) {
     var bundleLineIndex = -1;
     var mLineIndex = -1;
 
     for (var j = 0; j < sdpLines.length; j++) {
-      if (sdpLines[j].indexOf('a=group:BUNDLE') === 0 && this._sdpSessions[targetMid].remote.bundleLine) {
-        sdpLines[j] = this._sdpSessions[targetMid].remote.bundleLine;
+      if (sdpLines[j].indexOf('a=group:BUNDLE') === 0 && self._sdpSessions[targetMid].remote.bundleLine) {
+        sdpLines[j] = self._sdpSessions[targetMid].remote.bundleLine;
       } else if (sdpLines[j].indexOf('m=') === 0) {
         mLineIndex++;
         var compareA = sdpLines[j].split(' ');
-        var compareB = (this._sdpSessions[targetMid].remote.mLines[mLineIndex] || '').split(' ');
+        var compareB = (self._sdpSessions[targetMid].remote.mLines[mLineIndex] || '').split(' ');
 
         if (compareA[0] && compareB[0] && compareA[0] !== compareB[0]) {
           compareB[1] = 0;
@@ -26489,19 +26487,19 @@ Skylink.prototype._addSDPMediaStreamTrackIDs = function (targetMid, sessionDescr
       }
     }
 
-    while (this._sdpSessions[targetMid].remote.mLines[mLineIndex + 1]) {
+    while (self._sdpSessions[targetMid].remote.mLines[mLineIndex + 1]) {
       mLineIndex++;
       var appendIndex = sdpLines.length;
       if (!sdpLines[appendIndex - 1].replace(/\s/gi, '')) {
         appendIndex -= 1;
       }
-      var parts = (this._sdpSessions[targetMid].remote.mLines[mLineIndex] || '').split(' ');
+      var parts = (self._sdpSessions[targetMid].remote.mLines[mLineIndex] || '').split(' ');
       parts[1] = 0;
       sdpLines.splice(appendIndex, 0, parts.join(' '));
     }
   }
 
-  if (window.webrtcDetectedBrowser === 'edge' && sessionDescription.type === this.HANDSHAKE_PROGRESS.OFFER &&
+  if (window.webrtcDetectedBrowser === 'edge' && sessionDescription.type === self.HANDSHAKE_PROGRESS.OFFER &&
     !sdpLines[sdpLines.length - 1].replace(/\s/gi, '')) {
     sdpLines.splice(sdpLines.length - 1, 1);
   }
@@ -26530,7 +26528,7 @@ Skylink.prototype._removeSDPH264VP9AptRtxForOlderPlugin = function (targetMid, s
   // Remove rtx or apt= lines that prevent connections for browsers without VP8 or VP9 support
   // See: https://bugs.chromium.org/p/webrtc/issues/detail?id=3962
   if (['chrome', 'opera'].indexOf(window.webrtcDetectedBrowser) > -1 && removeVP9AptRtxPayload) {
-    log.info([targetMid, 'RTCSessionDesription', sessionDescription.type,
+    self._log('info', [targetMid, 'RTCSessionDesription', sessionDescription.type,
       'Removing VP9/H264 apt= and rtx payload lines causing connectivity issues']);
 
     sessionDescription.sdp = sessionDescription.sdp.replace(/a=rtpmap:\d+ rtx\/\d+\r\na=fmtp:\d+ apt=101\r\n/g, '');
@@ -26548,13 +26546,14 @@ Skylink.prototype._removeSDPH264VP9AptRtxForOlderPlugin = function (targetMid, s
  * @since 0.6.16
  */
 Skylink.prototype._removeSDPCodecs = function (targetMid, sessionDescription) {
-  var audioSettings = this.getPeerInfo().settings.audio;
+  var self = this;
+  var audioSettings = self.getPeerInfo().settings.audio;
 
   var parseFn = function (type, codec) {
     var payloadList = sessionDescription.sdp.match(new RegExp('a=rtpmap:(\\d*)\\ ' + codec + '.*', 'gi'));
 
     if (!(Array.isArray(payloadList) && payloadList.length > 0)) {
-      log.warn([targetMid, 'RTCSessionDesription', sessionDescription.type,
+      self._log('warn', [targetMid, 'RTCSessionDesription', sessionDescription.type,
         'Not removing "' + codec + '" as it does not exists.']);
       return;
     }
@@ -26562,7 +26561,7 @@ Skylink.prototype._removeSDPCodecs = function (targetMid, sessionDescription) {
     for (var i = 0; i < payloadList.length; i++) {
       var payload = payloadList[i].split(' ')[0].split(':')[1];
 
-      log.info([targetMid, 'RTCSessionDesription', sessionDescription.type,
+      self._log('info', [targetMid, 'RTCSessionDesription', sessionDescription.type,
         'Removing "' + codec + '" payload ->'], payload);
 
       sessionDescription.sdp = sessionDescription.sdp.replace(
@@ -26592,9 +26591,9 @@ Skylink.prototype._removeSDPCodecs = function (targetMid, sessionDescription) {
     }
   };
 
-  if (this._disableVideoFecCodecs) {
-    if (this._hasMCU) {
-      log.warn([targetMid, 'RTCSessionDesription', sessionDescription.type,
+  if (self._disableVideoFecCodecs) {
+    if (self._hasMCU) {
+      self._log('warn', [targetMid, 'RTCSessionDesription', sessionDescription.type,
         'Not removing "ulpfec" or "red" codecs as connected to MCU to prevent connectivity issues.']);
     } else {
       parseFn('video', 'red');
@@ -26602,7 +26601,7 @@ Skylink.prototype._removeSDPCodecs = function (targetMid, sessionDescription) {
     }
   }
 
-  if (this._disableComfortNoiseCodec && audioSettings && typeof audioSettings === 'object' && audioSettings.stereo) {
+  if (self._disableComfortNoiseCodec && audioSettings && typeof audioSettings === 'object' && audioSettings.stereo) {
     parseFn('audio', 'CN');
   }
 
@@ -26621,7 +26620,7 @@ Skylink.prototype._removeSDPREMBPackets = function (targetMid, sessionDescriptio
     return sessionDescription.sdp;
   }
 
-  log.warn([targetMid, 'RTCSessionDesription', sessionDescription.type, 'Removing REMB packets.']);
+  this._log('warn', [targetMid, 'RTCSessionDesription', sessionDescription.type, 'Removing REMB packets.']);
   return sessionDescription.sdp.replace(/a=rtcp-fb:\d+ goog-remb\r\n/g, '');
 };
 
@@ -26674,7 +26673,7 @@ Skylink.prototype._getSDPSelectedCodec = function (targetMid, sessionDescription
     }
   }
 
-  log.debug([targetMid, 'RTCSessionDesription', sessionDescription.type,
+  this._log('debug', [targetMid, 'RTCSessionDesription', sessionDescription.type,
     'Parsing session description "' + type + '" codecs ->'], selectedCodecInfo);
 
   return selectedCodecInfo;
@@ -26696,24 +26695,24 @@ Skylink.prototype._removeSDPFilteredCandidates = function (targetMid, sessionDes
   }
 
   if (this._forceTURN && this._hasMCU) {
-    log.warn([targetMid, 'RTCSessionDesription', sessionDescription.type, 'Not filtering ICE candidates as ' +
+    this._log('warn', [targetMid, 'RTCSessionDesription', sessionDescription.type, 'Not filtering ICE candidates as ' +
       'TURN connections are enforced as MCU is present (and act as a TURN itself) so filtering of ICE candidate ' +
       'flags are not honoured']);
     return sessionDescription.sdp;
   }
 
   if (this._filterCandidatesType.host) {
-    log.info([targetMid, 'RTCSessionDesription', sessionDescription.type, 'Removing "host" ICE candidates.']);
+    this._log('info', [targetMid, 'RTCSessionDesription', sessionDescription.type, 'Removing "host" ICE candidates.']);
     sessionDescription.sdp = sessionDescription.sdp.replace(/a=candidate:.*host.*\r\n/g, '');
   }
 
   if (this._filterCandidatesType.srflx) {
-    log.info([targetMid, 'RTCSessionDesription', sessionDescription.type, 'Removing "srflx" ICE candidates.']);
+    this._log('info', [targetMid, 'RTCSessionDesription', sessionDescription.type, 'Removing "srflx" ICE candidates.']);
     sessionDescription.sdp = sessionDescription.sdp.replace(/a=candidate:.*srflx.*\r\n/g, '');
   }
 
   if (this._filterCandidatesType.relay) {
-    log.info([targetMid, 'RTCSessionDesription', sessionDescription.type, 'Removing "relay" ICE candidates.']);
+    this._log('info', [targetMid, 'RTCSessionDesription', sessionDescription.type, 'Removing "relay" ICE candidates.']);
     sessionDescription.sdp = sessionDescription.sdp.replace(/a=candidate:.*relay.*\r\n/g, '');
   }
 
@@ -26896,7 +26895,7 @@ Skylink.prototype._handleSDPConnectionSettings = function (targetMid, sessionDes
         // Handle Chrome bundle bug. - See: https://bugs.chromium.org/p/webrtc/issues/detail?id=6280
         if (!self._hasMCU && window.webrtcDetectedBrowser !== 'firefox' && peerAgent === 'firefox' &&
           sessionDescription.type === self.HANDSHAKE_PROGRESS.OFFER && sdpLines[i] === 'a=recvonly') {
-          log.warn([targetMid, 'RTCSessionDesription', sessionDescription.type, 'Overriding any original settings ' +
+          self._log('warn', [targetMid, 'RTCSessionDesription', sessionDescription.type, 'Overriding any original settings ' +
             'to receive only to send and receive to resolve chrome BUNDLE errors.']);
           sdpLines[i] = 'a=sendrecv';
         }

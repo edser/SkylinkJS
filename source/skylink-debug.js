@@ -32,152 +32,21 @@ Skylink.prototype.LOG_LEVEL = {
 };
 
 /**
- * Stores the log message starting header string.
- * E.g. "<header> - <the log message>".
- * @attribute _LOG_KEY
- * @type String
- * @private
- * @scoped true
- * @for Skylink
- * @since 0.5.4
- */
-var _LOG_KEY = 'SkylinkJS';
-
-/**
- * Stores the list of available SDK log levels.
- * @attribute _LOG_LEVELS
- * @type Array
- * @private
- * @scoped true
- * @for Skylink
- * @since 0.5.5
- */
-var _LOG_LEVELS = ['error', 'warn', 'info', 'log', 'debug'];
-
-/**
- * Stores the current SDK log level.
- * Default is ERROR (<code>0</code>).
- * @attribute _logLevel
- * @type String
- * @default 0
- * @private
- * @scoped true
- * @for Skylink
- * @since 0.5.4
- */
-var _logLevel = 0;
-
-/**
- * Stores the flag if debugging mode is enabled.
- * This manipulates the SkylinkLogs interface.
- * @attribute _enableDebugMode
- * @type Boolean
- * @default false
- * @private
- * @scoped true
- * @for Skylink
- * @since 0.5.4
- */
-var _enableDebugMode = false;
-
-/**
- * Stores the flag if logs should be stored in SkylinkLogs interface.
- * @attribute _enableDebugStack
- * @type Boolean
- * @default false
- * @private
- * @scoped true
- * @for Skylink
- * @since 0.5.5
- */
-var _enableDebugStack = false;
-
-/**
- * Stores the flag if logs should trace if available.
- * This uses the <code>console.trace</code> API.
- * @attribute _enableDebugTrace
- * @type Boolean
- * @default false
- * @private
- * @scoped true
- * @for Skylink
- * @since 0.5.5
- */
-var _enableDebugTrace = false;
-
-/**
  * Stores the logs used for SkylinkLogs object.
- * @attribute _storedLogs
- * @type Array
+ * @attribute storedLogs
+ * @type JSON
  * @private
  * @scoped true
  * @for Skylink
  * @since 0.5.5
  */
-var _storedLogs = [];
-
-/**
- * Function that gets the stored logs.
- * @method _getStoredLogsFn
- * @private
- * @scoped true
- * @for Skylink
- * @since 0.5.5
- */
-var _getStoredLogsFn = function (logLevel) {
-  if (typeof logLevel === 'undefined') {
-    return _storedLogs;
-  }
-  var returnLogs = [];
-  for (var i = 0; i < _storedLogs.length; i++) {
-    if (_storedLogs[i][1] === _LOG_LEVELS[logLevel]) {
-      returnLogs.push(_storedLogs[i]);
-    }
-  }
-  return returnLogs;
-};
-
-/**
- * Function that clears the stored logs.
- * @method _clearAllStoredLogsFn
- * @private
- * @scoped true
- * @for Skylink
- * @since 0.5.5
- */
-var _clearAllStoredLogsFn = function () {
-  _storedLogs = [];
-};
-
-/**
- * Function that prints in the Web Console interface the stored logs.
- * @method _printAllStoredLogsFn
- * @private
- * @scoped true
- * @for Skylink
- * @since 0.5.5
- */
-var _printAllStoredLogsFn = function () {
-  for (var i = 0; i < _storedLogs.length; i++) {
-    var timestamp = _storedLogs[i][0];
-    var log = (console[_storedLogs[i][1]] !== 'undefined') ?
-      _storedLogs[i][1] : 'log';
-    var message = _storedLogs[i][2];
-    var debugObject = _storedLogs[i][3];
-
-    if (typeof debugObject !== 'undefined') {
-      console[log](message, debugObject, timestamp);
-    } else {
-      console[log](message, timestamp);
-    }
-  }
-};
+var storedLogs = {};
 
 /**
  * <blockquote class="info">
  *   To utilise and enable the <code>SkylinkLogs</code> API functionalities, the
  *   <a href="#method_setDebugMode"><code>setDebugMode()</code> method</a>
- *   <code>options.storeLogs</code> parameter has to be enabled.
+ *   <code>options.storedLogs</code> parameter has to be enabled.
  * </blockquote>
  * The object interface to manage the SDK <a href="https://developer.mozilla.org/en/docs/Web/API/console">
  * Javascript Web Console</a> logs.
@@ -199,8 +68,9 @@ window.SkylinkLogs = {
    *   <li><code>0</code><var><b>{</b>Date<b>}</b></var><p>The DateTime of when the log was stored.</p></li>
    *   <li><code>1</code><var><b>{</b>String<b>}</b></var><p>The log level. [Rel: Skylink.LOG_LEVEL]</p></li>
    *   <li><code>2</code><var><b>{</b>String<b>}</b></var><p>The log message.</p></li>
-   *   <li><code>3</code><var><b>{</b>Any<b>}</b></var><span class="label">Optional</span><p>The log message object.
-   *   </p></li></ul></li></ul>
+   *   <li><code>3</code><var><b>{</b>Any<b>}</b></var><span class="label">Optional</span><p>The log message object.</li>
+   *   <li><code>4</code><var><b>{</b>String<b>}</b></var><span class="label">Optional</span><p>The Skylink object
+   *   instance label.</li></p></li></ul></li></ul>
    * @example
    *  // Example 1: Get logs of specific level
    *  var debugLogs = SkylinkLogs.getLogs(skylinkDemo.LOG_LEVEL.DEBUG);
@@ -213,7 +83,38 @@ window.SkylinkLogs = {
    * @for Skylink
    * @since 0.5.5
    */
-  getLogs: _getStoredLogsFn,
+  getLogs: function (logLevel, instanceLabel) {
+    var returnLogs = [];
+    var logProp = null;
+
+    if (typeof logLevel === 'string' && logLevel) {
+      instanceLabel = logLevel;
+      logLevel = null;
+    }
+
+    if (typeof logLevel === 'number') {
+      for (var l in Skylink.prototype.LOG_LEVEL) {
+        if (Skylink.prototype.LOG_LEVEL.hasOwnProperty(l) && Skylink.prototype.LOG_LEVEL[l] === logLevel) {
+          logProp = l;
+          break;
+        }
+      }
+    }
+
+    for (var prop in storedLogs) {
+      if (storedLogs.hasOwnProperty(prop) && storedLogs[prop]) {
+        if (instanceLabel && typeof instanceLabel === 'string' ? instanceLabel === prop : true) {
+          for (var i = 0; i < storedLogs[prop].length; i++) {
+            if (logProp ? storedLogs[prop][i][1] === logProp : true) {
+              returnLogs.push(storedLogs[prop][i]);
+            }
+          }
+        }
+      }
+    }
+
+    return returnLogs;
+  },
 
   /**
    * Function that clears all the current stored SDK <code>console</code> logs.
@@ -227,7 +128,40 @@ window.SkylinkLogs = {
    * @for Skylink
    * @since 0.5.5
    */
-  clearAllLogs: _clearAllStoredLogsFn,
+  clearAllLogs: function (instanceLabel, logLevel) {
+    var logProp = null;
+
+    if (typeof instanceLabel === 'number') {
+      logLevel = instanceLabel;
+      instanceLabel = null;
+    }
+
+    if (typeof logLevel === 'number') {
+      for (var l in Skylink.prototype.LOG_LEVEL) {
+        if (Skylink.prototype.LOG_LEVEL.hasOwnProperty(l) && Skylink.prototype.LOG_LEVEL[l] === logLevel) {
+          logProp = l;
+          break;
+        }
+      }
+    }
+
+    for (var prop in storedLogs) {
+      if (storedLogs.hasOwnProperty(prop) && storedLogs[prop]) {
+        if (instanceLabel && typeof instanceLabel === 'string' ? instanceLabel === prop : true) {
+          if (logProp) {
+            for (var i = 0; i < storedLogs[prop].length; i++) {
+              if (logProp ? storedLogs[prop][i][1] === logProp : true) {
+                storedLogs[prop].splice(i, 1);
+                i--;
+              }
+            }
+          } else {
+            delete storedLogs[prop];
+          }
+        }
+      }
+    }
+  },
 
   /**
    * Function that prints all the current stored SDK <code>console</code> logs into the
@@ -242,22 +176,58 @@ window.SkylinkLogs = {
    * @for Skylink
    * @since 0.5.5
    */
-  printAllLogs: _printAllStoredLogsFn
+  printAllLogs: function (instanceLabel, logLevel) {
+    var logProp = null;
+
+    if (typeof instanceLabel === 'number') {
+      logLevel = instanceLabel;
+      instanceLabel = null;
+    }
+
+    if (typeof logLevel === 'number') {
+      for (var l in Skylink.prototype.LOG_LEVEL) {
+        if (Skylink.prototype.LOG_LEVEL.hasOwnProperty(l) && Skylink.prototype.LOG_LEVEL[l] === logLevel) {
+          logProp = l;
+          break;
+        }
+      }
+    }
+
+    for (var prop in storedLogs) {
+      if (storedLogs.hasOwnProperty(prop) && storedLogs[prop]) {
+        if (instanceLabel && typeof instanceLabel === 'string' ? instanceLabel === prop : true) {
+          for (var i = 0; i < storedLogs[prop].length; i++) {
+            if (logProp ? storedLogs[prop][i][1] === logProp : true) {
+              var timestamp = storedLogs[prop][i][0];
+              var log = (console[storedLogs[prop][i][1]] !== 'undefined') ? storedLogs[prop][i][1] : 'log';
+              var message = storedLogs[prop][i][2];
+              var debugObject = storedLogs[prop][i][3];
+              var instanceId = storedLogs[prop][i][4];
+
+              if (typeof debugObject !== 'undefined') {
+                console[log](instanceId, message, debugObject, timestamp);
+              } else {
+                console[log](instanceId, message, timestamp);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 };
 
 /**
  * Function that handles the logs received and prints in the Web Console interface according to the log level set.
- * @method _logFn
+ * @method _log
  * @private
- * @required
- * @scoped true
  * @for Skylink
  * @since 0.5.5
  */
-var _logFn = function(logLevel, message, debugObject) {
-  var outputLog = _LOG_KEY;
+Skylink.prototype._log = function(logProp, message, debugObject) {
+  var outputLog = 'SkylinkJS';
 
-  if (typeof message === 'object') {
+  if (Array.isArray(message)) {
     outputLog += (message[0]) ? ' [' + message[0] + '] -' : ' -';
     outputLog += (message[1]) ? ' <<' + message[1] + '>>' : '';
     if (message[2]) {
@@ -275,78 +245,45 @@ var _logFn = function(logLevel, message, debugObject) {
     outputLog += ' - ' + message;
   }
 
-  if (_enableDebugMode && _enableDebugStack) {
+  if (this._enableDebugMode && this._enableDebugStack) {
     // store the logs
-    var logItem = [(new Date()), _LOG_LEVELS[logLevel], outputLog];
+    var logItem = [(new Date()), logProp, outputLog, this.INSTANCE_LABEL];
 
     if (typeof debugObject !== 'undefined') {
       logItem.push(debugObject);
     }
-    _storedLogs.push(logItem);
+    storedLogs[this.INSTANCE_LABEL] = storedLogs[this.INSTANCE_LABEL] || [];
+    storedLogs[this.INSTANCE_LABEL].push(logItem);
   }
 
-  if (_logLevel >= logLevel) {
+  if (this._logLevel >= this.LOG_LEVEL[logProp.toUpperCase()]) {
     // Fallback to log if failure
-    logLevel = (typeof console[_LOG_LEVELS[logLevel]] === 'undefined') ? 3 : logLevel;
+    var newLogProp = (typeof console[logProp] === 'undefined') ? 'log' : logProp;
 
-    if (_enableDebugMode && _enableDebugTrace) {
+    if (this._enableDebugMode && this._enableDebugTrace) {
       var logConsole = (typeof console.trace === 'undefined') ? logLevel[3] : 'trace';
       if (typeof debugObject !== 'undefined') {
-        console[_LOG_LEVELS[logLevel]](outputLog, debugObject);
         // output if supported
         if (typeof console.trace !== 'undefined') {
-          console.trace('');
+          console.trace('[' + logProp.toUpperCase() + ']', outputLog, debugObject);
+        } else {
+          console[newLogProp](outputLog, debugObject);
         }
       } else {
-        console[_LOG_LEVELS[logLevel]](outputLog);
         // output if supported
         if (typeof console.trace !== 'undefined') {
-          console.trace('');
+          console.trace('[' + logProp.toUpperCase() + ']', outputLog);
+        } else {
+          console[newLogProp](outputLog);
         }
       }
     } else {
       if (typeof debugObject !== 'undefined') {
-        console[_LOG_LEVELS[logLevel]](outputLog, debugObject);
+        console[newLogProp](outputLog, debugObject);
       } else {
-        console[_LOG_LEVELS[logLevel]](outputLog);
+        console[newLogProp](outputLog);
       }
     }
-  }
-};
-
-/**
- * Stores the logging functions.
- * @attribute log
- * @param {Function} debug The function that handles the DEBUG level logs.
- * @param {Function} log The function that handles the LOG level logs.
- * @param {Function} info The function that handles the INFO level logs.
- * @param {Function} warn The function that handles the WARN level logs.
- * @param {Function} error The function that handles the ERROR level logs.
- * @type JSON
- * @private
- * @scoped true
- * @for Skylink
- * @since 0.5.4
- */
-var log = {
-  debug: function (message, object) {
-    _logFn(4, message, object);
-  },
-
-  log: function (message, object) {
-    _logFn(3, message, object);
-  },
-
-  info: function (message, object) {
-    _logFn(2, message, object);
-  },
-
-  warn: function (message, object) {
-    _logFn(1, message, object);
-  },
-
-  error: function (message, object) {
-    _logFn(0, message, object);
   }
 };
 
@@ -382,12 +319,12 @@ Skylink.prototype.setLogLevel = function(logLevel) {
   }
   for (var level in this.LOG_LEVEL) {
     if (this.LOG_LEVEL[level] === logLevel) {
-      _logLevel = logLevel;
-      log.log([null, 'Log', level, 'Log level exists. Level is set']);
+      this._logLevel = logLevel;
+      this._log('log', [null, 'Log', level, 'Log level exists. Level is set']);
       return;
     }
   }
-  log.error([null, 'Log', level, 'Log level does not exist. Level is not set']);
+  this._log('error', [null, 'Log', level, 'Log level does not exist. Level is not set']);
 };
 
 /**
@@ -395,21 +332,21 @@ Skylink.prototype.setLogLevel = function(logLevel) {
  * @method setDebugMode
  * @param {Boolean|JSON} [options=false] The debugging options.
  * - When provided as a boolean, this sets both <code>options.trace</code>
- *   and <code>options.storeLogs</code> to its boolean value.
+ *   and <code>options.storedLogs</code> to its boolean value.
  * @param {Boolean} [options.trace=false] The flag if SDK <code>console</code> logs
  *   should output as <code>console.trace()</code> logs for tracing the <code>Function</code> call stack.
  *   <small>Note that the <code>console.trace()</code> output logs is determined by the log level set
  *   <a href="#method_setLogLevel"><code>setLogLevel()</code> method</a>.</small>
  *   <small>If <code>console.trace()</code> API is not supported, <code>setDebugMode()</code>
  *   will fallback to use <code>console.log()</code> API.</small>
- * @param {Boolean} [options.storeLogs=false] The flag if SDK should store the <code>console</code> logs.
+ * @param {Boolean} [options.storedLogs=false] The flag if SDK should store the <code>console</code> logs.
  *   <small>This is required to be enabled for <a href="#prop_SkylinkLogs"><code>SkylinkLogs</code> API</a>.</small>
  * @example
- *   // Example 1: Enable both options.storeLogs and options.trace
+ *   // Example 1: Enable both options.storedLogs and options.trace
  *   skylinkDemo.setDebugMode(true);
  *
- *   // Example 2: Enable only options.storeLogs
- *   skylinkDemo.setDebugMode({ storeLogs: true });
+ *   // Example 2: Enable only options.storedLogs
+ *   skylinkDemo.setDebugMode({ storedLogs: true });
  *
  *   // Example 3: Disable debugging mode
  *   skylinkDemo.setDebugMode();
@@ -417,24 +354,13 @@ Skylink.prototype.setLogLevel = function(logLevel) {
  * @since 0.5.2
  */
 Skylink.prototype.setDebugMode = function(isDebugMode) {
-  if (typeof isDebugMode === 'object') {
-    if (Object.keys(isDebugMode).length > 0) {
-      _enableDebugTrace = !!isDebugMode.trace;
-      _enableDebugStack = !!isDebugMode.storeLogs;
-    } else {
-      _enableDebugMode = false;
-      _enableDebugTrace = false;
-      _enableDebugStack = false;
-    }
+  if (isDebugMode && typeof isDebugMode === 'object') {
+    this._enableDebugTrace = typeof isDebugMode.trace === 'boolean' ? isDebugMode.trace : false;
+    this._enableDebugStack = typeof isDebugMode.trace === 'boolean' ? isDebugMode.storedLogs : false;
+    this._enableDebugMode = true;
+  } else {
+    this._enableDebugMode = isDebugMode === true;
+    this._enableDebugTrace = isDebugMode === true;
+    this._enableDebugStack = isDebugMode === true;
   }
-  if (isDebugMode === false) {
-    _enableDebugMode = false;
-    _enableDebugTrace = false;
-    _enableDebugStack = false;
-
-    return;
-  }
-  _enableDebugMode = true;
-  _enableDebugTrace = true;
-  _enableDebugStack = true;
 };

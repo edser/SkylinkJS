@@ -324,15 +324,6 @@ Before using any Skylink functionalities, you will need to authenticate your App
                     </span>
                   </a>
                 
-                  <a href="#method__clearAllStoredLogsFn" class="list-group-item code-menu-item  private-method-item ">
-                    &nbsp;&nbsp;_clearAllStoredLogsFn
-                    <span class="settings">
-                      
-                      
-                      
-                    </span>
-                  </a>
-                
                   <a href="#method__closeChannel" class="list-group-item code-menu-item  private-method-item ">
                     &nbsp;&nbsp;_closeChannel
                     <span class="settings">
@@ -459,15 +450,6 @@ Before using any Skylink functionalities, you will need to authenticate your App
                     </span>
                   </a>
                 
-                  <a href="#method__getStoredLogsFn" class="list-group-item code-menu-item  private-method-item ">
-                    &nbsp;&nbsp;_getStoredLogsFn
-                    <span class="settings">
-                      
-                      
-                      
-                    </span>
-                  </a>
-                
                   <a href="#method__getTransferData" class="list-group-item code-menu-item  private-method-item ">
                     &nbsp;&nbsp;_getTransferData
                     <span class="settings">
@@ -567,8 +549,8 @@ Before using any Skylink functionalities, you will need to authenticate your App
                     </span>
                   </a>
                 
-                  <a href="#method__logFn" class="list-group-item code-menu-item  private-method-item ">
-                    &nbsp;&nbsp;_logFn
+                  <a href="#method__log" class="list-group-item code-menu-item  private-method-item ">
+                    &nbsp;&nbsp;_log
                     <span class="settings">
                       
                       
@@ -695,15 +677,6 @@ Before using any Skylink functionalities, you will need to authenticate your App
                 
                   <a href="#method__peerListEventHandler" class="list-group-item code-menu-item  private-method-item ">
                     &nbsp;&nbsp;_peerListEventHandler
-                    <span class="settings">
-                      
-                      
-                      
-                    </span>
-                  </a>
-                
-                  <a href="#method__printAllStoredLogsFn" class="list-group-item code-menu-item  private-method-item ">
-                    &nbsp;&nbsp;_printAllStoredLogsFn
                     <span class="settings">
                       
                       
@@ -1775,24 +1748,6 @@ Before using any Skylink functionalities, you will need to authenticate your App
                     </span>
                   </a>
                 
-                  <a href="#attr__LOG_KEY" class="list-group-item code-menu-item  private-attr-item ">
-                    &nbsp;&nbsp;_LOG_KEY
-                    <span class="settings">
-                      
-                      
-                      
-                    </span>
-                  </a>
-                
-                  <a href="#attr__LOG_LEVELS" class="list-group-item code-menu-item  private-attr-item ">
-                    &nbsp;&nbsp;_LOG_LEVELS
-                    <span class="settings">
-                      
-                      
-                      
-                    </span>
-                  </a>
-                
                   <a href="#attr__logLevel" class="list-group-item code-menu-item  private-attr-item ">
                     &nbsp;&nbsp;_logLevel
                     <span class="settings">
@@ -2175,15 +2130,6 @@ Before using any Skylink functionalities, you will need to authenticate your App
                     </span>
                   </a>
                 
-                  <a href="#attr__storedLogs" class="list-group-item code-menu-item  private-attr-item ">
-                    &nbsp;&nbsp;_storedLogs
-                    <span class="settings">
-                      
-                      
-                      
-                    </span>
-                  </a>
-                
                   <a href="#attr__streams" class="list-group-item code-menu-item  private-attr-item ">
                     &nbsp;&nbsp;_streams
                     <span class="settings">
@@ -2454,6 +2400,15 @@ Before using any Skylink functionalities, you will need to authenticate your App
                     </span>
                   </a>
                 
+                  <a href="#attr_INSTANCE_LABEL" class="list-group-item code-menu-item attr-item ">
+                    &nbsp;&nbsp;INSTANCE_LABEL
+                    <span class="settings">
+                      
+                      
+                      
+                    </span>
+                  </a>
+                
                   <a href="#attr_INTRODUCE_STATE" class="list-group-item code-menu-item attr-item ">
                     &nbsp;&nbsp;INTRODUCE_STATE
                     <span class="settings">
@@ -2465,15 +2420,6 @@ Before using any Skylink functionalities, you will need to authenticate your App
                 
                   <a href="#attr_isPrivileged" class="list-group-item code-menu-item  private-attr-item ">
                     &nbsp;&nbsp;isPrivileged
-                    <span class="settings">
-                      
-                      
-                      
-                    </span>
-                  </a>
-                
-                  <a href="#attr_log" class="list-group-item code-menu-item  private-attr-item ">
-                    &nbsp;&nbsp;log
                     <span class="settings">
                       
                       
@@ -2575,6 +2521,15 @@ Before using any Skylink functionalities, you will need to authenticate your App
                 
                   <a href="#attr_SOCKET_FALLBACK" class="list-group-item code-menu-item attr-item ">
                     &nbsp;&nbsp;SOCKET_FALLBACK
+                    <span class="settings">
+                      
+                      
+                      
+                    </span>
+                  </a>
+                
+                  <a href="#attr_storedLogs" class="list-group-item code-menu-item  private-attr-item ">
+                    &nbsp;&nbsp;storedLogs
                     <span class="settings">
                       
                       
@@ -3025,7 +2980,16 @@ Before using any Skylink functionalities, you will need to authenticate your App
               <div id="method_Skylink" class="code-item method item method-item ">
   <h3 class="code-item-name"><code>Skylink</code></h3>
   
-    <span class="paren">()</span>
+    <div class="args">
+      <span class="paren">(</span>
+      
+        
+          <code class="optional">[instanceLabel]</code>
+        
+        <i class="seperator">,&nbsp;&nbsp;</i>
+      
+      <span class="paren">)</span>
+    </div>
   
 
   <div class="code-item-properties">
@@ -3139,6 +3103,34 @@ Before using any Skylink functionalities, you will need to authenticate your App
   </div>
   
 
+  
+    <div class="code-item-section">
+      <h4>Parameters:</h4>
+
+      <ul class="params-list">
+      
+          <li class="param">
+            <code class="param-name">instanceLabel</code>
+            <span class="type"><b>{</b>String<b>}</b></span>
+
+            <span class="label">Optional</span>
+            
+
+            <div class="param-description">
+              
+              <p>The Skylink object instance label ID for identification.</p>
+<ul>
+<li>When not provided, an instance label ID would be generated.
+<small>It is recommended to provide an unique instance label ID.</small></li>
+</ul>
+
+            </div>
+
+            
+          </li>
+      
+      </ul>
+    </div>
   
 
   
@@ -3286,7 +3278,7 @@ Before using any Skylink functionalities, you will need to authenticate your App
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_ice-candidate.js.html#l242"><code>source&#x2F;ice-candidate.js:242</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_ice-candidate.js.html#l241"><code>source&#x2F;ice-candidate.js:241</code></a>
       </small>
     
 
@@ -3371,7 +3363,7 @@ Before using any Skylink functionalities, you will need to authenticate your App
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_ice-candidate.js.html#l210"><code>source&#x2F;ice-candidate.js:210</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_ice-candidate.js.html#l209"><code>source&#x2F;ice-candidate.js:209</code></a>
       </small>
     
 
@@ -3457,7 +3449,7 @@ This should be called only after the remote session description is received and 
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_ice-candidate.js.html#l186"><code>source&#x2F;ice-candidate.js:186</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_ice-candidate.js.html#l185"><code>source&#x2F;ice-candidate.js:185</code></a>
       </small>
     
 
@@ -3543,7 +3535,7 @@ This should be called only after the remote session description is received and 
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_stream-media.js.html#l1890"><code>source&#x2F;stream-media.js:1890</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_stream-media.js.html#l1894"><code>source&#x2F;stream-media.js:1894</code></a>
       </small>
     
 
@@ -3715,7 +3707,7 @@ Remember to remove previous method of reconnection (re-creating the Peer connect
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_stream-sdp.js.html#l300"><code>source&#x2F;stream-sdp.js:300</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_stream-sdp.js.html#l303"><code>source&#x2F;stream-sdp.js:303</code></a>
       </small>
     
 
@@ -3801,7 +3793,7 @@ to be missing from Firefox answer session description to Chrome connection causi
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_socket-message.js.html#l1622"><code>source&#x2F;socket-message.js:1622</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_socket-message.js.html#l1618"><code>source&#x2F;socket-message.js:1618</code></a>
       </small>
     
 
@@ -4615,93 +4607,6 @@ If provided string length is lesser than or equals to the chunk size, it should 
   <hr>
 </div>
             
-              <div id="method__clearAllStoredLogsFn" class="code-item method item private-method-item ">
-  <h3 class="code-item-name"><code>_clearAllStoredLogsFn</code></h3>
-  
-    <span class="paren">()</span>
-  
-
-  <div class="code-item-properties">
-    <div class="properties-wrapper">
-      
-
-      
-
-      
-
-      
-        <span class="label label-default" title="This method is private.">private</span>
-      
-
-      
-
-      
-
-      
-
-      
-
-      
-        <span class="label label-default" title="This attribute is scoped within the Skylink space.">scoped</span>
-      
-
-      
-
-      
-
-      
-
-      
-    </div>
-
-    <div class="code-item-information">
-      
-        
-          
-        
-      
-      <!---->
-      
-    </div>
-
-    
-      <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_skylink-debug.js.html#l140"><code>source&#x2F;skylink-debug.js:140</code></a>
-      </small>
-    
-
-    <small>
-      
-        <i class="fa">&nbsp;&nbsp;&nbsp;</i>&nbsp;&nbsp;Available since <span class="badge">0.5.5</span>
-      
-
-      
-    </small>
-  </div>
-
-  <div class="code-item-description">
-    <p>Function that clears the stored logs.</p>
-
-  </div>
-
-  
-
-  
-
-  
-  <div class="code-item-section">
-    <h4>Events Sequence:</h4>
-    <span class="code-item-trigger"><small>There is no event sequence for this method.</small></span>
-  </div>
-  
-
-  
-
-  
-
-  <hr>
-</div>
-            
               <div id="method__closeChannel" class="code-item method item private-method-item ">
   <h3 class="code-item-name"><code>_closeChannel</code></h3>
   
@@ -4836,7 +4741,7 @@ If provided string length is lesser than or equals to the chunk size, it should 
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_data-channel.js.html#l327"><code>source&#x2F;data-channel.js:327</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_data-channel.js.html#l333"><code>source&#x2F;data-channel.js:333</code></a>
       </small>
     
 
@@ -5347,7 +5252,7 @@ If provided string length is lesser than or equals to the chunk size, it should 
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_peer-handshake.js.html#l143"><code>source&#x2F;peer-handshake.js:143</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_peer-handshake.js.html#l124"><code>source&#x2F;peer-handshake.js:124</code></a>
       </small>
     
 
@@ -5777,7 +5682,7 @@ See confluence docs for the &quot;enter&quot; expected properties to be received
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_stream-sdp.js.html#l636"><code>source&#x2F;stream-sdp.js:636</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_stream-sdp.js.html#l650"><code>source&#x2F;stream-sdp.js:650</code></a>
       </small>
     
 
@@ -5862,7 +5767,7 @@ See confluence docs for the &quot;enter&quot; expected properties to be received
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_stream-sdp.js.html#l539"><code>source&#x2F;stream-sdp.js:539</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_stream-sdp.js.html#l553"><code>source&#x2F;stream-sdp.js:553</code></a>
       </small>
     
 
@@ -5877,93 +5782,6 @@ See confluence docs for the &quot;enter&quot; expected properties to be received
 
   <div class="code-item-description">
     <p>Function that retrieves the session description selected codec.</p>
-
-  </div>
-
-  
-
-  
-
-  
-  <div class="code-item-section">
-    <h4>Events Sequence:</h4>
-    <span class="code-item-trigger"><small>There is no event sequence for this method.</small></span>
-  </div>
-  
-
-  
-
-  
-
-  <hr>
-</div>
-            
-              <div id="method__getStoredLogsFn" class="code-item method item private-method-item ">
-  <h3 class="code-item-name"><code>_getStoredLogsFn</code></h3>
-  
-    <span class="paren">()</span>
-  
-
-  <div class="code-item-properties">
-    <div class="properties-wrapper">
-      
-
-      
-
-      
-
-      
-        <span class="label label-default" title="This method is private.">private</span>
-      
-
-      
-
-      
-
-      
-
-      
-
-      
-        <span class="label label-default" title="This attribute is scoped within the Skylink space.">scoped</span>
-      
-
-      
-
-      
-
-      
-
-      
-    </div>
-
-    <div class="code-item-information">
-      
-        
-          
-        
-      
-      <!---->
-      
-    </div>
-
-    
-      <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_skylink-debug.js.html#l119"><code>source&#x2F;skylink-debug.js:119</code></a>
-      </small>
-    
-
-    <small>
-      
-        <i class="fa">&nbsp;&nbsp;&nbsp;</i>&nbsp;&nbsp;Available since <span class="badge">0.5.5</span>
-      
-
-      
-    </small>
-  </div>
-
-  <div class="code-item-description">
-    <p>Function that gets the stored logs.</p>
 
   </div>
 
@@ -6374,7 +6192,7 @@ See confluence docs for the &quot;enter&quot; expected properties to be received
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_stream-media.js.html#l1965"><code>source&#x2F;stream-media.js:1965</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_stream-media.js.html#l1969"><code>source&#x2F;stream-media.js:1969</code></a>
       </small>
     
 
@@ -6459,7 +6277,7 @@ See confluence docs for the &quot;enter&quot; expected properties to be received
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_stream-sdp.js.html#l712"><code>source&#x2F;stream-sdp.js:712</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_stream-sdp.js.html#l726"><code>source&#x2F;stream-sdp.js:726</code></a>
       </small>
     
 
@@ -6804,7 +6622,7 @@ See confluence docs for the &quot;introduceError&quot; expected properties to be
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_socket-message.js.html#l1729"><code>source&#x2F;socket-message.js:1729</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_socket-message.js.html#l1731"><code>source&#x2F;socket-message.js:1731</code></a>
       </small>
     
 
@@ -6925,8 +6743,8 @@ See confluence docs for the &quot;introduceError&quot; expected properties to be
   <hr>
 </div>
             
-              <div id="method__logFn" class="code-item method item private-method-item ">
-  <h3 class="code-item-name"><code>_logFn</code></h3>
+              <div id="method__log" class="code-item method item private-method-item ">
+  <h3 class="code-item-name"><code>_log</code></h3>
   
     <span class="paren">()</span>
   
@@ -6952,8 +6770,6 @@ See confluence docs for the &quot;introduceError&quot; expected properties to be
       
 
       
-        <span class="label label-default" title="This attribute is scoped within the Skylink space.">scoped</span>
-      
 
       
 
@@ -6976,7 +6792,7 @@ See confluence docs for the &quot;introduceError&quot; expected properties to be
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_skylink-debug.js.html#l248"><code>source&#x2F;skylink-debug.js:248</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_skylink-debug.js.html#l220"><code>source&#x2F;skylink-debug.js:220</code></a>
       </small>
     
 
@@ -7233,7 +7049,7 @@ See confluence docs for the &quot;muteAudioEvent&quot; expected properties to be
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_stream-media.js.html#l1382"><code>source&#x2F;stream-media.js:1382</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_stream-media.js.html#l1386"><code>source&#x2F;stream-media.js:1386</code></a>
       </small>
     
 
@@ -7577,7 +7393,7 @@ See confluence docs for the &quot;offer&quot; expected properties to be received
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_stream-media.js.html#l1856"><code>source&#x2F;stream-media.js:1856</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_stream-media.js.html#l1860"><code>source&#x2F;stream-media.js:1860</code></a>
       </small>
     
 
@@ -7662,7 +7478,7 @@ See confluence docs for the &quot;offer&quot; expected properties to be received
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_stream-media.js.html#l1816"><code>source&#x2F;stream-media.js:1816</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_stream-media.js.html#l1820"><code>source&#x2F;stream-media.js:1820</code></a>
       </small>
     
 
@@ -7747,7 +7563,7 @@ See confluence docs for the &quot;offer&quot; expected properties to be received
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_stream-media.js.html#l1681"><code>source&#x2F;stream-media.js:1681</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_stream-media.js.html#l1685"><code>source&#x2F;stream-media.js:1685</code></a>
       </small>
     
 
@@ -7918,7 +7734,7 @@ This starts creating the socket connection and called at first not when requirin
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_peer-connection.js.html#l1501"><code>source&#x2F;peer-connection.js:1501</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_peer-connection.js.html#l1498"><code>source&#x2F;peer-connection.js:1498</code></a>
       </small>
     
 
@@ -8088,7 +7904,7 @@ This starts creating the socket connection and called at first not when requirin
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_stream-media.js.html#l1502"><code>source&#x2F;stream-media.js:1502</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_stream-media.js.html#l1506"><code>source&#x2F;stream-media.js:1506</code></a>
       </small>
     
 
@@ -8190,93 +8006,6 @@ This starts creating the socket connection and called at first not when requirin
     <p>Function that handles the &quot;peerList&quot; socket message received.
 See confluence docs for the &quot;peerList&quot; expected properties to be received
   based on the current <code>SM_PROTOCOL_VERSION</code>.</p>
-
-  </div>
-
-  
-
-  
-
-  
-  <div class="code-item-section">
-    <h4>Events Sequence:</h4>
-    <span class="code-item-trigger"><small>There is no event sequence for this method.</small></span>
-  </div>
-  
-
-  
-
-  
-
-  <hr>
-</div>
-            
-              <div id="method__printAllStoredLogsFn" class="code-item method item private-method-item ">
-  <h3 class="code-item-name"><code>_printAllStoredLogsFn</code></h3>
-  
-    <span class="paren">()</span>
-  
-
-  <div class="code-item-properties">
-    <div class="properties-wrapper">
-      
-
-      
-
-      
-
-      
-        <span class="label label-default" title="This method is private.">private</span>
-      
-
-      
-
-      
-
-      
-
-      
-
-      
-        <span class="label label-default" title="This attribute is scoped within the Skylink space.">scoped</span>
-      
-
-      
-
-      
-
-      
-
-      
-    </div>
-
-    <div class="code-item-information">
-      
-        
-          
-        
-      
-      <!---->
-      
-    </div>
-
-    
-      <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_skylink-debug.js.html#l152"><code>source&#x2F;skylink-debug.js:152</code></a>
-      </small>
-    
-
-    <small>
-      
-        <i class="fa">&nbsp;&nbsp;&nbsp;</i>&nbsp;&nbsp;Available since <span class="badge">0.5.5</span>
-      
-
-      
-    </small>
-  </div>
-
-  <div class="code-item-description">
-    <p>Function that prints in the Web Console interface the stored logs.</p>
 
   </div>
 
@@ -9122,7 +8851,7 @@ See confluence docs for the &quot;redirect&quot; expected properties to be recei
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_stream-sdp.js.html#l454"><code>source&#x2F;stream-sdp.js:454</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_stream-sdp.js.html#l467"><code>source&#x2F;stream-sdp.js:467</code></a>
       </small>
     
 
@@ -9207,7 +8936,7 @@ See confluence docs for the &quot;redirect&quot; expected properties to be recei
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_stream-sdp.js.html#l594"><code>source&#x2F;stream-sdp.js:594</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_stream-sdp.js.html#l608"><code>source&#x2F;stream-sdp.js:608</code></a>
       </small>
     
 
@@ -9292,7 +9021,7 @@ See confluence docs for the &quot;redirect&quot; expected properties to be recei
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_stream-sdp.js.html#l284"><code>source&#x2F;stream-sdp.js:284</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_stream-sdp.js.html#l287"><code>source&#x2F;stream-sdp.js:287</code></a>
       </small>
     
 
@@ -9379,7 +9108,7 @@ NOTE: We should perhaps not remove it since H264 is supported?</p>
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_stream-sdp.js.html#l423"><code>source&#x2F;stream-sdp.js:423</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_stream-sdp.js.html#l436"><code>source&#x2F;stream-sdp.js:436</code></a>
       </small>
     
 
@@ -9464,7 +9193,7 @@ NOTE: We should perhaps not remove it since H264 is supported?</p>
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_stream-sdp.js.html#l523"><code>source&#x2F;stream-sdp.js:523</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_stream-sdp.js.html#l537"><code>source&#x2F;stream-sdp.js:537</code></a>
       </small>
     
 
@@ -9721,7 +9450,7 @@ See confluence docs for the &quot;restart&quot; expected properties to be receiv
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_peer-connection.js.html#l1384"><code>source&#x2F;peer-connection.js:1384</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_peer-connection.js.html#l1381"><code>source&#x2F;peer-connection.js:1381</code></a>
       </small>
     
 
@@ -10067,7 +9796,7 @@ See confluence docs for the &quot;roomLockEvent&quot; expected properties to be 
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_data-channel.js.html#l254"><code>source&#x2F;data-channel.js:254</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_data-channel.js.html#l260"><code>source&#x2F;data-channel.js:260</code></a>
       </small>
     
 
@@ -10239,7 +9968,7 @@ See confluence docs for the &quot;roomLockEvent&quot; expected properties to be 
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_peer-handshake.js.html#l188"><code>source&#x2F;peer-handshake.js:188</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_peer-handshake.js.html#l169"><code>source&#x2F;peer-handshake.js:169</code></a>
       </small>
     
 
@@ -10326,7 +10055,7 @@ If trickle ICE is disabled, the local session description will be sent after
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_stream-sdp.js.html#l127"><code>source&#x2F;stream-sdp.js:127</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_stream-sdp.js.html#l128"><code>source&#x2F;stream-sdp.js:128</code></a>
       </small>
     
 
@@ -10412,7 +10141,7 @@ Setting this may not necessarily work in Firefox.</p>
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_stream-sdp.js.html#l230"><code>source&#x2F;stream-sdp.js:230</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_stream-sdp.js.html#l232"><code>source&#x2F;stream-sdp.js:232</code></a>
       </small>
     
 
@@ -10582,7 +10311,7 @@ Setting this may not necessarily work in Firefox.</p>
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_peer-connection.js.html#l1521"><code>source&#x2F;peer-connection.js:1521</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_peer-connection.js.html#l1518"><code>source&#x2F;peer-connection.js:1518</code></a>
       </small>
     
 
@@ -10853,7 +10582,7 @@ This reacts differently during MCU environment.</p>
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_stream-media.js.html#l1429"><code>source&#x2F;stream-media.js:1429</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_stream-media.js.html#l1433"><code>source&#x2F;stream-media.js:1433</code></a>
       </small>
     
 
@@ -11971,7 +11700,7 @@ Function that terminates a currently uploading / downloading data transfer from 
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_stream-media.js.html#l998"><code>source&#x2F;stream-media.js:998</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_stream-media.js.html#l1000"><code>source&#x2F;stream-media.js:1000</code></a>
       </small>
     
 
@@ -12076,7 +11805,7 @@ Function that mutes both <a href="#method_getUserMedia"><code>getUserMedia()</co
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_stream-media.js.html#l1052"><code>source&#x2F;stream-media.js:1052</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_stream-media.js.html#l1054"><code>source&#x2F;stream-media.js:1054</code></a>
       </small>
     
 
@@ -12181,7 +11910,7 @@ Function that mutes both <a href="#method_getUserMedia"><code>getUserMedia()</co
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_stream-media.js.html#l971"><code>source&#x2F;stream-media.js:971</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_stream-media.js.html#l973"><code>source&#x2F;stream-media.js:973</code></a>
       </small>
     
 
@@ -12286,7 +12015,7 @@ Function that unmutes both <a href="#method_getUserMedia"><code>getUserMedia()</
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_stream-media.js.html#l1025"><code>source&#x2F;stream-media.js:1025</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_stream-media.js.html#l1027"><code>source&#x2F;stream-media.js:1027</code></a>
       </small>
     
 
@@ -17178,7 +16907,7 @@ Function that locks the current Room when in session to prevent other Peers from
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_stream-media.js.html#l833"><code>source&#x2F;stream-media.js:833</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_stream-media.js.html#l835"><code>source&#x2F;stream-media.js:835</code></a>
       </small>
     
 
@@ -19198,7 +18927,7 @@ sending large strings to Peers.</small></p>
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_stream-media.js.html#l582"><code>source&#x2F;stream-media.js:582</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_stream-media.js.html#l584"><code>source&#x2F;stream-media.js:584</code></a>
       </small>
     
 
@@ -19915,7 +19644,7 @@ with all the Peer IDs provided.</li>
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_skylink-debug.js.html#l393"><code>source&#x2F;skylink-debug.js:393</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_skylink-debug.js.html#l330"><code>source&#x2F;skylink-debug.js:330</code></a>
       </small>
     
 
@@ -19937,10 +19666,10 @@ with all the Peer IDs provided.</li>
     <div class="code-item-section">
       <h4>Example:</h4>
       <pre class="example-content prettyprint">
-        <p>  // Example 1: Enable both options.storeLogs and options.trace
+        <p>  // Example 1: Enable both options.storedLogs and options.trace
   skylinkDemo.setDebugMode(true);</p>
-<p>  // Example 2: Enable only options.storeLogs
-  skylinkDemo.setDebugMode({ storeLogs: true });</p>
+<p>  // Example 2: Enable only options.storedLogs
+  skylinkDemo.setDebugMode({ storedLogs: true });</p>
 <p>  // Example 3: Disable debugging mode
   skylinkDemo.setDebugMode();</p>
 
@@ -19975,7 +19704,7 @@ with all the Peer IDs provided.</li>
               <p>The debugging options.</p>
 <ul>
 <li>When provided as a boolean, this sets both <code>options.trace</code>
-and <code>options.storeLogs</code> to its boolean value.</li>
+and <code>options.storedLogs</code> to its boolean value.</li>
 </ul>
 
             </div>
@@ -20005,7 +19734,7 @@ and <code>options.storeLogs</code> to its boolean value.</li>
                   </li>
                 
                   <li class="param">
-                    <code class="param-name">storeLogs</code>
+                    <code class="param-name">storedLogs</code>
                     <span class="type"><b>{</b>Boolean<b>}</b></span>
 
                     <span class="label">Optional</span>
@@ -20090,7 +19819,7 @@ and <code>options.storeLogs</code> to its boolean value.</li>
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_skylink-debug.js.html#l353"><code>source&#x2F;skylink-debug.js:353</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_skylink-debug.js.html#l290"><code>source&#x2F;skylink-debug.js:290</code></a>
       </small>
     
 
@@ -20379,7 +20108,7 @@ and <code>options.storeLogs</code> to its boolean value.</li>
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_stream-media.js.html#l1079"><code>source&#x2F;stream-media.js:1079</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_stream-media.js.html#l1081"><code>source&#x2F;stream-media.js:1081</code></a>
       </small>
     
 
@@ -21174,7 +20903,7 @@ the recording session information.
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_stream-media.js.html#l1323"><code>source&#x2F;stream-media.js:1323</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_stream-media.js.html#l1327"><code>source&#x2F;stream-media.js:1327</code></a>
       </small>
     
 
@@ -21297,7 +21026,7 @@ Function that stops <a href="#method_shareScreen"><code>shareScreen()</code> Str
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_stream-media.js.html#l794"><code>source&#x2F;stream-media.js:794</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_stream-media.js.html#l796"><code>source&#x2F;stream-media.js:796</code></a>
       </small>
     
 
@@ -21504,7 +21233,7 @@ Function that unlocks the current Room when in session to allow other Peers to j
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_skylink-debug.js.html#l176"><code>source&#x2F;skylink-debug.js:176</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_skylink-debug.js.html#l45"><code>source&#x2F;skylink-debug.js:45</code></a>
       </small>
     
 
@@ -21517,7 +21246,7 @@ Function that unlocks the current Room when in session to allow other Peers to j
     <p><blockquote class="info">
   To utilise and enable the <code>SkylinkLogs</code> API functionalities, the
   <a href="#method_setDebugMode"><code>setDebugMode()</code> method</a>
-  <code>options.storeLogs</code> parameter has to be enabled.
+  <code>options.storedLogs</code> parameter has to be enabled.
 </blockquote>
 The object interface to manage the SDK <a href="https://developer.mozilla.org/en/docs/Web/API/console">
 Javascript Web Console</a> logs.</p>
@@ -21579,7 +21308,7 @@ Javascript Web Console</a> logs.</p>
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_skylink-debug.js.html#l218"><code>source&#x2F;skylink-debug.js:218</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_skylink-debug.js.html#l119"><code>source&#x2F;skylink-debug.js:119</code></a>
       </small>
     
 
@@ -21657,7 +21386,7 @@ Javascript Web Console</a> logs.</p>
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_skylink-debug.js.html#l191"><code>source&#x2F;skylink-debug.js:191</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_skylink-debug.js.html#l60"><code>source&#x2F;skylink-debug.js:60</code></a>
       </small>
     
 
@@ -21716,8 +21445,9 @@ Javascript Web Console</a> logs.</p>
   <li><code>0</code><var><b>{</b>Date<b>}</b></var><p>The DateTime of when the log was stored.</p></li>
   <li><code>1</code><var><b>{</b>String<b>}</b></var><p>The log level. [Rel: Skylink.LOG_LEVEL]</p></li>
   <li><code>2</code><var><b>{</b>String<b>}</b></var><p>The log message.</p></li>
-  <li><code>3</code><var><b>{</b>Any<b>}</b></var><span class="label">Optional</span><p>The log message object.
-  </p></li></ul></li></ul></p>
+  <li><code>3</code><var><b>{</b>Any<b>}</b></var><span class="label">Optional</span><p>The log message object.</li>
+  <li><code>4</code><var><b>{</b>String<b>}</b></var><span class="label">Optional</span><p>The Skylink object
+  instance label.</li></p></li></ul></li></ul></p>
 
         
       </div>
@@ -21784,7 +21514,7 @@ Javascript Web Console</a> logs.</p>
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_skylink-debug.js.html#l232"><code>source&#x2F;skylink-debug.js:232</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_skylink-debug.js.html#l166"><code>source&#x2F;skylink-debug.js:166</code></a>
       </small>
     
 
@@ -21876,7 +21606,7 @@ Javascript Web Console</a> logs.</p>
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l774"><code>source&#x2F;template&#x2F;header.js:774</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l788"><code>source&#x2F;template&#x2F;header.js:788</code></a>
       </small>
     
 
@@ -21952,7 +21682,7 @@ Javascript Web Console</a> logs.</p>
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l844"><code>source&#x2F;template&#x2F;header.js:844</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l858"><code>source&#x2F;template&#x2F;header.js:858</code></a>
       </small>
     
 
@@ -22028,7 +21758,7 @@ Javascript Web Console</a> logs.</p>
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l880"><code>source&#x2F;template&#x2F;header.js:880</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l894"><code>source&#x2F;template&#x2F;header.js:894</code></a>
       </small>
     
 
@@ -22110,7 +21840,7 @@ Javascript Web Console</a> logs.</p>
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l445"><code>source&#x2F;template&#x2F;header.js:445</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l459"><code>source&#x2F;template&#x2F;header.js:459</code></a>
       </small>
     
 
@@ -22270,7 +22000,7 @@ If enabled, the Peers connecting the same Room will receive each others &quot;en
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l625"><code>source&#x2F;template&#x2F;header.js:625</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l639"><code>source&#x2F;template&#x2F;header.js:639</code></a>
       </small>
     
 
@@ -22502,7 +22232,7 @@ If enabled, the Peers connecting the same Room will receive each others &quot;en
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l1127"><code>source&#x2F;template&#x2F;header.js:1127</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l1141"><code>source&#x2F;template&#x2F;header.js:1141</code></a>
       </small>
     
 
@@ -22580,7 +22310,7 @@ If enabled, the Peers connecting the same Room will receive each others &quot;en
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l1074"><code>source&#x2F;template&#x2F;header.js:1074</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l1088"><code>source&#x2F;template&#x2F;header.js:1088</code></a>
       </small>
     
 
@@ -22657,7 +22387,7 @@ There can only be 1 recording session at a time in a Room</p>
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l219"><code>source&#x2F;template&#x2F;header.js:219</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l233"><code>source&#x2F;template&#x2F;header.js:233</code></a>
       </small>
     
 
@@ -22776,7 +22506,7 @@ There can only be 1 recording session at a time in a Room</p>
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l232"><code>source&#x2F;template&#x2F;header.js:232</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l246"><code>source&#x2F;template&#x2F;header.js:246</code></a>
       </small>
     
 
@@ -23038,7 +22768,7 @@ There can only be 1 recording session at a time in a Room</p>
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l784"><code>source&#x2F;template&#x2F;header.js:784</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l798"><code>source&#x2F;template&#x2F;header.js:798</code></a>
       </small>
     
 
@@ -23114,7 +22844,7 @@ There can only be 1 recording session at a time in a Room</p>
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l1011"><code>source&#x2F;template&#x2F;header.js:1011</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l1025"><code>source&#x2F;template&#x2F;header.js:1025</code></a>
       </small>
     
 
@@ -23195,7 +22925,7 @@ There can only be 1 recording session at a time in a Room</p>
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l1022"><code>source&#x2F;template&#x2F;header.js:1022</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l1036"><code>source&#x2F;template&#x2F;header.js:1036</code></a>
       </small>
     
 
@@ -23276,7 +23006,7 @@ There can only be 1 recording session at a time in a Room</p>
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l1000"><code>source&#x2F;template&#x2F;header.js:1000</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l1014"><code>source&#x2F;template&#x2F;header.js:1014</code></a>
       </small>
     
 
@@ -23357,7 +23087,7 @@ There can only be 1 recording session at a time in a Room</p>
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l208"><code>source&#x2F;template&#x2F;header.js:208</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l222"><code>source&#x2F;template&#x2F;header.js:222</code></a>
       </small>
     
 
@@ -23440,7 +23170,7 @@ There can only be 1 recording session at a time in a Room</p>
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_skylink-debug.js.html#l70"><code>source&#x2F;skylink-debug.js:70</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l1174"><code>source&#x2F;template&#x2F;header.js:1174</code></a>
       </small>
     
 
@@ -23524,7 +23254,7 @@ This manipulates the SkylinkLogs interface.</p>
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_skylink-debug.js.html#l83"><code>source&#x2F;skylink-debug.js:83</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l1187"><code>source&#x2F;template&#x2F;header.js:1187</code></a>
       </small>
     
 
@@ -23607,7 +23337,7 @@ This manipulates the SkylinkLogs interface.</p>
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_skylink-debug.js.html#l95"><code>source&#x2F;skylink-debug.js:95</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l1199"><code>source&#x2F;template&#x2F;header.js:1199</code></a>
       </small>
     
 
@@ -23689,7 +23419,7 @@ This uses the <code>console.trace</code> API.</p>
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l695"><code>source&#x2F;template&#x2F;header.js:695</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l709"><code>source&#x2F;template&#x2F;header.js:709</code></a>
       </small>
     
 
@@ -23765,7 +23495,7 @@ This uses the <code>console.trace</code> API.</p>
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l293"><code>source&#x2F;template&#x2F;header.js:293</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l307"><code>source&#x2F;template&#x2F;header.js:307</code></a>
       </small>
     
 
@@ -23846,7 +23576,7 @@ This uses the <code>console.trace</code> API.</p>
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l304"><code>source&#x2F;template&#x2F;header.js:304</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l318"><code>source&#x2F;template&#x2F;header.js:318</code></a>
       </small>
     
 
@@ -23927,7 +23657,7 @@ This uses the <code>console.trace</code> API.</p>
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l315"><code>source&#x2F;template&#x2F;header.js:315</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l329"><code>source&#x2F;template&#x2F;header.js:329</code></a>
       </small>
     
 
@@ -24008,7 +23738,7 @@ This uses the <code>console.trace</code> API.</p>
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l511"><code>source&#x2F;template&#x2F;header.js:511</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l525"><code>source&#x2F;template&#x2F;header.js:525</code></a>
       </small>
     
 
@@ -24126,7 +23856,7 @@ This uses the <code>console.trace</code> API.</p>
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l279"><code>source&#x2F;template&#x2F;header.js:279</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l293"><code>source&#x2F;template&#x2F;header.js:293</code></a>
       </small>
     
 
@@ -24202,7 +23932,7 @@ This uses the <code>console.trace</code> API.</p>
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l716"><code>source&#x2F;template&#x2F;header.js:716</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l730"><code>source&#x2F;template&#x2F;header.js:730</code></a>
       </small>
     
 
@@ -24285,7 +24015,7 @@ HTTPS connections are enforced if App is accessing from HTTPS domains.</p>
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l742"><code>source&#x2F;template&#x2F;header.js:742</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l756"><code>source&#x2F;template&#x2F;header.js:756</code></a>
       </small>
     
 
@@ -24367,7 +24097,7 @@ This filters all non &quot;relay&quot; ICE candidates to enforce connections via
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l729"><code>source&#x2F;template&#x2F;header.js:729</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l743"><code>source&#x2F;template&#x2F;header.js:743</code></a>
       </small>
     
 
@@ -24450,7 +24180,7 @@ TURNS connections are enforced if App is accessing from HTTPS domains.</p>
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l266"><code>source&#x2F;template&#x2F;header.js:266</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l280"><code>source&#x2F;template&#x2F;header.js:280</code></a>
       </small>
     
 
@@ -24659,7 +24389,7 @@ TURNS connections are enforced if App is accessing from HTTPS domains.</p>
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l706"><code>source&#x2F;template&#x2F;header.js:706</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l720"><code>source&#x2F;template&#x2F;header.js:720</code></a>
       </small>
     
 
@@ -24735,7 +24465,7 @@ TURNS connections are enforced if App is accessing from HTTPS domains.</p>
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l501"><code>source&#x2F;template&#x2F;header.js:501</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l515"><code>source&#x2F;template&#x2F;header.js:515</code></a>
       </small>
     
 
@@ -24811,7 +24541,7 @@ TURNS connections are enforced if App is accessing from HTTPS domains.</p>
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l370"><code>source&#x2F;template&#x2F;header.js:370</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l384"><code>source&#x2F;template&#x2F;header.js:384</code></a>
       </small>
     
 
@@ -24887,7 +24617,7 @@ TURNS connections are enforced if App is accessing from HTTPS domains.</p>
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l834"><code>source&#x2F;template&#x2F;header.js:834</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l848"><code>source&#x2F;template&#x2F;header.js:848</code></a>
       </small>
     
 
@@ -24898,163 +24628,6 @@ TURNS connections are enforced if App is accessing from HTTPS domains.</p>
 
   <div class="code-item-description">
     <p>Stores the &quot;cid&quot; used for <code>joinRoom()</code>.</p>
-
-  </div>
-
-  
-
-  
-
-  
-
-  
-
-  
-  <hr>
-</div>
-            
-              <div id="attr__LOG_KEY" class="code-item attr item private-attr-item ">
-  <a name="config__LOG_KEY"></a> 
-  <h3 class="code-item-name"><code>_LOG_KEY</code></h3>
-  <span class="code-item-type"><i>Attribute Type</i>: <b>{</b>String<b>}</b></span>
-
-  <div class="code-item-properties">
-    <div class="properties-wrapper">
-      
-
-      
-
-      
-
-      
-
-      
-        <span class="label label-default" title="This attribute is private.">private</span>
-      
-
-      
-
-      
-
-      
-
-      
-
-      
-
-      
-        <span class="label label-default" title="This attribute is scoped within the Skylink space.">scoped</span>
-      
-
-      
-
-      
-
-      
-    </div>
-
-    <div class="code-item-information">
-      
-        
-          
-        
-      
-      <!---->
-      
-    </div>
-
-    
-      <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_skylink-debug.js.html#l34"><code>source&#x2F;skylink-debug.js:34</code></a>
-      </small>
-    
-
-    
-      <small><i class="fa">&nbsp;&nbsp;&nbsp;</i>&nbsp;&nbsp;Available since <span class="badge">0.5.4</span></small>
-    
-  </div>
-
-  <div class="code-item-description">
-    <p>Stores the log message starting header string.
-E.g. &quot;<header> - <the log message>&quot;.</p>
-
-  </div>
-
-  
-
-  
-
-  
-
-  
-
-  
-  <hr>
-</div>
-            
-              <div id="attr__LOG_LEVELS" class="code-item attr item private-attr-item ">
-  <a name="config__LOG_LEVELS"></a> 
-  <h3 class="code-item-name"><code>_LOG_LEVELS</code></h3>
-  <span class="code-item-type"><i>Attribute Type</i>: <b>{</b>Array<b>}</b></span>
-
-  <div class="code-item-properties">
-    <div class="properties-wrapper">
-      
-
-      
-
-      
-
-      
-
-      
-        <span class="label label-default" title="This attribute is private.">private</span>
-      
-
-      
-
-      
-
-      
-
-      
-
-      
-
-      
-        <span class="label label-default" title="This attribute is scoped within the Skylink space.">scoped</span>
-      
-
-      
-
-      
-
-      
-    </div>
-
-    <div class="code-item-information">
-      
-        
-          
-        
-      
-      <!---->
-      
-    </div>
-
-    
-      <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_skylink-debug.js.html#l46"><code>source&#x2F;skylink-debug.js:46</code></a>
-      </small>
-    
-
-    
-      <small><i class="fa">&nbsp;&nbsp;&nbsp;</i>&nbsp;&nbsp;Available since <span class="badge">0.5.5</span></small>
-    
-  </div>
-
-  <div class="code-item-description">
-    <p>Stores the list of available SDK log levels.</p>
 
   </div>
 
@@ -25122,7 +24695,7 @@ E.g. &quot;<header> - <the log message>&quot;.</p>
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_skylink-debug.js.html#l57"><code>source&#x2F;skylink-debug.js:57</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l1161"><code>source&#x2F;template&#x2F;header.js:1161</code></a>
       </small>
     
 
@@ -25204,7 +24777,7 @@ Default is ERROR (<code>0</code>).</p>
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l1097"><code>source&#x2F;template&#x2F;header.js:1097</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l1111"><code>source&#x2F;template&#x2F;header.js:1111</code></a>
       </small>
     
 
@@ -25437,7 +25010,7 @@ Default is ERROR (<code>0</code>).</p>
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l523"><code>source&#x2F;template&#x2F;header.js:523</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l537"><code>source&#x2F;template&#x2F;header.js:537</code></a>
       </small>
     
 
@@ -25556,7 +25129,7 @@ These events are only triggered once.</p>
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l754"><code>source&#x2F;template&#x2F;header.js:754</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l768"><code>source&#x2F;template&#x2F;header.js:768</code></a>
       </small>
     
 
@@ -25632,7 +25205,7 @@ These events are only triggered once.</p>
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l243"><code>source&#x2F;template&#x2F;header.js:243</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l257"><code>source&#x2F;template&#x2F;header.js:257</code></a>
       </small>
     
 
@@ -25751,7 +25324,7 @@ These events are only triggered once.</p>
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l348"><code>source&#x2F;template&#x2F;header.js:348</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l362"><code>source&#x2F;template&#x2F;header.js:362</code></a>
       </small>
     
 
@@ -25850,7 +25423,7 @@ These events are only triggered once.</p>
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l256"><code>source&#x2F;template&#x2F;header.js:256</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l270"><code>source&#x2F;template&#x2F;header.js:270</code></a>
       </small>
     
 
@@ -25926,7 +25499,7 @@ These events are only triggered once.</p>
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l393"><code>source&#x2F;template&#x2F;header.js:393</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l407"><code>source&#x2F;template&#x2F;header.js:407</code></a>
       </small>
     
 
@@ -26089,7 +25662,7 @@ These events are only triggered once.</p>
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l471"><code>source&#x2F;template&#x2F;header.js:471</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l485"><code>source&#x2F;template&#x2F;header.js:485</code></a>
       </small>
     
 
@@ -26165,7 +25738,7 @@ These events are only triggered once.</p>
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l870"><code>source&#x2F;template&#x2F;header.js:870</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l884"><code>source&#x2F;template&#x2F;header.js:884</code></a>
       </small>
     
 
@@ -26241,7 +25814,7 @@ These events are only triggered once.</p>
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l434"><code>source&#x2F;template&#x2F;header.js:434</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l448"><code>source&#x2F;template&#x2F;header.js:448</code></a>
       </small>
     
 
@@ -26318,7 +25891,7 @@ If Peer has a higher connection weight, it will do the offer from its Peer conne
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l359"><code>source&#x2F;template&#x2F;header.js:359</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l373"><code>source&#x2F;template&#x2F;header.js:373</code></a>
       </small>
     
 
@@ -26417,7 +25990,7 @@ If Peer has a higher connection weight, it will do the offer from its Peer conne
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l1053"><code>source&#x2F;template&#x2F;header.js:1053</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l1067"><code>source&#x2F;template&#x2F;header.js:1067</code></a>
       </small>
     
 
@@ -26493,7 +26066,7 @@ If Peer has a higher connection weight, it will do the offer from its Peer conne
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l824"><code>source&#x2F;template&#x2F;header.js:824</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l838"><code>source&#x2F;template&#x2F;header.js:838</code></a>
       </small>
     
 
@@ -26571,7 +26144,7 @@ If Peer has a higher connection weight, it will do the offer from its Peer conne
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l1063"><code>source&#x2F;template&#x2F;header.js:1063</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l1077"><code>source&#x2F;template&#x2F;header.js:1077</code></a>
       </small>
     
 
@@ -26649,7 +26222,7 @@ If Peer has a higher connection weight, it will do the offer from its Peer conne
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l1086"><code>source&#x2F;template&#x2F;header.js:1086</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l1100"><code>source&#x2F;template&#x2F;header.js:1100</code></a>
       </small>
     
 
@@ -26725,7 +26298,7 @@ If Peer has a higher connection weight, it will do the offer from its Peer conne
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l337"><code>source&#x2F;template&#x2F;header.js:337</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l351"><code>source&#x2F;template&#x2F;header.js:351</code></a>
       </small>
     
 
@@ -26802,7 +26375,7 @@ If Peer has a higher connection weight, it will do the offer from its Peer conne
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l854"><code>source&#x2F;template&#x2F;header.js:854</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l868"><code>source&#x2F;template&#x2F;header.js:868</code></a>
       </small>
     
 
@@ -26962,7 +26535,7 @@ If Peer has a higher connection weight, it will do the offer from its Peer conne
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l814"><code>source&#x2F;template&#x2F;header.js:814</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l828"><code>source&#x2F;template&#x2F;header.js:828</code></a>
       </small>
     
 
@@ -27038,7 +26611,7 @@ If Peer has a higher connection weight, it will do the offer from its Peer conne
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l804"><code>source&#x2F;template&#x2F;header.js:804</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l818"><code>source&#x2F;template&#x2F;header.js:818</code></a>
       </small>
     
 
@@ -27114,7 +26687,7 @@ If Peer has a higher connection weight, it will do the offer from its Peer conne
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l491"><code>source&#x2F;template&#x2F;header.js:491</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l505"><code>source&#x2F;template&#x2F;header.js:505</code></a>
       </small>
     
 
@@ -27190,7 +26763,7 @@ If Peer has a higher connection weight, it will do the offer from its Peer conne
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l764"><code>source&#x2F;template&#x2F;header.js:764</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l778"><code>source&#x2F;template&#x2F;header.js:778</code></a>
       </small>
     
 
@@ -27266,7 +26839,7 @@ If Peer has a higher connection weight, it will do the offer from its Peer conne
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l794"><code>source&#x2F;template&#x2F;header.js:794</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l808"><code>source&#x2F;template&#x2F;header.js:808</code></a>
       </small>
     
 
@@ -27342,7 +26915,7 @@ If Peer has a higher connection weight, it will do the offer from its Peer conne
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l1137"><code>source&#x2F;template&#x2F;header.js:1137</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l1151"><code>source&#x2F;template&#x2F;header.js:1151</code></a>
       </small>
     
 
@@ -27418,7 +26991,7 @@ If Peer has a higher connection weight, it will do the offer from its Peer conne
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l1033"><code>source&#x2F;template&#x2F;header.js:1033</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l1047"><code>source&#x2F;template&#x2F;header.js:1047</code></a>
       </small>
     
 
@@ -27494,7 +27067,7 @@ If Peer has a higher connection weight, it will do the offer from its Peer conne
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l978"><code>source&#x2F;template&#x2F;header.js:978</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l992"><code>source&#x2F;template&#x2F;header.js:992</code></a>
       </small>
     
 
@@ -27575,7 +27148,7 @@ If Peer has a higher connection weight, it will do the offer from its Peer conne
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l481"><code>source&#x2F;template&#x2F;header.js:481</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l495"><code>source&#x2F;template&#x2F;header.js:495</code></a>
       </small>
     
 
@@ -27651,7 +27224,7 @@ If Peer has a higher connection weight, it will do the offer from its Peer conne
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l989"><code>source&#x2F;template&#x2F;header.js:989</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l1003"><code>source&#x2F;template&#x2F;header.js:1003</code></a>
       </small>
     
 
@@ -27811,7 +27384,7 @@ See confluence docs for the list based on the current <code>SM_PROTOCOL_VERSION<
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l635"><code>source&#x2F;template&#x2F;header.js:635</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l649"><code>source&#x2F;template&#x2F;header.js:649</code></a>
       </small>
     
 
@@ -27887,7 +27460,7 @@ See confluence docs for the list based on the current <code>SM_PROTOCOL_VERSION<
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l655"><code>source&#x2F;template&#x2F;header.js:655</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l669"><code>source&#x2F;template&#x2F;header.js:669</code></a>
       </small>
     
 
@@ -27963,7 +27536,7 @@ See confluence docs for the list based on the current <code>SM_PROTOCOL_VERSION<
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l645"><code>source&#x2F;template&#x2F;header.js:645</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l659"><code>source&#x2F;template&#x2F;header.js:659</code></a>
       </small>
     
 
@@ -28039,7 +27612,7 @@ See confluence docs for the list based on the current <code>SM_PROTOCOL_VERSION<
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l665"><code>source&#x2F;template&#x2F;header.js:665</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l679"><code>source&#x2F;template&#x2F;header.js:679</code></a>
       </small>
     
 
@@ -28115,7 +27688,7 @@ See confluence docs for the list based on the current <code>SM_PROTOCOL_VERSION<
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l586"><code>source&#x2F;template&#x2F;header.js:586</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l600"><code>source&#x2F;template&#x2F;header.js:600</code></a>
       </small>
     
 
@@ -28193,7 +27766,7 @@ This is to prevent too many sent over less than a second interval that might cau
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l598"><code>source&#x2F;template&#x2F;header.js:598</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l612"><code>source&#x2F;template&#x2F;header.js:612</code></a>
       </small>
     
 
@@ -28269,7 +27842,7 @@ This is to prevent too many sent over less than a second interval that might cau
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l608"><code>source&#x2F;template&#x2F;header.js:608</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l622"><code>source&#x2F;template&#x2F;header.js:622</code></a>
       </small>
     
 
@@ -28385,7 +27958,7 @@ Should re-evaluate this sometime.</p>
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l1117"><code>source&#x2F;template&#x2F;header.js:1117</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l1131"><code>source&#x2F;template&#x2F;header.js:1131</code></a>
       </small>
     
 
@@ -28461,7 +28034,7 @@ Should re-evaluate this sometime.</p>
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l576"><code>source&#x2F;template&#x2F;header.js:576</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l590"><code>source&#x2F;template&#x2F;header.js:590</code></a>
       </small>
     
 
@@ -28537,7 +28110,7 @@ Should re-evaluate this sometime.</p>
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l675"><code>source&#x2F;template&#x2F;header.js:675</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l689"><code>source&#x2F;template&#x2F;header.js:689</code></a>
       </small>
     
 
@@ -28613,7 +28186,7 @@ Should re-evaluate this sometime.</p>
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l685"><code>source&#x2F;template&#x2F;header.js:685</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l699"><code>source&#x2F;template&#x2F;header.js:699</code></a>
       </small>
     
 
@@ -28624,84 +28197,6 @@ Should re-evaluate this sometime.</p>
 
   <div class="code-item-description">
     <p>Stores the flag that indicates if XDomainRequest is used for IE 8/9.</p>
-
-  </div>
-
-  
-
-  
-
-  
-
-  
-
-  
-  <hr>
-</div>
-            
-              <div id="attr__storedLogs" class="code-item attr item private-attr-item ">
-  <a name="config__storedLogs"></a> 
-  <h3 class="code-item-name"><code>_storedLogs</code></h3>
-  <span class="code-item-type"><i>Attribute Type</i>: <b>{</b>Array<b>}</b></span>
-
-  <div class="code-item-properties">
-    <div class="properties-wrapper">
-      
-
-      
-
-      
-
-      
-
-      
-        <span class="label label-default" title="This attribute is private.">private</span>
-      
-
-      
-
-      
-
-      
-
-      
-
-      
-
-      
-        <span class="label label-default" title="This attribute is scoped within the Skylink space.">scoped</span>
-      
-
-      
-
-      
-
-      
-    </div>
-
-    <div class="code-item-information">
-      
-        
-          
-        
-      
-      <!---->
-      
-    </div>
-
-    
-      <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_skylink-debug.js.html#l108"><code>source&#x2F;skylink-debug.js:108</code></a>
-      </small>
-    
-
-    
-      <small><i class="fa">&nbsp;&nbsp;&nbsp;</i>&nbsp;&nbsp;Available since <span class="badge">0.5.5</span></small>
-    
-  </div>
-
-  <div class="code-item-description">
-    <p>Stores the logs used for SkylinkLogs object.</p>
 
   </div>
 
@@ -28767,7 +28262,7 @@ Should re-evaluate this sometime.</p>
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l892"><code>source&#x2F;template&#x2F;header.js:892</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l906"><code>source&#x2F;template&#x2F;header.js:906</code></a>
       </small>
     
 
@@ -28843,7 +28338,7 @@ Should re-evaluate this sometime.</p>
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l944"><code>source&#x2F;template&#x2F;header.js:944</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l958"><code>source&#x2F;template&#x2F;header.js:958</code></a>
       </small>
     
 
@@ -28919,7 +28414,7 @@ Should re-evaluate this sometime.</p>
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l905"><code>source&#x2F;template&#x2F;header.js:905</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l919"><code>source&#x2F;template&#x2F;header.js:919</code></a>
       </small>
     
 
@@ -28995,7 +28490,7 @@ Should re-evaluate this sometime.</p>
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l931"><code>source&#x2F;template&#x2F;header.js:931</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l945"><code>source&#x2F;template&#x2F;header.js:945</code></a>
       </small>
     
 
@@ -29071,7 +28566,7 @@ Should re-evaluate this sometime.</p>
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l967"><code>source&#x2F;template&#x2F;header.js:967</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l981"><code>source&#x2F;template&#x2F;header.js:981</code></a>
       </small>
     
 
@@ -29148,7 +28643,7 @@ Defined as <code>false</code> when Stream has already ended.</p>
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l957"><code>source&#x2F;template&#x2F;header.js:957</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l971"><code>source&#x2F;template&#x2F;header.js:971</code></a>
       </small>
     
 
@@ -29302,7 +28797,7 @@ Defined as <code>false</code> when Stream has already ended.</p>
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l566"><code>source&#x2F;template&#x2F;header.js:566</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l580"><code>source&#x2F;template&#x2F;header.js:580</code></a>
       </small>
     
 
@@ -29378,7 +28873,7 @@ Defined as <code>false</code> when Stream has already ended.</p>
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l552"><code>source&#x2F;template&#x2F;header.js:552</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l566"><code>source&#x2F;template&#x2F;header.js:566</code></a>
       </small>
     
 
@@ -29454,7 +28949,7 @@ Defined as <code>false</code> when Stream has already ended.</p>
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l536"><code>source&#x2F;template&#x2F;header.js:536</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l550"><code>source&#x2F;template&#x2F;header.js:550</code></a>
       </small>
     
 
@@ -29530,7 +29025,7 @@ Defined as <code>false</code> when Stream has already ended.</p>
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l1107"><code>source&#x2F;template&#x2F;header.js:1107</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l1121"><code>source&#x2F;template&#x2F;header.js:1121</code></a>
       </small>
     
 
@@ -29608,7 +29103,7 @@ Defined as <code>false</code> when Stream has already ended.</p>
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l380"><code>source&#x2F;template&#x2F;header.js:380</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l394"><code>source&#x2F;template&#x2F;header.js:394</code></a>
       </small>
     
 
@@ -29690,7 +29185,7 @@ This should configure the TURN ICE servers urls <code>?transport=protocol</code>
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l326"><code>source&#x2F;template&#x2F;header.js:326</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l340"><code>source&#x2F;template&#x2F;header.js:340</code></a>
       </small>
     
 
@@ -29771,7 +29266,7 @@ This should configure the TURN ICE servers urls <code>?transport=protocol</code>
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l408"><code>source&#x2F;template&#x2F;header.js:408</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l422"><code>source&#x2F;template&#x2F;header.js:422</code></a>
       </small>
     
 
@@ -29915,7 +29410,7 @@ This should configure the TURN ICE servers urls <code>?transport=protocol</code>
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l422"><code>source&#x2F;template&#x2F;header.js:422</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l436"><code>source&#x2F;template&#x2F;header.js:436</code></a>
       </small>
     
 
@@ -32286,6 +31781,82 @@ The list of Peer connection ICE connection states.</p>
   <hr>
 </div>
             
+              <div id="attr_INSTANCE_LABEL" class="code-item attr item attr-item ">
+  <a name="config_INSTANCE_LABEL"></a> 
+  <h3 class="code-item-name"><code>INSTANCE_LABEL</code></h3>
+  <span class="code-item-type"><i>Attribute Type</i>: <b>{</b>String<b>}</b></span>
+
+  <div class="code-item-properties">
+    <div class="properties-wrapper">
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <span class="label label-info" title="This attribute is reference only.">readonly</span>
+      
+
+      
+
+      
+    </div>
+
+    <div class="code-item-information">
+      
+        
+          
+        
+      
+      <!---->
+      
+    </div>
+
+    
+      <small>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l211"><code>source&#x2F;template&#x2F;header.js:211</code></a>
+      </small>
+    
+
+    
+      <small><i class="fa">&nbsp;&nbsp;&nbsp;</i>&nbsp;&nbsp;Available since <span class="badge">0.6.18</span></small>
+    
+  </div>
+
+  <div class="code-item-description">
+    <p>The Skylink object instance label ID.</p>
+
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  
+  <hr>
+</div>
+            
               <div id="attr_INTRODUCE_STATE" class="code-item attr item attr-item ">
   <a name="config_INTRODUCE_STATE"></a> 
   <h3 class="code-item-name"><code>INTRODUCE_STATE</code></h3>
@@ -32462,7 +32033,7 @@ The list of <a href="#method_introducePeer"><code>introducePeer</code> method</a
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l457"><code>source&#x2F;template&#x2F;header.js:457</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l471"><code>source&#x2F;template&#x2F;header.js:471</code></a>
       </small>
     
 
@@ -32488,167 +32059,6 @@ If enabled, the User has Privileged features which has the ability to retrieve t
 
   
 
-  
-
-  
-
-  
-  <hr>
-</div>
-            
-              <div id="attr_log" class="code-item attr item private-attr-item ">
-  <a name="config_log"></a> 
-  <h3 class="code-item-name"><code>log</code></h3>
-  <span class="code-item-type"><i>Attribute Type</i>: <b>{</b>JSON<b>}</b></span>
-
-  <div class="code-item-properties">
-    <div class="properties-wrapper">
-      
-
-      
-
-      
-
-      
-
-      
-        <span class="label label-default" title="This attribute is private.">private</span>
-      
-
-      
-
-      
-
-      
-
-      
-
-      
-
-      
-        <span class="label label-default" title="This attribute is scoped within the Skylink space.">scoped</span>
-      
-
-      
-
-      
-
-      
-    </div>
-
-    <div class="code-item-information">
-      
-        
-          
-        
-      
-      <!---->
-      
-    </div>
-
-    
-      <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_skylink-debug.js.html#l317"><code>source&#x2F;skylink-debug.js:317</code></a>
-      </small>
-    
-
-    
-      <small><i class="fa">&nbsp;&nbsp;&nbsp;</i>&nbsp;&nbsp;Available since <span class="badge">0.5.4</span></small>
-    
-  </div>
-
-  <div class="code-item-description">
-    <p>Stores the logging functions.</p>
-
-  </div>
-
-  
-
-  
-
-  
-    <div class="code-item-section">
-      <h4>Keys:</h4>
-
-      <ul class="params-list">
-      
-          <li class="param">
-            <code class="param-name">debug</code>
-            <span class="type"><b>{</b>Function<b>}</b></span>
-
-            
-            
-
-            <div class="param-description">
-                <p>The function that handles the DEBUG level logs.</p>
-
-            </div>
-
-            
-          </li>
-      
-          <li class="param">
-            <code class="param-name">log</code>
-            <span class="type"><b>{</b>Function<b>}</b></span>
-
-            
-            
-
-            <div class="param-description">
-                <p>The function that handles the LOG level logs.</p>
-
-            </div>
-
-            
-          </li>
-      
-          <li class="param">
-            <code class="param-name">info</code>
-            <span class="type"><b>{</b>Function<b>}</b></span>
-
-            
-            
-
-            <div class="param-description">
-                <p>The function that handles the INFO level logs.</p>
-
-            </div>
-
-            
-          </li>
-      
-          <li class="param">
-            <code class="param-name">warn</code>
-            <span class="type"><b>{</b>Function<b>}</b></span>
-
-            
-            
-
-            <div class="param-description">
-                <p>The function that handles the WARN level logs.</p>
-
-            </div>
-
-            
-          </li>
-      
-          <li class="param">
-            <code class="param-name">error</code>
-            <span class="type"><b>{</b>Function<b>}</b></span>
-
-            
-            
-
-            <div class="param-description">
-                <p>The function that handles the ERROR level logs.</p>
-
-            </div>
-
-            
-          </li>
-      
-      </ul>
-    </div>
   
 
   
@@ -34432,6 +33842,84 @@ The value of the current version of the Signaling socket message protocol.</p>
       
       </ul>
     </div>
+  
+
+  
+
+  
+  <hr>
+</div>
+            
+              <div id="attr_storedLogs" class="code-item attr item private-attr-item ">
+  <a name="config_storedLogs"></a> 
+  <h3 class="code-item-name"><code>storedLogs</code></h3>
+  <span class="code-item-type"><i>Attribute Type</i>: <b>{</b>JSON<b>}</b></span>
+
+  <div class="code-item-properties">
+    <div class="properties-wrapper">
+      
+
+      
+
+      
+
+      
+
+      
+        <span class="label label-default" title="This attribute is private.">private</span>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <span class="label label-default" title="This attribute is scoped within the Skylink space.">scoped</span>
+      
+
+      
+
+      
+
+      
+    </div>
+
+    <div class="code-item-information">
+      
+        
+          
+        
+      
+      <!---->
+      
+    </div>
+
+    
+      <small>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_skylink-debug.js.html#l34"><code>source&#x2F;skylink-debug.js:34</code></a>
+      </small>
+    
+
+    
+      <small><i class="fa">&nbsp;&nbsp;&nbsp;</i>&nbsp;&nbsp;Available since <span class="badge">0.5.5</span></small>
+    
+  </div>
+
+  <div class="code-item-description">
+    <p>Stores the logs used for SkylinkLogs object.</p>
+
+  </div>
+
+  
+
+  
+
   
 
   

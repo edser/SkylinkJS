@@ -219,7 +219,7 @@ Skylink.prototype._setIceServers = function(givenConfig) {
     }
   }
 
-  log.log(&#x27;TURN server connections SSL configuration&#x27;, {
+  self._log(&#x27;log&#x27;, &#x27;TURN server connections SSL configuration&#x27;, {
     useTURNSSLProtocol: useTURNSSLProtocol,
     useTURNSSLPort: useTURNSSLPort
   });
@@ -256,29 +256,29 @@ Skylink.prototype._setIceServers = function(givenConfig) {
     var server = givenIceServers[i];
 
     if (typeof server.url !== &#x27;string&#x27;) {
-      log.warn(&#x27;Ignoring ICE server provided at index &#x27; + i, clone(server));
+      self._log(&#x27;warn&#x27;, &#x27;Ignoring ICE server provided at index &#x27; + i, clone(server));
       continue;
     }
 
     if (server.url.indexOf(&#x27;stun&#x27;) === 0) {
       if (!self._enableSTUN) {
-        log.warn(&#x27;Ignoring STUN server provided at index &#x27; + i, clone(server));
+        self._log(&#x27;warn&#x27;, &#x27;Ignoring STUN server provided at index &#x27; + i, clone(server));
         continue;
       }
 
       if (!self._usePublicSTUN &amp;&amp; server.url.indexOf(&#x27;temasys&#x27;) === -1) {
-        log.warn(&#x27;Ignoring public STUN server provided at index &#x27; + i, clone(server));
+        self._log(&#x27;warn&#x27;, &#x27;Ignoring public STUN server provided at index &#x27; + i, clone(server));
         continue;
       }
 
     } else if (server.url.indexOf(&#x27;turn&#x27;) === 0) {
       if (!self._enableTURN) {
-        log.warn(&#x27;Ignoring TURN server provided at index &#x27; + i, clone(server));
+        self._log(&#x27;warn&#x27;, &#x27;Ignoring TURN server provided at index &#x27; + i, clone(server));
         continue;
       }
 
       if (server.url.indexOf(&#x27;:443&#x27;) === -1 &amp;&amp; useTURNSSLPort) {
-        log.log(&#x27;Ignoring TURN Server (non-SSL port) provided at index &#x27; + i, clone(server));
+        self._log(&#x27;log&#x27;, &#x27;Ignoring TURN Server (non-SSL port) provided at index &#x27; + i, clone(server));
         continue;
       }
 
@@ -329,7 +329,7 @@ Skylink.prototype._setIceServers = function(givenConfig) {
           pushIceServer(username, credential, rawUrl + &#x27;?transport=tcp&#x27;);
           pushIceServer(username, credential, rawUrl + &#x27;?transport=udp&#x27;);
         } else {
-          log.warn(&#x27;Invalid TURN transport option &quot;&#x27; + self._TURNTransport +
+          self._log(&#x27;warn&#x27;, &#x27;Invalid TURN transport option &quot;&#x27; + self._TURNTransport +
             &#x27;&quot;. Ignoring TURN server at index&#x27; + i, clone(server));
           continue;
         }
@@ -412,7 +412,7 @@ Skylink.prototype._setIceServers = function(givenConfig) {
     }
   }
 
-  log.log(&#x27;Output iceServers configuration:&#x27;, newIceServers);
+  self._log(&#x27;log&#x27;, &#x27;Output iceServers configuration:&#x27;, newIceServers);
 
   return {
     iceServers: newIceServers

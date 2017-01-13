@@ -348,7 +348,7 @@ Skylink.prototype.joinRoom = function(room, options, callback) {
   }
 
   var resolveAsErrorFn = function (error, tryRoom, readyState) {
-    log.error(error);
+    self._log('error', error);
 
     if (typeof callback === 'function') {
       callback({
@@ -374,7 +374,7 @@ Skylink.prototype.joinRoom = function(room, options, callback) {
 
         self.once('peerJoined', function(peerId, peerInfo, isSelf) {
           if (typeof callback === 'function') {
-            log.info([null, 'Room', selectedRoom, 'Connected to Room ->'], peerInfo);
+            self._log('info', [null, 'Room', selectedRoom, 'Connected to Room ->'], peerInfo);
 
             callback(null, {
               room: self._selectedRoom,
@@ -419,7 +419,7 @@ Skylink.prototype.joinRoom = function(room, options, callback) {
     var stopStream = mediaOptions.audio === false && mediaOptions.video === false;
 
     self.leaveRoom(stopStream, function (lRError, lRSuccess) {
-      log.debug([null, 'Room', previousRoom, 'Leave Room callback result ->'], [lRError, lRSuccess]);
+      self._log('debug', [null, 'Room', previousRoom, 'Leave Room callback result ->'], [lRError, lRSuccess]);
       joinRoomFn();
     });
   } else {
@@ -514,7 +514,7 @@ Skylink.prototype.leaveRoom = function(stopMediaOptions, callback) {
 
   if (isNotInRoom) {
     var notInRoomError = 'Unable to leave room as user is not in any room';
-    log.error([null, 'Room', previousRoom, notInRoomError]);
+    self._log('error', [null, 'Room', previousRoom, notInRoomError]);
 
     if (typeof callback === 'function') {
       callback(new Error(notInRoomError), null);
@@ -528,7 +528,7 @@ Skylink.prototype.leaveRoom = function(stopMediaOptions, callback) {
   });
 
   self._wait(function () {
-    log.log([null, 'Room', previousRoom, 'User left the room']);
+    self._log('log', [null, 'Room', previousRoom, 'User left the room']);
 
     self._trigger('peerLeft', previousUserPeerId, self.getPeerInfo(), true,
       self._publishOnly && self._publishOnly.parentId ? self._publishOnly.parentId : null);
@@ -567,7 +567,7 @@ Skylink.prototype.lockRoom = function() {
   if (!(this._user && this._user.sid)) {
     return;
   }
-  log.log('Update to isRoomLocked status ->', true);
+  this._log('log', 'Update to isRoomLocked status ->', true);
   this._sendChannelMessage({
     type: this._SIG_MESSAGE_TYPE.ROOM_LOCK,
     mid: this._user.sid,
@@ -601,7 +601,7 @@ Skylink.prototype.unlockRoom = function() {
   if (!(this._user && this._user.sid)) {
     return;
   }
-  log.log('Update to isRoomLocked status ->', false);
+  this._log('log', 'Update to isRoomLocked status ->', false);
   this._sendChannelMessage({
     type: this._SIG_MESSAGE_TYPE.ROOM_LOCK,
     mid: this._user.sid,
@@ -767,5 +767,4 @@ Skylink.prototype._waitForOpenChannel = function(mediaOptions, callback) {
   }, function() {
     return self._readyState === self.READY_STATE_CHANGE.COMPLETED;
   });
-
 };
