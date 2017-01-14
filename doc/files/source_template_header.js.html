@@ -308,7 +308,7 @@ function Skylink(instanceLabel) {
    * @since 0.6.18
    */
   this.INSTANCE_LABEL = typeof instanceLabel === &#x27;string&#x27; &amp;&amp; instanceLabel &amp;&amp; instanceLabel !== &#x27;_&#x27; ?
-    instanceLabel : (new Date()).getTime() + &#x27;_&#x27; + (Math.random() * 1000);
+    instanceLabel : &#x27;in_&#x27; + (new Date()).getTime() + Math.ceil(Math.random() * 10000);
 
   /**
    * Stores the flag if Peers should have any Datachannel connections.
@@ -1299,6 +1299,30 @@ function Skylink(instanceLabel) {
    * @since 0.5.5
    */
   this._enableDebugTrace = false;
+
+  /**
+   * Stores the flag if logs should print DateTime stamp.
+   * @attribute _enableDebugPrintTimeStamp
+   * @type Boolean
+   * @default false
+   * @private
+   * @scoped true
+   * @for Skylink
+   * @since 0.6.18
+   */
+  this._enableDebugPrintTimeStamp = false;
+
+  /**
+   * Stores the flag if logs should print instance label.
+   * @attribute _enableDebugPrintInstanceLabel
+   * @type Boolean
+   * @default false
+   * @private
+   * @scoped true
+   * @for Skylink
+   * @since 0.6.18
+   */
+  this._enableDebugPrintInstanceLabel = false;
 }
     </pre>
 </div>

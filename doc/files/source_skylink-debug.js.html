@@ -196,7 +196,7 @@ window.SkylinkLogs = {
       if (storedLogs.hasOwnProperty(prop) &amp;&amp; storedLogs[prop]) {
         if (instanceLabel &amp;&amp; typeof instanceLabel === &#x27;string&#x27; ? instanceLabel === prop : true) {
           for (var i = 0; i &lt; storedLogs[prop].length; i++) {
-            if (logProp ? storedLogs[prop][i][1] === logProp : true) {
+            if (logProp ? (storedLogs[prop][i][1] || &#x27;&#x27;).toUpperCase() === logProp : true) {
               returnLogs.push(storedLogs[prop][i]);
             }
           }
@@ -241,7 +241,7 @@ window.SkylinkLogs = {
         if (instanceLabel &amp;&amp; typeof instanceLabel === &#x27;string&#x27; ? instanceLabel === prop : true) {
           if (logProp) {
             for (var i = 0; i &lt; storedLogs[prop].length; i++) {
-              if (logProp ? storedLogs[prop][i][1] === logProp : true) {
+              if (logProp ? (storedLogs[prop][i][1] || &#x27;&#x27;).toUpperCase() === logProp : true) {
                 storedLogs[prop].splice(i, 1);
                 i--;
               }
@@ -288,7 +288,7 @@ window.SkylinkLogs = {
       if (storedLogs.hasOwnProperty(prop) &amp;&amp; storedLogs[prop]) {
         if (instanceLabel &amp;&amp; typeof instanceLabel === &#x27;string&#x27; ? instanceLabel === prop : true) {
           for (var i = 0; i &lt; storedLogs[prop].length; i++) {
-            if (logProp ? storedLogs[prop][i][1] === logProp : true) {
+            if (logProp ? (storedLogs[prop][i][1] || &#x27;&#x27;).toUpperCase() === logProp : true) {
               var timestamp = storedLogs[prop][i][0];
               var log = (console[storedLogs[prop][i][1]] !== &#x27;undefined&#x27;) ? storedLogs[prop][i][1] : &#x27;log&#x27;;
               var message = storedLogs[prop][i][2];
@@ -296,9 +296,9 @@ window.SkylinkLogs = {
               var instanceId = storedLogs[prop][i][4];
 
               if (typeof debugObject !== &#x27;undefined&#x27;) {
-                console[log](instanceId, message, debugObject, timestamp);
+                console[log].apply(window.console, [message, debugObject]);
               } else {
-                console[log](instanceId, message, timestamp);
+                console[log].apply(window.console, [message]);
               }
             }
           }
@@ -316,7 +316,9 @@ window.SkylinkLogs = {
  * @since 0.5.5
  */
 Skylink.prototype._log = function(logProp, message, debugObject) {
-  var outputLog = &#x27;SkylinkJS&#x27;;
+  var outputLog = &#x27;&#x27;;
+  var printOutputLog = &#x27;&#x27;;
+  var timestamp = (new Date ());
 
   if (Array.isArray(message)) {
     outputLog += (message[0]) ? &#x27; [&#x27; + message[0] + &#x27;] -&#x27; : &#x27; -&#x27;;
@@ -336,15 +338,14 @@ Skylink.prototype._log = function(logProp, message, debugObject) {
     outputLog += &#x27; - &#x27; + message;
   }
 
+  printOutputLog = (this._enableDebugPrintTimeStamp ? &#x27;[&#x27; + timestamp.toISOString() + &#x27;] &#x27; : &#x27;&#x27;) +
+    &#x27;SkylinkJS&#x27; + (this._enableDebugPrintInstanceLabel ? &#x27; :: &#x27; + this.INSTANCE_LABEL : &#x27;&#x27;) + outputLog;
+  outputLog = &#x27;SkylinkJS&#x27; + outputLog;
+
   if (this._enableDebugMode &amp;&amp; this._enableDebugStack) {
     // store the logs
-    var logItem = [(new Date()), logProp, outputLog, this.INSTANCE_LABEL];
-
-    if (typeof debugObject !== &#x27;undefined&#x27;) {
-      logItem.push(debugObject);
-    }
     storedLogs[this.INSTANCE_LABEL] = storedLogs[this.INSTANCE_LABEL] || [];
-    storedLogs[this.INSTANCE_LABEL].push(logItem);
+    storedLogs[this.INSTANCE_LABEL].push([(new Date()), logProp, outputLog, debugObject || null, this.INSTANCE_LABEL]);
   }
 
   if (this._logLevel &gt;= this.LOG_LEVEL[logProp.toUpperCase()]) {
@@ -356,23 +357,23 @@ Skylink.prototype._log = function(logProp, message, debugObject) {
       if (typeof debugObject !== &#x27;undefined&#x27;) {
         // output if supported
         if (typeof console.trace !== &#x27;undefined&#x27;) {
-          console.trace(&#x27;[&#x27; + logProp.toUpperCase() + &#x27;]&#x27;, outputLog, debugObject);
+          console.trace(&#x27;[&#x27; + logProp.toUpperCase() + &#x27;]&#x27;, printOutputLog, debugObject);
         } else {
-          console[newLogProp](outputLog, debugObject);
+          console[newLogProp](printOutputLog, debugObject);
         }
       } else {
         // output if supported
         if (typeof console.trace !== &#x27;undefined&#x27;) {
-          console.trace(&#x27;[&#x27; + logProp.toUpperCase() + &#x27;]&#x27;, outputLog);
+          console.trace(&#x27;[&#x27; + logProp.toUpperCase() + &#x27;]&#x27;, printOutputLog);
         } else {
-          console[newLogProp](outputLog);
+          console[newLogProp](printOutputLog);
         }
       }
     } else {
       if (typeof debugObject !== &#x27;undefined&#x27;) {
-        console[newLogProp](outputLog, debugObject);
+        console[newLogProp](printOutputLog, debugObject);
       } else {
-        console[newLogProp](outputLog);
+        console[newLogProp](printOutputLog);
       }
     }
   }
@@ -432,6 +433,10 @@ Skylink.prototype.setLogLevel = function(logLevel) {
  *   will fallback to use &lt;code&gt;console.log()&lt;/code&gt; API.&lt;/small&gt;
  * @param {Boolean} [options.storedLogs=false] The flag if SDK should store the &lt;code&gt;console&lt;/code&gt; logs.
  *   &lt;small&gt;This is required to be enabled for &lt;a href=&quot;#prop_SkylinkLogs&quot;&gt;&lt;code&gt;SkylinkLogs&lt;/code&gt; API&lt;/a&gt;.&lt;/small&gt;
+ * @param {Boolean} [options.printInstanceLabel=false] The flag if SDK should print the Skylink object
+ *   instance label with the related log.
+ * @param {Boolean} [options.printTimeStamp=false] The flag if SDK should print the DateTime stamp
+ *   with the related log.
  * @example
  *   // Example 1: Enable both options.storedLogs and options.trace
  *   skylinkDemo.setDebugMode(true);
@@ -447,12 +452,18 @@ Skylink.prototype.setLogLevel = function(logLevel) {
 Skylink.prototype.setDebugMode = function(isDebugMode) {
   if (isDebugMode &amp;&amp; typeof isDebugMode === &#x27;object&#x27;) {
     this._enableDebugTrace = typeof isDebugMode.trace === &#x27;boolean&#x27; ? isDebugMode.trace : false;
-    this._enableDebugStack = typeof isDebugMode.trace === &#x27;boolean&#x27; ? isDebugMode.storedLogs : false;
+    this._enableDebugStack = typeof isDebugMode.storedLogs === &#x27;boolean&#x27; ? isDebugMode.storedLogs : false;
+    this._enableDebugPrintTimeStamp = typeof isDebugMode.printTimeStamp === &#x27;boolean&#x27; ?
+      isDebugMode.printTimeStamp : false;
+    this._enableDebugPrintInstanceLabel = typeof isDebugMode.printInstanceLabel === &#x27;boolean&#x27; ?
+      isDebugMode.printInstanceLabel : false;
     this._enableDebugMode = true;
   } else {
     this._enableDebugMode = isDebugMode === true;
     this._enableDebugTrace = isDebugMode === true;
     this._enableDebugStack = isDebugMode === true;
+    this._enableDebugPrintTimeStamp = false;
+    this._enableDebugPrintInstanceLabel = false;
   }
 };
     </pre>

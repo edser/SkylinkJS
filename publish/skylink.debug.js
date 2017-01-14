@@ -1,4 +1,4 @@
-/*! skylinkjs - v0.6.17 - Fri Jan 13 2017 19:13:01 GMT+0800 (SGT) */
+/*! skylinkjs - v0.6.17 - Sat Jan 14 2017 18:33:31 GMT+0800 (SGT) */
 
 (function(refThis) {
 
@@ -219,7 +219,7 @@ function Skylink(instanceLabel) {
    * @since 0.6.18
    */
   this.INSTANCE_LABEL = typeof instanceLabel === 'string' && instanceLabel && instanceLabel !== '_' ?
-    instanceLabel : (new Date()).getTime() + '_' + (Math.random() * 1000);
+    instanceLabel : 'in_' + (new Date()).getTime() + Math.ceil(Math.random() * 10000);
 
   /**
    * Stores the flag if Peers should have any Datachannel connections.
@@ -1210,6 +1210,30 @@ function Skylink(instanceLabel) {
    * @since 0.5.5
    */
   this._enableDebugTrace = false;
+
+  /**
+   * Stores the flag if logs should print DateTime stamp.
+   * @attribute _enableDebugPrintTimeStamp
+   * @type Boolean
+   * @default false
+   * @private
+   * @scoped true
+   * @for Skylink
+   * @since 0.6.18
+   */
+  this._enableDebugPrintTimeStamp = false;
+
+  /**
+   * Stores the flag if logs should print instance label.
+   * @attribute _enableDebugPrintInstanceLabel
+   * @type Boolean
+   * @default false
+   * @private
+   * @scoped true
+   * @for Skylink
+   * @since 0.6.18
+   */
+  this._enableDebugPrintInstanceLabel = false;
 }
 Skylink.prototype.DATA_CHANNEL_STATE = {
   CONNECTING: 'connecting',
@@ -8756,7 +8780,7 @@ window.SkylinkLogs = {
       if (storedLogs.hasOwnProperty(prop) && storedLogs[prop]) {
         if (instanceLabel && typeof instanceLabel === 'string' ? instanceLabel === prop : true) {
           for (var i = 0; i < storedLogs[prop].length; i++) {
-            if (logProp ? storedLogs[prop][i][1] === logProp : true) {
+            if (logProp ? (storedLogs[prop][i][1] || '').toUpperCase() === logProp : true) {
               returnLogs.push(storedLogs[prop][i]);
             }
           }
@@ -8801,7 +8825,7 @@ window.SkylinkLogs = {
         if (instanceLabel && typeof instanceLabel === 'string' ? instanceLabel === prop : true) {
           if (logProp) {
             for (var i = 0; i < storedLogs[prop].length; i++) {
-              if (logProp ? storedLogs[prop][i][1] === logProp : true) {
+              if (logProp ? (storedLogs[prop][i][1] || '').toUpperCase() === logProp : true) {
                 storedLogs[prop].splice(i, 1);
                 i--;
               }
@@ -8848,7 +8872,7 @@ window.SkylinkLogs = {
       if (storedLogs.hasOwnProperty(prop) && storedLogs[prop]) {
         if (instanceLabel && typeof instanceLabel === 'string' ? instanceLabel === prop : true) {
           for (var i = 0; i < storedLogs[prop].length; i++) {
-            if (logProp ? storedLogs[prop][i][1] === logProp : true) {
+            if (logProp ? (storedLogs[prop][i][1] || '').toUpperCase() === logProp : true) {
               var timestamp = storedLogs[prop][i][0];
               var log = (console[storedLogs[prop][i][1]] !== 'undefined') ? storedLogs[prop][i][1] : 'log';
               var message = storedLogs[prop][i][2];
@@ -8856,9 +8880,9 @@ window.SkylinkLogs = {
               var instanceId = storedLogs[prop][i][4];
 
               if (typeof debugObject !== 'undefined') {
-                console[log](instanceId, message, debugObject, timestamp);
+                console[log].apply(window.console, [message, debugObject]);
               } else {
-                console[log](instanceId, message, timestamp);
+                console[log].apply(window.console, [message]);
               }
             }
           }
@@ -8876,7 +8900,9 @@ window.SkylinkLogs = {
  * @since 0.5.5
  */
 Skylink.prototype._log = function(logProp, message, debugObject) {
-  var outputLog = 'SkylinkJS';
+  var outputLog = '';
+  var printOutputLog = '';
+  var timestamp = (new Date ());
 
   if (Array.isArray(message)) {
     outputLog += (message[0]) ? ' [' + message[0] + '] -' : ' -';
@@ -8896,15 +8922,14 @@ Skylink.prototype._log = function(logProp, message, debugObject) {
     outputLog += ' - ' + message;
   }
 
+  printOutputLog = (this._enableDebugPrintTimeStamp ? '[' + timestamp.toISOString() + '] ' : '') +
+    'SkylinkJS' + (this._enableDebugPrintInstanceLabel ? ' :: ' + this.INSTANCE_LABEL : '') + outputLog;
+  outputLog = 'SkylinkJS' + outputLog;
+
   if (this._enableDebugMode && this._enableDebugStack) {
     // store the logs
-    var logItem = [(new Date()), logProp, outputLog, this.INSTANCE_LABEL];
-
-    if (typeof debugObject !== 'undefined') {
-      logItem.push(debugObject);
-    }
     storedLogs[this.INSTANCE_LABEL] = storedLogs[this.INSTANCE_LABEL] || [];
-    storedLogs[this.INSTANCE_LABEL].push(logItem);
+    storedLogs[this.INSTANCE_LABEL].push([(new Date()), logProp, outputLog, debugObject || null, this.INSTANCE_LABEL]);
   }
 
   if (this._logLevel >= this.LOG_LEVEL[logProp.toUpperCase()]) {
@@ -8916,23 +8941,23 @@ Skylink.prototype._log = function(logProp, message, debugObject) {
       if (typeof debugObject !== 'undefined') {
         // output if supported
         if (typeof console.trace !== 'undefined') {
-          console.trace('[' + logProp.toUpperCase() + ']', outputLog, debugObject);
+          console.trace('[' + logProp.toUpperCase() + ']', printOutputLog, debugObject);
         } else {
-          console[newLogProp](outputLog, debugObject);
+          console[newLogProp](printOutputLog, debugObject);
         }
       } else {
         // output if supported
         if (typeof console.trace !== 'undefined') {
-          console.trace('[' + logProp.toUpperCase() + ']', outputLog);
+          console.trace('[' + logProp.toUpperCase() + ']', printOutputLog);
         } else {
-          console[newLogProp](outputLog);
+          console[newLogProp](printOutputLog);
         }
       }
     } else {
       if (typeof debugObject !== 'undefined') {
-        console[newLogProp](outputLog, debugObject);
+        console[newLogProp](printOutputLog, debugObject);
       } else {
-        console[newLogProp](outputLog);
+        console[newLogProp](printOutputLog);
       }
     }
   }
@@ -8992,6 +9017,10 @@ Skylink.prototype.setLogLevel = function(logLevel) {
  *   will fallback to use <code>console.log()</code> API.</small>
  * @param {Boolean} [options.storedLogs=false] The flag if SDK should store the <code>console</code> logs.
  *   <small>This is required to be enabled for <a href="#prop_SkylinkLogs"><code>SkylinkLogs</code> API</a>.</small>
+ * @param {Boolean} [options.printInstanceLabel=false] The flag if SDK should print the Skylink object
+ *   instance label with the related log.
+ * @param {Boolean} [options.printTimeStamp=false] The flag if SDK should print the DateTime stamp
+ *   with the related log.
  * @example
  *   // Example 1: Enable both options.storedLogs and options.trace
  *   skylinkDemo.setDebugMode(true);
@@ -9007,12 +9036,18 @@ Skylink.prototype.setLogLevel = function(logLevel) {
 Skylink.prototype.setDebugMode = function(isDebugMode) {
   if (isDebugMode && typeof isDebugMode === 'object') {
     this._enableDebugTrace = typeof isDebugMode.trace === 'boolean' ? isDebugMode.trace : false;
-    this._enableDebugStack = typeof isDebugMode.trace === 'boolean' ? isDebugMode.storedLogs : false;
+    this._enableDebugStack = typeof isDebugMode.storedLogs === 'boolean' ? isDebugMode.storedLogs : false;
+    this._enableDebugPrintTimeStamp = typeof isDebugMode.printTimeStamp === 'boolean' ?
+      isDebugMode.printTimeStamp : false;
+    this._enableDebugPrintInstanceLabel = typeof isDebugMode.printInstanceLabel === 'boolean' ?
+      isDebugMode.printInstanceLabel : false;
     this._enableDebugMode = true;
   } else {
     this._enableDebugMode = isDebugMode === true;
     this._enableDebugTrace = isDebugMode === true;
     this._enableDebugStack = isDebugMode === true;
+    this._enableDebugPrintTimeStamp = false;
+    this._enableDebugPrintInstanceLabel = false;
   }
 };
 var _eventsDocs = {

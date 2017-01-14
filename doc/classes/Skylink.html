@@ -1595,6 +1595,24 @@ Before using any Skylink functionalities, you will need to authenticate your App
                     </span>
                   </a>
                 
+                  <a href="#attr__enableDebugPrintInstanceLabel" class="list-group-item code-menu-item  private-attr-item ">
+                    &nbsp;&nbsp;_enableDebugPrintInstanceLabel
+                    <span class="settings">
+                      
+                      
+                      
+                    </span>
+                  </a>
+                
+                  <a href="#attr__enableDebugPrintTimeStamp" class="list-group-item code-menu-item  private-attr-item ">
+                    &nbsp;&nbsp;_enableDebugPrintTimeStamp
+                    <span class="settings">
+                      
+                      
+                      
+                    </span>
+                  </a>
+                
                   <a href="#attr__enableDebugStack" class="list-group-item code-menu-item  private-attr-item ">
                     &nbsp;&nbsp;_enableDebugStack
                     <span class="settings">
@@ -19644,7 +19662,7 @@ with all the Peer IDs provided.</li>
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_skylink-debug.js.html#l330"><code>source&#x2F;skylink-debug.js:330</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_skylink-debug.js.html#l331"><code>source&#x2F;skylink-debug.js:331</code></a>
       </small>
     
 
@@ -19750,6 +19768,40 @@ and <code>options.storedLogs</code> to its boolean value.</li>
                     
                   </li>
                 
+                  <li class="param">
+                    <code class="param-name">printInstanceLabel</code>
+                    <span class="type"><b>{</b>Boolean<b>}</b></span>
+
+                    <span class="label">Optional</span>
+                    
+
+                    <div class="param-description">
+                      <small class="default"><span>DEFAULT: </span><code>false</code></small>
+                      <p>The flag if SDK should print the Skylink object
+  instance label with the related log.</p>
+
+                    </div>
+
+                    
+                  </li>
+                
+                  <li class="param">
+                    <code class="param-name">printTimeStamp</code>
+                    <span class="type"><b>{</b>Boolean<b>}</b></span>
+
+                    <span class="label">Optional</span>
+                    
+
+                    <div class="param-description">
+                      <small class="default"><span>DEFAULT: </span><code>false</code></small>
+                      <p>The flag if SDK should print the DateTime stamp
+  with the related log.</p>
+
+                    </div>
+
+                    
+                  </li>
+                
               </ul>
             
           </li>
@@ -19819,7 +19871,7 @@ and <code>options.storedLogs</code> to its boolean value.</li>
 
     
       <small>
-        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_skylink-debug.js.html#l290"><code>source&#x2F;skylink-debug.js:290</code></a>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_skylink-debug.js.html#l291"><code>source&#x2F;skylink-debug.js:291</code></a>
       </small>
     
 
@@ -23182,6 +23234,172 @@ There can only be 1 recording session at a time in a Room</p>
   <div class="code-item-description">
     <p>Stores the flag if debugging mode is enabled.
 This manipulates the SkylinkLogs interface.</p>
+
+  </div>
+
+  
+    <div class="code-item-section">
+      <h4>Default value:</h4>
+      <code class="prettyprint">false</code>
+    </div>
+  
+
+  
+
+  
+
+  
+
+  
+  <hr>
+</div>
+            
+              <div id="attr__enableDebugPrintInstanceLabel" class="code-item attr item private-attr-item ">
+  <a name="config__enableDebugPrintInstanceLabel"></a> 
+  <h3 class="code-item-name"><code>_enableDebugPrintInstanceLabel</code></h3>
+  <span class="code-item-type"><i>Attribute Type</i>: <b>{</b>Boolean<b>}</b></span>
+
+  <div class="code-item-properties">
+    <div class="properties-wrapper">
+      
+
+      
+
+      
+
+      
+
+      
+        <span class="label label-default" title="This attribute is private.">private</span>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <span class="label label-default" title="This attribute is scoped within the Skylink space.">scoped</span>
+      
+
+      
+
+      
+
+      
+    </div>
+
+    <div class="code-item-information">
+      
+        
+          
+        
+      
+      <!---->
+      
+    </div>
+
+    
+      <small>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l1224"><code>source&#x2F;template&#x2F;header.js:1224</code></a>
+      </small>
+    
+
+    
+      <small><i class="fa">&nbsp;&nbsp;&nbsp;</i>&nbsp;&nbsp;Available since <span class="badge">0.6.18</span></small>
+    
+  </div>
+
+  <div class="code-item-description">
+    <p>Stores the flag if logs should print instance label.</p>
+
+  </div>
+
+  
+    <div class="code-item-section">
+      <h4>Default value:</h4>
+      <code class="prettyprint">false</code>
+    </div>
+  
+
+  
+
+  
+
+  
+
+  
+  <hr>
+</div>
+            
+              <div id="attr__enableDebugPrintTimeStamp" class="code-item attr item private-attr-item ">
+  <a name="config__enableDebugPrintTimeStamp"></a> 
+  <h3 class="code-item-name"><code>_enableDebugPrintTimeStamp</code></h3>
+  <span class="code-item-type"><i>Attribute Type</i>: <b>{</b>Boolean<b>}</b></span>
+
+  <div class="code-item-properties">
+    <div class="properties-wrapper">
+      
+
+      
+
+      
+
+      
+
+      
+        <span class="label label-default" title="This attribute is private.">private</span>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <span class="label label-default" title="This attribute is scoped within the Skylink space.">scoped</span>
+      
+
+      
+
+      
+
+      
+    </div>
+
+    <div class="code-item-information">
+      
+        
+          
+        
+      
+      <!---->
+      
+    </div>
+
+    
+      <small>
+        <i class="fa fa-chevron-right"></i>&nbsp;&nbsp;Defined in: <a href="../files/source_template_header.js.html#l1212"><code>source&#x2F;template&#x2F;header.js:1212</code></a>
+      </small>
+    
+
+    
+      <small><i class="fa">&nbsp;&nbsp;&nbsp;</i>&nbsp;&nbsp;Available since <span class="badge">0.6.18</span></small>
+    
+  </div>
+
+  <div class="code-item-description">
+    <p>Stores the flag if logs should print DateTime stamp.</p>
 
   </div>
 
