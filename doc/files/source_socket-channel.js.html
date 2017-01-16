@@ -214,13 +214,13 @@ Skylink.prototype._sendChannelMessage = function(message) {
     self._log(&#x27;debug&#x27;, [null, &#x27;Socket&#x27;, null, &#x27;Starting queue timeout&#x27;]);
 
     self._socketMessageTimeout = setTimeout(function () {
-      if (((new Date ()).getTime() - self._timestamp.socketMessage) &lt;= interval) {
+      if ((Date.now() - self._timestamp.socketMessage) &lt;= interval) {
         self._log(&#x27;debug&#x27;, [null, &#x27;Socket&#x27;, null, &#x27;Restarting queue timeout&#x27;]);
         setQueueFn();
         return;
       }
       startSendingQueuedMessageFn();
-    }, interval - ((new Date ()).getTime() - self._timestamp.socketMessage));
+    }, interval - (Date.now() - self._timestamp.socketMessage));
   };
 
   var triggerEventFn = function (eventMessage) {
@@ -296,7 +296,7 @@ Skylink.prototype._sendChannelMessage = function(message) {
       self._log(&#x27;debug&#x27;, [null, &#x27;Socket&#x27;, groupMessage.type, &#x27;Sending queued grouped message (max: 16 per group) -&gt;&#x27;], groupMessage);
 
       self._socket.send(JSON.stringify(groupMessage));
-      self._timestamp.socketMessage = (new Date()).getTime();
+      self._timestamp.socketMessage = Date.now();
 
       for (var j = 0; j &lt; groupMessageList.length; j++) {
         setStampFn(groupMessageList[j]);
@@ -317,7 +317,7 @@ Skylink.prototype._sendChannelMessage = function(message) {
   };
 
   if (self._groupMessageList.indexOf(message.type) &gt; -1) {
-    if (!(self._timestamp.socketMessage &amp;&amp; ((new Date ()).getTime() - self._timestamp.socketMessage) &lt;= interval)) {
+    if (!(self._timestamp.socketMessage &amp;&amp; (Date.now() - self._timestamp.socketMessage) &lt;= interval)) {
       if (!checkStampFn(message)) {
         self._log(&#x27;warn&#x27;, [null, &#x27;Socket&#x27;, message.type, &#x27;Dropping of outdated status message -&gt;&#x27;], message);
         return;
@@ -330,7 +330,7 @@ Skylink.prototype._sendChannelMessage = function(message) {
       setStampFn(message);
       triggerEventFn(message);
 
-      self._timestamp.socketMessage = (new Date()).getTime();
+      self._timestamp.socketMessage = Date.now();
 
     } else {
       self._log(&#x27;warn&#x27;, [null, &#x27;Socket&#x27;, message.type, &#x27;Queueing socket message to prevent message drop -&gt;&#x27;], message);
@@ -367,6 +367,7 @@ Skylink.prototype._createSocket = function (type) {
   };
   var ports = self._socketPorts[self._signalingServerProtocol];
   var fallbackType = null;
+  var attempts = 0;
 
   // just beginning
   if (self._signalingServerPort === null) {
@@ -434,6 +435,7 @@ Skylink.prototype._createSocket = function (type) {
   self._socket = io.connect(url, options);
 
   self._socket.on(&#x27;reconnect_attempt&#x27;, function (attempt) {
+    attempts++;
     self._socketSession.attempts++;
     self._trigger(&#x27;channelRetry&#x27;, fallbackType, self._socketSession.attempts, clone(self._socketSession));
   });
@@ -446,13 +448,23 @@ Skylink.prototype._createSocket = function (type) {
       self._trigger(&#x27;socketError&#x27;, self.SOCKET_ERROR.RECONNECTION_FAILED, new Error(&#x27;Failed reconnection with transport &quot;&#x27; +
         type + &#x27;&quot; and port &#x27; + self._signalingServerPort + &#x27;.&#x27;), fallbackType, clone(self._socketSession));
     }
-
+      
     if (self._socketSession.finalAttempts &lt; 4) {
       self._createSocket(type);
     } else {
       self._trigger(&#x27;socketError&#x27;, self.SOCKET_ERROR.RECONNECTION_ABORTED, new Error(&#x27;Reconnection aborted as &#x27; +
         &#x27;there no more available ports, transports and final attempts left.&#x27;), fallbackType, clone(self._socketSession));
     }
+
+    self._trackLog(&#x27;socket_connection&#x27;, {
+      state: &#x27;reconnect_failed&#x27;,
+      timestamp: (new Date ()),
+      options: self._socketSession.socketOptions,
+      server: self._signalingServer,
+      port: self._signalingServerPort,
+      protocol: self._signalingServerProtocol,
+      attempts: attempts
+    });
   });
 
   self._socket.on(&#x27;connect&#x27;, function () {
@@ -460,6 +472,15 @@ Skylink.prototype._createSocket = function (type) {
       self._log(&#x27;log&#x27;, [null, &#x27;Socket&#x27;, null, &#x27;Channel opened&#x27;]);
       self._channelOpen = true;
       self._trigger(&#x27;channelOpen&#x27;, clone(self._socketSession));
+      self._trackLog(&#x27;socket_connection&#x27;, {
+        state: &#x27;connect&#x27;,
+        timestamp: (new Date ()),
+        options: self._socketSession.socketOptions,
+        server: self._signalingServer,
+        port: self._signalingServerPort,
+        protocol: self._signalingServerProtocol,
+        attempts: attempts
+      });
     }
   });
 
@@ -468,12 +489,33 @@ Skylink.prototype._createSocket = function (type) {
       self._log(&#x27;log&#x27;, [null, &#x27;Socket&#x27;, null, &#x27;Channel opened&#x27;]);
       self._channelOpen = true;
       self._trigger(&#x27;channelOpen&#x27;, clone(self._socketSession));
+      self._trackLog(&#x27;socket_connection&#x27;, {
+        state: &#x27;reconnect&#x27;,
+        timestamp: (new Date ()),
+        options: self._socketSession.socketOptions,
+        server: self._signalingServer,
+        port: self._signalingServerPort,
+        protocol: self._signalingServerProtocol,
+        attempts: attempts
+      });
     }
   });
 
   self._socket.on(&#x27;error&#x27;, function(error) {
     self._log(&#x27;error&#x27;, [null, &#x27;Socket&#x27;, null, &#x27;Exception occurred -&gt;&#x27;], error);
     self._trigger(&#x27;channelError&#x27;, error, clone(self._socketSession));
+
+    if (error.message &amp;&amp; error.message.toLowerCase().indexOf(&#x27;xhr post error&#x27;) &gt; -1) {
+      self._trackLog(&#x27;socket_connection&#x27;, {
+        state: &#x27;xhr_error&#x27;,
+        timestamp: (new Date ()),
+        options: self._socketSession.socketOptions,
+        server: self._signalingServer,
+        port: self._signalingServerPort,
+        protocol: self._signalingServerProtocol,
+        attempts: attempts
+      });
+    }
   });
 
   self._socket.on(&#x27;disconnect&#x27;, function() {

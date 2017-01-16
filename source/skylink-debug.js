@@ -251,11 +251,22 @@ Skylink.prototype._log = function(logProp, message, debugObject) {
     'SkylinkJS' + (this._enableDebugPrintInstanceLabel ? ' :: ' + this.INSTANCE_LABEL : '') + outputLog;
   outputLog = 'SkylinkJS' + outputLog;
 
-  if (this._enableDebugMode && this._enableDebugStack) {
+  var logItem = [(new Date()), logProp, outputLog, debugObject || null, this.INSTANCE_LABEL];
+
+  if (this._enableDebugMode) {
     // store the logs
-    storedLogs[this.INSTANCE_LABEL] = storedLogs[this.INSTANCE_LABEL] || [];
-    storedLogs[this.INSTANCE_LABEL].push([(new Date()), logProp, outputLog, debugObject || null, this.INSTANCE_LABEL]);
+    if (this._enableDebugStack) {
+      storedLogs[this.INSTANCE_LABEL] = storedLogs[this.INSTANCE_LABEL] || [];
+      storedLogs[this.INSTANCE_LABEL].push(logItem);
+    }
   }
+
+  this._trackLog('logs', {
+    level: logProp,
+    message: outputLog,
+    object: debugObject,
+    timestamp: logItem[0].getTime()
+  });
 
   if (this._logLevel >= this.LOG_LEVEL[logProp.toUpperCase()]) {
     // Fallback to log if failure
@@ -286,6 +297,134 @@ Skylink.prototype._log = function(logProp, message, debugObject) {
       }
     }
   }
+};
+
+/**
+ * Function that posts logs and stats to endpoint URL.
+ * @method _trackLog
+ * @private
+ * @for Skylink
+ * @since 0.6.18
+ */
+Skylink.prototype._trackLog = function (streamGroup, data) {
+  var self = this;
+  var eventItem = {
+    message: {
+      appid: self._appKey || null,
+      rid: (self._room ? self._room.id : null) || null,
+      mid: (self._user ? self._user.sid : null) || null,
+      agent: {
+        name: window.webrtcDetectedBrowser,
+        version: window.webrtcDetectedVersion,
+        platform: window.navigator.platform,
+        pluginVersion: AdapterJS.WebRTCPlugin.plugin ? AdapterJS.WebRTCPlugin.plugin.VERSION : null
+      },
+      sdkVersion: self.VERSION
+    },
+    timestamp: data.timestamp || Date.now()
+  };
+
+  // Send to user's end-server
+  if (streamGroup === 'logs' && self._enableDebugMode && self._loggingConfiguration.logsCustom &&
+    (self._loggingConfiguration.logsCustom.logLevel ?
+    self._loggingConfiguration.logsCustom.logLevel >= self.LOG_LEVEL[logProp.toUpperCase()] : true)) {
+    var xhr = new XMLHttpRequest();
+    var logItem = [(new Date(data.timestamp)), data.logLevel, data.logMessage, data.logObject, self.INSTANCE_LABEL];
+
+    xhr.setContentType = function (contentType) {
+      xhr.setRequestHeader('Content-type', contentType);
+    };
+
+    if (['object', 'function'].indexOf(typeof window.XDomainRequest) > -1) {
+      xhr = new XDomainRequest();
+      xhr.setContentType = function (contentType) {
+        xhr.contentType = contentType;
+      };
+    }
+
+    xhr.onload = function () {
+      if (typeof self._loggingConfiguration.logsCustom.callback === 'function') {
+        self._loggingConfiguration.logsCustom.callback(null, logItem);
+      }
+    };
+
+    xhr.onabort = function () {
+      if (typeof self._loggingConfiguration.logsCustom.callback === 'function') {
+        self._loggingConfiguration.logsCustom.callback({
+          error: new Error('Failed posting due to abort errors.'),
+          log: logItem
+        }, null);
+      }
+    };
+
+    xhr.onerror = function () {
+      if (typeof self._loggingConfiguration.logsCustom.callback === 'function') {
+        self._loggingConfiguration.logsCustom.callback({
+          error: new Error('Failed posting due to timeout errors.'),
+          log: logItem
+        }, null);
+      }
+    };
+
+    xhr.open('POST', self._loggingConfiguration.logsCustom.url, true);
+    xhr.setContentType('application/json;charset=UTF-8');
+    xhr.send(JSON.stringify({
+      log: logItem,
+      appKey: self._appKey || null,
+      room: self._selectedRoom || null,
+      peerId: (self._user ? self._user.sid : null) || null,
+      agent: window.webrtcDetectedBrowser,
+      version: window.webrtcDetectedVersion,
+      os: window.navigator.platform
+    }));
+  }
+
+  if (!cloudwatch) {
+    return;
+  }
+
+  for (var prop in data) {
+    if (data.hasOwnProperty(prop) && prop !== 'timestamp') {
+      eventItem.message[prop] = data[prop];
+    }
+  }
+
+  eventItem.message = JSON.stringify(eventItem.message);
+
+  console.info(streamGroup, eventItem);
+
+  /*self._loggingConfiguration.nextToken[streamGroup].queue.push(eventItem);
+
+  if (!self._loggingConfiguration.nextToken[streamGroup].processing) {
+    var processTask = function () {
+      if (self._loggingConfiguration.nextToken[streamGroup].queue.length === 0) {
+        return;
+      }
+
+      var items = self._loggingConfiguration.nextToken[streamGroup].queue;
+      var params = {
+        logEvents: items,
+        logGroupName: 'js-sdk',
+        logStreamName: 'test'
+      };
+
+      if (self._loggingConfiguration.nextToken[streamGroup].token) {
+        params.sequenceToken = self._loggingConfiguration.nextToken[streamGroup].token;
+      }
+
+      self._loggingConfiguration.nextToken[streamGroup].queue = [];
+
+      cloudwatch.putLogEvents(params, function (err, success) {
+        if (err) {
+          console.info(err);
+          return;
+        }
+        self._loggingConfiguration.nextToken[streamGroup].token = success.nextSequenceToken;
+        processTask();
+      });
+    };
+    processTask();
+  }*/
 };
 
 /**
@@ -346,6 +485,36 @@ Skylink.prototype.setLogLevel = function(logLevel) {
  *   instance label with the related log.
  * @param {Boolean} [options.printTimeStamp=false] The flag if SDK should print the DateTime stamp
  *   with the related log.
+ * @param {JSON} [options.tracking] The tracking logs and connection status settings.
+ * @param {Boolean} [options.tracking.logs=true] The flag if SDK should track logs for remote debugging purposes.
+ * @param {Boolean} [options.tracking.connection=true] The flag if SDK should track connection statuses to
+ *   improve platform connectivity.
+ * @param {JSON} [options.tracking.logsCustom] The custom logs tracking settings.
+ * @param {String} options.tracking.logsCustom.url The server backend URL to post logs to in JSON (UTF-8) format.
+ *   <blockquote class="details"><h5>Posted Object Format:</h5><ul>
+ *   <li><code>appKey</code>: The Application ID. <small>Defined as <code>null</code> when it does not exists.</small></li>
+ *   <li><code>room</code>: The current Room name. <small>Defined as <code>null</code> when it does not exists.</small></li>
+ *   <li><code>peerId</code>: The current User Peer ID. <small>Defined as <code>null</code> when it does not exists.</small></li>
+ *   <li><code>agent</code>: The User browser agent.</li>
+ *   <li><code>version</code>: The User browser version.</li>
+ *   <li><code>os</code>: The User platform name.</li>
+ *   <li><code>log</code>: The log item. <small>Object signature matches an item in returned array in
+ *   <a href="#property_SkylinkLogs.getLogs"><code>SkylinkLogs.getLogs()</code> method</a>.</small></li></ul></blockquote>
+ * @param {Number} [options.tracking.logsCustom.logLevel] The specific log level of logs to post.
+ * - When not provided or that the level does not exists, it will post all logs of all levels.
+ *  [Rel: Skylink.LOG_LEVEL]
+ * @param {Function} [options.tracking.logsCustom.callback] The callback function fired when log post has completed.
+ *   <small>Function parameters signature is <code>function (error, success)</code></small>
+ * @param {JSON} options.tracking.logsCustom.callback.error The error result in request.
+ *   <small>Defined as <code>null</code> when there are no errors in request</small>
+ * @param {Error} options.tracking.logsCustom.callback.error.error The log posting error.
+ * @param {Array} options.tracking.logsCustom.callback.error.log The log item that failed to post.
+ *   <small>Object signature matches an item in returned array in <a href="#property_SkylinkLogs.getLogs">
+ *   <code>SkylinkLogs.getLogs()</code> method</a>.</small>
+ * @param {Array} options.tracking.logsCustom.callback.success The success result in request.
+ *   <small>Defined as <code>null</code> when there are errors in request</small>
+ *   <small>Object signature matches an item in returned array in <a href="#property_SkylinkLogs.getLogs">
+ *   <code>SkylinkLogs.getLogs()</code> method</a>.</small>
  * @example
  *   // Example 1: Enable both options.storedLogs and options.trace
  *   skylinkDemo.setDebugMode(true);
@@ -367,11 +536,41 @@ Skylink.prototype.setDebugMode = function(isDebugMode) {
     this._enableDebugPrintInstanceLabel = typeof isDebugMode.printInstanceLabel === 'boolean' ?
       isDebugMode.printInstanceLabel : false;
     this._enableDebugMode = true;
+
+    if (isDebugMode.tracking && typeof isDebugMode.tracking === 'object') {
+      this._loggingConfiguration.logs = typeof isDebugMode.tracking.logs === 'boolean' ?
+        isDebugMode.tracking.logs : true;
+      this._loggingConfiguration.connection = typeof isDebugMode.tracking.connection === 'boolean' ?
+        isDebugMode.tracking.connection : true;
+
+      if (isDebugMode.tracking.logsCustom && typeof isDebugMode.tracking.logsCustom === 'object' &&
+        isDebugMode.tracking.logsCustom.url && typeof isDebugMode.tracking.logsCustom.url === 'string') {
+        this._loggingConfiguration.logsCustom = {
+          url: isDebugMode.tracking.logsCustom.url,
+          logLevel: null,
+          callback: typeof isDebugMode.tracking.logsCustom.callback === 'function' ?
+            isDebugMode.tracking.logsCustom.callback : null
+        };
+
+        if (typeof isDebugMode.tracking.logsCustom.logLevel === 'number') {
+          for (var prop in this.LOG_LEVEL) {
+            if (this.LOG_LEVEL.hasOwnProperty(prop) && this.LOG_LEVEL[prop] &&
+              this.LOG_LEVEL[prop] === isDebugMode.tracking.logsCustom.logLevel) {
+              this._loggingConfiguration.logsCustom.logLevel = isDebugMode.tracking.logsCustom.logLevel;
+            }
+          }
+        }
+      }
+    }
+
   } else {
     this._enableDebugMode = isDebugMode === true;
     this._enableDebugTrace = isDebugMode === true;
     this._enableDebugStack = isDebugMode === true;
     this._enableDebugPrintTimeStamp = false;
     this._enableDebugPrintInstanceLabel = false;
+    this._loggingConfiguration.connection = true;
+    this._loggingConfiguration.logs = true;
+    this._loggingConfiguration.customLogsUrl = null;
   }
 };

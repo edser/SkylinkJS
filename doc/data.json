@@ -182,7 +182,7 @@
             "plugin_for": [],
             "extension_for": [],
             "file": "source/template/header.js",
-            "line": 132,
+            "line": 209,
             "description": "<h2>Prerequisites on using Skylink</h2>\nBefore using any Skylink functionalities, you will need to authenticate your App Key using\n  the <a href=\"#method_init\">`init()` method</a>.\n\nTo manage or create App Keys, you may access the [Skylink Developer Portal here](https://console.temasys.io).\n\nTo view the list of supported browsers, visit [the list here](\nhttps://github.com/Temasys/SkylinkJS#supported-browsers).\n\nHere are some articles to help you get started:\n- [How to setup a simple video call](https://temasys.com.sg/getting-started-with-webrtc-and-skylinkjs/)\n- [How to setup screensharing](https://temasys.com.sg/screensharing-with-skylinkjs/)\n- [How to create a chatroom like feature](https://temasys.com.sg/building-a-simple-peer-to-peer-webrtc-chat/)\n\nHere are some demos you may use to aid your development:\n- Getaroom.io [[Demo](https://getaroom.io) / [Source code](https://github.com/Temasys/getaroom)]\n- Creating a component [[Link](https://github.com/Temasys/skylink-call-button)]\n\nYou may see the example below in the <a href=\"#\">Constructor tab</a> to have a general idea how event subscription\n  and the ordering of <a href=\"#method_init\"><code>init()</code></a> and\n  <a href=\"#method_joinRoom\"><code>joinRoom()</code></a> methods should be called.\n\nIf you have any issues, you may find answers to your questions in the FAQ section on [our support portal](\nhttp://support.temasys.io), asks questions, request features or raise bug tickets as well.\n\nIf you would like to contribute to our Temasys SkylinkJS codebase, see [the contributing README](\nhttps://github.com/Temasys/SkylinkJS/blob/master/CONTRIBUTING.md).\n\n[See License (Apache 2.0)](https://github.com/Temasys/SkylinkJS/blob/master/LICENSE)",
             "params": [
                 {
@@ -214,19 +214,19 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 69,
+            "line": 109,
             "description": "Polyfill for addEventListener() from Eirik Backer @eirikbacker (github.com).\nFrom https://gist.github.com/eirikbacker/2864711\nMIT Licensed",
             "class": "Skylink"
         },
         {
             "file": "source/template/header.js",
-            "line": 103,
+            "line": 169,
             "description": "Global function that clones an object.",
             "class": "Skylink"
         },
         {
             "file": "source/template/header.js",
-            "line": 211,
+            "line": 288,
             "description": "The Skylink object instance label ID.",
             "itemtype": "attribute",
             "name": "INSTANCE_LABEL",
@@ -237,7 +237,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 222,
+            "line": 299,
             "description": "Stores the flag if Peers should have any Datachannel connections.",
             "itemtype": "attribute",
             "name": "_enableDataChannel",
@@ -250,7 +250,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 233,
+            "line": 310,
             "description": "Stores the list of Peer Datachannel connections.",
             "itemtype": "attribute",
             "name": "_dataChannels",
@@ -276,7 +276,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 246,
+            "line": 323,
             "description": "Stores the list of data transfers from / to Peers.",
             "itemtype": "attribute",
             "name": "_dataTransfers",
@@ -295,7 +295,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 257,
+            "line": 334,
             "description": "Stores the list of buffered ICE candidates that is received before\n  remote session description is received and set.",
             "itemtype": "attribute",
             "name": "_peerCandidatesQueue",
@@ -321,7 +321,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 270,
+            "line": 347,
             "description": "Stores the list of ICE candidates received before signaling end.",
             "itemtype": "attribute",
             "name": "_peerEndOfCandidatesCounter",
@@ -333,7 +333,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 280,
+            "line": 357,
             "description": "Stores the list of Peer connection ICE candidates.",
             "itemtype": "attribute",
             "name": "_gatheredCandidates",
@@ -364,7 +364,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 293,
+            "line": 370,
             "description": "Stores the flags for ICE candidate filtering.",
             "itemtype": "attribute",
             "name": "_filterCandidatesType",
@@ -376,7 +376,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 307,
+            "line": 384,
             "description": "Stores the flag that indicates if Peer connections should trickle ICE.",
             "itemtype": "attribute",
             "name": "_enableIceTrickle",
@@ -389,7 +389,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 318,
+            "line": 395,
             "description": "Stores the flag that indicates if STUN ICE servers should be used when constructing Peer connection.",
             "itemtype": "attribute",
             "name": "_enableSTUN",
@@ -402,7 +402,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 329,
+            "line": 406,
             "description": "Stores the flag that indicates if TURN ICE servers should be used when constructing Peer connection.",
             "itemtype": "attribute",
             "name": "_enableTURN",
@@ -415,7 +415,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 340,
+            "line": 417,
             "description": "Stores the flag that indicates if public STUN ICE servers should be used when constructing Peer connection.",
             "itemtype": "attribute",
             "name": "_usePublicSTUN",
@@ -428,7 +428,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 351,
+            "line": 428,
             "description": "Stores the global number of Peer connection retries that would increase the wait-for-response timeout\n  for the Peer connection health timer.",
             "itemtype": "attribute",
             "name": "_retryCounters",
@@ -440,7 +440,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 362,
+            "line": 439,
             "description": "Stores the list of the Peer connections.",
             "itemtype": "attribute",
             "name": "_peerConnections",
@@ -459,7 +459,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 373,
+            "line": 450,
             "description": "Stores the list of the Peer connections stats.",
             "itemtype": "attribute",
             "name": "_peerStats",
@@ -478,7 +478,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 384,
+            "line": 461,
             "description": "The flag if User is using plugin.",
             "itemtype": "attribute",
             "name": "_isUsingPlugin",
@@ -490,7 +490,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 394,
+            "line": 471,
             "description": "Stores the option for the TURN protocols to use.\nThis should configure the TURN ICE servers urls <code>?transport=protocol</code> flag.",
             "itemtype": "attribute",
             "name": "_TURNTransport",
@@ -504,7 +504,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 407,
+            "line": 484,
             "description": "Stores the list of Peers session information.",
             "itemtype": "attribute",
             "name": "_peerInformations",
@@ -545,7 +545,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 422,
+            "line": 499,
             "description": "Stores the Signaling user credentials from the API response required for connecting to the Signaling server.",
             "itemtype": "attribute",
             "name": "_user",
@@ -579,7 +579,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 436,
+            "line": 513,
             "description": "Stores the User custom data.\nBy default, if no custom user data is set, it is an empty string <code>\"\"</code>.",
             "itemtype": "attribute",
             "name": "_userData",
@@ -592,7 +592,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 448,
+            "line": 525,
             "description": "Stores the User connection priority weight.\nIf Peer has a higher connection weight, it will do the offer from its Peer connection first.",
             "itemtype": "attribute",
             "name": "_peerPriorityWeight",
@@ -604,7 +604,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 459,
+            "line": 536,
             "description": "Stores the flag that indicates if \"autoIntroduce\" is enabled.\nIf enabled, the Peers connecting the same Room will receive each others \"enter\" message ping.",
             "itemtype": "attribute",
             "name": "_autoIntroduce",
@@ -617,7 +617,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 471,
+            "line": 548,
             "description": "Stores the flag that indicates if \"isPrivileged\" is enabled.\nIf enabled, the User has Privileged features which has the ability to retrieve the list of\n  Peers in the same App space with <code>getPeers()</code> method\n  and introduce Peers to each other with <code>introducePeer</code> method.",
             "itemtype": "attribute",
             "name": "isPrivileged",
@@ -630,7 +630,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 485,
+            "line": 562,
             "description": "Stores the list of Peers retrieved from the Signaling from <code>getPeers()</code> method.",
             "itemtype": "attribute",
             "name": "_peerList",
@@ -642,7 +642,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 495,
+            "line": 572,
             "description": "Stores the current Room name that User is connected to.",
             "itemtype": "attribute",
             "name": "_selectedRoom",
@@ -654,7 +654,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 505,
+            "line": 582,
             "description": "Stores the flag that indicates if Room is locked.",
             "itemtype": "attribute",
             "name": "_roomLocked",
@@ -666,7 +666,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 515,
+            "line": 592,
             "description": "Stores the flag that indicates if User is connected to the Room.",
             "itemtype": "attribute",
             "name": "_inRoom",
@@ -678,7 +678,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 525,
+            "line": 602,
             "description": "Stores the list of <code>on()</code> event handlers.",
             "itemtype": "attribute",
             "name": "_EVENTS",
@@ -704,7 +704,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 537,
+            "line": 614,
             "description": "Stores the list of <code>once()</code> event handlers.\nThese events are only triggered once.",
             "itemtype": "attribute",
             "name": "_onceEvents",
@@ -730,7 +730,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 550,
+            "line": 627,
             "description": "Stores the timestamps data used for throttling.",
             "itemtype": "attribute",
             "name": "_timestamp",
@@ -742,7 +742,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 566,
+            "line": 643,
             "description": "Stores the throttling interval timeout.",
             "itemtype": "attribute",
             "name": "_throttlingTimeouts",
@@ -754,7 +754,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 580,
+            "line": 657,
             "description": "Stores the flag if throttling should throw when called less than the interval timeout.",
             "itemtype": "attribute",
             "name": "_throttlingShouldThrowError",
@@ -766,7 +766,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 590,
+            "line": 667,
             "description": "Stores the current socket connection information.",
             "itemtype": "attribute",
             "name": "_socketSession",
@@ -778,7 +778,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 600,
+            "line": 677,
             "description": "Stores the queued socket messages.\nThis is to prevent too many sent over less than a second interval that might cause dropped messages\n  or jams to the Signaling connection.",
             "itemtype": "attribute",
             "name": "_socketMessageQueue",
@@ -790,7 +790,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 612,
+            "line": 689,
             "description": "Stores the <code>setTimeout</code> to sent queued socket messages.",
             "itemtype": "attribute",
             "name": "_socketMessageTimeout",
@@ -802,7 +802,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 622,
+            "line": 699,
             "description": "Stores the list of socket ports to use to connect to the Signaling.\nThese ports are defined by default which is commonly used currently by the Signaling.\nShould re-evaluate this sometime.",
             "itemtype": "attribute",
             "name": "_socketPorts",
@@ -826,7 +826,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 639,
+            "line": 716,
             "description": "Stores the flag that indicates if socket connection to the Signaling has opened.",
             "itemtype": "attribute",
             "name": "_channelOpen",
@@ -838,7 +838,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 649,
+            "line": 726,
             "description": "Stores the Signaling server url.",
             "itemtype": "attribute",
             "name": "_signalingServer",
@@ -850,7 +850,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 659,
+            "line": 736,
             "description": "Stores the Signaling server protocol.",
             "itemtype": "attribute",
             "name": "_signalingServerProtocol",
@@ -862,7 +862,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 669,
+            "line": 746,
             "description": "Stores the Signaling server port.",
             "itemtype": "attribute",
             "name": "_signalingServerPort",
@@ -874,7 +874,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 679,
+            "line": 756,
             "description": "Stores the Signaling socket connection object.",
             "itemtype": "attribute",
             "name": "_socket",
@@ -886,7 +886,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 689,
+            "line": 766,
             "description": "Stores the socket connection timeout when establishing connection to the Signaling.",
             "itemtype": "attribute",
             "name": "_socketTimeout",
@@ -898,7 +898,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 699,
+            "line": 776,
             "description": "Stores the flag that indicates if XDomainRequest is used for IE 8/9.",
             "itemtype": "attribute",
             "name": "_socketUseXDR",
@@ -910,7 +910,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 709,
+            "line": 786,
             "description": "Stores the value if ICE restart is supported.",
             "itemtype": "attribute",
             "name": "_enableIceRestart",
@@ -922,7 +922,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 720,
+            "line": 797,
             "description": "Stores the flag if MCU environment is enabled.",
             "itemtype": "attribute",
             "name": "_hasMCU",
@@ -934,7 +934,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 730,
+            "line": 807,
             "description": "Stores the flag if HTTPS connections should be enforced when connecting to\n  the API or Signaling server if App is accessing from HTTP domain.\nHTTPS connections are enforced if App is accessing from HTTPS domains.",
             "itemtype": "attribute",
             "name": "_forceSSL",
@@ -947,7 +947,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 743,
+            "line": 820,
             "description": "Stores the flag if TURNS connections should be enforced when connecting to\n  the TURN server if App is accessing from HTTP domain.\nTURNS connections are enforced if App is accessing from HTTPS domains.",
             "itemtype": "attribute",
             "name": "_forceTURNSSL",
@@ -960,7 +960,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 756,
+            "line": 833,
             "description": "Stores the flag if TURN connections should be enforced when connecting to Peers.\nThis filters all non \"relay\" ICE candidates to enforce connections via the TURN server.",
             "itemtype": "attribute",
             "name": "_forceTURN",
@@ -973,7 +973,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 768,
+            "line": 845,
             "description": "Stores the construct API REST path to obtain Room credentials.",
             "itemtype": "attribute",
             "name": "_path",
@@ -985,7 +985,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 778,
+            "line": 855,
             "description": "Stores the API server url.",
             "itemtype": "attribute",
             "name": "_roomServer",
@@ -997,7 +997,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 788,
+            "line": 865,
             "description": "Stores the App Key configured in <code>init()</code>.",
             "itemtype": "attribute",
             "name": "_appKey",
@@ -1009,7 +1009,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 798,
+            "line": 875,
             "description": "Stores the default Room name to connect to when <code>joinRoom()</code> does not provide a Room name.",
             "itemtype": "attribute",
             "name": "_defaultRoom",
@@ -1021,7 +1021,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 808,
+            "line": 885,
             "description": "Stores the <code>init()</code> credentials starting DateTime stamp in ISO 8601.",
             "itemtype": "attribute",
             "name": "_roomStart",
@@ -1033,7 +1033,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 818,
+            "line": 895,
             "description": "Stores the <code>init()</code> credentials duration counted in hours.",
             "itemtype": "attribute",
             "name": "_roomDuration",
@@ -1045,7 +1045,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 828,
+            "line": 905,
             "description": "Stores the <code>init()</code> generated credentials string.",
             "itemtype": "attribute",
             "name": "_roomCredentials",
@@ -1057,7 +1057,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 838,
+            "line": 915,
             "description": "Stores the current <code>init()</code> readyState.",
             "itemtype": "attribute",
             "name": "_readyState",
@@ -1069,7 +1069,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 848,
+            "line": 925,
             "description": "Stores the \"cid\" used for <code>joinRoom()</code>.",
             "itemtype": "attribute",
             "name": "_key",
@@ -1081,7 +1081,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 858,
+            "line": 935,
             "description": "Stores the \"apiOwner\" used for <code>joinRoom()</code>.",
             "itemtype": "attribute",
             "name": "_appKeyOwner",
@@ -1093,7 +1093,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 868,
+            "line": 945,
             "description": "Stores the Room credentials information for <code>joinRoom()</code>.",
             "itemtype": "attribute",
             "name": "_room",
@@ -1132,7 +1132,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 884,
+            "line": 961,
             "description": "Stores the list of Peer messages timestamp.",
             "itemtype": "attribute",
             "name": "_peerMessagesStamps",
@@ -1144,7 +1144,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 894,
+            "line": 971,
             "description": "Stores the flag that indicates if <code>getUserMedia()</code> should fallback to retrieve\n  audio only Stream after retrieval of audio and video Stream had failed.",
             "itemtype": "attribute",
             "name": "_audioFallback",
@@ -1157,7 +1157,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 906,
+            "line": 983,
             "description": "Stores the Streams.",
             "itemtype": "attribute",
             "name": "_streams",
@@ -1169,7 +1169,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 919,
+            "line": 996,
             "description": "Stores the default camera Stream settings.",
             "itemtype": "attribute",
             "name": "_streamsDefaultSettings",
@@ -1181,7 +1181,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 945,
+            "line": 1022,
             "description": "Stores all the Stream required muted settings.",
             "itemtype": "attribute",
             "name": "_streamsMutedSettings",
@@ -1193,7 +1193,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 958,
+            "line": 1035,
             "description": "Stores all the Stream sending maximum bandwidth settings.",
             "itemtype": "attribute",
             "name": "_streamsBandwidthSettings",
@@ -1205,7 +1205,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 971,
+            "line": 1048,
             "description": "Stores all the Stream stopped callbacks.",
             "itemtype": "attribute",
             "name": "_streamsStoppedCbs",
@@ -1217,7 +1217,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 981,
+            "line": 1058,
             "description": "Stores all the Stream sessions.\nDefined as <code>false</code> when Stream has already ended.",
             "itemtype": "attribute",
             "name": "_streamsSession",
@@ -1229,7 +1229,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 992,
+            "line": 1069,
             "description": "Stores the preferred sending Peer connection streaming audio codec.",
             "itemtype": "attribute",
             "name": "_selectedAudioCodec",
@@ -1242,7 +1242,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 1003,
+            "line": 1080,
             "description": "Stores the preferred sending Peer connection streaming video codec.",
             "itemtype": "attribute",
             "name": "_selectedVideoCodec",
@@ -1255,7 +1255,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 1014,
+            "line": 1091,
             "description": "Stores the flag if ulpfec and red codecs should be removed.",
             "itemtype": "attribute",
             "name": "_disableVideoFecCodecs",
@@ -1268,7 +1268,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 1025,
+            "line": 1102,
             "description": "Stores the flag if CN (Comfort Noise) codec should be removed.",
             "itemtype": "attribute",
             "name": "_disableComfortNoiseCodec",
@@ -1281,7 +1281,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 1036,
+            "line": 1113,
             "description": "Stores the flag if REMB feedback packets should be removed.",
             "itemtype": "attribute",
             "name": "_disableREMB",
@@ -1294,7 +1294,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 1047,
+            "line": 1124,
             "description": "Stores the session description settings.",
             "itemtype": "attribute",
             "name": "_sdpSettings",
@@ -1306,7 +1306,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 1067,
+            "line": 1144,
             "description": "Stores the publish only settings.",
             "itemtype": "attribute",
             "name": "_publishOnly",
@@ -1318,7 +1318,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 1077,
+            "line": 1154,
             "description": "Stores the list of recordings.",
             "itemtype": "attribute",
             "name": "_recordings",
@@ -1331,7 +1331,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 1088,
+            "line": 1165,
             "description": "Stores the current active recording session ID.\nThere can only be 1 recording session at a time in a Room",
             "itemtype": "attribute",
             "name": "_currentRecordingId",
@@ -1344,7 +1344,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 1100,
+            "line": 1177,
             "description": "Stores the recording session timeout to ensure 4 seconds has been recorded.",
             "itemtype": "attribute",
             "name": "_recordingStartInterval",
@@ -1357,7 +1357,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 1111,
+            "line": 1188,
             "description": "Stores the flag if MCU should use renegotiation.",
             "itemtype": "attribute",
             "name": "_mcuUseRenegoRestart",
@@ -1369,7 +1369,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 1121,
+            "line": 1198,
             "description": "Stores the debugging TURN/STUN ICE server.",
             "itemtype": "attribute",
             "name": "_turnServer",
@@ -1381,7 +1381,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 1131,
+            "line": 1208,
             "description": "Stores the debugging Signaling server.",
             "itemtype": "attribute",
             "name": "_socketServer",
@@ -1393,7 +1393,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 1141,
+            "line": 1218,
             "description": "Stores the currently supported codecs.",
             "itemtype": "attribute",
             "name": "_currentCodecSupport",
@@ -1405,7 +1405,7 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 1151,
+            "line": 1228,
             "description": "Stores the session description orders and info.",
             "itemtype": "attribute",
             "name": "_sdpSessions",
@@ -1417,85 +1417,85 @@
         },
         {
             "file": "source/template/header.js",
-            "line": 1161,
+            "line": 1238,
             "description": "Stores the current SDK log level.\nDefault is ERROR (<code>0</code>).",
             "itemtype": "attribute",
             "name": "_logLevel",
-            "type": "String",
-            "default": "0",
+            "type": "Number",
             "access": "private",
             "tagname": "",
-            "scoped": "true",
             "since": "0.5.4",
             "class": "Skylink"
         },
         {
             "file": "source/template/header.js",
-            "line": 1174,
+            "line": 1249,
             "description": "Stores the flag if debugging mode is enabled.\nThis manipulates the SkylinkLogs interface.",
             "itemtype": "attribute",
             "name": "_enableDebugMode",
             "type": "Boolean",
-            "default": "false",
             "access": "private",
             "tagname": "",
-            "scoped": "true",
             "since": "0.5.4",
             "class": "Skylink"
         },
         {
             "file": "source/template/header.js",
-            "line": 1187,
+            "line": 1260,
             "description": "Stores the flag if logs should be stored in SkylinkLogs interface.",
             "itemtype": "attribute",
             "name": "_enableDebugStack",
             "type": "Boolean",
-            "default": "false",
             "access": "private",
             "tagname": "",
-            "scoped": "true",
             "since": "0.5.5",
             "class": "Skylink"
         },
         {
             "file": "source/template/header.js",
-            "line": 1199,
+            "line": 1270,
             "description": "Stores the flag if logs should trace if available.\nThis uses the <code>console.trace</code> API.",
             "itemtype": "attribute",
             "name": "_enableDebugTrace",
             "type": "Boolean",
-            "default": "false",
             "access": "private",
             "tagname": "",
-            "scoped": "true",
             "since": "0.5.5",
             "class": "Skylink"
         },
         {
             "file": "source/template/header.js",
-            "line": 1212,
+            "line": 1281,
             "description": "Stores the flag if logs should print DateTime stamp.",
             "itemtype": "attribute",
             "name": "_enableDebugPrintTimeStamp",
             "type": "Boolean",
-            "default": "false",
             "access": "private",
             "tagname": "",
-            "scoped": "true",
             "since": "0.6.18",
             "class": "Skylink"
         },
         {
             "file": "source/template/header.js",
-            "line": 1224,
+            "line": 1291,
             "description": "Stores the flag if logs should print instance label.",
             "itemtype": "attribute",
             "name": "_enableDebugPrintInstanceLabel",
             "type": "Boolean",
-            "default": "false",
             "access": "private",
             "tagname": "",
-            "scoped": "true",
+            "since": "0.6.18",
+            "class": "Skylink"
+        },
+        {
+            "file": "source/template/header.js",
+            "line": 1301,
+            "description": "Stores the log configuration settings.",
+            "itemtype": "attribute",
+            "name": "_loggingConfiguration",
+            "type": "JSON",
+            "access": "private",
+            "tagname": "",
             "since": "0.6.18",
             "class": "Skylink"
         },
@@ -2895,7 +2895,18 @@
         },
         {
             "file": "source/peer-connection.js",
-            "line": 988,
+            "line": 577,
+            "description": "Function that retrieves Peer connection stats.",
+            "itemtype": "method",
+            "name": "_retrieveStats",
+            "access": "private",
+            "tagname": "",
+            "since": "0.6.18",
+            "class": "Skylink"
+        },
+        {
+            "file": "source/peer-connection.js",
+            "line": 1001,
             "description": "Function that starts the Peer connection session.\nRemember to remove previous method of reconnection (re-creating the Peer connection - destroy and create connection).",
             "itemtype": "method",
             "name": "_addPeer",
@@ -2906,7 +2917,7 @@
         },
         {
             "file": "source/peer-connection.js",
-            "line": 1023,
+            "line": 1036,
             "description": "Function that re-negotiates a Peer connection.\nRemember to remove previous method of reconnection (re-creating the Peer connection - destroy and create connection).",
             "itemtype": "method",
             "name": "_restartPeerConnection",
@@ -2917,7 +2928,7 @@
         },
         {
             "file": "source/peer-connection.js",
-            "line": 1145,
+            "line": 1158,
             "description": "Function that ends the Peer connection session.",
             "itemtype": "method",
             "name": "_removePeer",
@@ -2928,7 +2939,7 @@
         },
         {
             "file": "source/peer-connection.js",
-            "line": 1219,
+            "line": 1232,
             "description": "Function that creates the Peer connection.",
             "itemtype": "method",
             "name": "_createPeerConnection",
@@ -2939,7 +2950,7 @@
         },
         {
             "file": "source/peer-connection.js",
-            "line": 1381,
+            "line": 1460,
             "description": "Function that handles the <code>_restartPeerConnection</code> scenario\n  for MCU enabled Peer connections.\nThis is implemented currently by making the user leave and join the Room again.\nThe Peer ID will not stay the same though.",
             "itemtype": "method",
             "name": "_restartMCUConnection",
@@ -2950,7 +2961,7 @@
         },
         {
             "file": "source/peer-connection.js",
-            "line": 1498,
+            "line": 1577,
             "description": "Function that handles the stats tabulation.",
             "itemtype": "method",
             "name": "_parseConnectionStats",
@@ -2961,7 +2972,7 @@
         },
         {
             "file": "source/peer-connection.js",
-            "line": 1518,
+            "line": 1597,
             "description": "Function that signals the end-of-candidates flag.",
             "itemtype": "method",
             "name": "_signalingEndOfCandidates",
@@ -4483,7 +4494,18 @@
         },
         {
             "file": "source/skylink-debug.js",
-            "line": 291,
+            "line": 302,
+            "description": "Function that posts logs and stats to endpoint URL.",
+            "itemtype": "method",
+            "name": "_trackLog",
+            "access": "private",
+            "tagname": "",
+            "since": "0.6.18",
+            "class": "Skylink"
+        },
+        {
+            "file": "source/skylink-debug.js",
+            "line": 430,
             "description": "Function that configures the level of <code>console</code> API logs to be printed in the\n<a href=\"https://developer.mozilla.org/en/docs/Web/API/console\">Javascript Web Console</a>.",
             "itemtype": "method",
             "name": "setLogLevel",
@@ -4503,7 +4525,7 @@
         },
         {
             "file": "source/skylink-debug.js",
-            "line": 331,
+            "line": 470,
             "description": "Function that configures the debugging mode of the SDK.",
             "itemtype": "method",
             "name": "setDebugMode",
@@ -4542,6 +4564,71 @@
                             "type": "Boolean",
                             "optional": true,
                             "optdefault": "false"
+                        },
+                        {
+                            "name": "tracking",
+                            "description": "The tracking logs and connection status settings.",
+                            "type": "JSON",
+                            "optional": true,
+                            "props": [
+                                {
+                                    "name": "logs",
+                                    "description": "The flag if SDK should track logs for remote debugging purposes.",
+                                    "type": "Boolean",
+                                    "optional": true,
+                                    "optdefault": "true"
+                                },
+                                {
+                                    "name": "connection",
+                                    "description": "The flag if SDK should track connection statuses to\n  improve platform connectivity.",
+                                    "type": "Boolean",
+                                    "optional": true,
+                                    "optdefault": "true"
+                                },
+                                {
+                                    "name": "logsCustom",
+                                    "description": "The custom logs tracking settings.",
+                                    "type": "JSON",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "logsCustom.url",
+                                    "description": "The server backend URL to post logs to in JSON (UTF-8) format.\n  <blockquote class=\"details\"><h5>Posted Object Format:</h5><ul>\n  <li><code>appKey</code>: The Application ID. <small>Defined as <code>null</code> when it does not exists.</small></li>\n  <li><code>room</code>: The current Room name. <small>Defined as <code>null</code> when it does not exists.</small></li>\n  <li><code>peerId</code>: The current User Peer ID. <small>Defined as <code>null</code> when it does not exists.</small></li>\n  <li><code>agent</code>: The User browser agent.</li>\n  <li><code>version</code>: The User browser version.</li>\n  <li><code>os</code>: The User platform name.</li>\n  <li><code>log</code>: The log item. <small>Object signature matches an item in returned array in\n  <a href=\"#property_SkylinkLogs.getLogs\"><code>SkylinkLogs.getLogs()</code> method</a>.</small></li></ul></blockquote>",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "logsCustom.logLevel",
+                                    "description": "The specific log level of logs to post.\n- When not provided or that the level does not exists, it will post all logs of all levels.\n [Rel: Skylink.LOG_LEVEL]",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "logsCustom.callback",
+                                    "description": "The callback function fired when log post has completed.\n  <small>Function parameters signature is <code>function (error, success)</code></small>",
+                                    "type": "Function",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "logsCustom.callback.error",
+                                    "description": "The error result in request.\n  <small>Defined as <code>null</code> when there are no errors in request</small>",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "logsCustom.callback.error.error",
+                                    "description": "The log posting error.",
+                                    "type": "Error"
+                                },
+                                {
+                                    "name": "logsCustom.callback.error.log",
+                                    "description": "The log item that failed to post.\n  <small>Object signature matches an item in returned array in <a href=\"#property_SkylinkLogs.getLogs\">\n  <code>SkylinkLogs.getLogs()</code> method</a>.</small>",
+                                    "type": "Array"
+                                },
+                                {
+                                    "name": "logsCustom.callback.success",
+                                    "description": "The success result in request.\n  <small>Defined as <code>null</code> when there are errors in request</small>\n  <small>Object signature matches an item in returned array in <a href=\"#property_SkylinkLogs.getLogs\">\n  <code>SkylinkLogs.getLogs()</code> method</a>.</small>",
+                                    "type": "Array"
+                                }
+                            ]
                         }
                     ]
                 }
@@ -7267,7 +7354,7 @@
         },
         {
             "file": "source/socket-channel.js",
-            "line": 418,
+            "line": 460,
             "description": "Function that starts the socket connection to the Signaling.\nThis starts creating the socket connection and called at first not when requiring to fallback.",
             "itemtype": "method",
             "name": "_openChannel",
@@ -7278,7 +7365,7 @@
         },
         {
             "file": "source/socket-channel.js",
-            "line": 460,
+            "line": 502,
             "description": "Function that stops the socket connection to the Signaling.",
             "itemtype": "method",
             "name": "_closeChannel",
@@ -8558,7 +8645,7 @@
         },
         {
             "file": "source/stream-sdp.js",
-            "line": 608,
+            "line": 610,
             "description": "Function that modifies the session description to remove non-relay ICE candidates.",
             "itemtype": "method",
             "name": "_removeSDPFilteredCandidates",
@@ -8569,7 +8656,7 @@
         },
         {
             "file": "source/stream-sdp.js",
-            "line": 650,
+            "line": 652,
             "description": "Function that retrieves the current list of support codecs.",
             "itemtype": "method",
             "name": "_getCodecsSupport",
@@ -8580,7 +8667,7 @@
         },
         {
             "file": "source/stream-sdp.js",
-            "line": 726,
+            "line": 728,
             "description": "Function that modifies the session description to handle the connection settings.\nThis is experimental and never recommended to end-users.",
             "itemtype": "method",
             "name": "_handleSDPConnectionSettings",
@@ -8591,30 +8678,6 @@
         }
     ],
     "warnings": [
-        {
-            "message": "unknown tag: scoped",
-            "line": " source/template/header.js:1161"
-        },
-        {
-            "message": "unknown tag: scoped",
-            "line": " source/template/header.js:1174"
-        },
-        {
-            "message": "unknown tag: scoped",
-            "line": " source/template/header.js:1187"
-        },
-        {
-            "message": "unknown tag: scoped",
-            "line": " source/template/header.js:1199"
-        },
-        {
-            "message": "unknown tag: scoped",
-            "line": " source/template/header.js:1212"
-        },
-        {
-            "message": "unknown tag: scoped",
-            "line": " source/template/header.js:1224"
-        },
         {
             "message": "replacing incorrect tag: parma with param",
             "line": " source/data-transfer.js:51"
@@ -8757,11 +8820,11 @@
         },
         {
             "message": "Missing item type\nPolyfill for addEventListener() from Eirik Backer @eirikbacker (github.com).\nFrom https://gist.github.com/eirikbacker/2864711\nMIT Licensed",
-            "line": " source/template/header.js:69"
+            "line": " source/template/header.js:109"
         },
         {
             "message": "Missing item type\nGlobal function that clones an object.",
-            "line": " source/template/header.js:103"
+            "line": " source/template/header.js:169"
         },
         {
             "message": "Missing item type\nSubscribe to events",

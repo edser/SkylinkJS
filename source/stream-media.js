@@ -937,7 +937,7 @@ Skylink.prototype.muteStream = function(options) {
         mid: self._user.sid,
         rid: self._room.id,
         muted: self._streamsMutedSettings.videoMuted,
-        stamp: (new Date()).getTime()
+        stamp: Date.now()
       });
     }
 
@@ -948,7 +948,7 @@ Skylink.prototype.muteStream = function(options) {
           mid: self._user.sid,
           rid: self._room.id,
           muted: self._streamsMutedSettings.audioMuted,
-          stamp: (new Date()).getTime()
+          stamp: Date.now()
         });
       }, hasToggledVideo ? 1050 : 0);
     }

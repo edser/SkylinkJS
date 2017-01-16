@@ -1240,7 +1240,7 @@ Skylink.prototype.sendP2PMessage = function(message, targetPeerId) {
  */
 Skylink.prototype._startDataTransfer = function(chunks, transferInfo, listOfPeers, callback) {
   var self = this;
-  var transferId = self._user.sid + &#x27;_&#x27; + (new Date()).getTime();
+  var transferId = self._user.sid + &#x27;_&#x27; + Date.now();
   var transferErrors = {};
   var transferCompleted = [];
 
@@ -1955,7 +1955,7 @@ Skylink.prototype._processDataChannelData = function(rawData, peerId, channelNam
  */
 Skylink.prototype._WRQProtocolHandler = function(peerId, data, channelProp) {
   var self = this;
-  var transferId = channelProp === &#x27;main&#x27; ? data.transferId || peerId + &#x27;_&#x27; + (new Date()).getTime() : channelProp;
+  var transferId = channelProp === &#x27;main&#x27; ? data.transferId || peerId + &#x27;_&#x27; + Date.now() : channelProp;
   var senderPeerId = data.sender || peerId;
 
   self._dataTransfers[transferId] = {

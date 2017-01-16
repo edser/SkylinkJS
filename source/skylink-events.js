@@ -1330,7 +1330,7 @@ Skylink.prototype._wait = function(callback, condition, intervalTime, fireAlways
  */
 Skylink.prototype._throttle = function(func, prop, wait){
   var self = this;
-  var now = (new Date()).getTime();
+  var now = Date.now();
 
   if (!(self._timestamp[prop] && ((now - self._timestamp[prop]) < wait))) {
     func(true);

@@ -50,7 +50,7 @@ Skylink.prototype.setUserData = function(userData) {
       mid: self._user.sid,
       rid: self._room.id,
       userData: updatedUserData,
-      stamp: (new Date()).getTime()
+      stamp: Date.now()
     });
     self._trigger('peerUpdated', self._user.sid, self.getPeerInfo(), true);
   } else {

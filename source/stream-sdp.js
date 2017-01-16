@@ -557,7 +557,7 @@ Skylink.prototype._removeSDPREMBPackets = function (targetMid, sessionDescriptio
  * @for Skylink
  * @since 0.6.16
  */
-Skylink.prototype._getSDPSelectedCodec = function (targetMid, sessionDescription, type) {
+Skylink.prototype._getSDPSelectedCodec = function (targetMid, sessionDescription, type, beSilent) {
   if (!(sessionDescription && sessionDescription.sdp)) {
     return null;
   }
@@ -599,8 +599,10 @@ Skylink.prototype._getSDPSelectedCodec = function (targetMid, sessionDescription
     }
   }
 
-  this._log('debug', [targetMid, 'RTCSessionDesription', sessionDescription.type,
-    'Parsing session description "' + type + '" codecs ->'], selectedCodecInfo);
+  if (!beSilent) {
+    this._log('debug', [targetMid, 'RTCSessionDesription', sessionDescription.type,
+      'Parsing session description "' + type + '" codecs ->'], selectedCodecInfo);
+  }
 
   return selectedCodecInfo;
 };

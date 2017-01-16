@@ -70,6 +70,7 @@ module.exports = function(grunt) {
                         '<%= template %>/footer.js'
                     ],
                     '<%= production %>/skylink.complete.js': [
+                        'node_modules/aws-sdk/dist/aws-sdk.js',
                         'node_modules/socket.io-client/socket.io.js',
                         'node_modules/adapterjs/publish/adapter.screenshare.js',
                         '<%= production %>/skylink.debug.js'

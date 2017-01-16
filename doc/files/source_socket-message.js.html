@@ -1628,7 +1628,7 @@ Skylink.prototype._candidateHandler = function(message) {
     return;
   }
 
-  var canId = &#x27;can-&#x27; + (new Date()).getTime();
+  var canId = &#x27;can-&#x27; + Date.now();
   var candidateType = message.candidate.split(&#x27; &#x27;)[7] || &#x27;&#x27;;
   var candidate = new RTCIceCandidate({
     sdpMLineIndex: message.label,

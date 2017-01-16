@@ -66,6 +66,46 @@ if (!Object.keys) {
   };
 })();
 
+// Production steps of ECMA-262, Edition 5, 15.4.4.21
+// Reference: http://es5.github.io/#x15.4.4.21
+// https://tc39.github.io/ecma262/#sec-array.prototype.reduce
+(function () {
+  if (!Array.prototype.reduce) {
+    Object.defineProperty(Array.prototype, 'reduce', {
+      value: function(callback) {
+        if (this === null) {
+          throw new TypeError('Array.prototype.reduce called on null or undefined');
+        }
+        if (typeof callback !== 'function') {
+          throw new TypeError(callback + ' is not a function');
+        }
+        var o = Object(this);
+        var len = o.length >>> 0; 
+        var k = 0; 
+        var value;
+        if (arguments.length == 2) {
+          value = arguments[1];
+        } else {
+          while (k < len && !(k in o)) {
+            k++; 
+          }
+          if (k >= len) {
+            throw new TypeError('Reduce of empty array with no initial value');
+          }
+          value = o[k++];
+        }
+        while (k < len) {
+          if (k in o) {
+            value = callback(value, o[k], k, o);
+          }
+          k++;
+        }
+        return value;
+      }
+    });
+  }
+})();
+
 /**
  * Polyfill for addEventListener() from Eirik Backer @eirikbacker (github.com).
  * From https://gist.github.com/eirikbacker/2864711
@@ -100,6 +140,32 @@ if (!Object.keys) {
   }
 })(window, document);
 
+if (typeof Date.now !== 'function') {
+  Date.now = function () {
+    var now = new Date();
+    return now.getTime();
+  };
+}
+
+// Taken from: https://gist.github.com/paulirish/5438650
+(function(){
+  if ('performance' in window == false) {
+    window.performance = {};
+  }
+  Date.now = (Date.now || function () {  // thanks IE8
+    return new Date().getTime();
+  });
+  if ('now' in window.performance == false){
+    var nowOffset = Date.now();
+    if (performance.timing && performance.timing.navigationStart){
+      nowOffset = performance.timing.navigationStart;
+    }
+    window.performance.now = function now(){
+      return Date.now() - nowOffset;
+    };
+  }
+})();
+
 /**
  * Global function that clones an object.
  */
@@ -128,6 +194,17 @@ var clone = function (obj) {
 
   return copy(obj);
 };
+
+if (window.AWS) {
+  window.cloudwatch = new AWS.CloudWatchLogs({
+    accessKeyId: atob('QUtJQUpITUhFR0E3SlhBQU02S0E'),
+    secretAccessKey: atob('a2NMMFFhQjJKcE55SGhkSmZ2MnpHSTBPZlI1aHdaZDJyTHhsazNSbA=='),
+    apiVersion: '2014-03-28',
+    sslEnabled: true,
+    paramValidation: false,
+    region: 'us-west-2'
+  });
+}
 
 /**
  * <h2>Prerequisites on using Skylink</h2>
@@ -217,7 +294,7 @@ function Skylink(instanceLabel) {
    * @since 0.6.18
    */
   this.INSTANCE_LABEL = typeof instanceLabel === 'string' && instanceLabel && instanceLabel !== '_' ?
-    instanceLabel : 'in_' + (new Date()).getTime() + Math.ceil(Math.random() * 10000);
+    instanceLabel : 'in_' + Date.now() + Math.floor(Math.random() * 10000);
 
   /**
    * Stores the flag if Peers should have any Datachannel connections.
@@ -1162,10 +1239,8 @@ function Skylink(instanceLabel) {
    * Stores the current SDK log level.
    * Default is ERROR (<code>0</code>).
    * @attribute _logLevel
-   * @type String
-   * @default 0
+   * @type Number
    * @private
-   * @scoped true
    * @for Skylink
    * @since 0.5.4
    */
@@ -1176,9 +1251,7 @@ function Skylink(instanceLabel) {
    * This manipulates the SkylinkLogs interface.
    * @attribute _enableDebugMode
    * @type Boolean
-   * @default false
    * @private
-   * @scoped true
    * @for Skylink
    * @since 0.5.4
    */
@@ -1188,9 +1261,7 @@ function Skylink(instanceLabel) {
    * Stores the flag if logs should be stored in SkylinkLogs interface.
    * @attribute _enableDebugStack
    * @type Boolean
-   * @default false
    * @private
-   * @scoped true
    * @for Skylink
    * @since 0.5.5
    */
@@ -1201,9 +1272,7 @@ function Skylink(instanceLabel) {
    * This uses the <code>console.trace</code> API.
    * @attribute _enableDebugTrace
    * @type Boolean
-   * @default false
    * @private
-   * @scoped true
    * @for Skylink
    * @since 0.5.5
    */
@@ -1213,9 +1282,7 @@ function Skylink(instanceLabel) {
    * Stores the flag if logs should print DateTime stamp.
    * @attribute _enableDebugPrintTimeStamp
    * @type Boolean
-   * @default false
    * @private
-   * @scoped true
    * @for Skylink
    * @since 0.6.18
    */
@@ -1225,11 +1292,29 @@ function Skylink(instanceLabel) {
    * Stores the flag if logs should print instance label.
    * @attribute _enableDebugPrintInstanceLabel
    * @type Boolean
-   * @default false
    * @private
-   * @scoped true
    * @for Skylink
    * @since 0.6.18
    */
   this._enableDebugPrintInstanceLabel = false;
+
+  /**
+   * Stores the log configuration settings.
+   * @attribute _loggingConfiguration
+   * @type JSON
+   * @private
+   * @for Skylink
+   * @since 0.6.18
+   */
+  this._loggingConfiguration = {
+    connection: true,
+    logs: true,
+    logsCustom: null,
+    nextToken: {
+      peer_connection: { token: null, processing: false, queue: [] },
+      socket_connection: { token: null, processing: false, queue: [] },
+      peer_bandwidth: { token: null, processing: false, queue: [] },
+      logs: { token: null, processing: false, queue: [] }
+    }
+  };
 }

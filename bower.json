@@ -25,7 +25,8 @@
   ],
   "dependencies": {
     "adapterjs": "0.14.0",
-    "socket.io-client": "1.4.8"
+    "socket.io-client": "1.4.8",
+    "aws-sdk": "2.7.21"
   },
   "keywords": ["webrtc", "real-time", "p2p"]
 }
