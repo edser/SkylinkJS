@@ -484,7 +484,7 @@ Skylink.prototype.init = function(options, callback) {
   // --> init (function () {})
   if (typeof options === 'function'){
     callback = options;
-    options = null;
+    options = undefined;
 
   // --> init ("xxxxx-xxxxx-xxxxx-xxxxx", ..)
   } else if (options && typeof options === 'string') {
@@ -655,99 +655,123 @@ Skylink.prototype.init = function(options, callback) {
 
   // Check if App Key is provided
   if (!options.appKey) {
-    return self._initCallback(callback, 'No API key provided.');
+    return self._initCallback({
+      state: self.READY_STATE_CHANGE.ERROR,
+      content: 'No API key provided.',
+      errorCode: self.READY_STATE_CHANGE_ERROR.NO_PATH,
+      room: self._options.defaultRoom
+    }, callback);
   }
 
   // Check if XMLHttpRequest is supported
   if (!(window.XMLHttpRequest || window.XDomainRequest)) {
-    return self._initCallback(callback, 'XMLHttpRequest not available',
-      self.READY_STATE_CHANGE_ERROR.NO_XMLHTTPREQUEST_SUPPORT);
+    return self._initCallback({
+      state: self.READY_STATE_CHANGE.ERROR,
+      content: 'XMLHttpRequest not available',
+      errorCode: self.READY_STATE_CHANGE_ERROR.NO_XMLHTTPREQUEST_SUPPORT,
+      room: self._options.defaultRoom
+    }, callback);
   }
 
   // Check if socket.io-client has been loaded
   if (!(window.io || io)) {
-    return self._initCallback(callback, 'Socket.io not found',
-      self.READY_STATE_CHANGE_ERROR.NO_SOCKET_IO);
+    return self._initCallback({
+      state: self.READY_STATE_CHANGE.ERROR,
+      content: 'Socket.io not found',
+      errorCode: self.READY_STATE_CHANGE_ERROR.NO_SOCKET_IO,
+      room: self._options.defaultRoom
+    }, callback);
   }
 
   // Check if AdapterJS has been loaded
   if (!((window.AdapterJS || AdapterJS) && typeof AdapterJS.webRTCReady === 'function')) {
-    return self._initCallback(callback, 'AdapterJS dependency is not loaded or incorrect AdapterJS dependency is used',
-      self.READY_STATE_CHANGE_ERROR.ADAPTER_NO_LOADED);
+    return self._initCallback({
+      state: self.READY_STATE_CHANGE.ERROR,
+      content: 'AdapterJS dependency is not loaded or incorrect AdapterJS dependency is used',
+      errorCode: self.READY_STATE_CHANGE_ERROR.ADAPTER_NO_LOADED,
+      room: self._options.defaultRoom
+    }, callback);
   }
 
   AdapterJS.webRTCReady(function () {
     // Check if RTCPeerConnection is available
     if (!window.RTCPeerConnection) {
-      return self._initCallback(callback, 'WebRTC not available',
-        self.READY_STATE_CHANGE_ERROR.NO_WEBRTC_SUPPORT);
+      return self._initCallback({
+        state: self.READY_STATE_CHANGE.ERROR,
+        content: 'WebRTC not available',
+        errorCode: self.READY_STATE_CHANGE_ERROR.NO_WEBRTC_SUPPORT,
+        room: self._options.defaultRoom
+      }, callback);
     }
 
     // Check and get codecs support
     self._getCodecsSupport(function (error) {
       if (error) {
-        return self._initCallback(callback, error.message || error.toString(),
-          self.READY_STATE_CHANGE_ERROR.PARSE_CODECS);
+        return self._initCallback({
+          state: self.READY_STATE_CHANGE.ERROR,
+          content: error.message || error.toString(),
+          errorCode: self.READY_STATE_CHANGE_ERROR.PARSE_CODECS,
+          room: self._options.defaultRoom
+        }, callback);
       }
 
       // Check if there is any codecs retrieved to start connection
       if (Object.keys(self._currentCodecSupport.audio).length === 0 &&
         Object.keys(self._currentCodecSupport.video).length === 0) {
-        return self._initCallback(callback, 'No audio/video codecs available to start connection',
-          self.READY_STATE_CHANGE_ERROR.PARSE_CODECS);
+        return self._initCallback({
+          state: self.READY_STATE_CHANGE.ERROR,
+          content: 'No audio/video codecs available to start connection',
+          errorCode: self.READY_STATE_CHANGE_ERROR.PARSE_CODECS,
+          room: self._options.defaultRoom
+        }, callback);
       }
 
       // Fetch API data
-      self._initFetchAPIData(self._options.defaultRoom, function (error, success) {
-        if (error) {
-          self._initCallback(callback, error);
-        } else {
-          self._initCallback(callback);
-        }
-      });
+      self._initFetchAPIData(self._options.defaultRoom, callback);
     });
   });
 };
 
 /**
- * Function that handles `init()` callback.
+ * Function that handles `init()` async callbacks to proceed to the next step.
  * @method _initCallback
  * @private
  * @for Skylink
  * @since 0.6.18
  */
-Skylink.prototype._initCallback = function (callback, error, errorCode) {
+Skylink.prototype._initCallback = function (result, callback) {
   var self = this;
 
-  if (error) {
-    if (typeof error === 'string') {
-      error = {
-        content: error,
-        status: null,
-        errorCode: typeof errorCode === 'number' ? errorCode : self.READY_STATE_CHANGE_ERROR.NO_PATH
-      };
+  self._user.room.readyState = result.state;
+  // Trigger `readyStateChange` event
+  self._trigger('readyStateChange', result.state, result.state === self.READY_STATE_CHANGE.ERROR ? {
+    content: result.content,
+    status: result.status || null,
+    errorCode: result.errorCode
+  } : null, result.room);
 
-      // Trigger state for "readyStateChange" event before data was fetched
-      self._readyState = self.READY_STATE_CHANGE.ERROR;
-      self._trigger('readyStateChange', self.READY_STATE_CHANGE.ERROR, error, self._options.defaultRoom);
-    }
-
-    log.error('init() failed ->', error);
+  // init() result error
+  if (result.state === self.READY_STATE_CHANGE.ERROR) {
+    log.error('init() failed ->', result);
 
     if (typeof callback === 'function') {
+      // Convert the parameters to suit the documented result
       callback({
-        error: new Error(error.content),
-        status: error.status,
-        errorCode: error.errorCode
+        error: new Error(result.content),
+        status: result.status || null,
+        errorCode: result.errorCode
       }, null);
     }
-  } else {
+
+  // init() result success
+  } else if (result.state === self.READY_STATE_CHANGE.COMPLETED) {
     log.info('init() success ->', clone(self._options));
 
     if (typeof callback === 'function') {
+      // Convert the parameters to suit the documented result
       callback(null, {
-        serverUrl: self._path,
-        readyState: self._readyState,
+        serverUrl: self._user.room.path,
+        readyState: self._user.room.readyState,
         appKey: self._options.appKey,
         roomServer: self._options.roomServer,
         defaultRoom: self._options.defaultRoom,
@@ -786,7 +810,7 @@ Skylink.prototype._initCallback = function (callback, error, errorCode) {
  * @for Skylink
  * @since 0.6.18
  */
-Skylink.prototype._initFetchAPIData = function (room, callback) {
+Skylink.prototype._initFetchAPIData = function (room, callback, isInit) {
   var self = this;
   var xhr = new XMLHttpRequest();
   var protocol = self._options.forceSSL ? 'https:' : window.location.protocol;
@@ -797,21 +821,25 @@ Skylink.prototype._initFetchAPIData = function (room, callback) {
   }
 
   // Can only use default room due to credentials generated!
-  self._selectedRoom = self._options.credentials ? self._options.defaultRoom : room;
-  self._readyState = self.READY_STATE_CHANGE.INIT;
-  self._trigger('readyStateChange', self.READY_STATE_CHANGE.INIT, null, self._selectedRoom);
+  self._user.room.name = self._options.credentials ? self._options.defaultRoom : room;
+  self._user.room.protocol = protocol;
+
+  self._initCallback({
+    state: self.READY_STATE_CHANGE.INIT,
+    room: self._user.room.name
+  });
 
   // Construct API REST path
-  self._path = self._options.roomServer + '/api/' + self._options.appKey + '/' + self._selectedRoom;
+  self._user.room.path = self._options.roomServer + '/api/' + self._options.appKey + '/' + self._selectedRoom;
 
   // Construct path with credentials authentication.
   if (self._options.credentials) {
-    self._path += '/' + self._options.credentials.startDateTime + '/' +
+    self._user.room.path += '/' + self._options.credentials.startDateTime + '/' +
       self._options.credentials.duration + '?&cred=' + self._options.credentials.credentials;
   }
 
   // Append random number to prevent network cache
-  self._path += '&' + (!self._options.credentials ? '?' :'') + 'rand=' + (new Date ()).toISOString();
+  self._user.room.path += '&' + (!self._options.credentials ? '?' :'') + 'rand=' + (new Date ()).toISOString();
 
   // XMLHttpRequest success
   xhr.onload = function () {
@@ -822,64 +850,67 @@ Skylink.prototype._initFetchAPIData = function (room, callback) {
 
     // Successful authentication
     if (response.success) {
-      self._key = response.cid;
-      self._appKeyOwner = response.apiOwner;
-      self._signalingServer = response.ipSigserver;
-      self._signalingServerPort = null;
-      self._isPrivileged = response.isPrivileged;
-      self._autoIntroduce = response.autoIntroduce;
-      self._user = {
+      // Configure User session settings
+      self._user.room.session = {
         uid: response.username,
-        token: response.userCred,
-        timeStamp: response.timeStamp
-      };
-      self._room = {
-        id: response.room_key,
-        token: response.roomCred,
-        startDateTime: response.start,
-        duration: response.len,
-        connection: {
-          peerConstraints: JSON.parse(response.pc_constraints),
-        }
-      };
-      self._socketPorts = {
-        'http:': response.httpPortList,
-        'https:': response.httpsPortList
+        userCred: response.userCred,
+        timeStamp: response.timeStamp,
+        rid: response.room_key,
+        roomCred: response.roomCred,
+        len: response.len,
+        start: response.start,
+        cid: response.cid,
+        apiOwner: response.apiOwner,
+        isPrivileged: response.isPrivileged,
+        autoIntroduce: response.autoIntroduce
       };
 
-      self._readyState = self.READY_STATE_CHANGE.COMPLETED;
-      self._trigger('readyStateChange', self.READY_STATE_CHANGE.COMPLETED, null, self._selectedRoom);
-      callback(null);
+      // Configure Signaling settings
+      self._socket.ports = {
+        'https:': Array.isArray(response.httpsPortList) && response.httpsPortList.length > 0 ?
+          response.httpsPortList : [443, 3443],
+        'http:': Array.isArray(response.httpPortList) && response.httpPortList.length > 0 ?
+          response.httpPortList : [80, 3000]
+      };
+      self._socket.server = response.ipSigserver;
+
+      // Trigger `readyStateChange` event as COMPLETED
+      self._initCallback({
+        state: self.READY_STATE_CHANGE.COMPLETED,
+        room: self._user.room.name
+      }, callback);
 
     // Failed authentication
     } else {
-      var errorResponded = {
+      // Trigger `readyStateChange` event as ERROR
+      self._initCallback({
+        state: self.READY_STATE_CHANGE.ERROR,
         content: info.info,
         status: status,
-        errorCode: info.errorCode
-      };
-
-      self._readyState = self.READY_STATE_CHANGE.ERROR;
-      self._trigger('readyStateChange', self.READY_STATE_CHANGE.ERROR, errorResponded, self._selectedRoom);
-      callback(errorResponded);
+        errorCode: info.errorCode,
+        room: self._user.room.name
+      }, callback);
     }
   };
 
   // XMLHttpRequest error
   xhr.onerror = function () {
     log.error('init() failed retrieving response due to network timeout.');
-
-    var errorTimeout = {
+    self._initCallback({
+      state: self.READY_STATE_CHANGE.ERROR,
       status: xhr.status || null,
       content: 'Network error occurred. (Status: ' + xhr.status + ')',
-      errorCode: self.READY_STATE_CHANGE_ERROR.XML_HTTP_REQUEST_ERROR
-    };
-
-    self._readyState = self.READY_STATE_CHANGE.ERROR;
-    self._trigger('readyStateChange', this.READY_STATE_CHANGE.ERROR, errorTimeout, self._selectedRoom);
-    callback(errorTimeout);
+      errorCode: self.READY_STATE_CHANGE_ERROR.XML_HTTP_REQUEST_ERROR,
+      room: self._user.room.name
+    }, callback);
   };
 
-  xhr.open('GET', protocol + self._path, true);
+  // Trigger `readyStateChange` event as LOADING
+  self._initCallback({
+    state: self.READY_STATE_CHANGE.LOADING,
+    room: self._user.room.name
+  });
+
+  xhr.open('GET', protocol + self._user.room.path, true);
   xhr.send();
 };

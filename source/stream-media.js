@@ -696,10 +696,10 @@ Skylink.prototype.sendStream = function(options, callback) {
   var self = this;
 
   var restartFn = function (stream) {
-    if (self._inRoom) {
+    if (self._user.room.connected) {
       if (!self._streams.screenshare) {
-        self._trigger('incomingStream', self._user.sid, stream, true, self.getPeerInfo(), false, stream.id || stream.label);
-        self._trigger('peerUpdated', self._user.sid, self.getPeerInfo(), true);
+        self._trigger('incomingStream', self._user.id, stream, true, self.getPeerInfo(), false, stream.id || stream.label);
+        self._trigger('peerUpdated', self._user.id, self.getPeerInfo(), true);
       }
 
       if (Object.keys(self._peerConnections).length > 0 || self._hasMCU) {
@@ -736,7 +736,7 @@ Skylink.prototype.sendStream = function(options, callback) {
     return;
   }
 
-  if (!self._inRoom) {
+  if (!self._user.room.connected) {
     var notInRoomError = 'Unable to send stream as user is not in the Room.';
     log.error(notInRoomError, options);
     if (typeof callback === 'function'){
@@ -938,22 +938,22 @@ Skylink.prototype.muteStream = function(options) {
   if (hasToggledVideo || hasToggledAudio) {
     var streamTracksAvailability = self._muteStreams();
 
-    if (hasToggledVideo && self._inRoom) {
-      self._sendChannelMessage({
+    if (hasToggledVideo && self._user.room.connected) {
+      self._socketSendMessage({
         type: self._SIG_MESSAGE_TYPE.MUTE_VIDEO,
-        mid: self._user.sid,
-        rid: self._room.id,
+        mid: self._user.id,
+        rid: self._user.room.session.id,
         muted: self._streamsMutedSettings.videoMuted,
         stamp: (new Date()).getTime()
       });
     }
 
-    if (hasToggledAudio && self._inRoom) {
+    if (hasToggledAudio && self._user.room.connected) {
       setTimeout(function () {
-        self._sendChannelMessage({
+        self._socketSendMessage({
           type: self._SIG_MESSAGE_TYPE.MUTE_AUDIO,
-          mid: self._user.sid,
-          rid: self._room.id,
+          mid: self._user.id,
+          rid: self._user.room.session.id,
           muted: self._streamsMutedSettings.audioMuted,
           stamp: (new Date()).getTime()
         });
@@ -968,10 +968,10 @@ Skylink.prototype.muteStream = function(options) {
         videoMuted: streamTracksAvailability.hasVideo ? self._streamsMutedSettings.videoMuted : true
       });
 
-      if (self._inRoom) {
-        self._trigger('streamMuted', self._user.sid, self.getPeerInfo(), true,
+      if (self._user.room.connected) {
+        self._trigger('streamMuted', self._user.id, self.getPeerInfo(), true,
           self._streams.screenshare && self._streams.screenshare.stream);
-        self._trigger('peerUpdated', self._user.sid, self.getPeerInfo(), true);
+        self._trigger('peerUpdated', self._user.id, self.getPeerInfo(), true);
       }
     }
   }
@@ -1243,9 +1243,9 @@ Skylink.prototype.shareScreen = function (enableAudio, callback) {
     var mediaAccessSuccessFn = function (stream) {
       self.off('mediaAccessError', mediaAccessErrorFn);
 
-      if (self._inRoom) {
-        self._trigger('incomingStream', self._user.sid, stream, true, self.getPeerInfo(), true, stream.id || stream.label);
-        self._trigger('peerUpdated', self._user.sid, self.getPeerInfo(), true);
+      if (self._user.room.connected) {
+        self._trigger('incomingStream', self._user.id, stream, true, self.getPeerInfo(), true, stream.id || stream.label);
+        self._trigger('peerUpdated', self._user.id, self.getPeerInfo(), true);
 
         if (Object.keys(self._peerConnections).length > 0 || self._hasMCU) {
           self._refreshPeerConnection(Object.keys(self._peerConnections), false, function (err, success) {
@@ -1377,11 +1377,11 @@ Skylink.prototype.stopScreen = function () {
       screenshare: true
     });
 
-    if (this._inRoom) {
+    if (this._user.room.connected) {
       if (this._streams.userMedia && this._streams.userMedia.stream) {
-        this._trigger('incomingStream', this._user.sid, this._streams.userMedia.stream, true, this.getPeerInfo(),
+        this._trigger('incomingStream', this._user.id, this._streams.userMedia.stream, true, this.getPeerInfo(),
           false, this._streams.userMedia.stream.id || this._streams.userMedia.stream.label);
-        this._trigger('peerUpdated', this._user.sid, this.getPeerInfo(), true);
+        this._trigger('peerUpdated', this._user.id, this.getPeerInfo(), true);
       }
       this._refreshPeerConnection(Object.keys(this._peerConnections), false);
     }
@@ -1501,8 +1501,8 @@ Skylink.prototype._stopStreams = function (options) {
     hasStoppedMedia = true;
   }
 
-  if (self._inRoom && hasStoppedMedia) {
-    self._trigger('peerUpdated', self._user.sid, self.getPeerInfo(), true);
+  if (self._user.room.connected && hasStoppedMedia) {
+    self._trigger('peerUpdated', self._user.id, self.getPeerInfo(), true);
   }
 
   log.log('Stopping Streams with settings ->', options);
@@ -1719,20 +1719,19 @@ Skylink.prototype._onStreamAccessSuccess = function(stream, settings, isScreenSh
 
     self._trigger('mediaAccessStopped', !!isScreenSharing, !!isAudioFallback, streamId);
 
-    if (self._inRoom) {
+    if (self._user.room.connected) {
       log.debug([null, 'MediaStream', streamId, 'Sending Stream ended status to Peers']);
 
-      self._sendChannelMessage({
+      self._socketSendMessage({
         type: self._SIG_MESSAGE_TYPE.STREAM,
-        mid: self._user.sid,
-        rid: self._room.id,
-        cid: self._key,
+        mid: self._user.id,
+        rid: self._user.room.session.id,
         streamId: streamId,
         settings: settings.settings,
         status: 'ended'
       });
 
-      self._trigger('streamEnded', self._user.sid, self.getPeerInfo(), true, !!isScreenSharing, streamId);
+      self._trigger('streamEnded', self._user.id, self.getPeerInfo(), true, !!isScreenSharing, streamId);
 
       if (isScreenSharing && self._streams.screenshare && self._streams.screenshare.stream &&
         (self._streams.screenshare.stream.id || self._streams.screenshare.stream.label) === streamId) {

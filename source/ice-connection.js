@@ -323,7 +323,5 @@ Skylink.prototype._setIceServers = function(givenConfig) {
 
   log.log('Output iceServers configuration:', newIceServers);
 
-  return {
-    iceServers: newIceServers
-  };
+  return newIceServers;
 };

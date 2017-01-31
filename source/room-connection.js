@@ -333,105 +333,204 @@ Skylink.prototype.SYSTEM_ACTION_REASON = {
  * @for Skylink
  * @since 0.5.5
  */
-
 Skylink.prototype.joinRoom = function(room, options, callback) {
   var self = this;
-  var selectedRoom = self._options.defaultRoom;
-  var previousRoom = self._selectedRoom;
-  var mediaOptions = {};
 
-  if (room && typeof room === 'string') {
-    selectedRoom = room;
-  } else if (room && typeof room === 'object') {
-    mediaOptions = room;
-  } else if (typeof room === 'function') {
+  // Parse joinRoom() options
+  // --> joinRoom (function () {})
+  if (typeof room === 'function') {
     callback = room;
+    room = undefined;
+  // --> joinRoom ({})
+  } else if (room && typeof room === 'object') {
+    options = room;
+    room = undefined;
   }
 
-  if (options && typeof options === 'object') {
-    mediaOptions = options;
-  } else if (typeof options === 'function') {
+  // --> joinRoom (.., function () {})
+  if (typeof options === 'function') {
     callback = options;
+    options = undefined;
   }
 
-  var resolveAsErrorFn = function (error, tryRoom, readyState) {
-    log.error(error);
+  // Check if room name provided is correct
+  if (room === null || ['number', 'boolean'].indexOf(typeof room) > -1) {
+    return self._joinRoomCallback({
+      error: new Error('Invalid room name is provided'),
+      room: room
+    }, callback);
+  }
 
-    if (typeof callback === 'function') {
-      callback({
-        room: tryRoom,
-        errorCode: readyState || null,
-        error: typeof error === 'string' ? new Error(error) : error
-      });
-    }
-  };
+  // Check if options provided is correct
+  if (options === null || ['number', 'boolean'].indexOf(typeof options) > -1) {
+    return self._joinRoomCallback({
+      error: new Error('Invalid mediaOptions is provided'),
+      room: room
+    }, callback);
+  }
 
-  var joinRoomFn = function () {
-    self._initFetchAPIData(selectedRoom, function(initError, initSuccess) {
-      if (initError) {
-        resolveAsErrorFn(initError.error, self._selectedRoom, self._readyState);
-        return;
+  options = options || {};
+
+  // Disconnect any User session
+  // Disconnect media streams if new streams is requested
+  self.leaveRoom(options && (options.audio || typeof options.audio === 'boolean') ||
+    (options.video || typeof options.video === 'boolean'), function () {
+    // Fallback to default Room if needed
+    var updatedRoom = self._options.credentials || !(room && typeof room === 'string') ?
+      self._options.defaultRoom : room;
+
+    // Fetch new session data
+    self._initFetchAPIData(updatedRoom, function (authErr) {
+      if (authErr) {
+        return self._joinRoomCallback({
+          error: err.error,
+          room: updatedRoom
+        }, callback);
       }
 
-      self._waitForOpenChannel(mediaOptions, function (error, success) {
-        if (error) {
-          resolveAsErrorFn(error, self._selectedRoom, self._readyState);
-          return;
+      // Connect to Signaling server
+      self._socketOpen(function (socketErr) {
+        if (socketErr) {
+          return self._joinRoomCallback({
+            error: new Error('Failed opening Signaling server connection'),
+            room: updatedRoom
+          }, callback);
         }
 
-        self.once('peerJoined', function(peerId, peerInfo, isSelf) {
-          if (typeof callback === 'function') {
-            log.info([null, 'Room', selectedRoom, 'Connected to Room ->'], peerInfo);
-
-            callback(null, {
-              room: self._selectedRoom,
-              peerId: peerId,
-              peerInfo: peerInfo
-            });
+        self._user.data = typeof options.userData !== undefined ? options.userData : '';
+        self._user.connection = {
+          mediaConnection: { audio: true, video: true, data: true },
+          mediaDirection: {
+            audio: { send: true, receive: true },
+            video: { send: true, receive: true }
+          },
+          bandwidth: {
+            max: {},
+            xVideoCodec: {}
           }
-        }, function(peerId, peerInfo, isSelf) {
-          return peerInfo.room === selectedRoom && isSelf;
-        });
+        };
 
-        self._sendChannelMessage({
-          type: self._SIG_MESSAGE_TYPE.JOIN_ROOM,
-          uid: self._user.uid,
-          cid: self._key,
-          rid: self._room.id,
-          userCred: self._user.token,
-          timeStamp: self._user.timeStamp,
-          apiOwner: self._appKeyOwner,
-          roomCred: self._room.token,
-          start: self._room.startDateTime,
-          len: self._room.duration,
-          isPrivileged: self._isPrivileged === true, // Default to false if undefined
-          autoIntroduce: self._autoIntroduce !== false, // Default to true if undefined
-          key: self._options.appKey
-        });
+        // Parse options.bandwidth
+        if (options.bandwidth && typeof options.bandwidth === 'object') {
+          // Parse options.bandwidth.audio
+          if (typeof options.bandwidth.audio === 'number') {
+            self._user.connection.bandwidth.max.audio = options.bandwidth.audio;
+          }
+          // Parse options.bandwidth.video
+          if (typeof options.bandwidth.video === 'number') {
+            self._user.connection.bandwidth.max.video = options.bandwidth.video;
+          }
+          // Parse options.bandwidth.data
+          if (typeof options.bandwidth.data === 'number') {
+            self._user.connection.bandwidth.max.data = options.bandwidth.data;
+          }
+        }
+
+        // Parse options.googleXBandwidth
+        if (options.googleXBandwidth && typeof options.googleXBandwidth === 'object') {
+          // Parse options.googleXBandwidth.min
+          if (typeof options.googleXBandwidth.min === 'number') {
+            self._user.connection.bandwidth.xVideoCodec.min = options.googleXBandwidth.min;
+          }
+          // Parse options.googleXBandwidth.max
+          if (typeof mediaOptions.googleXBandwidth.max === 'number') {
+            self._user.connection.bandwidth.xVideoCodec.max = options.googleXBandwidth.max;
+          }
+        }
+
+        // Parse options.sdpSettings
+        if (options.sdpSettings && typeof options.sdpSettings === 'object') {
+          // Parse options.sdpSettings.direction
+          if (options.sdpSettings.direction && typeof options.sdpSettings.direction === 'object') {
+            // Parse options.sdpSettings.direction.audio
+            if (options.sdpSettings.direction.audio) {
+              // Parse options.sdpSettings.direction.audio.receive
+              self._user.connection.mediaDirection.audio.receive = options.sdpSettings.direction.audio.receive !== false;
+              // Parse options.sdpSettings.direction.audio.send
+              self._user.connection.mediaDirection.audio.send = options.sdpSettings.direction.audio.send !== false;
+            }
+            // Parse options.sdpSettings.direction.video
+            if (options.sdpSettings.direction.video) {
+              // Parse options.sdpSettings.direction.video.receive
+              self._user.connection.mediaDirection.video.receive = options.sdpSettings.direction.video.receive !== false;
+              // Parse options.sdpSettings.direction.video.send
+              self._user.connection.mediaDirection.video.send = options.sdpSettings.direction.video.send !== false;
+            }
+          }
+          // Parse options.sdpSettings.connection
+          if (options.sdpSettings.connection && typeof options.sdpSettings.connection === 'object') {
+            // Parse options.sdpSettings.connection.audio
+            self._user.connection.mediaConnection.audio = options.sdpSettings.connection.audio !== false;
+            // Parse options.sdpSettings.connection.video
+            self._user.connection.mediaConnection.video = options.sdpSettings.connection.video !== false;
+            // Parse options.sdpSettings.connection.data
+            self._user.connection.mediaConnection.data = options.sdpSettings.connection.data !== false;
+          }
+        }
+
+        // Parse options.publishOnly
+        if (options.publishOnly && (typeof options.publishOnly === 'object' || options.publishOnly === true)) {
+          self._user.connection.publishOnly = true;
+          // Override settings
+          self._user.connection.mediaDirection.audio.send = true;
+          self._user.connection.mediaDirection.audio.receive = false;
+          self._user.connection.mediaDirection.video.send = true;
+          self._user.connection.mediaDirection.video.receive = false;
+          // Parse options.publishOnly.parentId (deprecated way of setting parent ID)
+          if (typeof options.publishOnly === 'object' && options.publishOnly.parentId &&
+            typeof options.publishOnly.parentId === 'string') {
+            self._user.parentId = options.publishOnly.parentId;
+          }
+        }
+
+        // Parse options.parentId
+        if (options.parentId && typeof options.parentId === 'string') {
+          self._user.parentId = options.parentId;
+        }
+
+        // Handle options.manualGetUserMedia case
+        if (options.manualGetUserMedia === true) {
+          self._trigger('mediaAccessRequired');
+          // Set an interval to wait for User to obtain stream to start connection
+          var currentBlock = 0;
+          var requireStreamInterval = setInterval(function () {
+            // Check if Stream has been retrieved
+            if (self._streams.userMedia.stream || self._streams.userMedia.screenshare) {
+              clearInterval(requireStreamInterval);
+              self._joinRoomCallback({ startConnection: true });
+            // Check if timeout limit has been reached
+            } else if (currentBlock === 600) {
+              clearInterval(requireStreamInterval);
+              self.once('mediaAccessError', function (error) {
+                self._joinRoomCallback({
+                  error: error
+                }, callback);
+              });
+              self._onUserMediaError(new Error('Waiting for stream timeout'), false, false);
+            }
+            // Increment counter
+            currentBlock++;
+          }, 50);
+
+        // Handle options.audio or options.video case
+        } else if ((options.audio && (options.audio === true || typeof options.audio === 'object')) ||
+          (options.video && (options.video === true || typeof options.video === 'object'))) {
+          self.getUserMedia(options, function (err) {
+            if (err) {
+              return self._joinRoomCallback({
+                error: err
+              }, callback);
+            }
+            self._joinRoomCallback({ startConnection: true });
+          });
+
+        // Handle none of the above
+        } else {
+          self._joinRoomCallback({ startConnection: true });
+        }
       });
     });
-  };
-
-  if (room === null || ['number', 'boolean'].indexOf(typeof room) > -1) {
-    resolveAsErrorFn('Invalid room name is provided', room);
-    return;
-  }
-
-  if (options === null || ['number', 'boolean'].indexOf(typeof options) > -1) {
-    resolveAsErrorFn('Invalid mediaOptions is provided', selectedRoom);
-    return;
-  }
-
-  if (self._inRoom) {
-    var stopStream = mediaOptions.audio === false && mediaOptions.video === false;
-
-    self.leaveRoom(stopStream, function (lRError, lRSuccess) {
-      log.debug([null, 'Room', previousRoom, 'Leave Room callback result ->'], [lRError, lRSuccess]);
-      joinRoomFn();
-    });
-  } else {
-    joinRoomFn();
-  }
+  });
 };
 
 /**
@@ -479,75 +578,58 @@ Skylink.prototype.joinRoom = function(room, options, callback) {
  * @for Skylink
  * @since 0.5.5
  */
-Skylink.prototype.leaveRoom = function(stopMediaOptions, callback) {
+Skylink.prototype.leaveRoom = function(stopOptions, callback) {
   var self = this;
-  var stopUserMedia = true;
-  var stopScreenshare = true;
-  var previousRoom = self._selectedRoom;
-  var previousUserPeerId = self._user ? self._user.sid : null;
-  var peersThatLeft = [];
-  var isNotInRoom = !self._inRoom;
+  var currentRoom = self._user.room.name;
+  var currentPeerId = self._user.id;
+  var stopMedia = { userMedia: true, screenshare: true };
+  var isConnected = self._user.room.connected === true;
 
-  if (typeof stopMediaOptions === 'boolean') {
-    if (stopMediaOptions === false) {
-      stopUserMedia = false;
-      stopScreenshare = false;
+  // Parse leaveRoom() options
+  // --> leaveRoom(false)
+  if (typeof stopOptions === 'boolean') {
+    if (stopOptions === false) {
+      stopMedia.userMedia = false;
+      stopMedia.screenshare = false;
     }
-  } else if (stopMediaOptions && typeof stopMediaOptions === 'object') {
-    stopUserMedia = stopMediaOptions.userMedia !== false;
-    stopScreenshare = stopMediaOptions.screenshare !== false;
-  } else if (typeof stopMediaOptions === 'function') {
-    callback = stopMediaOptions;
+  // --> leaveRoom({})
+  } else if (stopOptions && typeof stopOptions === 'object') {
+    // Parse stopOptions.userMedia
+    stopMedia.userMedia = stopOptions.userMedia !== false;
+    // Parse stopOptions.screenshare
+    stopMedia.screenshare = stopOptions.screenshare !== false;
+  // --> leaveRoom(function () {})
+  } else if (typeof stopOptions === 'function') {
+    callback = stopOptions;
   }
 
-  for (var infoPeerId in self._peerInformations) {
-    if (self._peerInformations.hasOwnProperty(infoPeerId) && self._peerInformations[infoPeerId]) {
-      peersThatLeft.push(infoPeerId);
-      self._removePeer(infoPeerId);
-    }
-  }
-
-  for (var connPeerId in self._peerConnections) {
-    if (self._peerConnections.hasOwnProperty(connPeerId) && self._peerConnections[connPeerId]) {
-      if (peersThatLeft.indexOf(connPeerId) === -1) {
-        peersThatLeft.push(connPeerId);
-        self._removePeer(connPeerId);
+  for (var peerId in self._peerInformations) {
+    if (self._peerInformations.hasOwnProperty(peerId)) {
+      if (self._peerInformations[peerId]) {
+        self._removePeer(peerId);
       }
+      delete self._peerInformations[peerId];
     }
   }
 
-  self._inRoom = false;
-  self._closeChannel();
+  self._user.room.connected = false;
+  self._socketClose();
 
-  if (isNotInRoom) {
-    var notInRoomError = 'Unable to leave room as user is not in any room';
-    log.error([null, 'Room', previousRoom, notInRoomError]);
-
-    if (typeof callback === 'function') {
-      callback(new Error(notInRoomError), null);
-    }
-    return;
+  // Trigger error that User is not in the Room so it's not completely successful
+  if (!isConnected || !currentPeerId || !currentRoom) {
+    return self._leaveRoomCallback({
+      error: 'Unable to leave room as user is not in any room'
+    }, callback);
   }
 
-  self._stopStreams({
-    userMedia: stopUserMedia,
-    screenshare: stopScreenshare
-  });
+  // Stop User Streams
+  if (stopMedia.userMedia || stopMedia.screenshare) {
+    self._stopStreams(stopMedia);
+  }
 
-  self._wait(function () {
-    log.log([null, 'Room', previousRoom, 'User left the room']);
-
-    self._trigger('peerLeft', previousUserPeerId, self.getPeerInfo(), true);
-
-    if (typeof callback === 'function') {
-      callback(null, {
-        peerId: previousUserPeerId,
-        previousRoom: previousRoom
-      });
-    }
-  }, function () {
-    return !self._channelOpen;
-  });
+  // Trigger `peerLeft` event for User
+  self._trigger('peerLeft', currentPeerId, self.getPeerInfo(), true);
+  self._leaveRoomCallback({}, callback);
 };
 
 /**
@@ -570,18 +652,24 @@ Skylink.prototype.leaveRoom = function(stopMediaOptions, callback) {
  * @since 0.5.0
  */
 Skylink.prototype.lockRoom = function() {
-  if (!(this._user && this._user.sid)) {
+  var self = this;
+
+  if (!self._user.room.connected) {
+    log.error('Unable to lock Room as User is not in Room.');
     return;
   }
-  log.log('Update to isRoomLocked status ->', true);
-  this._sendChannelMessage({
-    type: this._SIG_MESSAGE_TYPE.ROOM_LOCK,
-    mid: this._user.sid,
-    rid: this._room.id,
+
+  log.log('Locking Room ...');
+
+  self._socketSendMessage({
+    type: 'roomLockEvent',
+    mid: self._user.id,
+    rid: self._user.room.session.id,
     lock: true
   });
-  this._roomLocked = true;
-  this._trigger('roomLock', true, this._user.sid, this.getPeerInfo(), true);
+
+  self._user.room.locked = true;
+  self._trigger('roomLock', true, self._user.id, self.getPeerInfo(), true);
 };
 
 /**
@@ -604,178 +692,109 @@ Skylink.prototype.lockRoom = function() {
  * @since 0.5.0
  */
 Skylink.prototype.unlockRoom = function() {
-  if (!(this._user && this._user.sid)) {
+  if (!self._user.room.connected) {
+    log.error('Unable to unlock Room as User is not in Room.');
     return;
   }
-  log.log('Update to isRoomLocked status ->', false);
-  this._sendChannelMessage({
-    type: this._SIG_MESSAGE_TYPE.ROOM_LOCK,
-    mid: this._user.sid,
-    rid: this._room.id,
+
+  log.log('Unlocking Room ...');
+
+  self._socketSendMessage({
+    type: 'roomLockEvent',
+    mid: self._user.id,
+    rid: self._user.room.session.id,
     lock: false
   });
-  this._roomLocked = false;
-  this._trigger('roomLock', false, this._user.sid, this.getPeerInfo(), true);
+
+  self._user.room.locked = false;
+  self._trigger('roomLock', false, self._user.id, self.getPeerInfo(), true);
 };
 
 /**
- * Function that waits for Socket connection to Signaling to be opened.
- * @method _waitForOpenChannel
+ * Function that handles `joinRoom()` async callbacks to proceed to the next step.
+ * @method _joinRoomCallback
  * @private
  * @for Skylink
- * @since 0.5.5
+ * @since 0.6.18
  */
-Skylink.prototype._waitForOpenChannel = function(mediaOptions, callback) {
+Skylink.prototype._joinRoomCallback = function (result, callback) {
   var self = this;
-  // when reopening room, it should stay as 0
-  self._socketCurrentReconnectionAttempt = 0;
 
-  // wait for ready state before opening
-  self._wait(function() {
-    self._condition('channelOpen', function() {
-      mediaOptions = mediaOptions || {};
-
-      self._userData = mediaOptions.userData || self._userData || '';
-      self._streamsBandwidthSettings = {
-        googleX: {},
-        bAS: {}
-      };
-      self._publishOnly = false;
-      self._sdpSettings = {
-        connection: {
-          audio: true,
-          video: true,
-          data: true
-        },
-        direction: {
-          audio: { send: true, receive: true },
-          video: { send: true, receive: true }
-        }
-      };
-
-      if (mediaOptions.bandwidth) {
-        if (typeof mediaOptions.bandwidth.audio === 'number') {
-          self._streamsBandwidthSettings.bAS.audio = mediaOptions.bandwidth.audio;
-        }
-
-        if (typeof mediaOptions.bandwidth.video === 'number') {
-          self._streamsBandwidthSettings.bAS.video = mediaOptions.bandwidth.video;
-        }
-
-        if (typeof mediaOptions.bandwidth.data === 'number') {
-          self._streamsBandwidthSettings.bAS.data = mediaOptions.bandwidth.data;
-        }
-      }
-
-      if (mediaOptions.googleXBandwidth) {
-        if (typeof mediaOptions.googleXBandwidth.min === 'number') {
-          self._streamsBandwidthSettings.googleX.min = mediaOptions.googleXBandwidth.min;
-        }
-
-        if (typeof mediaOptions.googleXBandwidth.max === 'number') {
-          self._streamsBandwidthSettings.googleX.max = mediaOptions.googleXBandwidth.max;
-        }
-      }
-
-      if (mediaOptions.sdpSettings) {
-        if (mediaOptions.sdpSettings.direction) {
-          if (mediaOptions.sdpSettings.direction.audio) {
-            self._sdpSettings.direction.audio.receive = typeof mediaOptions.sdpSettings.direction.audio.receive === 'boolean' ?
-              mediaOptions.sdpSettings.direction.audio.receive : true;
-            self._sdpSettings.direction.audio.send = typeof mediaOptions.sdpSettings.direction.audio.send === 'boolean' ?
-              mediaOptions.sdpSettings.direction.audio.send : true;
-          }
-
-          if (mediaOptions.sdpSettings.direction.video) {
-            self._sdpSettings.direction.video.receive = typeof mediaOptions.sdpSettings.direction.video.receive === 'boolean' ?
-              mediaOptions.sdpSettings.direction.video.receive : true;
-            self._sdpSettings.direction.video.send = typeof mediaOptions.sdpSettings.direction.video.send === 'boolean' ?
-              mediaOptions.sdpSettings.direction.video.send : true;
-          }
-        }
-        if (mediaOptions.sdpSettings.connection) {
-          self._sdpSettings.connection.audio = typeof mediaOptions.sdpSettings.connection.audio === 'boolean' ?
-            mediaOptions.sdpSettings.connection.audio : true;
-          self._sdpSettings.connection.video = typeof mediaOptions.sdpSettings.connection.video === 'boolean' ?
-            mediaOptions.sdpSettings.connection.video : true;
-          self._sdpSettings.connection.data = typeof mediaOptions.sdpSettings.connection.data === 'boolean' ?
-            mediaOptions.sdpSettings.connection.data : true;
-        }
-      }
-
-      if (mediaOptions.publishOnly) {
-        self._sdpSettings.direction.audio.send = true;
-        self._sdpSettings.direction.audio.receive = false;
-        self._sdpSettings.direction.video.send = true;
-        self._sdpSettings.direction.video.receive = false;
-        self._publishOnly = true;
-
-        if (typeof mediaOptions.publishOnly === 'object' && mediaOptions.publishOnly.parentId &&
-          typeof mediaOptions.publishOnly.parentId === 'string') {
-          self._parentId = mediaOptions.publishOnly.parentId;
-        }
-      }
-
-      if (mediaOptions.parentId) {
-        self._parentId = mediaOptions.parentId;
-      }
-
-      // get the stream
-      if (mediaOptions.manualGetUserMedia === true) {
-        self._trigger('mediaAccessRequired');
-
-        var current50Block = 0;
-        var mediaAccessRequiredFailure = false;
-        // wait for available audio or video stream
-        self._wait(function () {
-          if (mediaAccessRequiredFailure === true) {
-            self._onUserMediaError(new Error('Waiting for stream timeout'), false, false);
-          } else {
-            callback(null, self._streams.userMedia.stream);
-          }
-        }, function () {
-          current50Block += 1;
-          if (current50Block === 600) {
-            mediaAccessRequiredFailure = true;
-            return true;
-          }
-
-          if (self._streams.userMedia && self._streams.userMedia.stream) {
-            return true;
-          }
-        }, 50);
-        return;
-      }
-
-      if (mediaOptions.audio || mediaOptions.video) {
-        self.getUserMedia({
-          useExactConstraints: !!mediaOptions.useExactConstraints,
-          audio: mediaOptions.audio,
-          video: mediaOptions.video
-
-        }, function (error, success) {
-          if (error) {
-            callback(error, null);
-          } else {
-            callback(null, success);
-          }
-        });
-        return;
-      }
-
-      callback(null, null);
-
-    }, function() { // open channel first if it's not opened
-
-      if (!self._channelOpen) {
-        self._openChannel();
-      }
-      return self._channelOpen;
-    }, function(state) {
-      return true;
+  // joinRoom() start connection
+  if (result.startConnection) {
+    self.once('peerJoined', function (peerId, peerInfo) {
+      self._joinRoomCallback({ peerId: peerId, room: peerInfo.room });
     });
-  }, function() {
-    return self._readyState === self.READY_STATE_CHANGE.COMPLETED;
-  });
 
+    self._socketSendMessage({
+      type: 'joinRoom',
+      uid: self._user.room.session.uid,
+      cid: self._user.room.session.cid,
+      rid: self._user.room.session.rid,
+      userCred: self._user.room.session.userCred,
+      timeStamp: self._user.room.session.timeStamp,
+      apiOwner: self._user.room.session.apiOwner,
+      roomCred: self._user.room.session.roomCred,
+      start: self._user.room.session.start,
+      len: self._user.room.session.len,
+      isPrivileged: self._user.room.session.isPrivileged === true, // Default to false if undefined
+      autoIntroduce: self._user.room.session.autoIntroduce !== false, // Default to true if undefined
+      key: self._options.appKey
+    });
+
+  // joinRoom() result success
+  } else if (result.error) {
+    log.error('joinRoom() failed ->', result);
+
+    if (typeof callback === 'function') {
+      callback({
+        error: new Error(result.error),
+        errorCode: result.errorCode || null,
+        room: result.room
+      }, null);
+    }
+
+  // joinRoom() result error
+  } else {
+    log.info('joinRoom() success ->', result);
+
+    if (typeof callback === 'function') {
+      callback(null, {
+        peerId: result.peerId,
+        room: result.room,
+        peerInfo: self.getPeerInfo()
+      });
+    }
+  }
+};
+
+/**
+ * Function that handles `leaveRoom()` async callbacks to proceed to the next step.
+ * @method _leaveRoomCallback
+ * @private
+ * @for Skylink
+ * @since 0.6.18
+ */
+Skylink.prototype._leaveRoomCallback = function (result, callback) {
+  var self = this;
+
+  // leaveRoom() result success
+  if (result.error) {
+    log.error('leaveRoom() failed ->', result);
+
+    if (typeof callback === 'function') {
+      callback(new Error(result.error), null);
+    }
+
+  // leaveRoom() result success
+  } else {
+    log.info('leaveRoom() success ->', result);
+
+    if (typeof callback === 'function') {
+      callback(null, {
+        peerId: result.peerId,
+        previousRoom: result.room
+      });
+    }
+  }
 };

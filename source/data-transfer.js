@@ -481,7 +481,7 @@ Skylink.prototype.sendBlobData = function(data, timeout, targetPeerId, sendChunk
 
   transferInfo.size = data.size;
 
-  if (!self._user) {
+  if (!self._user.room.connected) {
     emitErrorBeforeDataTransferFn('Unable to send any blob data. User is not in Room.');
     return;
   }
@@ -717,7 +717,7 @@ Skylink.prototype.sendURLData = function(data, timeout, targetPeerId, callback) 
 
   transferInfo.size = data.length || data.size;
 
-  if (!self._user) {
+  if (!self._user.room.connected) {
     emitErrorBeforeDataTransferFn('Unable to send any dataURL. User is not in Room.');
     return;
   }
@@ -842,7 +842,7 @@ Skylink.prototype.acceptDataTransfer = function (peerId, transferId, accept) {
     // MCU sends the data transfer from the "P2P" Datachannel
     self._sendMessageToDataChannel(peerId, {
       type: self._DC_PROTOCOL_TYPE.ACK,
-      sender: self._user.sid,
+      sender: self._user.id,
       ackN: 0
     }, channelProp);
 
@@ -856,7 +856,7 @@ Skylink.prototype.acceptDataTransfer = function (peerId, transferId, accept) {
     // MCU sends the data transfer from the "P2P" Datachannel
     self._sendMessageToDataChannel(peerId, {
       type: self._DC_PROTOCOL_TYPE.ACK,
-      sender: self._user.sid,
+      sender: self._user.id,
       ackN: -1
     }, channelProp);
 
@@ -958,7 +958,7 @@ Skylink.prototype.cancelDataTransfer = function (peerId, transferId) {
     if (Object.keys(self._dataTransfers[transferId].peers.main).length > 0) {
       self._sendMessageToDataChannel('MCU', {
         type: self._DC_PROTOCOL_TYPE.CANCEL,
-        sender: self._user.sid,
+        sender: self._user.id,
         content: 'Peer cancelled download transfer',
         name: self._dataTransfers[transferId].name,
         ackN: 0
@@ -969,7 +969,7 @@ Skylink.prototype.cancelDataTransfer = function (peerId, transferId) {
     if (Object.keys(self._dataTransfers[transferId].peers[transferId]).length > 0) {
       self._sendMessageToDataChannel('MCU', {
         type: self._DC_PROTOCOL_TYPE.CANCEL,
-        sender: self._user.sid,
+        sender: self._user.id,
         content: 'Peer cancelled download transfer',
         name: self._dataTransfers[transferId].name,
         ackN: 0
@@ -993,7 +993,7 @@ Skylink.prototype.cancelDataTransfer = function (peerId, transferId) {
 
     self._sendMessageToDataChannel(peerId, {
       type: self._DC_PROTOCOL_TYPE.CANCEL,
-      sender: self._user.sid,
+      sender: self._user.id,
       content: 'Peer cancelled download transfer',
       name: self._dataTransfers[transferId].name,
       ackN: 0
@@ -1074,7 +1074,7 @@ Skylink.prototype.sendP2PMessage = function(message, targetPeerId) {
     isPrivate = true;
   }
 
-  if (!this._inRoom || !this._user) {
+  if (!this._user.room.connected) {
     log.error('Unable to send message as User is not in Room. ->', message);
     return;
   }
@@ -1103,7 +1103,7 @@ Skylink.prototype.sendP2PMessage = function(message, targetPeerId) {
       this._sendMessageToDataChannel(peerId, {
         type: this._DC_PROTOCOL_TYPE.MESSAGE,
         isPrivate: isPrivate,
-        sender: this._user.sid,
+        sender: this._user.id,
         target: peerId,
         data: message
       }, 'main');
@@ -1122,7 +1122,7 @@ Skylink.prototype.sendP2PMessage = function(message, targetPeerId) {
     this._sendMessageToDataChannel('MCU', {
       type: this._DC_PROTOCOL_TYPE.MESSAGE,
       isPrivate: isPrivate,
-      sender: this._user.sid,
+      sender: this._user.id,
       target: listOfPeers,
       data: message
     }, 'main');
@@ -1134,8 +1134,8 @@ Skylink.prototype.sendP2PMessage = function(message, targetPeerId) {
     targetPeerId: targetPeerId || null,
     listOfPeers: listOfPeers,
     isDataChannel: true,
-    senderPeerId: this._user.sid
-  }, this._user.sid, this.getPeerInfo(), true);
+    senderPeerId: this._user.id
+  }, this._user.id, this.getPeerInfo(), true);
 };
 
 /**
@@ -1233,7 +1233,7 @@ Skylink.prototype.streamData = function(data, targetPeerId) {
   }
 
   self._blobToArrayBuffer(data, function (arrayBufferData) {
-    if (!self._inRoom || !self._user) {
+    if (!self._user.room.connected) {
       log.error('Unable to stream data chunk as User is not in Room. ->', data);
       return;
     }
@@ -1282,8 +1282,8 @@ Skylink.prototype.streamData = function(data, targetPeerId) {
       isPrivate: isPrivate,
       targetPeerId: targetPeerId || null,
       listOfPeers: listOfPeers,
-      senderPeerId: self._user.sid
-    }, self._user.sid, self.getPeerInfo(), true);
+      senderPeerId: self._user.id
+    }, self._user.id, self.getPeerInfo(), true);
   });
 };
 
@@ -1296,7 +1296,7 @@ Skylink.prototype.streamData = function(data, targetPeerId) {
  */
 Skylink.prototype._startDataTransfer = function(chunks, transferInfo, sessionType, sessionChunkType, listOfPeers, callback) {
   var self = this;
-  var transferId = self._user.sid + '_' + (new Date()).getTime();
+  var transferId = self._user.id + '_' + (new Date()).getTime();
   var transferErrors = {};
   var transferCompleted = [];
 
@@ -1316,7 +1316,7 @@ Skylink.prototype._startDataTransfer = function(chunks, transferInfo, sessionTyp
   self._dataTransfers[transferId].enforcedBSInfo = {};
   self._dataTransfers[transferId].sessionType = sessionType;
   self._dataTransfers[transferId].sessionChunkType = sessionChunkType;
-  self._dataTransfers[transferId].senderPeerId = self._user.sid;
+  self._dataTransfers[transferId].senderPeerId = self._user.id;
 
   // Check if fallback chunks is required
   if (sessionType === 'blob' && sessionChunkType === 'binary') {
@@ -1477,7 +1477,7 @@ Skylink.prototype._startDataTransferToPeer = function (transferId, peerId, callb
       chunkSize: chunkSize,
       timeout: self._dataTransfers[transferId].timeout,
       isPrivate: self._dataTransfers[transferId].isPrivate,
-      sender: self._user.sid,
+      sender: self._user.id,
       agent: window.webrtcDetectedBrowser,
       version: window.webrtcDetectedVersion,
       target: targetPeers ? targetPeers : peerId
@@ -1809,7 +1809,7 @@ Skylink.prototype._handleDataTransferTimeoutForPeer = function (transferId, peer
         return;
       }
 
-      if (!self._user) {
+      if (!self._user.room.connected) {
         log.debug([peerId, 'RTCDataChannel', transferId, 'User is not in Room. Ignoring expired timeout.']);
         return;
       }
@@ -1853,7 +1853,7 @@ Skylink.prototype._handleDataTransferTimeoutForPeer = function (transferId, peer
         type: self._DC_PROTOCOL_TYPE.ERROR,
         content: errorMsg,
         isUploadError: self._dataTransfers[transferId].direction === self.DATA_TRANSFER_TYPE.UPLOAD,
-        sender: self._user.sid,
+        sender: self._user.id,
         name: self._dataTransfers[transferId].name
       }, self._dataChannels[peerId][transferId] ? transferId : 'main');
 
@@ -1919,7 +1919,7 @@ Skylink.prototype._processDataChannelData = function(rawData, peerId, channelNam
             self._sendMessageToDataChannel(peerId, {
               type: self._DC_PROTOCOL_TYPE.ACK,
               ackN: -1,
-              sender: self._user.sid
+              sender: self._user.id
             }, channelProp);
             return;
           }
@@ -2188,7 +2188,7 @@ Skylink.prototype._MESSAGEProtocolHandler = function(peerId, data, channelProp) 
     content: data.data,
     isPrivate: data.isPrivate,
     isDataChannel: true,
-    targetPeerId: this._user.sid,
+    targetPeerId: this._user.id,
     senderPeerId: senderPeerId
   }, senderPeerId, this.getPeerInfo(senderPeerId), false);
 };
@@ -2323,7 +2323,7 @@ Skylink.prototype._DATAProtocolHandler = function(peerId, chunk, chunkType, chun
         chunkType: chunkType,
         isPrivate: false,
         listOfPeers: null,
-        targetPeerId: (self._user ? self._user.sid : null) || null,
+        targetPeerId: (self._user ? self._user.id : null) || null,
         senderPeerId: peerId
       }, peerId, self.getPeerInfo(peerId), false);
       return;
@@ -2351,7 +2351,7 @@ Skylink.prototype._DATAProtocolHandler = function(peerId, chunk, chunkType, chun
     // Send last ACK to Peer to indicate completion of data transfers
     self._sendMessageToDataChannel(peerId, {
       type: self._DC_PROTOCOL_TYPE.ACK,
-      sender: self._user.sid,
+      sender: self._user.id,
       ackN: self._dataTransfers[transferId].sessions[peerId].ackN + 1
     }, channelProp);
 
@@ -2367,7 +2367,7 @@ Skylink.prototype._DATAProtocolHandler = function(peerId, chunk, chunkType, chun
 
   self._sendMessageToDataChannel(peerId, {
     type: self._DC_PROTOCOL_TYPE.ACK,
-    sender: self._user.sid,
+    sender: self._user.id,
     ackN: self._dataTransfers[transferId].sessions[peerId].ackN
   }, channelProp);
 

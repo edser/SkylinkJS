@@ -110,7 +110,7 @@ Skylink.prototype.INTRODUCE_STATE = {
  */
 Skylink.prototype.getPeers = function(showAll, callback){
 	var self = this;
-	if (!self._isPrivileged){
+	if (!self._user.room.session.isPrivileged){
 		log.warn('Please upgrade your key to privileged to use this function');
 		return;
 	}
@@ -125,12 +125,12 @@ Skylink.prototype.getPeers = function(showAll, callback){
 		showAll = false;
 	}
 
-	self._sendChannelMessage({
+	self._socketSendMessage({
 		type: self._SIG_MESSAGE_TYPE.GET_PEERS,
 		showAll: showAll || false
 	});
 
-	self._trigger('getPeersStateChange',self.GET_PEERS_STATE.ENQUIRED, self._user.sid, null);
+	self._trigger('getPeersStateChange',self.GET_PEERS_STATE.ENQUIRED, self._user.id, null);
 
 	log.log('Enquired server for peers within the realm');
 
@@ -187,17 +187,17 @@ Skylink.prototype.getPeers = function(showAll, callback){
  */
 Skylink.prototype.introducePeer = function(sendingPeerId, receivingPeerId){
 	var self = this;
-	if (!self._isPrivileged){
+	if (!self._user.room.session.isPrivileged){
 		log.warn('Please upgrade your key to privileged to use this function');
-		self._trigger('introduceStateChange', self.INTRODUCE_STATE.ERROR, self._user.sid, sendingPeerId, receivingPeerId, 'notPrivileged');
+		self._trigger('introduceStateChange', self.INTRODUCE_STATE.ERROR, self._user.id, sendingPeerId, receivingPeerId, 'notPrivileged');
 		return;
 	}
-	self._sendChannelMessage({
+	self._socketSendMessage({
 		type: self._SIG_MESSAGE_TYPE.INTRODUCE,
 		sendingPeerId: sendingPeerId,
 		receivingPeerId: receivingPeerId
 	});
-	self._trigger('introduceStateChange', self.INTRODUCE_STATE.INTRODUCING, self._user.sid, sendingPeerId, receivingPeerId, null);
+	self._trigger('introduceStateChange', self.INTRODUCE_STATE.INTRODUCING, self._user.id, sendingPeerId, receivingPeerId, null);
 	log.log('Introducing',sendingPeerId,'to',receivingPeerId);
 };
 

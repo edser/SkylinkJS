@@ -131,14 +131,14 @@ Skylink.prototype._onIceCandidate = function(targetMid, candidate) {
 
     log.debug([targetMid, 'RTCIceCandidate', candidateType, 'Sending ICE candidate ->'], candidate);
 
-    self._sendChannelMessage({
+    self._socketSendMessage({
       type: self._SIG_MESSAGE_TYPE.CANDIDATE,
       label: candidate.sdpMLineIndex,
       id: candidate.sdpMid,
       candidate: candidate.candidate,
-      mid: self._user.sid,
+      mid: self._user.id,
       target: targetMid,
-      rid: self._room.id
+      rid: self._user.room.session.id
     });
 
   } else {
@@ -160,23 +160,23 @@ Skylink.prototype._onIceCandidate = function(targetMid, candidate) {
       }
 
       // a=end-of-candidates should present in non-trickle ICE connections so no need to send endOfCandidates message
-      self._sendChannelMessage({
+      self._socketSendMessage({
         type: sessionDescription.type,
         sdp: self._addSDPMediaStreamTrackIDs(targetMid, sessionDescription),
-        mid: self._user.sid,
+        mid: self._user.id,
         userInfo: self._getUserInfo(),
         target: targetMid,
-        rid: self._room.id
+        rid: self._user.room.session.id
       });
     } else if (self._gatheredCandidates[targetMid]) {
-      self._sendChannelMessage({
+      self._socketSendMessage({
         type: self._SIG_MESSAGE_TYPE.END_OF_CANDIDATES,
         noOfExpectedCandidates: self._gatheredCandidates[targetMid].sending.srflx.length +
           self._gatheredCandidates[targetMid].sending.host.length +
           self._gatheredCandidates[targetMid].sending.relay.length,
-        mid: self._user.sid,
+        mid: self._user.id,
         target: targetMid,
-        rid: self._room.id
+        rid: self._user.room.session.id
       });
     }
   }

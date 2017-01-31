@@ -216,6 +216,91 @@ function Skylink() {
   this._options = {};
 
   /**
+   * Stores the User session.
+   * @attribute _user
+   * @type JSON
+   * @private
+   * @for Skylink
+   * @since 0.5.6
+   */
+  this._user = {
+    id: null,
+    data: '',
+    priorityWeight: 0,
+    iceServers: [],
+    timestamps: {
+      updateUserEvent: 0,
+      muteAudioEvent: 0,
+      muteVideoEvent: 0
+    },
+    mutedStreams: {
+      audio: false,
+      video: false
+    },
+    room: {
+      name: null,
+      readyState: null,
+      connected: false,
+      locked: false,
+      hasMCU: false,
+      session: null,
+      path: null,
+      protocol: null
+    },
+    settings: {
+      mediaConnection: {
+        audio: true,
+        video: true,
+        data: true
+      },
+      mediaDirection: {
+        audio: { send: true, receive: true },
+        video: { send: true, receive: true }
+      },
+      bandwidth: {
+        max: {},
+        xVideoCodec: {}
+      }
+    }
+  };
+
+  /**
+   * Stores the Socket connection.
+   * @attribute _socket
+   * @type JSON
+   * @private
+   * @for Skylink
+   * @since 0.1.0
+   */
+  this._socket = {
+    connected: false,
+    pollDead: false,
+    socket: null,
+    server: 'signaling.temasys.io',
+    ports: {
+      'https:': [443, 3443],
+      'http:': [80, 3000]
+    },
+    session: {
+      path: null,
+      options: null,
+      retries: 0,
+      finalAttempts: 0,
+      port: null,
+      protocol: null,
+      transportType: 'WebSocket'
+    },
+    queue: {
+      fn: null,
+      interval: 1000,
+      throughput: 16,
+      messages: [],
+      timestamp: null,
+      types: ['muteAudioEvent', 'muteVideoEvent', 'public', 'stream']
+    }
+  };
+
+  /**
    * Stores the list of Peer Datachannel connections.
    * @attribute _dataChannels
    * @param {JSON} #peerId The list of Datachannels associated with Peer ID.
@@ -309,16 +394,6 @@ function Skylink() {
   this._peerStats = {};
 
   /**
-   * The flag if User is using plugin.
-   * @attribute _isUsingPlugin
-   * @type Boolean
-   * @private
-   * @for Skylink
-   * @since 0.6.16
-   */
-  this._isUsingPlugin = false;
-
-  /**
    * Stores the list of Peers session information.
    * @attribute _peerInformations
    * @param {JSON} <#peerId> The Peer session information.
@@ -334,69 +409,6 @@ function Skylink() {
   this._peerInformations = {};
 
   /**
-   * Stores the Signaling user credentials from the API response required for connecting to the Signaling server.
-   * @attribute _user
-   * @param {String} uid The API result "username".
-   * @param {String} token The API result "userCred".
-   * @param {String} timeStamp The API result "timeStamp".
-   * @param {String} sid The Signaling server receive user Peer ID.
-   * @type JSON
-   * @private
-   * @for Skylink
-   * @since 0.5.6
-   */
-  this._user = null;
-
-  /**
-   * Stores the User custom data.
-   * By default, if no custom user data is set, it is an empty string <code>""</code>.
-   * @attribute _userData
-   * @type JSON|String
-   * @default ""
-   * @private
-   * @for Skylink
-   * @since 0.5.6
-   */
-  this._userData = '';
-
-  /**
-   * Stores the User connection priority weight.
-   * If Peer has a higher connection weight, it will do the offer from its Peer connection first.
-   * @attribute _peerPriorityWeight
-   * @type Number
-   * @private
-   * @for Skylink
-   * @since 0.5.0
-   */
-  this._peerPriorityWeight = 0;
-
-  /**
-   * Stores the flag that indicates if "autoIntroduce" is enabled.
-   * If enabled, the Peers connecting the same Room will receive each others "enter" message ping.
-   * @attribute _autoIntroduce
-   * @type Boolean
-   * @default true
-   * @private
-   * @for Skylink
-   * @since 0.6.1
-   */
-  this._autoIntroduce = true;
-
-  /**
-   * Stores the flag that indicates if "isPrivileged" is enabled.
-   * If enabled, the User has Privileged features which has the ability to retrieve the list of
-   *   Peers in the same App space with <code>getPeers()</code> method
-   *   and introduce Peers to each other with <code>introducePeer</code> method.
-   * @attribute isPrivileged
-   * @type Boolean
-   * @default false
-   * @private
-   * @for Skylink
-   * @since 0.6.1
-   */
-  this._isPrivileged = false;
-
-  /**
    * Stores the list of Peers retrieved from the Signaling from <code>getPeers()</code> method.
    * @attribute _peerList
    * @type JSON
@@ -405,36 +417,6 @@ function Skylink() {
    * @since 0.6.1
    */
   this._peerList = null;
-
-  /**
-   * Stores the current Room name that User is connected to.
-   * @attribute _selectedRoom
-   * @type String
-   * @private
-   * @for Skylink
-   * @since 0.3.0
-   */
-  this._selectedRoom = null;
-
-  /**
-   * Stores the flag that indicates if Room is locked.
-   * @attribute _roomLocked
-   * @type Boolean
-   * @private
-   * @for Skylink
-   * @since 0.5.2
-   */
-  this._roomLocked = false;
-
-  /**
-   * Stores the flag that indicates if User is connected to the Room.
-   * @attribute _inRoom
-   * @type Boolean
-   * @private
-   * @for Skylink
-   * @since 0.4.0
-   */
-  this._inRoom = false;
 
   /**
    * Stores the list of <code>on()</code> event handlers.
@@ -478,115 +460,6 @@ function Skylink() {
   };
 
   /**
-   * Stores the current socket connection information.
-   * @attribute _socketSession
-   * @type JSON
-   * @private
-   * @for Skylink
-   * @since 0.6.13
-   */
-  this._socketSession = {};
-
-  /**
-   * Stores the queued socket messages.
-   * This is to prevent too many sent over less than a second interval that might cause dropped messages
-   *   or jams to the Signaling connection.
-   * @attribute _socketMessageQueue
-   * @type Array
-   * @private
-   * @for Skylink
-   * @since 0.5.8
-   */
-  this._socketMessageQueue = [];
-
-  /**
-   * Stores the <code>setTimeout</code> to sent queued socket messages.
-   * @attribute _socketMessageTimeout
-   * @type Object
-   * @private
-   * @for Skylink
-   * @since 0.5.8
-   */
-  this._socketMessageTimeout = null;
-
-  /**
-   * Stores the list of socket ports to use to connect to the Signaling.
-   * These ports are defined by default which is commonly used currently by the Signaling.
-   * Should re-evaluate this sometime.
-   * @attribute _socketPorts
-   * @param {Array} http: The list of HTTP socket ports.
-   * @param {Array} https: The list of HTTPS socket ports.
-   * @type JSON
-   * @private
-   * @for Skylink
-   * @since 0.5.8
-   */
-  this._socketPorts = {
-    'http:': [80, 3000],
-    'https:': [443, 3443]
-  };
-
-  /**
-   * Stores the flag that indicates if socket connection to the Signaling has opened.
-   * @attribute _channelOpen
-   * @type Boolean
-   * @private
-   * @for Skylink
-   * @since 0.5.2
-   */
-  this._channelOpen = false;
-
-  /**
-   * Stores the Signaling server url.
-   * @attribute _signalingServer
-   * @type String
-   * @private
-   * @for Skylink
-   * @since 0.5.2
-   */
-  this._signalingServer = null;
-
-  /**
-   * Stores the Signaling server protocol.
-   * @attribute _signalingServerProtocol
-   * @type String
-   * @private
-   * @for Skylink
-   * @since 0.5.4
-   */
-  this._signalingServerProtocol = window.location.protocol;
-
-  /**
-   * Stores the Signaling server port.
-   * @attribute _signalingServerPort
-   * @type Number
-   * @private
-   * @for Skylink
-   * @since 0.5.4
-   */
-  this._signalingServerPort = null;
-
-  /**
-   * Stores the Signaling socket connection object.
-   * @attribute _socket
-   * @type io
-   * @private
-   * @for Skylink
-   * @since 0.1.0
-   */
-  this._socket = null;
-
-  /**
-   * Stores the flag that indicates if XDomainRequest is used for IE 8/9.
-   * @attribute _socketUseXDR
-   * @type Boolean
-   * @private
-   * @for Skylink
-   * @since 0.5.4
-   */
-  this._socketUseXDR = false;
-
-  /**
    * Stores the value if ICE restart is supported.
    * @attribute _enableIceRestart
    * @type String
@@ -596,72 +469,6 @@ function Skylink() {
    */
   this._enableIceRestart = window.webrtcDetectedBrowser === 'firefox' ?
     window.webrtcDetectedVersion >= 48 : true;
-
-  /**
-   * Stores the flag if MCU environment is enabled.
-   * @attribute _hasMCU
-   * @type Boolean
-   * @private
-   * @for Skylink
-   * @since 0.5.4
-   */
-  this._hasMCU = false;
-
-  /**
-   * Stores the construct API REST path to obtain Room credentials.
-   * @attribute _path
-   * @type String
-   * @private
-   * @for Skylink
-   * @since 0.1.0
-   */
-  this._path = null;
-
-  /**
-   * Stores the current <code>init()</code> readyState.
-   * @attribute _readyState
-   * @type Number
-   * @private
-   * @for Skylink
-   * @since 0.1.0
-   */
-  this._readyState = 0;
-
-  /**
-   * Stores the "cid" used for <code>joinRoom()</code>.
-   * @attribute _key
-   * @type String
-   * @private
-   * @for Skylink
-   * @since 0.1.0
-   */
-  this._key = null;
-
-  /**
-   * Stores the "apiOwner" used for <code>joinRoom()</code>.
-   * @attribute _appKeyOwner
-   * @type String
-   * @private
-   * @for Skylink
-   * @since 0.5.2
-   */
-  this._appKeyOwner = null;
-
-  /**
-   * Stores the Room credentials information for <code>joinRoom()</code>.
-   * @attribute _room
-   * @param {String} id The "rid" for <code>joinRoom()</code>.
-   * @param {String} token The "roomCred" for <code>joinRoom()</code>.
-   * @param {String} startDateTime The "start" for <code>joinRoom()</code>.
-   * @param {String} duration The "len" for <code>joinRoom()</code>.
-   * @param {String} connection The RTCPeerConnection constraints and configuration. This is not used in the SDK
-   *   except for the "mediaConstraints" property that sets the default <code>getUserMedia()</code> settings.
-   * @type JSON
-   * @private
-   * @for Skylink
-   * @since 0.5.2
-   */
-  this._room = null;
 
   /**
    * Stores the list of Peer messages timestamp.
@@ -778,26 +585,6 @@ function Skylink() {
       video: { send: true, receive: true }
     }
   };
-
-  /**
-   * Stores the publish only settings.
-   * @attribute _publishOnly
-   * @type Boolean
-   * @private
-   * @for Skylink
-   * @since 0.6.16
-   */
-  this._publishOnly = false;
-
-  /**
-   * Stores the parent ID.
-   * @attribute _parentId
-   * @type String
-   * @private
-   * @for Skylink
-   * @since 0.6.18
-   */
-  this._parentId = null;
 
   /**
    * Stores the list of recordings.

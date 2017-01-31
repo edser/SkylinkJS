@@ -1,4 +1,4 @@
-/*! skylinkjs - v0.6.17 - Tue Jan 31 2017 16:05:34 GMT+0800 (SGT) */
+/*! skylinkjs - v0.6.17 - Wed Feb 01 2017 00:48:44 GMT+0800 (SGT) */
 
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.io = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
 
@@ -11532,7 +11532,7 @@ if ( (navigator.mozGetUserMedia ||
   }
 })();
 
-/*! skylinkjs - v0.6.17 - Tue Jan 31 2017 16:05:34 GMT+0800 (SGT) */
+/*! skylinkjs - v0.6.17 - Wed Feb 01 2017 00:48:44 GMT+0800 (SGT) */
 
 (function(refThis) {
 
@@ -11752,6 +11752,91 @@ function Skylink() {
   this._options = {};
 
   /**
+   * Stores the User session.
+   * @attribute _user
+   * @type JSON
+   * @private
+   * @for Skylink
+   * @since 0.5.6
+   */
+  this._user = {
+    id: null,
+    data: '',
+    priorityWeight: 0,
+    iceServers: [],
+    timestamps: {
+      updateUserEvent: 0,
+      muteAudioEvent: 0,
+      muteVideoEvent: 0
+    },
+    mutedStreams: {
+      audio: false,
+      video: false
+    },
+    room: {
+      name: null,
+      readyState: null,
+      connected: false,
+      locked: false,
+      hasMCU: false,
+      session: null,
+      path: null,
+      protocol: null
+    },
+    settings: {
+      mediaConnection: {
+        audio: true,
+        video: true,
+        data: true
+      },
+      mediaDirection: {
+        audio: { send: true, receive: true },
+        video: { send: true, receive: true }
+      },
+      bandwidth: {
+        max: {},
+        xVideoCodec: {}
+      }
+    }
+  };
+
+  /**
+   * Stores the Socket connection.
+   * @attribute _socket
+   * @type JSON
+   * @private
+   * @for Skylink
+   * @since 0.1.0
+   */
+  this._socket = {
+    connected: false,
+    pollDead: false,
+    socket: null,
+    server: 'signaling.temasys.io',
+    ports: {
+      'https:': [443, 3443],
+      'http:': [80, 3000]
+    },
+    session: {
+      path: null,
+      options: null,
+      retries: 0,
+      finalAttempts: 0,
+      port: null,
+      protocol: null,
+      transportType: 'WebSocket'
+    },
+    queue: {
+      fn: null,
+      interval: 1000,
+      throughput: 16,
+      messages: [],
+      timestamp: null,
+      types: ['muteAudioEvent', 'muteVideoEvent', 'public', 'stream']
+    }
+  };
+
+  /**
    * Stores the list of Peer Datachannel connections.
    * @attribute _dataChannels
    * @param {JSON} #peerId The list of Datachannels associated with Peer ID.
@@ -11845,16 +11930,6 @@ function Skylink() {
   this._peerStats = {};
 
   /**
-   * The flag if User is using plugin.
-   * @attribute _isUsingPlugin
-   * @type Boolean
-   * @private
-   * @for Skylink
-   * @since 0.6.16
-   */
-  this._isUsingPlugin = false;
-
-  /**
    * Stores the list of Peers session information.
    * @attribute _peerInformations
    * @param {JSON} <#peerId> The Peer session information.
@@ -11870,69 +11945,6 @@ function Skylink() {
   this._peerInformations = {};
 
   /**
-   * Stores the Signaling user credentials from the API response required for connecting to the Signaling server.
-   * @attribute _user
-   * @param {String} uid The API result "username".
-   * @param {String} token The API result "userCred".
-   * @param {String} timeStamp The API result "timeStamp".
-   * @param {String} sid The Signaling server receive user Peer ID.
-   * @type JSON
-   * @private
-   * @for Skylink
-   * @since 0.5.6
-   */
-  this._user = null;
-
-  /**
-   * Stores the User custom data.
-   * By default, if no custom user data is set, it is an empty string <code>""</code>.
-   * @attribute _userData
-   * @type JSON|String
-   * @default ""
-   * @private
-   * @for Skylink
-   * @since 0.5.6
-   */
-  this._userData = '';
-
-  /**
-   * Stores the User connection priority weight.
-   * If Peer has a higher connection weight, it will do the offer from its Peer connection first.
-   * @attribute _peerPriorityWeight
-   * @type Number
-   * @private
-   * @for Skylink
-   * @since 0.5.0
-   */
-  this._peerPriorityWeight = 0;
-
-  /**
-   * Stores the flag that indicates if "autoIntroduce" is enabled.
-   * If enabled, the Peers connecting the same Room will receive each others "enter" message ping.
-   * @attribute _autoIntroduce
-   * @type Boolean
-   * @default true
-   * @private
-   * @for Skylink
-   * @since 0.6.1
-   */
-  this._autoIntroduce = true;
-
-  /**
-   * Stores the flag that indicates if "isPrivileged" is enabled.
-   * If enabled, the User has Privileged features which has the ability to retrieve the list of
-   *   Peers in the same App space with <code>getPeers()</code> method
-   *   and introduce Peers to each other with <code>introducePeer</code> method.
-   * @attribute isPrivileged
-   * @type Boolean
-   * @default false
-   * @private
-   * @for Skylink
-   * @since 0.6.1
-   */
-  this._isPrivileged = false;
-
-  /**
    * Stores the list of Peers retrieved from the Signaling from <code>getPeers()</code> method.
    * @attribute _peerList
    * @type JSON
@@ -11941,36 +11953,6 @@ function Skylink() {
    * @since 0.6.1
    */
   this._peerList = null;
-
-  /**
-   * Stores the current Room name that User is connected to.
-   * @attribute _selectedRoom
-   * @type String
-   * @private
-   * @for Skylink
-   * @since 0.3.0
-   */
-  this._selectedRoom = null;
-
-  /**
-   * Stores the flag that indicates if Room is locked.
-   * @attribute _roomLocked
-   * @type Boolean
-   * @private
-   * @for Skylink
-   * @since 0.5.2
-   */
-  this._roomLocked = false;
-
-  /**
-   * Stores the flag that indicates if User is connected to the Room.
-   * @attribute _inRoom
-   * @type Boolean
-   * @private
-   * @for Skylink
-   * @since 0.4.0
-   */
-  this._inRoom = false;
 
   /**
    * Stores the list of <code>on()</code> event handlers.
@@ -12014,115 +11996,6 @@ function Skylink() {
   };
 
   /**
-   * Stores the current socket connection information.
-   * @attribute _socketSession
-   * @type JSON
-   * @private
-   * @for Skylink
-   * @since 0.6.13
-   */
-  this._socketSession = {};
-
-  /**
-   * Stores the queued socket messages.
-   * This is to prevent too many sent over less than a second interval that might cause dropped messages
-   *   or jams to the Signaling connection.
-   * @attribute _socketMessageQueue
-   * @type Array
-   * @private
-   * @for Skylink
-   * @since 0.5.8
-   */
-  this._socketMessageQueue = [];
-
-  /**
-   * Stores the <code>setTimeout</code> to sent queued socket messages.
-   * @attribute _socketMessageTimeout
-   * @type Object
-   * @private
-   * @for Skylink
-   * @since 0.5.8
-   */
-  this._socketMessageTimeout = null;
-
-  /**
-   * Stores the list of socket ports to use to connect to the Signaling.
-   * These ports are defined by default which is commonly used currently by the Signaling.
-   * Should re-evaluate this sometime.
-   * @attribute _socketPorts
-   * @param {Array} http: The list of HTTP socket ports.
-   * @param {Array} https: The list of HTTPS socket ports.
-   * @type JSON
-   * @private
-   * @for Skylink
-   * @since 0.5.8
-   */
-  this._socketPorts = {
-    'http:': [80, 3000],
-    'https:': [443, 3443]
-  };
-
-  /**
-   * Stores the flag that indicates if socket connection to the Signaling has opened.
-   * @attribute _channelOpen
-   * @type Boolean
-   * @private
-   * @for Skylink
-   * @since 0.5.2
-   */
-  this._channelOpen = false;
-
-  /**
-   * Stores the Signaling server url.
-   * @attribute _signalingServer
-   * @type String
-   * @private
-   * @for Skylink
-   * @since 0.5.2
-   */
-  this._signalingServer = null;
-
-  /**
-   * Stores the Signaling server protocol.
-   * @attribute _signalingServerProtocol
-   * @type String
-   * @private
-   * @for Skylink
-   * @since 0.5.4
-   */
-  this._signalingServerProtocol = window.location.protocol;
-
-  /**
-   * Stores the Signaling server port.
-   * @attribute _signalingServerPort
-   * @type Number
-   * @private
-   * @for Skylink
-   * @since 0.5.4
-   */
-  this._signalingServerPort = null;
-
-  /**
-   * Stores the Signaling socket connection object.
-   * @attribute _socket
-   * @type io
-   * @private
-   * @for Skylink
-   * @since 0.1.0
-   */
-  this._socket = null;
-
-  /**
-   * Stores the flag that indicates if XDomainRequest is used for IE 8/9.
-   * @attribute _socketUseXDR
-   * @type Boolean
-   * @private
-   * @for Skylink
-   * @since 0.5.4
-   */
-  this._socketUseXDR = false;
-
-  /**
    * Stores the value if ICE restart is supported.
    * @attribute _enableIceRestart
    * @type String
@@ -12132,72 +12005,6 @@ function Skylink() {
    */
   this._enableIceRestart = window.webrtcDetectedBrowser === 'firefox' ?
     window.webrtcDetectedVersion >= 48 : true;
-
-  /**
-   * Stores the flag if MCU environment is enabled.
-   * @attribute _hasMCU
-   * @type Boolean
-   * @private
-   * @for Skylink
-   * @since 0.5.4
-   */
-  this._hasMCU = false;
-
-  /**
-   * Stores the construct API REST path to obtain Room credentials.
-   * @attribute _path
-   * @type String
-   * @private
-   * @for Skylink
-   * @since 0.1.0
-   */
-  this._path = null;
-
-  /**
-   * Stores the current <code>init()</code> readyState.
-   * @attribute _readyState
-   * @type Number
-   * @private
-   * @for Skylink
-   * @since 0.1.0
-   */
-  this._readyState = 0;
-
-  /**
-   * Stores the "cid" used for <code>joinRoom()</code>.
-   * @attribute _key
-   * @type String
-   * @private
-   * @for Skylink
-   * @since 0.1.0
-   */
-  this._key = null;
-
-  /**
-   * Stores the "apiOwner" used for <code>joinRoom()</code>.
-   * @attribute _appKeyOwner
-   * @type String
-   * @private
-   * @for Skylink
-   * @since 0.5.2
-   */
-  this._appKeyOwner = null;
-
-  /**
-   * Stores the Room credentials information for <code>joinRoom()</code>.
-   * @attribute _room
-   * @param {String} id The "rid" for <code>joinRoom()</code>.
-   * @param {String} token The "roomCred" for <code>joinRoom()</code>.
-   * @param {String} startDateTime The "start" for <code>joinRoom()</code>.
-   * @param {String} duration The "len" for <code>joinRoom()</code>.
-   * @param {String} connection The RTCPeerConnection constraints and configuration. This is not used in the SDK
-   *   except for the "mediaConstraints" property that sets the default <code>getUserMedia()</code> settings.
-   * @type JSON
-   * @private
-   * @for Skylink
-   * @since 0.5.2
-   */
-  this._room = null;
 
   /**
    * Stores the list of Peer messages timestamp.
@@ -12314,26 +12121,6 @@ function Skylink() {
       video: { send: true, receive: true }
     }
   };
-
-  /**
-   * Stores the publish only settings.
-   * @attribute _publishOnly
-   * @type Boolean
-   * @private
-   * @for Skylink
-   * @since 0.6.16
-   */
-  this._publishOnly = false;
-
-  /**
-   * Stores the parent ID.
-   * @attribute _parentId
-   * @type String
-   * @private
-   * @for Skylink
-   * @since 0.6.18
-   */
-  this._parentId = null;
 
   /**
    * Stores the list of recordings.
@@ -12464,7 +12251,7 @@ Skylink.prototype.DATA_CHANNEL_MESSAGE_ERROR = {
 Skylink.prototype._createDataChannel = function(peerId, dataChannel, createAsMessagingChannel) {
   var self = this;
 
-  if (!self._user) {
+  if (!self._user.room.connected) {
     log.error([peerId, 'RTCDataChannel', null,
       'Aborting of creating or initializing Datachannel as User does not have Room session']);
     return;
@@ -12477,7 +12264,7 @@ Skylink.prototype._createDataChannel = function(peerId, dataChannel, createAsMes
     return;
   }
 
-  var channelName = self._user.sid + '_' + peerId;
+  var channelName = self._user.id + '_' + peerId;
   var channelType = createAsMessagingChannel ? self.DATA_CHANNEL_TYPE.MESSAGING : self.DATA_CHANNEL_TYPE.DATA;
 
   if (dataChannel && typeof dataChannel === 'object') {
@@ -13414,7 +13201,7 @@ Skylink.prototype.sendBlobData = function(data, timeout, targetPeerId, sendChunk
 
   transferInfo.size = data.size;
 
-  if (!self._user) {
+  if (!self._user.room.connected) {
     emitErrorBeforeDataTransferFn('Unable to send any blob data. User is not in Room.');
     return;
   }
@@ -13650,7 +13437,7 @@ Skylink.prototype.sendURLData = function(data, timeout, targetPeerId, callback) 
 
   transferInfo.size = data.length || data.size;
 
-  if (!self._user) {
+  if (!self._user.room.connected) {
     emitErrorBeforeDataTransferFn('Unable to send any dataURL. User is not in Room.');
     return;
   }
@@ -13775,7 +13562,7 @@ Skylink.prototype.acceptDataTransfer = function (peerId, transferId, accept) {
     // MCU sends the data transfer from the "P2P" Datachannel
     self._sendMessageToDataChannel(peerId, {
       type: self._DC_PROTOCOL_TYPE.ACK,
-      sender: self._user.sid,
+      sender: self._user.id,
       ackN: 0
     }, channelProp);
 
@@ -13789,7 +13576,7 @@ Skylink.prototype.acceptDataTransfer = function (peerId, transferId, accept) {
     // MCU sends the data transfer from the "P2P" Datachannel
     self._sendMessageToDataChannel(peerId, {
       type: self._DC_PROTOCOL_TYPE.ACK,
-      sender: self._user.sid,
+      sender: self._user.id,
       ackN: -1
     }, channelProp);
 
@@ -13891,7 +13678,7 @@ Skylink.prototype.cancelDataTransfer = function (peerId, transferId) {
     if (Object.keys(self._dataTransfers[transferId].peers.main).length > 0) {
       self._sendMessageToDataChannel('MCU', {
         type: self._DC_PROTOCOL_TYPE.CANCEL,
-        sender: self._user.sid,
+        sender: self._user.id,
         content: 'Peer cancelled download transfer',
         name: self._dataTransfers[transferId].name,
         ackN: 0
@@ -13902,7 +13689,7 @@ Skylink.prototype.cancelDataTransfer = function (peerId, transferId) {
     if (Object.keys(self._dataTransfers[transferId].peers[transferId]).length > 0) {
       self._sendMessageToDataChannel('MCU', {
         type: self._DC_PROTOCOL_TYPE.CANCEL,
-        sender: self._user.sid,
+        sender: self._user.id,
         content: 'Peer cancelled download transfer',
         name: self._dataTransfers[transferId].name,
         ackN: 0
@@ -13926,7 +13713,7 @@ Skylink.prototype.cancelDataTransfer = function (peerId, transferId) {
 
     self._sendMessageToDataChannel(peerId, {
       type: self._DC_PROTOCOL_TYPE.CANCEL,
-      sender: self._user.sid,
+      sender: self._user.id,
       content: 'Peer cancelled download transfer',
       name: self._dataTransfers[transferId].name,
       ackN: 0
@@ -14007,7 +13794,7 @@ Skylink.prototype.sendP2PMessage = function(message, targetPeerId) {
     isPrivate = true;
   }
 
-  if (!this._inRoom || !this._user) {
+  if (!this._user.room.connected) {
     log.error('Unable to send message as User is not in Room. ->', message);
     return;
   }
@@ -14036,7 +13823,7 @@ Skylink.prototype.sendP2PMessage = function(message, targetPeerId) {
       this._sendMessageToDataChannel(peerId, {
         type: this._DC_PROTOCOL_TYPE.MESSAGE,
         isPrivate: isPrivate,
-        sender: this._user.sid,
+        sender: this._user.id,
         target: peerId,
         data: message
       }, 'main');
@@ -14055,7 +13842,7 @@ Skylink.prototype.sendP2PMessage = function(message, targetPeerId) {
     this._sendMessageToDataChannel('MCU', {
       type: this._DC_PROTOCOL_TYPE.MESSAGE,
       isPrivate: isPrivate,
-      sender: this._user.sid,
+      sender: this._user.id,
       target: listOfPeers,
       data: message
     }, 'main');
@@ -14067,8 +13854,8 @@ Skylink.prototype.sendP2PMessage = function(message, targetPeerId) {
     targetPeerId: targetPeerId || null,
     listOfPeers: listOfPeers,
     isDataChannel: true,
-    senderPeerId: this._user.sid
-  }, this._user.sid, this.getPeerInfo(), true);
+    senderPeerId: this._user.id
+  }, this._user.id, this.getPeerInfo(), true);
 };
 
 /**
@@ -14166,7 +13953,7 @@ Skylink.prototype.streamData = function(data, targetPeerId) {
   }
 
   self._blobToArrayBuffer(data, function (arrayBufferData) {
-    if (!self._inRoom || !self._user) {
+    if (!self._user.room.connected) {
       log.error('Unable to stream data chunk as User is not in Room. ->', data);
       return;
     }
@@ -14215,8 +14002,8 @@ Skylink.prototype.streamData = function(data, targetPeerId) {
       isPrivate: isPrivate,
       targetPeerId: targetPeerId || null,
       listOfPeers: listOfPeers,
-      senderPeerId: self._user.sid
-    }, self._user.sid, self.getPeerInfo(), true);
+      senderPeerId: self._user.id
+    }, self._user.id, self.getPeerInfo(), true);
   });
 };
 
@@ -14229,7 +14016,7 @@ Skylink.prototype.streamData = function(data, targetPeerId) {
  */
 Skylink.prototype._startDataTransfer = function(chunks, transferInfo, sessionType, sessionChunkType, listOfPeers, callback) {
   var self = this;
-  var transferId = self._user.sid + '_' + (new Date()).getTime();
+  var transferId = self._user.id + '_' + (new Date()).getTime();
   var transferErrors = {};
   var transferCompleted = [];
 
@@ -14249,7 +14036,7 @@ Skylink.prototype._startDataTransfer = function(chunks, transferInfo, sessionTyp
   self._dataTransfers[transferId].enforcedBSInfo = {};
   self._dataTransfers[transferId].sessionType = sessionType;
   self._dataTransfers[transferId].sessionChunkType = sessionChunkType;
-  self._dataTransfers[transferId].senderPeerId = self._user.sid;
+  self._dataTransfers[transferId].senderPeerId = self._user.id;
 
   // Check if fallback chunks is required
   if (sessionType === 'blob' && sessionChunkType === 'binary') {
@@ -14410,7 +14197,7 @@ Skylink.prototype._startDataTransferToPeer = function (transferId, peerId, callb
       chunkSize: chunkSize,
       timeout: self._dataTransfers[transferId].timeout,
       isPrivate: self._dataTransfers[transferId].isPrivate,
-      sender: self._user.sid,
+      sender: self._user.id,
       agent: window.webrtcDetectedBrowser,
       version: window.webrtcDetectedVersion,
       target: targetPeers ? targetPeers : peerId
@@ -14742,7 +14529,7 @@ Skylink.prototype._handleDataTransferTimeoutForPeer = function (transferId, peer
         return;
       }
 
-      if (!self._user) {
+      if (!self._user.room.connected) {
         log.debug([peerId, 'RTCDataChannel', transferId, 'User is not in Room. Ignoring expired timeout.']);
         return;
       }
@@ -14786,7 +14573,7 @@ Skylink.prototype._handleDataTransferTimeoutForPeer = function (transferId, peer
         type: self._DC_PROTOCOL_TYPE.ERROR,
         content: errorMsg,
         isUploadError: self._dataTransfers[transferId].direction === self.DATA_TRANSFER_TYPE.UPLOAD,
-        sender: self._user.sid,
+        sender: self._user.id,
         name: self._dataTransfers[transferId].name
       }, self._dataChannels[peerId][transferId] ? transferId : 'main');
 
@@ -14852,7 +14639,7 @@ Skylink.prototype._processDataChannelData = function(rawData, peerId, channelNam
             self._sendMessageToDataChannel(peerId, {
               type: self._DC_PROTOCOL_TYPE.ACK,
               ackN: -1,
-              sender: self._user.sid
+              sender: self._user.id
             }, channelProp);
             return;
           }
@@ -15121,7 +14908,7 @@ Skylink.prototype._MESSAGEProtocolHandler = function(peerId, data, channelProp) 
     content: data.data,
     isPrivate: data.isPrivate,
     isDataChannel: true,
-    targetPeerId: this._user.sid,
+    targetPeerId: this._user.id,
     senderPeerId: senderPeerId
   }, senderPeerId, this.getPeerInfo(senderPeerId), false);
 };
@@ -15256,7 +15043,7 @@ Skylink.prototype._DATAProtocolHandler = function(peerId, chunk, chunkType, chun
         chunkType: chunkType,
         isPrivate: false,
         listOfPeers: null,
-        targetPeerId: (self._user ? self._user.sid : null) || null,
+        targetPeerId: (self._user ? self._user.id : null) || null,
         senderPeerId: peerId
       }, peerId, self.getPeerInfo(peerId), false);
       return;
@@ -15284,7 +15071,7 @@ Skylink.prototype._DATAProtocolHandler = function(peerId, chunk, chunkType, chun
     // Send last ACK to Peer to indicate completion of data transfers
     self._sendMessageToDataChannel(peerId, {
       type: self._DC_PROTOCOL_TYPE.ACK,
-      sender: self._user.sid,
+      sender: self._user.id,
       ackN: self._dataTransfers[transferId].sessions[peerId].ackN + 1
     }, channelProp);
 
@@ -15300,7 +15087,7 @@ Skylink.prototype._DATAProtocolHandler = function(peerId, chunk, chunkType, chun
 
   self._sendMessageToDataChannel(peerId, {
     type: self._DC_PROTOCOL_TYPE.ACK,
-    sender: self._user.sid,
+    sender: self._user.id,
     ackN: self._dataTransfers[transferId].sessions[peerId].ackN
   }, channelProp);
 
@@ -15421,14 +15208,14 @@ Skylink.prototype._onIceCandidate = function(targetMid, candidate) {
 
     log.debug([targetMid, 'RTCIceCandidate', candidateType, 'Sending ICE candidate ->'], candidate);
 
-    self._sendChannelMessage({
+    self._socketSendMessage({
       type: self._SIG_MESSAGE_TYPE.CANDIDATE,
       label: candidate.sdpMLineIndex,
       id: candidate.sdpMid,
       candidate: candidate.candidate,
-      mid: self._user.sid,
+      mid: self._user.id,
       target: targetMid,
-      rid: self._room.id
+      rid: self._user.room.session.id
     });
 
   } else {
@@ -15450,23 +15237,23 @@ Skylink.prototype._onIceCandidate = function(targetMid, candidate) {
       }
 
       // a=end-of-candidates should present in non-trickle ICE connections so no need to send endOfCandidates message
-      self._sendChannelMessage({
+      self._socketSendMessage({
         type: sessionDescription.type,
         sdp: self._addSDPMediaStreamTrackIDs(targetMid, sessionDescription),
-        mid: self._user.sid,
+        mid: self._user.id,
         userInfo: self._getUserInfo(),
         target: targetMid,
-        rid: self._room.id
+        rid: self._user.room.session.id
       });
     } else if (self._gatheredCandidates[targetMid]) {
-      self._sendChannelMessage({
+      self._socketSendMessage({
         type: self._SIG_MESSAGE_TYPE.END_OF_CANDIDATES,
         noOfExpectedCandidates: self._gatheredCandidates[targetMid].sending.srflx.length +
           self._gatheredCandidates[targetMid].sending.host.length +
           self._gatheredCandidates[targetMid].sending.relay.length,
-        mid: self._user.sid,
+        mid: self._user.id,
         target: targetMid,
-        rid: self._room.id
+        rid: self._user.room.session.id
       });
     }
   }
@@ -15869,9 +15656,7 @@ Skylink.prototype._setIceServers = function(givenConfig) {
 
   log.log('Output iceServers configuration:', newIceServers);
 
-  return {
-    iceServers: newIceServers
-  };
+  return newIceServers;
 };
 Skylink.prototype.PEER_CONNECTION_STATE = {
   STABLE: 'stable',
@@ -17208,8 +16993,8 @@ Skylink.prototype._restartPeerConnection = function (peerId, doIceRestart, callb
 
     var restartMsg = {
       type: self._SIG_MESSAGE_TYPE.RESTART,
-      mid: self._user.sid,
-      rid: self._room.id,
+      mid: self._user.id,
+      rid: self._user.room.session.id,
       agent: window.webrtcDetectedBrowser,
       version: (window.webrtcDetectedVersion || 0).toString(),
       os: window.navigator.platform,
@@ -17228,19 +17013,19 @@ Skylink.prototype._restartPeerConnection = function (peerId, doIceRestart, callb
       DTProtocolVersion: self.DT_PROTOCOL_VERSION
     };
 
-    if (self._publishOnly) {
+    if (self._user.connection.publishOnly) {
       restartMsg.publishOnly = {
         type: self._streams.screenshare && self._streams.screenshare.stream ? 'screenshare' : 'video'
       };
     }
 
-    if (self._parentId) {
-      restartMsg.parentId = self._parentId;
+    if (self._user.parentId) {
+      restartMsg.parentId = self._user.parentId;
     }
 
     self._peerEndOfCandidatesCounter[peerId] = self._peerEndOfCandidatesCounter[peerId] || {};
     self._peerEndOfCandidatesCounter[peerId].len = 0;
-    self._sendChannelMessage(restartMsg);
+    self._socketSendMessage(restartMsg);
     self._trigger('peerRestart', peerId, self.getPeerInfo(peerId), true, doIceRestart === true);
 
     if (typeof callback === 'function') {
@@ -17257,12 +17042,12 @@ Skylink.prototype._restartPeerConnection = function (peerId, doIceRestart, callb
       var hasLocalDescription = pc.localDescription && pc.localDescription.sdp;
       // By then it should have at least the local description..
       if (hasLocalDescription) {
-        self._sendChannelMessage({
+        self._socketSendMessage({
           type: pc.localDescription.type,
           sdp: pc.localDescription.sdp,
-          mid: self._user.sid,
+          mid: self._user.id,
           target: peerId,
-          rid: self._room.id,
+          rid: self._user.room.session.id,
           restart: true
         });
       } else {
@@ -17369,15 +17154,14 @@ Skylink.prototype._removePeer = function(peerId) {
  */
 Skylink.prototype._createPeerConnection = function(targetMid, isScreenSharing) {
   var pc, self = this;
-  if (!self._inRoom || !(self._room && self._room.connection &&
-    self._room.connection.peerConfig && Array.isArray(self._room.connection.peerConfig.iceServers))) {
+  if (!self._user.room.connected || !Array.isArray(self._user.iceServers)) {
     return;
   }
   // currently the AdapterJS 0.12.1-2 causes an issue to prevent firefox from
   // using .urls feature
   try {
     pc = new RTCPeerConnection({
-      iceServers: self._room.connection.peerConfig.iceServers,
+      iceServers: self._user.iceServers,
       iceTransportPolicy: self._options.filterCandidatesType.host && self._options.filterCandidatesType.srflx &&
         !self._options.filterCandidatesType.relay ? 'relay' : 'all',
       bundlePolicy: 'max-bundle',
@@ -17546,8 +17330,8 @@ Skylink.prototype._restartMCUConnection = function(callback, doIceRestart) {
   var sendRestartMsgFn = function (peerId) {
     var restartMsg = {
       type: self._SIG_MESSAGE_TYPE.RESTART,
-      mid: self._user.sid,
-      rid: self._room.id,
+      mid: self._user.id,
+      rid: self._user.room.session.id,
       agent: window.webrtcDetectedBrowser,
       version: (window.webrtcDetectedVersion || 0).toString(),
       os: window.navigator.platform,
@@ -17567,19 +17351,19 @@ Skylink.prototype._restartMCUConnection = function(callback, doIceRestart) {
       DTProtocolVersion: self.DT_PROTOCOL_VERSION
     };
 
-    if (self._publishOnly) {
+    if (self._user.connection.publishOnly) {
       restartMsg.publishOnly = {
         type: self._streams.screenshare && self._streams.screenshare.stream ? 'screenshare' : 'video'
       };
     }
 
-    if (self._parentId) {
-      restartMsg.parentId = self._parentId;
+    if (self._user.parentId) {
+      restartMsg.parentId = self._user.parentId;
     }
 
     log.log([peerId, 'RTCPeerConnection', null, 'Sending restart message to signaling server ->'], restartMsg);
 
-    self._sendChannelMessage(restartMsg);
+    self._socketSendMessage(restartMsg);
   };
 
   for (var i = 0; i < listOfPeers.length; i++) {
@@ -17745,18 +17529,18 @@ Skylink.prototype.setUserData = function(userData) {
     updatedUserData = userData;
   }
 
-  this._userData = updatedUserData;
+  self._user.data = updatedUserData;
 
-  if (self._inRoom) {
+  if (self._user.room.connected) {
     log.log('Updated userData -> ', updatedUserData);
-    self._sendChannelMessage({
+    self._socketSendMessage({
       type: self._SIG_MESSAGE_TYPE.UPDATE_USER,
-      mid: self._user.sid,
-      rid: self._room.id,
+      mid: self._user.id,
+      rid: self._user.room.session.id,
       userData: updatedUserData,
       stamp: (new Date()).getTime()
     });
-    self._trigger('peerUpdated', self._user.sid, self.getPeerInfo(), true);
+    self._trigger('peerUpdated', self._user.id, self.getPeerInfo(), true);
   } else {
     log.warn('User is not in the room. Broadcast of updated information will be dropped');
   }
@@ -17786,7 +17570,7 @@ Skylink.prototype.getUserData = function(peerId) {
     }
     return userData;
   }
-  return this._userData;
+  return this._user.data;
 };
 
 /**
@@ -17892,7 +17676,7 @@ Skylink.prototype.getPeerInfo = function(peerId) {
 
   } else {
     peerInfo = {
-      userData: clone(this._userData),
+      userData: clone(this._user.data),
       settings: {
         audio: false,
         video: false
@@ -17906,14 +17690,14 @@ Skylink.prototype.getPeerInfo = function(peerId) {
         SMProtocolVersion: this.SMProtocolVersion,
         DTProtocolVersion: this.DTProtocolVersion
       },
-      room: clone(this._selectedRoom),
+      room: clone(this._user.room.name),
       config: {
         enableDataChannel: this._options.enableDataChannel,
         enableIceTrickle: this._options.enableIceTrickle,
         enableIceRestart: this._enableIceRestart,
-        priorityWeight: this._peerPriorityWeight,
+        priorityWeight: this._user.priorityWeight,
         receiveOnly: false,
-        publishOnly: !!this._publishOnly
+        publishOnly: !!this._user.connection.publishOnly
       }
     };
 
@@ -17927,9 +17711,9 @@ Skylink.prototype.getPeerInfo = function(peerId) {
       peerInfo.settings = clone(this._streams.userMedia.settings);
     }
 
-    peerInfo.settings.bandwidth = clone(this._streamsBandwidthSettings.bAS);
-    peerInfo.settings.googleXBandwidth = clone(this._streamsBandwidthSettings.googleX);
-    peerInfo.parentId = this._parentId ? this._parentId : null;
+    peerInfo.settings.bandwidth = clone(this._user.connection.bandwidth.max);
+    peerInfo.settings.googleXBandwidth = clone(this._user.connection.bandwidth.xVideoCodec);
+    peerInfo.parentId = this._user.parentId ? this._user.parentId : null;
     peerInfo.config.receiveOnly = !peerInfo.settings.video && !peerInfo.settings.audio;
   }
 
@@ -17972,9 +17756,9 @@ Skylink.prototype.getPeersInRoom = function() {
     listOfPeersInfo[listOfPeers[i]].isSelf = false;
   }
 
-  if (this._user && this._user.sid) {
-    listOfPeersInfo[this._user.sid] = clone(this.getPeerInfo());
-    listOfPeersInfo[this._user.sid].isSelf = true;
+  if (this._user && this._user.id) {
+    listOfPeersInfo[this._user.id] = clone(this.getPeerInfo());
+    listOfPeersInfo[this._user.id].isSelf = true;
   }
 
   return listOfPeersInfo;
@@ -18024,7 +17808,7 @@ Skylink.prototype.getPeersStream = function() {
     };
   }
 
-  if (this._user && this._user.sid) {
+  if (this._user && this._user.id) {
     var selfStream = null;
 
     if (this._streams.screenshare && this._streams.screenshare.stream) {
@@ -18033,7 +17817,7 @@ Skylink.prototype.getPeersStream = function() {
       selfStream = this._streams.userMedia.stream;
     }
 
-    listOfPeersStreams[this._user.sid] = {
+    listOfPeersStreams[this._user.id] = {
       streamId: selfStream ? selfStream.id || selfStream.label || null : null,
       stream: selfStream,
       isSelf: true
@@ -18064,16 +17848,16 @@ Skylink.prototype.getPeersStream = function() {
 Skylink.prototype.getCurrentDataTransfers = function() {
   var listOfDataTransfers = {};
 
-  if (!(this._user && this._user.sid)) {
+  if (!(this._user && this._user.id)) {
     return {};
   }
 
   for (var prop in this._dataTransfers) {
     if (this._dataTransfers.hasOwnProperty(prop) && this._dataTransfers[prop]) {
       listOfDataTransfers[prop] = {
-        transferInfo: this._getTransferInfo(prop, this._user.sid, true, true, true),
-        isSelf: this._dataTransfers[prop].senderPeerId === this._user.sid,
-        peerId: this._dataTransfers[prop].senderPeerId || this._user.sid
+        transferInfo: this._getTransferInfo(prop, this._user.id, true, true, true),
+        isSelf: this._dataTransfers[prop].senderPeerId === this._user.id,
+        peerId: this._dataTransfers[prop].senderPeerId || this._user.id
       };
     }
   }
@@ -18365,12 +18149,12 @@ Skylink.prototype._setLocalAndSendMessage = function(targetMid, sessionDescripti
       return;
     }
 
-    self._sendChannelMessage({
+    self._socketSendMessage({
       type: sessionDescription.type,
       sdp: self._addSDPMediaStreamTrackIDs(targetMid, sessionDescription),
-      mid: self._user.sid,
+      mid: self._user.id,
       target: targetMid,
-      rid: self._room.id,
+      rid: self._user.room.session.id,
       userInfo: self._getUserInfo()
     });
 
@@ -18473,7 +18257,7 @@ Skylink.prototype.INTRODUCE_STATE = {
  */
 Skylink.prototype.getPeers = function(showAll, callback){
 	var self = this;
-	if (!self._isPrivileged){
+	if (!self._user.room.session.isPrivileged){
 		log.warn('Please upgrade your key to privileged to use this function');
 		return;
 	}
@@ -18488,12 +18272,12 @@ Skylink.prototype.getPeers = function(showAll, callback){
 		showAll = false;
 	}
 
-	self._sendChannelMessage({
+	self._socketSendMessage({
 		type: self._SIG_MESSAGE_TYPE.GET_PEERS,
 		showAll: showAll || false
 	});
 
-	self._trigger('getPeersStateChange',self.GET_PEERS_STATE.ENQUIRED, self._user.sid, null);
+	self._trigger('getPeersStateChange',self.GET_PEERS_STATE.ENQUIRED, self._user.id, null);
 
 	log.log('Enquired server for peers within the realm');
 
@@ -18550,17 +18334,17 @@ Skylink.prototype.getPeers = function(showAll, callback){
  */
 Skylink.prototype.introducePeer = function(sendingPeerId, receivingPeerId){
 	var self = this;
-	if (!self._isPrivileged){
+	if (!self._user.room.session.isPrivileged){
 		log.warn('Please upgrade your key to privileged to use this function');
-		self._trigger('introduceStateChange', self.INTRODUCE_STATE.ERROR, self._user.sid, sendingPeerId, receivingPeerId, 'notPrivileged');
+		self._trigger('introduceStateChange', self.INTRODUCE_STATE.ERROR, self._user.id, sendingPeerId, receivingPeerId, 'notPrivileged');
 		return;
 	}
-	self._sendChannelMessage({
+	self._socketSendMessage({
 		type: self._SIG_MESSAGE_TYPE.INTRODUCE,
 		sendingPeerId: sendingPeerId,
 		receivingPeerId: receivingPeerId
 	});
-	self._trigger('introduceStateChange', self.INTRODUCE_STATE.INTRODUCING, self._user.sid, sendingPeerId, receivingPeerId, null);
+	self._trigger('introduceStateChange', self.INTRODUCE_STATE.INTRODUCING, self._user.id, sendingPeerId, receivingPeerId, null);
 	log.log('Introducing',sendingPeerId,'to',receivingPeerId);
 };
 
@@ -18888,105 +18672,204 @@ Skylink.prototype.SYSTEM_ACTION_REASON = {
  * @for Skylink
  * @since 0.5.5
  */
-
 Skylink.prototype.joinRoom = function(room, options, callback) {
   var self = this;
-  var selectedRoom = self._options.defaultRoom;
-  var previousRoom = self._selectedRoom;
-  var mediaOptions = {};
 
-  if (room && typeof room === 'string') {
-    selectedRoom = room;
-  } else if (room && typeof room === 'object') {
-    mediaOptions = room;
-  } else if (typeof room === 'function') {
+  // Parse joinRoom() options
+  // --> joinRoom (function () {})
+  if (typeof room === 'function') {
     callback = room;
+    room = undefined;
+  // --> joinRoom ({})
+  } else if (room && typeof room === 'object') {
+    options = room;
+    room = undefined;
   }
 
-  if (options && typeof options === 'object') {
-    mediaOptions = options;
-  } else if (typeof options === 'function') {
+  // --> joinRoom (.., function () {})
+  if (typeof options === 'function') {
     callback = options;
+    options = undefined;
   }
 
-  var resolveAsErrorFn = function (error, tryRoom, readyState) {
-    log.error(error);
+  // Check if room name provided is correct
+  if (room === null || ['number', 'boolean'].indexOf(typeof room) > -1) {
+    return self._joinRoomCallback({
+      error: new Error('Invalid room name is provided'),
+      room: room
+    }, callback);
+  }
 
-    if (typeof callback === 'function') {
-      callback({
-        room: tryRoom,
-        errorCode: readyState || null,
-        error: typeof error === 'string' ? new Error(error) : error
-      });
-    }
-  };
+  // Check if options provided is correct
+  if (options === null || ['number', 'boolean'].indexOf(typeof options) > -1) {
+    return self._joinRoomCallback({
+      error: new Error('Invalid mediaOptions is provided'),
+      room: room
+    }, callback);
+  }
 
-  var joinRoomFn = function () {
-    self._initFetchAPIData(selectedRoom, function(initError, initSuccess) {
-      if (initError) {
-        resolveAsErrorFn(initError.error, self._selectedRoom, self._readyState);
-        return;
+  options = options || {};
+
+  // Disconnect any User session
+  // Disconnect media streams if new streams is requested
+  self.leaveRoom(options && (options.audio || typeof options.audio === 'boolean') ||
+    (options.video || typeof options.video === 'boolean'), function () {
+    // Fallback to default Room if needed
+    var updatedRoom = self._options.credentials || !(room && typeof room === 'string') ?
+      self._options.defaultRoom : room;
+
+    // Fetch new session data
+    self._initFetchAPIData(updatedRoom, function (authErr) {
+      if (authErr) {
+        return self._joinRoomCallback({
+          error: err.error,
+          room: updatedRoom
+        }, callback);
       }
 
-      self._waitForOpenChannel(mediaOptions, function (error, success) {
-        if (error) {
-          resolveAsErrorFn(error, self._selectedRoom, self._readyState);
-          return;
+      // Connect to Signaling server
+      self._socketOpen(function (socketErr) {
+        if (socketErr) {
+          return self._joinRoomCallback({
+            error: new Error('Failed opening Signaling server connection'),
+            room: updatedRoom
+          }, callback);
         }
 
-        self.once('peerJoined', function(peerId, peerInfo, isSelf) {
-          if (typeof callback === 'function') {
-            log.info([null, 'Room', selectedRoom, 'Connected to Room ->'], peerInfo);
-
-            callback(null, {
-              room: self._selectedRoom,
-              peerId: peerId,
-              peerInfo: peerInfo
-            });
+        self._user.data = typeof options.userData !== undefined ? options.userData : '';
+        self._user.connection = {
+          mediaConnection: { audio: true, video: true, data: true },
+          mediaDirection: {
+            audio: { send: true, receive: true },
+            video: { send: true, receive: true }
+          },
+          bandwidth: {
+            max: {},
+            xVideoCodec: {}
           }
-        }, function(peerId, peerInfo, isSelf) {
-          return peerInfo.room === selectedRoom && isSelf;
-        });
+        };
 
-        self._sendChannelMessage({
-          type: self._SIG_MESSAGE_TYPE.JOIN_ROOM,
-          uid: self._user.uid,
-          cid: self._key,
-          rid: self._room.id,
-          userCred: self._user.token,
-          timeStamp: self._user.timeStamp,
-          apiOwner: self._appKeyOwner,
-          roomCred: self._room.token,
-          start: self._room.startDateTime,
-          len: self._room.duration,
-          isPrivileged: self._isPrivileged === true, // Default to false if undefined
-          autoIntroduce: self._autoIntroduce !== false, // Default to true if undefined
-          key: self._options.appKey
-        });
+        // Parse options.bandwidth
+        if (options.bandwidth && typeof options.bandwidth === 'object') {
+          // Parse options.bandwidth.audio
+          if (typeof options.bandwidth.audio === 'number') {
+            self._user.connection.bandwidth.max.audio = options.bandwidth.audio;
+          }
+          // Parse options.bandwidth.video
+          if (typeof options.bandwidth.video === 'number') {
+            self._user.connection.bandwidth.max.video = options.bandwidth.video;
+          }
+          // Parse options.bandwidth.data
+          if (typeof options.bandwidth.data === 'number') {
+            self._user.connection.bandwidth.max.data = options.bandwidth.data;
+          }
+        }
+
+        // Parse options.googleXBandwidth
+        if (options.googleXBandwidth && typeof options.googleXBandwidth === 'object') {
+          // Parse options.googleXBandwidth.min
+          if (typeof options.googleXBandwidth.min === 'number') {
+            self._user.connection.bandwidth.xVideoCodec.min = options.googleXBandwidth.min;
+          }
+          // Parse options.googleXBandwidth.max
+          if (typeof mediaOptions.googleXBandwidth.max === 'number') {
+            self._user.connection.bandwidth.xVideoCodec.max = options.googleXBandwidth.max;
+          }
+        }
+
+        // Parse options.sdpSettings
+        if (options.sdpSettings && typeof options.sdpSettings === 'object') {
+          // Parse options.sdpSettings.direction
+          if (options.sdpSettings.direction && typeof options.sdpSettings.direction === 'object') {
+            // Parse options.sdpSettings.direction.audio
+            if (options.sdpSettings.direction.audio) {
+              // Parse options.sdpSettings.direction.audio.receive
+              self._user.connection.mediaDirection.audio.receive = options.sdpSettings.direction.audio.receive !== false;
+              // Parse options.sdpSettings.direction.audio.send
+              self._user.connection.mediaDirection.audio.send = options.sdpSettings.direction.audio.send !== false;
+            }
+            // Parse options.sdpSettings.direction.video
+            if (options.sdpSettings.direction.video) {
+              // Parse options.sdpSettings.direction.video.receive
+              self._user.connection.mediaDirection.video.receive = options.sdpSettings.direction.video.receive !== false;
+              // Parse options.sdpSettings.direction.video.send
+              self._user.connection.mediaDirection.video.send = options.sdpSettings.direction.video.send !== false;
+            }
+          }
+          // Parse options.sdpSettings.connection
+          if (options.sdpSettings.connection && typeof options.sdpSettings.connection === 'object') {
+            // Parse options.sdpSettings.connection.audio
+            self._user.connection.mediaConnection.audio = options.sdpSettings.connection.audio !== false;
+            // Parse options.sdpSettings.connection.video
+            self._user.connection.mediaConnection.video = options.sdpSettings.connection.video !== false;
+            // Parse options.sdpSettings.connection.data
+            self._user.connection.mediaConnection.data = options.sdpSettings.connection.data !== false;
+          }
+        }
+
+        // Parse options.publishOnly
+        if (options.publishOnly && (typeof options.publishOnly === 'object' || options.publishOnly === true)) {
+          self._user.connection.publishOnly = true;
+          // Override settings
+          self._user.connection.mediaDirection.audio.send = true;
+          self._user.connection.mediaDirection.audio.receive = false;
+          self._user.connection.mediaDirection.video.send = true;
+          self._user.connection.mediaDirection.video.receive = false;
+          // Parse options.publishOnly.parentId (deprecated way of setting parent ID)
+          if (typeof options.publishOnly === 'object' && options.publishOnly.parentId &&
+            typeof options.publishOnly.parentId === 'string') {
+            self._user.parentId = options.publishOnly.parentId;
+          }
+        }
+
+        // Parse options.parentId
+        if (options.parentId && typeof options.parentId === 'string') {
+          self._user.parentId = options.parentId;
+        }
+
+        // Handle options.manualGetUserMedia case
+        if (options.manualGetUserMedia === true) {
+          self._trigger('mediaAccessRequired');
+          // Set an interval to wait for User to obtain stream to start connection
+          var currentBlock = 0;
+          var requireStreamInterval = setInterval(function () {
+            // Check if Stream has been retrieved
+            if (self._streams.userMedia.stream || self._streams.userMedia.screenshare) {
+              clearInterval(requireStreamInterval);
+              self._joinRoomCallback({ startConnection: true });
+            // Check if timeout limit has been reached
+            } else if (currentBlock === 600) {
+              clearInterval(requireStreamInterval);
+              self.once('mediaAccessError', function (error) {
+                self._joinRoomCallback({
+                  error: error
+                }, callback);
+              });
+              self._onUserMediaError(new Error('Waiting for stream timeout'), false, false);
+            }
+            // Increment counter
+            currentBlock++;
+          }, 50);
+
+        // Handle options.audio or options.video case
+        } else if ((options.audio && (options.audio === true || typeof options.audio === 'object')) ||
+          (options.video && (options.video === true || typeof options.video === 'object'))) {
+          self.getUserMedia(options, function (err) {
+            if (err) {
+              return self._joinRoomCallback({
+                error: err
+              }, callback);
+            }
+            self._joinRoomCallback({ startConnection: true });
+          });
+
+        // Handle none of the above
+        } else {
+          self._joinRoomCallback({ startConnection: true });
+        }
       });
     });
-  };
-
-  if (room === null || ['number', 'boolean'].indexOf(typeof room) > -1) {
-    resolveAsErrorFn('Invalid room name is provided', room);
-    return;
-  }
-
-  if (options === null || ['number', 'boolean'].indexOf(typeof options) > -1) {
-    resolveAsErrorFn('Invalid mediaOptions is provided', selectedRoom);
-    return;
-  }
-
-  if (self._inRoom) {
-    var stopStream = mediaOptions.audio === false && mediaOptions.video === false;
-
-    self.leaveRoom(stopStream, function (lRError, lRSuccess) {
-      log.debug([null, 'Room', previousRoom, 'Leave Room callback result ->'], [lRError, lRSuccess]);
-      joinRoomFn();
-    });
-  } else {
-    joinRoomFn();
-  }
+  });
 };
 
 /**
@@ -19034,75 +18917,58 @@ Skylink.prototype.joinRoom = function(room, options, callback) {
  * @for Skylink
  * @since 0.5.5
  */
-Skylink.prototype.leaveRoom = function(stopMediaOptions, callback) {
+Skylink.prototype.leaveRoom = function(stopOptions, callback) {
   var self = this;
-  var stopUserMedia = true;
-  var stopScreenshare = true;
-  var previousRoom = self._selectedRoom;
-  var previousUserPeerId = self._user ? self._user.sid : null;
-  var peersThatLeft = [];
-  var isNotInRoom = !self._inRoom;
+  var currentRoom = self._user.room.name;
+  var currentPeerId = self._user.id;
+  var stopMedia = { userMedia: true, screenshare: true };
+  var isConnected = self._user.room.connected === true;
 
-  if (typeof stopMediaOptions === 'boolean') {
-    if (stopMediaOptions === false) {
-      stopUserMedia = false;
-      stopScreenshare = false;
+  // Parse leaveRoom() options
+  // --> leaveRoom(false)
+  if (typeof stopOptions === 'boolean') {
+    if (stopOptions === false) {
+      stopMedia.userMedia = false;
+      stopMedia.screenshare = false;
     }
-  } else if (stopMediaOptions && typeof stopMediaOptions === 'object') {
-    stopUserMedia = stopMediaOptions.userMedia !== false;
-    stopScreenshare = stopMediaOptions.screenshare !== false;
-  } else if (typeof stopMediaOptions === 'function') {
-    callback = stopMediaOptions;
+  // --> leaveRoom({})
+  } else if (stopOptions && typeof stopOptions === 'object') {
+    // Parse stopOptions.userMedia
+    stopMedia.userMedia = stopOptions.userMedia !== false;
+    // Parse stopOptions.screenshare
+    stopMedia.screenshare = stopOptions.screenshare !== false;
+  // --> leaveRoom(function () {})
+  } else if (typeof stopOptions === 'function') {
+    callback = stopOptions;
   }
 
-  for (var infoPeerId in self._peerInformations) {
-    if (self._peerInformations.hasOwnProperty(infoPeerId) && self._peerInformations[infoPeerId]) {
-      peersThatLeft.push(infoPeerId);
-      self._removePeer(infoPeerId);
-    }
-  }
-
-  for (var connPeerId in self._peerConnections) {
-    if (self._peerConnections.hasOwnProperty(connPeerId) && self._peerConnections[connPeerId]) {
-      if (peersThatLeft.indexOf(connPeerId) === -1) {
-        peersThatLeft.push(connPeerId);
-        self._removePeer(connPeerId);
+  for (var peerId in self._peerInformations) {
+    if (self._peerInformations.hasOwnProperty(peerId)) {
+      if (self._peerInformations[peerId]) {
+        self._removePeer(peerId);
       }
+      delete self._peerInformations[peerId];
     }
   }
 
-  self._inRoom = false;
-  self._closeChannel();
+  self._user.room.connected = false;
+  self._socketClose();
 
-  if (isNotInRoom) {
-    var notInRoomError = 'Unable to leave room as user is not in any room';
-    log.error([null, 'Room', previousRoom, notInRoomError]);
-
-    if (typeof callback === 'function') {
-      callback(new Error(notInRoomError), null);
-    }
-    return;
+  // Trigger error that User is not in the Room so it's not completely successful
+  if (!isConnected || !currentPeerId || !currentRoom) {
+    return self._leaveRoomCallback({
+      error: 'Unable to leave room as user is not in any room'
+    }, callback);
   }
 
-  self._stopStreams({
-    userMedia: stopUserMedia,
-    screenshare: stopScreenshare
-  });
+  // Stop User Streams
+  if (stopMedia.userMedia || stopMedia.screenshare) {
+    self._stopStreams(stopMedia);
+  }
 
-  self._wait(function () {
-    log.log([null, 'Room', previousRoom, 'User left the room']);
-
-    self._trigger('peerLeft', previousUserPeerId, self.getPeerInfo(), true);
-
-    if (typeof callback === 'function') {
-      callback(null, {
-        peerId: previousUserPeerId,
-        previousRoom: previousRoom
-      });
-    }
-  }, function () {
-    return !self._channelOpen;
-  });
+  // Trigger `peerLeft` event for User
+  self._trigger('peerLeft', currentPeerId, self.getPeerInfo(), true);
+  self._leaveRoomCallback({}, callback);
 };
 
 /**
@@ -19125,18 +18991,24 @@ Skylink.prototype.leaveRoom = function(stopMediaOptions, callback) {
  * @since 0.5.0
  */
 Skylink.prototype.lockRoom = function() {
-  if (!(this._user && this._user.sid)) {
+  var self = this;
+
+  if (!self._user.room.connected) {
+    log.error('Unable to lock Room as User is not in Room.');
     return;
   }
-  log.log('Update to isRoomLocked status ->', true);
-  this._sendChannelMessage({
-    type: this._SIG_MESSAGE_TYPE.ROOM_LOCK,
-    mid: this._user.sid,
-    rid: this._room.id,
+
+  log.log('Locking Room ...');
+
+  self._socketSendMessage({
+    type: 'roomLockEvent',
+    mid: self._user.id,
+    rid: self._user.room.session.id,
     lock: true
   });
-  this._roomLocked = true;
-  this._trigger('roomLock', true, this._user.sid, this.getPeerInfo(), true);
+
+  self._user.room.locked = true;
+  self._trigger('roomLock', true, self._user.id, self.getPeerInfo(), true);
 };
 
 /**
@@ -19159,180 +19031,111 @@ Skylink.prototype.lockRoom = function() {
  * @since 0.5.0
  */
 Skylink.prototype.unlockRoom = function() {
-  if (!(this._user && this._user.sid)) {
+  if (!self._user.room.connected) {
+    log.error('Unable to unlock Room as User is not in Room.');
     return;
   }
-  log.log('Update to isRoomLocked status ->', false);
-  this._sendChannelMessage({
-    type: this._SIG_MESSAGE_TYPE.ROOM_LOCK,
-    mid: this._user.sid,
-    rid: this._room.id,
+
+  log.log('Unlocking Room ...');
+
+  self._socketSendMessage({
+    type: 'roomLockEvent',
+    mid: self._user.id,
+    rid: self._user.room.session.id,
     lock: false
   });
-  this._roomLocked = false;
-  this._trigger('roomLock', false, this._user.sid, this.getPeerInfo(), true);
+
+  self._user.room.locked = false;
+  self._trigger('roomLock', false, self._user.id, self.getPeerInfo(), true);
 };
 
 /**
- * Function that waits for Socket connection to Signaling to be opened.
- * @method _waitForOpenChannel
+ * Function that handles `joinRoom()` async callbacks to proceed to the next step.
+ * @method _joinRoomCallback
  * @private
  * @for Skylink
- * @since 0.5.5
+ * @since 0.6.18
  */
-Skylink.prototype._waitForOpenChannel = function(mediaOptions, callback) {
+Skylink.prototype._joinRoomCallback = function (result, callback) {
   var self = this;
-  // when reopening room, it should stay as 0
-  self._socketCurrentReconnectionAttempt = 0;
 
-  // wait for ready state before opening
-  self._wait(function() {
-    self._condition('channelOpen', function() {
-      mediaOptions = mediaOptions || {};
-
-      self._userData = mediaOptions.userData || self._userData || '';
-      self._streamsBandwidthSettings = {
-        googleX: {},
-        bAS: {}
-      };
-      self._publishOnly = false;
-      self._sdpSettings = {
-        connection: {
-          audio: true,
-          video: true,
-          data: true
-        },
-        direction: {
-          audio: { send: true, receive: true },
-          video: { send: true, receive: true }
-        }
-      };
-
-      if (mediaOptions.bandwidth) {
-        if (typeof mediaOptions.bandwidth.audio === 'number') {
-          self._streamsBandwidthSettings.bAS.audio = mediaOptions.bandwidth.audio;
-        }
-
-        if (typeof mediaOptions.bandwidth.video === 'number') {
-          self._streamsBandwidthSettings.bAS.video = mediaOptions.bandwidth.video;
-        }
-
-        if (typeof mediaOptions.bandwidth.data === 'number') {
-          self._streamsBandwidthSettings.bAS.data = mediaOptions.bandwidth.data;
-        }
-      }
-
-      if (mediaOptions.googleXBandwidth) {
-        if (typeof mediaOptions.googleXBandwidth.min === 'number') {
-          self._streamsBandwidthSettings.googleX.min = mediaOptions.googleXBandwidth.min;
-        }
-
-        if (typeof mediaOptions.googleXBandwidth.max === 'number') {
-          self._streamsBandwidthSettings.googleX.max = mediaOptions.googleXBandwidth.max;
-        }
-      }
-
-      if (mediaOptions.sdpSettings) {
-        if (mediaOptions.sdpSettings.direction) {
-          if (mediaOptions.sdpSettings.direction.audio) {
-            self._sdpSettings.direction.audio.receive = typeof mediaOptions.sdpSettings.direction.audio.receive === 'boolean' ?
-              mediaOptions.sdpSettings.direction.audio.receive : true;
-            self._sdpSettings.direction.audio.send = typeof mediaOptions.sdpSettings.direction.audio.send === 'boolean' ?
-              mediaOptions.sdpSettings.direction.audio.send : true;
-          }
-
-          if (mediaOptions.sdpSettings.direction.video) {
-            self._sdpSettings.direction.video.receive = typeof mediaOptions.sdpSettings.direction.video.receive === 'boolean' ?
-              mediaOptions.sdpSettings.direction.video.receive : true;
-            self._sdpSettings.direction.video.send = typeof mediaOptions.sdpSettings.direction.video.send === 'boolean' ?
-              mediaOptions.sdpSettings.direction.video.send : true;
-          }
-        }
-        if (mediaOptions.sdpSettings.connection) {
-          self._sdpSettings.connection.audio = typeof mediaOptions.sdpSettings.connection.audio === 'boolean' ?
-            mediaOptions.sdpSettings.connection.audio : true;
-          self._sdpSettings.connection.video = typeof mediaOptions.sdpSettings.connection.video === 'boolean' ?
-            mediaOptions.sdpSettings.connection.video : true;
-          self._sdpSettings.connection.data = typeof mediaOptions.sdpSettings.connection.data === 'boolean' ?
-            mediaOptions.sdpSettings.connection.data : true;
-        }
-      }
-
-      if (mediaOptions.publishOnly) {
-        self._sdpSettings.direction.audio.send = true;
-        self._sdpSettings.direction.audio.receive = false;
-        self._sdpSettings.direction.video.send = true;
-        self._sdpSettings.direction.video.receive = false;
-        self._publishOnly = true;
-
-        if (typeof mediaOptions.publishOnly === 'object' && mediaOptions.publishOnly.parentId &&
-          typeof mediaOptions.publishOnly.parentId === 'string') {
-          self._parentId = mediaOptions.publishOnly.parentId;
-        }
-      }
-
-      if (mediaOptions.parentId) {
-        self._parentId = mediaOptions.parentId;
-      }
-
-      // get the stream
-      if (mediaOptions.manualGetUserMedia === true) {
-        self._trigger('mediaAccessRequired');
-
-        var current50Block = 0;
-        var mediaAccessRequiredFailure = false;
-        // wait for available audio or video stream
-        self._wait(function () {
-          if (mediaAccessRequiredFailure === true) {
-            self._onUserMediaError(new Error('Waiting for stream timeout'), false, false);
-          } else {
-            callback(null, self._streams.userMedia.stream);
-          }
-        }, function () {
-          current50Block += 1;
-          if (current50Block === 600) {
-            mediaAccessRequiredFailure = true;
-            return true;
-          }
-
-          if (self._streams.userMedia && self._streams.userMedia.stream) {
-            return true;
-          }
-        }, 50);
-        return;
-      }
-
-      if (mediaOptions.audio || mediaOptions.video) {
-        self.getUserMedia({
-          useExactConstraints: !!mediaOptions.useExactConstraints,
-          audio: mediaOptions.audio,
-          video: mediaOptions.video
-
-        }, function (error, success) {
-          if (error) {
-            callback(error, null);
-          } else {
-            callback(null, success);
-          }
-        });
-        return;
-      }
-
-      callback(null, null);
-
-    }, function() { // open channel first if it's not opened
-
-      if (!self._channelOpen) {
-        self._openChannel();
-      }
-      return self._channelOpen;
-    }, function(state) {
-      return true;
+  // joinRoom() start connection
+  if (result.startConnection) {
+    self.once('peerJoined', function (peerId, peerInfo) {
+      self._joinRoomCallback({ peerId: peerId, room: peerInfo.room });
     });
-  }, function() {
-    return self._readyState === self.READY_STATE_CHANGE.COMPLETED;
-  });
 
+    self._socketSendMessage({
+      type: 'joinRoom',
+      uid: self._user.room.session.uid,
+      cid: self._user.room.session.cid,
+      rid: self._user.room.session.rid,
+      userCred: self._user.room.session.userCred,
+      timeStamp: self._user.room.session.timeStamp,
+      apiOwner: self._user.room.session.apiOwner,
+      roomCred: self._user.room.session.roomCred,
+      start: self._user.room.session.start,
+      len: self._user.room.session.len,
+      isPrivileged: self._user.room.session.isPrivileged === true, // Default to false if undefined
+      autoIntroduce: self._user.room.session.autoIntroduce !== false, // Default to true if undefined
+      key: self._options.appKey
+    });
+
+  // joinRoom() result success
+  } else if (result.error) {
+    log.error('joinRoom() failed ->', result);
+
+    if (typeof callback === 'function') {
+      callback({
+        error: new Error(result.error),
+        errorCode: result.errorCode || null,
+        room: result.room
+      }, null);
+    }
+
+  // joinRoom() result error
+  } else {
+    log.info('joinRoom() success ->', result);
+
+    if (typeof callback === 'function') {
+      callback(null, {
+        peerId: result.peerId,
+        room: result.room,
+        peerInfo: self.getPeerInfo()
+      });
+    }
+  }
+};
+
+/**
+ * Function that handles `leaveRoom()` async callbacks to proceed to the next step.
+ * @method _leaveRoomCallback
+ * @private
+ * @for Skylink
+ * @since 0.6.18
+ */
+Skylink.prototype._leaveRoomCallback = function (result, callback) {
+  var self = this;
+
+  // leaveRoom() result success
+  if (result.error) {
+    log.error('leaveRoom() failed ->', result);
+
+    if (typeof callback === 'function') {
+      callback(new Error(result.error), null);
+    }
+
+  // leaveRoom() result success
+  } else {
+    log.info('leaveRoom() success ->', result);
+
+    if (typeof callback === 'function') {
+      callback(null, {
+        peerId: result.peerId,
+        previousRoom: result.room
+      });
+    }
+  }
 };
 
 Skylink.prototype.VERSION = '0.6.17';
@@ -19813,7 +19616,7 @@ Skylink.prototype.init = function(options, callback) {
   // --> init (function () {})
   if (typeof options === 'function'){
     callback = options;
-    options = null;
+    options = undefined;
 
   // --> init ("xxxxx-xxxxx-xxxxx-xxxxx", ..)
   } else if (options && typeof options === 'string') {
@@ -19984,99 +19787,123 @@ Skylink.prototype.init = function(options, callback) {
 
   // Check if App Key is provided
   if (!options.appKey) {
-    return self._initCallback(callback, 'No API key provided.');
+    return self._initCallback({
+      state: self.READY_STATE_CHANGE.ERROR,
+      content: 'No API key provided.',
+      errorCode: self.READY_STATE_CHANGE_ERROR.NO_PATH,
+      room: self._options.defaultRoom
+    }, callback);
   }
 
   // Check if XMLHttpRequest is supported
   if (!(window.XMLHttpRequest || window.XDomainRequest)) {
-    return self._initCallback(callback, 'XMLHttpRequest not available',
-      self.READY_STATE_CHANGE_ERROR.NO_XMLHTTPREQUEST_SUPPORT);
+    return self._initCallback({
+      state: self.READY_STATE_CHANGE.ERROR,
+      content: 'XMLHttpRequest not available',
+      errorCode: self.READY_STATE_CHANGE_ERROR.NO_XMLHTTPREQUEST_SUPPORT,
+      room: self._options.defaultRoom
+    }, callback);
   }
 
   // Check if socket.io-client has been loaded
   if (!(window.io || io)) {
-    return self._initCallback(callback, 'Socket.io not found',
-      self.READY_STATE_CHANGE_ERROR.NO_SOCKET_IO);
+    return self._initCallback({
+      state: self.READY_STATE_CHANGE.ERROR,
+      content: 'Socket.io not found',
+      errorCode: self.READY_STATE_CHANGE_ERROR.NO_SOCKET_IO,
+      room: self._options.defaultRoom
+    }, callback);
   }
 
   // Check if AdapterJS has been loaded
   if (!((window.AdapterJS || AdapterJS) && typeof AdapterJS.webRTCReady === 'function')) {
-    return self._initCallback(callback, 'AdapterJS dependency is not loaded or incorrect AdapterJS dependency is used',
-      self.READY_STATE_CHANGE_ERROR.ADAPTER_NO_LOADED);
+    return self._initCallback({
+      state: self.READY_STATE_CHANGE.ERROR,
+      content: 'AdapterJS dependency is not loaded or incorrect AdapterJS dependency is used',
+      errorCode: self.READY_STATE_CHANGE_ERROR.ADAPTER_NO_LOADED,
+      room: self._options.defaultRoom
+    }, callback);
   }
 
   AdapterJS.webRTCReady(function () {
     // Check if RTCPeerConnection is available
     if (!window.RTCPeerConnection) {
-      return self._initCallback(callback, 'WebRTC not available',
-        self.READY_STATE_CHANGE_ERROR.NO_WEBRTC_SUPPORT);
+      return self._initCallback({
+        state: self.READY_STATE_CHANGE.ERROR,
+        content: 'WebRTC not available',
+        errorCode: self.READY_STATE_CHANGE_ERROR.NO_WEBRTC_SUPPORT,
+        room: self._options.defaultRoom
+      }, callback);
     }
 
     // Check and get codecs support
     self._getCodecsSupport(function (error) {
       if (error) {
-        return self._initCallback(callback, error.message || error.toString(),
-          self.READY_STATE_CHANGE_ERROR.PARSE_CODECS);
+        return self._initCallback({
+          state: self.READY_STATE_CHANGE.ERROR,
+          content: error.message || error.toString(),
+          errorCode: self.READY_STATE_CHANGE_ERROR.PARSE_CODECS,
+          room: self._options.defaultRoom
+        }, callback);
       }
 
       // Check if there is any codecs retrieved to start connection
       if (Object.keys(self._currentCodecSupport.audio).length === 0 &&
         Object.keys(self._currentCodecSupport.video).length === 0) {
-        return self._initCallback(callback, 'No audio/video codecs available to start connection',
-          self.READY_STATE_CHANGE_ERROR.PARSE_CODECS);
+        return self._initCallback({
+          state: self.READY_STATE_CHANGE.ERROR,
+          content: 'No audio/video codecs available to start connection',
+          errorCode: self.READY_STATE_CHANGE_ERROR.PARSE_CODECS,
+          room: self._options.defaultRoom
+        }, callback);
       }
 
       // Fetch API data
-      self._initFetchAPIData(self._options.defaultRoom, function (error, success) {
-        if (error) {
-          self._initCallback(callback, error);
-        } else {
-          self._initCallback(callback);
-        }
-      });
+      self._initFetchAPIData(self._options.defaultRoom, callback);
     });
   });
 };
 
 /**
- * Function that handles `init()` callback.
+ * Function that handles `init()` async callbacks to proceed to the next step.
  * @method _initCallback
  * @private
  * @for Skylink
  * @since 0.6.18
  */
-Skylink.prototype._initCallback = function (callback, error, errorCode) {
+Skylink.prototype._initCallback = function (result, callback) {
   var self = this;
 
-  if (error) {
-    if (typeof error === 'string') {
-      error = {
-        content: error,
-        status: null,
-        errorCode: typeof errorCode === 'number' ? errorCode : self.READY_STATE_CHANGE_ERROR.NO_PATH
-      };
+  self._user.room.readyState = result.state;
+  // Trigger `readyStateChange` event
+  self._trigger('readyStateChange', result.state, result.state === self.READY_STATE_CHANGE.ERROR ? {
+    content: result.content,
+    status: result.status || null,
+    errorCode: result.errorCode
+  } : null, result.room);
 
-      // Trigger state for "readyStateChange" event before data was fetched
-      self._readyState = self.READY_STATE_CHANGE.ERROR;
-      self._trigger('readyStateChange', self.READY_STATE_CHANGE.ERROR, error, self._options.defaultRoom);
-    }
-
-    log.error('init() failed ->', error);
+  // init() result error
+  if (result.state === self.READY_STATE_CHANGE.ERROR) {
+    log.error('init() failed ->', result);
 
     if (typeof callback === 'function') {
+      // Convert the parameters to suit the documented result
       callback({
-        error: new Error(error.content),
-        status: error.status,
-        errorCode: error.errorCode
+        error: new Error(result.content),
+        status: result.status || null,
+        errorCode: result.errorCode
       }, null);
     }
-  } else {
+
+  // init() result success
+  } else if (result.state === self.READY_STATE_CHANGE.COMPLETED) {
     log.info('init() success ->', clone(self._options));
 
     if (typeof callback === 'function') {
+      // Convert the parameters to suit the documented result
       callback(null, {
-        serverUrl: self._path,
-        readyState: self._readyState,
+        serverUrl: self._user.room.path,
+        readyState: self._user.room.readyState,
         appKey: self._options.appKey,
         roomServer: self._options.roomServer,
         defaultRoom: self._options.defaultRoom,
@@ -20115,7 +19942,7 @@ Skylink.prototype._initCallback = function (callback, error, errorCode) {
  * @for Skylink
  * @since 0.6.18
  */
-Skylink.prototype._initFetchAPIData = function (room, callback) {
+Skylink.prototype._initFetchAPIData = function (room, callback, isInit) {
   var self = this;
   var xhr = new XMLHttpRequest();
   var protocol = self._options.forceSSL ? 'https:' : window.location.protocol;
@@ -20126,21 +19953,25 @@ Skylink.prototype._initFetchAPIData = function (room, callback) {
   }
 
   // Can only use default room due to credentials generated!
-  self._selectedRoom = self._options.credentials ? self._options.defaultRoom : room;
-  self._readyState = self.READY_STATE_CHANGE.INIT;
-  self._trigger('readyStateChange', self.READY_STATE_CHANGE.INIT, null, self._selectedRoom);
+  self._user.room.name = self._options.credentials ? self._options.defaultRoom : room;
+  self._user.room.protocol = protocol;
+
+  self._initCallback({
+    state: self.READY_STATE_CHANGE.INIT,
+    room: self._user.room.name
+  });
 
   // Construct API REST path
-  self._path = self._options.roomServer + '/api/' + self._options.appKey + '/' + self._selectedRoom;
+  self._user.room.path = self._options.roomServer + '/api/' + self._options.appKey + '/' + self._selectedRoom;
 
   // Construct path with credentials authentication.
   if (self._options.credentials) {
-    self._path += '/' + self._options.credentials.startDateTime + '/' +
+    self._user.room.path += '/' + self._options.credentials.startDateTime + '/' +
       self._options.credentials.duration + '?&cred=' + self._options.credentials.credentials;
   }
 
   // Append random number to prevent network cache
-  self._path += '&' + (!self._options.credentials ? '?' :'') + 'rand=' + (new Date ()).toISOString();
+  self._user.room.path += '&' + (!self._options.credentials ? '?' :'') + 'rand=' + (new Date ()).toISOString();
 
   // XMLHttpRequest success
   xhr.onload = function () {
@@ -20151,65 +19982,68 @@ Skylink.prototype._initFetchAPIData = function (room, callback) {
 
     // Successful authentication
     if (response.success) {
-      self._key = response.cid;
-      self._appKeyOwner = response.apiOwner;
-      self._signalingServer = response.ipSigserver;
-      self._signalingServerPort = null;
-      self._isPrivileged = response.isPrivileged;
-      self._autoIntroduce = response.autoIntroduce;
-      self._user = {
+      // Configure User session settings
+      self._user.room.session = {
         uid: response.username,
-        token: response.userCred,
-        timeStamp: response.timeStamp
-      };
-      self._room = {
-        id: response.room_key,
-        token: response.roomCred,
-        startDateTime: response.start,
-        duration: response.len,
-        connection: {
-          peerConstraints: JSON.parse(response.pc_constraints),
-        }
-      };
-      self._socketPorts = {
-        'http:': response.httpPortList,
-        'https:': response.httpsPortList
+        userCred: response.userCred,
+        timeStamp: response.timeStamp,
+        rid: response.room_key,
+        roomCred: response.roomCred,
+        len: response.len,
+        start: response.start,
+        cid: response.cid,
+        apiOwner: response.apiOwner,
+        isPrivileged: response.isPrivileged,
+        autoIntroduce: response.autoIntroduce
       };
 
-      self._readyState = self.READY_STATE_CHANGE.COMPLETED;
-      self._trigger('readyStateChange', self.READY_STATE_CHANGE.COMPLETED, null, self._selectedRoom);
-      callback(null);
+      // Configure Signaling settings
+      self._socket.ports = {
+        'https:': Array.isArray(response.httpsPortList) && response.httpsPortList.length > 0 ?
+          response.httpsPortList : [443, 3443],
+        'http:': Array.isArray(response.httpPortList) && response.httpPortList.length > 0 ?
+          response.httpPortList : [80, 3000]
+      };
+      self._socket.server = response.ipSigserver;
+
+      // Trigger `readyStateChange` event as COMPLETED
+      self._initCallback({
+        state: self.READY_STATE_CHANGE.COMPLETED,
+        room: self._user.room.name
+      }, callback);
 
     // Failed authentication
     } else {
-      var errorResponded = {
+      // Trigger `readyStateChange` event as ERROR
+      self._initCallback({
+        state: self.READY_STATE_CHANGE.ERROR,
         content: info.info,
         status: status,
-        errorCode: info.errorCode
-      };
-
-      self._readyState = self.READY_STATE_CHANGE.ERROR;
-      self._trigger('readyStateChange', self.READY_STATE_CHANGE.ERROR, errorResponded, self._selectedRoom);
-      callback(errorResponded);
+        errorCode: info.errorCode,
+        room: self._user.room.name
+      }, callback);
     }
   };
 
   // XMLHttpRequest error
   xhr.onerror = function () {
     log.error('init() failed retrieving response due to network timeout.');
-
-    var errorTimeout = {
+    self._initCallback({
+      state: self.READY_STATE_CHANGE.ERROR,
       status: xhr.status || null,
       content: 'Network error occurred. (Status: ' + xhr.status + ')',
-      errorCode: self.READY_STATE_CHANGE_ERROR.XML_HTTP_REQUEST_ERROR
-    };
-
-    self._readyState = self.READY_STATE_CHANGE.ERROR;
-    self._trigger('readyStateChange', this.READY_STATE_CHANGE.ERROR, errorTimeout, self._selectedRoom);
-    callback(errorTimeout);
+      errorCode: self.READY_STATE_CHANGE_ERROR.XML_HTTP_REQUEST_ERROR,
+      room: self._user.room.name
+    }, callback);
   };
 
-  xhr.open('GET', protocol + self._path, true);
+  // Trigger `readyStateChange` event as LOADING
+  self._initCallback({
+    state: self.READY_STATE_CHANGE.LOADING,
+    room: self._user.room.name
+  });
+
+  xhr.open('GET', protocol + self._user.room.path, true);
   xhr.send();
 };
 
@@ -22169,215 +22003,185 @@ Skylink.prototype.SOCKET_FALLBACK = {
 };
 
 /**
- * Function that sends a socket message over the socket connection to the Signaling.
- * @method _sendChannelMessage
+ * Function that sends Socket message to Signaling.
+ * @method _socketSendMessage
  * @private
  * @for Skylink
- * @since 0.5.8
+ * @since 0.6.18
  */
-Skylink.prototype._sendChannelMessage = function(message) {
+Skylink.prototype._socketSendMessage = function(message) {
   var self = this;
-  var interval = 1000;
-  var throughput = 16;
 
-  if (!self._channelOpen || !self._user || !self._socket) {
-    log.warn([null, 'Socket', null, 'Dropping of message as Socket connection is not opened or is at ' +
-      'incorrect step ->'], message);
-    return;
+  // Check and prevent sending message if socket connection is not connected
+  if (!self._socket.connected) {
+    return log.warn([message.target || '(all)', 'Socket', message.type,
+      'Dropping of message as Socket connection is not opened ->'], message);
   }
 
-  if (self._user.sid && !self._peerMessagesStamps[self._user.sid]) {
-    self._peerMessagesStamps[self._user.sid] = {
-      userData: 0,
-      audioMuted: 0,
-      videoMuted: 0
-    };
-  }
-
-  var checkStampFn = function (statusMessage) {
-    if (statusMessage.type === self._SIG_MESSAGE_TYPE.UPDATE_USER) {
-      if (!self._user.sid) {
-        return false;
+  // Check if message matches group list
+  if (self._socket.queue.types.indexOf(message.type) > -1) {
+    // "Queuing" mechanism just simply send if interval has reached.
+    // It does go by order, it's kinda like UDP and messages may be sent in unordered manner
+    // Whatever available broadcasted messages that can be sent, just be sent
+    // Check if timestamp is within the specified interval
+    if (!(self._socket.queue.timestamp && ((new Date ()).getTime() - self._socket.queue.timestamp) <= self._socket.queue.interval)) {
+      // Clear existing timeout intervals since the current item is sent.
+      // The rest of the queue items can wait. Sadz
+      if (self._socket.queue.fn) {
+        clearTimeout(self._socket.queue.fn);
       }
-      return statusMessage.stamp > self._peerMessagesStamps[self._user.sid].userData;
-    } else if (statusMessage.type === self._SIG_MESSAGE_TYPE.MUTE_VIDEO) {
-      if (!self._user.sid) {
-        return false;
+      self._socket.socket.send(JSON.stringify(message));
+      // Trigger `incomingMessage` event if "public" type
+      if (message.type === 'public') {
+        self._trigger('incomingMessage', {
+          content: message.data,
+          isPrivate: false,
+          targetPeerId: null,
+          listOfPeers: Object.keys(self._peerInformations),
+          isDataChannel: false,
+          senderPeerId: self._user.id
+        }, self._user.id, self.getPeerInfo(), true);
+      // Update socket message timestamp event
+      } else if (message.type !== 'stream') {
+        self._user.timestamps[message.type] = message.stamp;
       }
-      return statusMessage.stamp > self._peerMessagesStamps[self._user.sid].videoMuted;
-    } else if (statusMessage.type === self._SIG_MESSAGE_TYPE.MUTE_AUDIO) {
-      if (!self._user.sid) {
-        return false;
+      // Update socket messages queue timestamp
+      self._socket.queue.timestamp = (new Date()).getTime();
+      // Check if there is a current queue and start timing if so
+      if (self._socket.queue.messages.length > 0) {
+        self._socketSendMessageProcessNextQueue();
       }
-      return statusMessage.stamp > self._peerMessagesStamps[self._user.sid].audioMuted;
-    }
-    return true;
-  };
 
-  var setStampFn = function (statusMessage) {
-    if (statusMessage.type === self._SIG_MESSAGE_TYPE.UPDATE_USER) {
-      self._peerMessagesStamps[self._user.sid].userData = statusMessage.stamp;
-    } else if (statusMessage.type === self._SIG_MESSAGE_TYPE.MUTE_VIDEO) {
-      self._peerMessagesStamps[self._user.sid].videoMuted = statusMessage.stamp;
-    } else if (statusMessage.type === self._SIG_MESSAGE_TYPE.MUTE_AUDIO) {
-      self._peerMessagesStamps[self._user.sid].audioMuted = statusMessage.stamp;
-    }
-  };
-
-  var setQueueFn = function () {
-    log.debug([null, 'Socket', null, 'Starting queue timeout']);
-
-    self._socketMessageTimeout = setTimeout(function () {
-      if (((new Date ()).getTime() - self._timestamp.socketMessage) <= interval) {
-        log.debug([null, 'Socket', null, 'Restarting queue timeout']);
-        setQueueFn();
-        return;
-      }
-      startSendingQueuedMessageFn();
-    }, interval - ((new Date ()).getTime() - self._timestamp.socketMessage));
-  };
-
-  var triggerEventFn = function (eventMessage) {
-    if (eventMessage.type === self._SIG_MESSAGE_TYPE.PUBLIC_MESSAGE) {
-      self._trigger('incomingMessage', {
-        content: eventMessage.data,
-        isPrivate: false,
-        targetPeerId: null,
-        listOfPeers: Object.keys(self._peerInformations),
-        isDataChannel: false,
-        senderPeerId: self._user.sid
-      }, self._user.sid, self.getPeerInfo(), true);
-    }
-  };
-
-  var sendGroupMessageFn = function (groupMessageList) {
-    self._socketMessageTimeout = null;
-
-    if (!self._channelOpen || !(self._user && self._user.sid) || !self._socket) {
-      log.warn([null, 'Socket', null, 'Dropping of group messages as Socket connection is not opened or is at ' +
-        'incorrect step ->'], groupMessageList);
-      return;
-    }
-
-    var strGroupMessageList = [];
-    var stamps = {
-      userData: 0,
-      audioMuted: 0,
-      videoMuted: 0
-    };
-
-    for (var k = 0; k < groupMessageList.length; k++) {
-      if (checkStampFn(groupMessageList[k])) {
-        if (groupMessageList[k].type === self._SIG_MESSAGE_TYPE.UPDATE_USER &&
-          groupMessageList[k].stamp > self._peerMessagesStamps[self._user.sid].userData &&
-          groupMessageList[k].stamp > stamps.userData) {
-          stamps.userData = groupMessageList[k].stamp;
-        } else if (groupMessageList[k].type === self._SIG_MESSAGE_TYPE.MUTE_AUDIO &&
-          groupMessageList[k].stamp > self._peerMessagesStamps[self._user.sid].audioMuted &&
-          groupMessageList[k].stamp > stamps.audioMuted) {
-          stamps.audioMuted = groupMessageList[k].stamp;
-        } else if (groupMessageList[k].type === self._SIG_MESSAGE_TYPE.MUTE_VIDEO &&
-          groupMessageList[k].stamp > self._peerMessagesStamps[self._user.sid].videoMuted &&
-          groupMessageList[k].stamp > stamps.videoMuted) {
-          stamps.videoMuted = groupMessageList[k].stamp;
-        }
-      }
-    }
-
-    for (var i = 0; i < groupMessageList.length; i++) {
-      if ((groupMessageList[i].type === self._SIG_MESSAGE_TYPE.UPDATE_USER &&
-          groupMessageList[i].stamp < stamps.userData) ||
-          (groupMessageList[i].type === self._SIG_MESSAGE_TYPE.MUTE_AUDIO &&
-          groupMessageList[i].stamp < stamps.audioMuted) ||
-          (groupMessageList[i].type === self._SIG_MESSAGE_TYPE.MUTE_VIDEO &&
-          groupMessageList[i].stamp < stamps.videoMuted)) {
-        log.warn([null, 'Socket', null, 'Dropping of outdated status message ->'], clone(groupMessageList[i]));
-        groupMessageList.splice(i, 1);
-        i--;
-        continue;
-      }
-      strGroupMessageList.push(JSON.stringify(groupMessageList[i]));
-    }
-
-    if (strGroupMessageList.length > 0) {
-      var groupMessage = {
-        type: self._SIG_MESSAGE_TYPE.GROUP,
-        lists: strGroupMessageList,
-        mid: self._user.sid,
-        rid: self._room.id
-      };
-
-      log.debug([null, 'Socket', groupMessage.type, 'Sending queued grouped message (max: 16 per group) ->'], groupMessage);
-
-      self._socket.send(JSON.stringify(groupMessage));
-      self._timestamp.socketMessage = (new Date()).getTime();
-
-      for (var j = 0; j < groupMessageList.length; j++) {
-        setStampFn(groupMessageList[j]);
-        triggerEventFn(groupMessageList[j]);
-      }
-    }
-  };
-
-  var startSendingQueuedMessageFn = function(){
-    if (self._socketMessageQueue.length > 0){
-      if (self._socketMessageQueue.length < throughput){
-        sendGroupMessageFn(self._socketMessageQueue.splice(0, self._socketMessageQueue.length));
-      } else {
-        sendGroupMessageFn(self._socketMessageQueue.splice(0, throughput));
-        setQueueFn();
-      }
-    }
-  };
-
-  if (self._groupMessageList.indexOf(message.type) > -1) {
-    if (!(self._timestamp.socketMessage && ((new Date ()).getTime() - self._timestamp.socketMessage) <= interval)) {
-      if (!checkStampFn(message)) {
-        log.warn([null, 'Socket', message.type, 'Dropping of outdated status message ->'], message);
-        return;
-      }
-      if (self._socketMessageTimeout) {
-        clearTimeout(self._socketMessageTimeout);
-      }
-      log.warn([null, 'Socket', message.type, 'Sending message ->'], message);
-      self._socket.send(JSON.stringify(message));
-      setStampFn(message);
-      triggerEventFn(message);
-
-      self._timestamp.socketMessage = (new Date()).getTime();
-
+    // Time to queue the socket messages
     } else {
-      log.warn([null, 'Socket', message.type, 'Queueing socket message to prevent message drop ->'], message);
-
-      self._socketMessageQueue.push(message);
-
-      if (!self._socketMessageTimeout) {
-        setQueueFn();
-      }
+      log.debug(['(all)', 'Socket', message.type, 'Queueing message ->'], message);
+      self._socket.queue.messages.push(message);
+      self._socketSendMessageProcessNextQueue();
     }
+  // Send direct message without queuing.
+  // Do note that the Signaling messages does throttling drops hence the queuing of broadcasted messages
   } else {
-    log.debug([message.target || null, 'Socket', message.type, 'Sending message ->'], message);
-    self._socket.send(JSON.stringify(message));
-
-    // If Peer sends "bye" on its own, we trigger it as session disconnected abruptly
-    if (message.type === self._SIG_MESSAGE_TYPE.BYE && self._inRoom &&
-      self._user && self._user.sid && message.mid === self._user.sid) {
-      self.leaveRoom(false);
-      self._trigger('sessionDisconnect', self._user.sid, self.getPeerInfo());
-    }
+    log.debug([message.target || '(all)', 'Socket', message.type, 'Sending message ->'], message);
+    self._socket.socket.send(JSON.stringify(message));
   }
 };
 
 /**
- * Function that creates and opens a socket connection to the Signaling.
- * @method _createSocket
+ * Function that sends Socket message to Signaling.
+ * @method _socketSendMessage
  * @private
  * @for Skylink
- * @since 0.5.10
+ * @since 0.6.18
  */
-Skylink.prototype._createSocket = function (type) {
+Skylink.prototype._socketSendMessageProcessNextQueue = function () {
   var self = this;
-  var options = {
+
+  // Append socket queue if it does exists
+  if (!self._socket.queue.fn) {
+    self._socket.queue.fn = setTimeout(function () {
+      // Clear socket queue interval
+      self._socket.queue.fn = null;
+      // Check if socket connection is opened
+      if (!self._socket.connected) {
+        log.warn('Dropping queue stack of messages as socket connection is closed ->', self._socket.queue.messages);
+        return;
+      }
+      // Check if there is any queue stack at all first
+      if (self._socket.queue.messages.length === 0) {
+        return;
+      }
+
+      var currentStack = [];
+
+      // Remove outdated messages
+      for (var i = 0; i < self._socket.queue.messages.length; i++) {
+        var messageItem = self._socket.queue.messages[i];
+        // Check if it is outdated before dropping them
+        if (['muteAudioEvent', 'muteVideoEvent', 'updateUserEvent'].indexOf(messageItem.type) > -1 &&
+          self._user.timestamps[messageItem.type] >= messageItem.stamp) {
+          self._socket.queue.messages.splice(i, 1);
+          i--;
+        } else if (currentStack.length <= self._socket.queue.throughput) {
+          if (['muteAudioEvent', 'muteVideoEvent', 'updateUserEvent'].indexOf(messageItem.type) > -1) {
+            self._user.timestamps[messageItem.type] = messageItem.stamp;
+          }
+          self._socket.queue.messages.splice(i, 1);
+          i--;
+          currentStack.push(JSON.stringify(messageItem));
+        }
+      }
+
+      // Send current queue of stack messages
+      log.debug(['(all)', 'Socket', 'group', 'Sending queue stack ->'], currentStack);
+
+      self._socket.socket.send(JSON.stringify({
+        type: self._SIG_MESSAGE_TYPE.GROUP,
+        lists: currentStack,
+        mid: self._user.id,
+        rid: self._user.room.session.id
+      }));
+      self._socket.queue.timestamp = (new Date()).getTime();
+
+      // Trigger `incomingMessage` events
+      for (var j = 0; j < currentStack.length; j++) {
+        if (currentStack[j].type === 'public') {
+          self._trigger('incomingMessage', {
+            content: currentStack[j].data,
+            isPrivate: false,
+            targetPeerId: null,
+            listOfPeers: Object.keys(self._peerInformations),
+            isDataChannel: false,
+            senderPeerId: self._user.id
+          }, self._user.id, self.getPeerInfo(), true);
+        }
+      }
+
+      // Process next queue
+      self._socketSendMessageProcessNextQueue();
+
+    }, self._socket.queue.interval);
+  }
+};
+
+/**
+ * Function that establishes the Socket connection to Signaling.
+ * @method _socketAttemptConnection
+ * @private
+ * @for Skylink
+ * @since 0.6.18
+ */
+Skylink.prototype._socketAttemptConnection = function (callback) {
+  var self = this;
+  var socketPorts = self._socket.ports[self._socket.session.protocol];
+  // The `socketError` and `channelRetry` fallback state
+  var fallbackState = null;
+
+  // State when there is no existing current port
+  if (self._socket.session.port === null) {
+    self._socket.session.port = socketPorts[0];
+    self._socket.session.finalAttempts = 0;
+    self._socket.session.retries = 0;
+    // Set the initial fallback state
+    fallbackState = self.SOCKET_FALLBACK.NON_FALLBACK;
+
+  // State when current port has reached the final last port
+  } else if (ports.indexOf(self._signalingServerPort) === ports.length - 1) {
+    // Let's attempt to use Polling transports from the first port
+    if (self._socket.session.transportType === 'WebSocket') {
+      self._socket.session.transportType = 'Polling';
+      self._socket.session.port = socketPorts[0];
+    // Let's attempt with another last 4 rounds
+    } else {
+      self._socket.session.finalAttempts++;
+    }
+  // State to go to the next port
+  } else {
+    self._socket.session.port = socketPorts[socketPorts.indexOf(self._socket.session.port) + 1];
+  }
+
+  // Socket.io-client options
+  // Handle socket.io-client options for WebSocket transports (by default)
+  self._socket.session.options = {
     forceNew: true,
     reconnection: true,
     timeout: self._options.socketTimeout,
@@ -22386,139 +22190,162 @@ Skylink.prototype._createSocket = function (type) {
     reconnectionDelay: 1000,
     transports: ['websocket']
   };
-  var ports = self._socketPorts[self._signalingServerProtocol];
-  var fallbackType = null;
 
-  // just beginning
-  if (self._signalingServerPort === null) {
-    self._signalingServerPort = ports[0];
-    self._socketSession.finalAttempts = 0;
-    self._socketSession.attempts = 0;
-    fallbackType = self.SOCKET_FALLBACK.NON_FALLBACK;
-
-  // reached the end of the last port for the protocol type
-  } else if (ports.indexOf(self._signalingServerPort) === ports.length - 1) {
-    // re-refresh to long-polling port
-    if (type === 'WebSocket') {
-      type = 'Polling';
-      self._signalingServerPort = ports[0];
-    } else {
-      self._socketSession.finalAttempts++;
-    }
-  // move to the next port
-  } else {
-    self._signalingServerPort = ports[ ports.indexOf(self._signalingServerPort) + 1 ];
+  // Handle socket.io-client options for Polling transports
+  if (self._socket.session.transportType === 'Polling') {
+    self._socket.session.options.reconnectionDelayMax = 1000;
+    self._socket.session.options.reconnectionAttempts = 4;
+    self._socket.session.options.transports = ['xhr-polling', 'jsonp-polling', 'polling'];
   }
 
-  if (type === 'Polling') {
-    options.reconnectionDelayMax = 1000;
-    options.reconnectionAttempts = 4;
-    options.transports = ['xhr-polling', 'jsonp-polling', 'polling'];
+  // Configure the non-initial fallback types
+  if (fallbackState === null) {
+    fallbackState = self._socket.session.protocol === 'http:' ?
+    // Configure the HTTP protocol Polling or WebSocket type
+      (self._socket.session.transportType === 'Polling' ? self.SOCKET_FALLBACK.LONG_POLLING :
+      self.SOCKET_FALLBACK.FALLBACK_PORT) : (self._socket.session.transportType === 'Polling' ?
+    // Configure the HTTPS protocol Polling or WebSocket type
+      self.SOCKET_FALLBACK.LONG_POLLING_SSL : self.SOCKET_FALLBACK.FALLBACK_SSL_PORT);
+
+    self._socket.session.retries++;
+
+    // Trigger `socketError` event for RECONNECTION_ATTEMPT
+    self._trigger('socketError', self.SOCKET_ERROR.RECONNECTION_ATTEMPT, null,
+      fallbackState, self._socketGetSession());
+    // Trigger `channelRetry` event for the first failure, not the reconnect attempts retries
+    self._trigger('channelRetry', fallbackState, self._socket.session.retries, self._socketGetSession());
   }
 
-  var url = self._signalingServerProtocol + '//' + (self._options.socketServer || self._signalingServer) + ':' + self._signalingServerPort;
-    //'http://ec2-52-8-93-170.us-west-1.compute.amazonaws.com:6001';
+  // Construct Signaling server path
+  self._socket.session.path = self._socket.session.protocol + '//' + self._socket.server + ':' +
+    self._socket.session.port; //'http://ec2-52-8-93-170.us-west-1.compute.amazonaws.com:6001';
 
-  self._socketSession.transportType = type;
-  self._socketSession.socketOptions = options;
-  self._socketSession.socketServer = url;
-
-  if (fallbackType === null) {
-    fallbackType = self._signalingServerProtocol === 'http:' ?
-      (type === 'Polling' ? self.SOCKET_FALLBACK.LONG_POLLING : self.SOCKET_FALLBACK.FALLBACK_PORT) :
-      (type === 'Polling' ? self.SOCKET_FALLBACK.LONG_POLLING_SSL : self.SOCKET_FALLBACK.FALLBACK_SSL_PORT);
-
-    self._socketSession.attempts++;
-    self._trigger('socketError', self.SOCKET_ERROR.RECONNECTION_ATTEMPT, null, fallbackType, clone(self._socketSession));
-    self._trigger('channelRetry', fallbackType, self._socketSession.attempts, clone(self._socketSession));
+  // Use the custom Signaling server url
+  if (typeof self._options.socketServer === 'string') {
+    self._socket.session.path = self._socket.session.protocol + '//' + self._options.socketServer + ':' +
+      self._socket.session.port;
   }
 
-  // if socket instance already exists, exit
-  if (self._socket) {
-    self._socket.removeAllListeners('connect_error');
-    self._socket.removeAllListeners('reconnect_attempt');
-    self._socket.removeAllListeners('reconnect_error');
-    self._socket.removeAllListeners('reconnect_failed');
-    self._socket.removeAllListeners('connect');
-    self._socket.removeAllListeners('reconnect');
-    self._socket.removeAllListeners('error');
-    self._socket.removeAllListeners('disconnect');
-    self._socket.removeAllListeners('message');
+  // Disconnect any existing socket connection
+  if (self._socket.socket) {
+    self._socket.removeAllListeners();
     self._socket.disconnect();
     self._socket = null;
   }
 
-  self._channelOpen = false;
+  self._socket.connected = false;
 
-  log.log('Opening channel with signaling server url:', clone(self._socketSession));
+  log.log('Opening socket connection ->', self._socketGetSession());
 
-  self._socket = io.connect(url, options);
+  self._socket.socket = io.connect(self._socket.session.path, self._socket.session.options);
 
-  self._socket.on('reconnect_attempt', function (attempt) {
-    self._socketSession.attempts++;
-    self._trigger('channelRetry', fallbackType, self._socketSession.attempts, clone(self._socketSession));
+  // socket.io-client `reconnect_attempt` event
+  // Triggered each time socket.io-client attempts to reconnect
+  self._socket.socket.on('reconnect_attempt', function (attempt) {
+    self._socket.session.retries++;
+    // Trigger `channelRetry` event
+    self._trigger('channelRetry', fallbackState, self._socket.session.retries, self._socketGetSession());
   });
 
-  self._socket.on('reconnect_failed', function () {
-    if (fallbackType === self.SOCKET_FALLBACK.NON_FALLBACK) {
-      self._trigger('socketError', self.SOCKET_ERROR.CONNECTION_FAILED, new Error('Failed connection with transport "' +
-        type + '" and port ' + self._signalingServerPort + '.'), fallbackType, clone(self._socketSession));
+  // socket.io-client `reconnect_attempt` event
+  // Triggered each time socket.io-client fails to reconnect after all the maximum attempt configured
+  self._socket.socket.on('reconnect_failed', function () {
+    // Check if its the initial state, return as first connection failure
+    if (fallbackState === self.SOCKET_FALLBACK.NON_FALLBACK) {
+      // Trigger `socketError` event for CONNECTION FAILED
+      self._trigger('socketError', self.SOCKET_ERROR.CONNECTION_FAILED,
+        new Error('Failed connection with transport "' + self._socket.session.transportType +
+        '" and port ' + self._socket.session.port + '.'), fallbackState, self._socketGetSession());
+    // Else trigger as subsequent connection failure
     } else {
-      self._trigger('socketError', self.SOCKET_ERROR.RECONNECTION_FAILED, new Error('Failed reconnection with transport "' +
-        type + '" and port ' + self._signalingServerPort + '.'), fallbackType, clone(self._socketSession));
+      // Trigger `socketError` event for RECONNECTION_FAILED
+      self._trigger('socketError', self.SOCKET_ERROR.RECONNECTION_FAILED,
+        new Error('Failed reconnection with transport "' + self._socket.session.transportType +
+        '" and port ' + self._socket.session.port + '.'), fallbackState, self._socketGetSession());
     }
-
-    if (self._socketSession.finalAttempts < 4) {
-      self._createSocket(type);
+    // Check if it has reached the final attempt limit before fallbacking to the next available port / transport type
+    if (self._socket.session.finalAttempts < 4) {
+      self._socketAttemptConnection();
+    // Check if it has reached the final attempt limit
     } else {
+      // Trigger `socketError` event for RECONNECTION_ABORTED. Not more attempts to go on to retry.
       self._trigger('socketError', self.SOCKET_ERROR.RECONNECTION_ABORTED, new Error('Reconnection aborted as ' +
-        'there no more available ports, transports and final attempts left.'), fallbackType, clone(self._socketSession));
+        'there no more available ports, transports and final attempts left.'), fallbackState, self._socketGetSession());
+      callback(new Error('Reconnection aborted.'));
     }
   });
 
-  self._socket.on('connect', function () {
-    if (!self._channelOpen) {
-      log.log([null, 'Socket', null, 'Channel opened']);
-      self._channelOpen = true;
+  // socket.io-client `reconnect_attempt` event
+  // Triggered each time socket.io-client has connected
+  self._socket.socket.on('connect', function () {
+    if (!self._socket.connected) {
+      log.log('Socket channel opened for port @' + self._socket.session.port + '.');
+      self._socket.connected = true;
+      // Trigger `channelOpen` event
       self._trigger('channelOpen', clone(self._socketSession));
+      callback();
     }
   });
 
-  self._socket.on('reconnect', function () {
-    if (!self._channelOpen) {
-      log.log([null, 'Socket', null, 'Channel opened']);
-      self._channelOpen = true;
-      self._trigger('channelOpen', clone(self._socketSession));
+  // socket.io-client `reconnect` event
+  // Triggered each time socket.io-client has connected after several reconnection attempts
+  self._socket.socket.on('reconnect', function () {
+    if (!self._socket.connected) {
+      log.log('Socket channel opened after reconnection attempt (' + self._socket.session.retries +
+        ') for port @' + self._socket.session.port + '.');
+      self._socket.connected = true;
+      // Trigger `channelOpen` event
+      self._trigger('channelOpen', self._socketGetSession());
+      callback();
     }
   });
 
-  self._socket.on('error', function(error) {
-    log.error([null, 'Socket', null, 'Exception occurred ->'], error);
-    self._trigger('channelError', error, clone(self._socketSession));
+  // socket.io-client `error` event
+  // Triggered when socket.io-client event handler errors like `peerJoined` event from the call-stack.
+  // Can be xhr-poll errors
+  self._socket.socket.on('error', function(error) {
+    // Disconnect Polling errors
+    if (error.message.indexOf('xhr post error') > -1) {
+      log.error('Socket channel Polling errors and connection is unstable. Disconnecting..');
+      // Trigger `socketError` event
+      self._trigger('socketError', self.SOCKET_ERROR.CONNECTION_ABORTED,
+        new Error('Failed reconnection with transport "' + self._socket.session.transportType +
+        '" and port ' + self._socket.session.port + '.'), fallbackState, self._socketGetSession());
+      // Close socket connection
+      self._socketClose();
+      return;
+    }
+    log.error('App exception occurred. Please check your event handlers for code errors. ->', error);
+    // Trigger `channelError` event
+    self._trigger('channelError', error, self._socketGetSession());
   });
 
-  self._socket.on('disconnect', function() {
-    self._channelOpen = false;
-    self._trigger('channelClose', clone(self._socketSession));
-    log.log([null, 'Socket', null, 'Channel closed']);
-
-    if (self._inRoom && self._user && self._user.sid) {
-      self.leaveRoom(false);
-      self._trigger('sessionDisconnect', self._user.sid, self.getPeerInfo());
+  // socket.io-client `error` event
+  // Triggered when socket.io-client is disconnected abruptly
+  self._socket.socket.on('disconnect', function() {
+    if (self._socket.connected) {
+      log.warn('Socket connection closed abruptly.');
+      self._socket.connected = false;
+      // Trigger `channelClose` event
+      self._trigger('channelClose', self._socketGetSession());
+      // Check if User is in Room and Socket connection was disconnected
+      if (self._user.room.connected) {
+        self.leaveRoom(false);
+        self._trigger('sessionDisconnect', self._user.id, self.getPeerInfo());
+      }
     }
   });
 
-  self._socket.on('message', function(messageStr) {
+  // socket.io-client `message` event
+  // Triggered when socket.io-client receives message from Peers
+  self._socket.socket.on('message', function(messageStr) {
     var message = JSON.parse(messageStr);
-
-    log.log([null, 'Socket', null, 'Received message ->'], message);
-
     if (message.type === self._SIG_MESSAGE_TYPE.GROUP) {
       log.debug('Bundle of ' + message.lists.length + ' messages');
       for (var i = 0; i < message.lists.length; i++) {
         var indiMessage = JSON.parse(message.lists[i]);
         self._processSigMessage(indiMessage);
-        self._trigger('channelMessage', indiMessage, clone(self._socketSession));
+        self._trigger('channelMessage', indiMessage, self._socketGetSession());
       }
     } else {
       self._processSigMessage(message);
@@ -22528,79 +22355,76 @@ Skylink.prototype._createSocket = function (type) {
 };
 
 /**
- * Function that starts the socket connection to the Signaling.
- * This starts creating the socket connection and called at first not when requiring to fallback.
- * @method _openChannel
+ * Function that starts the Socket connection.
+ * @method _socketOpen
  * @private
  * @for Skylink
  * @since 0.5.5
  */
-Skylink.prototype._openChannel = function() {
+Skylink.prototype._socketOpen = function (callback) {
   var self = this;
-  if (self._channelOpen) {
-    log.error([null, 'Socket', null, 'Unable to instantiate a new channel connection ' +
-      'as there is already an ongoing channel connection']);
-    return;
+
+  if (self._socket.socket) {
+    self._socketClose();
   }
 
-  if (self._readyState !== self.READY_STATE_CHANGE.COMPLETED) {
-    log.error([null, 'Socket', null, 'Unable to instantiate a new channel connection ' +
-      'as readyState is not ready']);
-    return;
-  }
-
-  // set if forceSSL
-  if (self._forceSSL) {
-    self._signalingServerProtocol = 'https:';
-  } else {
-    self._signalingServerProtocol = window.location.protocol;
-  }
-
-  var socketType = 'WebSocket';
-
-  // For IE < 9 that doesn't support WebSocket
-  if (!window.WebSocket) {
-    socketType = 'Polling';
-  }
-
-  self._signalingServerPort = null;
+  self._socket.session.port = null;
+  self._socket.session.protocol = self._options.forceSSL ? 'https:' : window.location.protocol;
+  // IE < 9 doesn't support WebSocket
+  self._socket.session.transportType = !window.WebSocket ? 'Polling' : 'WebSocket';
+  self._socket.session.retries = 0;
+  self._socket.session.finalAttempts = 0;
+  self._socket.session.fallbackState = null;
 
   // Begin with a websocket connection
-  self._createSocket(socketType);
+  self._socketAttemptConnection(callback);
 };
 
 /**
- * Function that stops the socket connection to the Signaling.
- * @method _closeChannel
+ * Function that returns the Socket session information.
+ * @method _socketGetSession
  * @private
  * @for Skylink
- * @since 0.5.5
+ * @since 0.6.18
  */
-Skylink.prototype._closeChannel = function() {
-  if (this._socket) {
-    this._socket.removeAllListeners('connect_error');
-    this._socket.removeAllListeners('reconnect_attempt');
-    this._socket.removeAllListeners('reconnect_error');
-    this._socket.removeAllListeners('reconnect_failed');
-    this._socket.removeAllListeners('connect');
-    this._socket.removeAllListeners('reconnect');
-    this._socket.removeAllListeners('error');
-    this._socket.removeAllListeners('disconnect');
-    this._socket.removeAllListeners('message');
+Skylink.prototype._socketGetSession = function () {
+  var self = this;
+  return {
+    finalAttempts: self._socket.session.finalAttempts,
+    serverUrl: self._socket.session.path,
+    socketOptions: clone(self._socket.session.options),
+    attempts: self._socket.session.retries,
+    transportType: self._socket.session.transportType
+  };
+};
+
+/**
+ * Function that stops the Socket connection.
+ * @method _socketClose
+ * @private
+ * @for Skylink
+ * @since 0.6.18
+ */
+Skylink.prototype._socketClose = function() {
+  var self = this;
+
+  // Remove all current event listeners
+  if (self._socket.socket) {
+    self._socket.socket.removeAllListeners();
   }
 
-  if (this._channelOpen) {
-    if (this._socket) {
-      this._socket.disconnect();
+  // Close connection or return as close if state is connected
+  if (self._socket.connected) {
+    if (self._socket.socket) {
+      self._socket.socket.disconnect();
     }
 
-    log.log([null, 'Socket', null, 'Channel closed']);
+    self._socket.connected = false;
 
-    this._channelOpen = false;
-    this._trigger('channelClose', clone(this._socketSession));
+    self._trigger('channelClose', self._socketGetSession());
   }
 
-  this._socket = null;
+  self._socket.socket = null;
 };
 Skylink.prototype.SM_PROTOCOL_VERSION = '0.1.2.3';
 
@@ -22712,7 +22536,7 @@ Skylink.prototype.sendMessage = function(message, targetPeerId) {
     isPrivate = true;
   }
 
-  if (!this._inRoom || !this._socket || !this._user) {
+  if (!this._user.room.connected) {
     log.error('Unable to send message as User is not in Room. ->', message);
     return;
   }
@@ -22732,11 +22556,10 @@ Skylink.prototype.sendMessage = function(message, targetPeerId) {
     } else if (isPrivate) {
       log.debug([peerId, 'Socket', null, 'Sending private message to Peer']);
 
-      this._sendChannelMessage({
-        cid: this._key,
+      this._socketSendMessage({
         data: message,
-        mid: this._user.sid,
-        rid: this._room.id,
+        mid: this._user.id,
+        rid: this._user.room.session.id,
         target: peerId,
         type: this._SIG_MESSAGE_TYPE.PRIVATE_MESSAGE
       });
@@ -22751,11 +22574,10 @@ Skylink.prototype.sendMessage = function(message, targetPeerId) {
   if (!isPrivate) {
     log.debug([null, 'Socket', null, 'Broadcasting message to Peers']);
 
-    this._sendChannelMessage({
-      cid: this._key,
+    this._socketSendMessage({
       data: message,
-      mid: this._user.sid,
-      rid: this._room.id,
+      mid: this._user.id,
+      rid: this._user.room.session.id,
       type: this._SIG_MESSAGE_TYPE.PUBLIC_MESSAGE
     });
   } else {
@@ -22765,8 +22587,8 @@ Skylink.prototype.sendMessage = function(message, targetPeerId) {
       targetPeerId: targetPeerId || null,
       listOfPeers: listOfPeers,
       isDataChannel: false,
-      senderPeerId: this._user.sid
-    }, this._user.sid, this.getPeerInfo(), true);
+      senderPeerId: this._user.id
+    }, this._user.id, this.getPeerInfo(), true);
   }
 };
 
@@ -22837,9 +22659,9 @@ Skylink.prototype.startRecording = function (callback) {
     });
   }
 
-  self._sendChannelMessage({
+  self._socketSendMessage({
     type: self._SIG_MESSAGE_TYPE.START_RECORDING,
-    rid: self._room.id,
+    rid: self._user.room.session.id,
     target: 'MCU'
   });
 
@@ -22973,9 +22795,9 @@ Skylink.prototype.stopRecording = function (callback, callbackSuccessWhenLink) {
     });
   }
 
-  self._sendChannelMessage({
+  self._socketSendMessage({
     type: self._SIG_MESSAGE_TYPE.STOP_RECORDING,
-    rid: self._room.id,
+    rid: self._user.room.session.id,
     target: 'MCU'
   });
 
@@ -23032,11 +22854,11 @@ Skylink.prototype.getRecordings = function () {
  */
 Skylink.prototype._processSigMessage = function(message, session) {
   var origin = message.mid;
-  if (!origin || origin === this._user.sid) {
+  if (!origin || origin === this._user.id) {
     origin = 'Server';
   }
   log.debug([origin, null, null, 'Received from peer ->'], message.type);
-  if (message.mid === this._user.sid &&
+  if (message.mid === this._user.id &&
     message.type !== this._SIG_MESSAGE_TYPE.REDIRECT &&
     message.type !== this._SIG_MESSAGE_TYPE.IN_ROOM) {
     log.debug([origin, null, null, 'Ignoring message ->'], message.type);
@@ -23127,7 +22949,7 @@ Skylink.prototype._peerListEventHandler = function(message){
   var self = this;
   self._peerList = message.result;
   log.log(['Server', null, message.type, 'Received list of peers'], self._peerList);
-  self._trigger('getPeersStateChange',self.GET_PEERS_STATE.RECEIVED, self._user.sid, self._peerList);
+  self._trigger('getPeersStateChange',self.GET_PEERS_STATE.RECEIVED, self._user.id, self._peerList);
 };
 
 /**
@@ -23164,7 +22986,7 @@ Skylink.prototype._endOfCandidatesHandler = function(message){
 Skylink.prototype._introduceErrorEventHandler = function(message){
   var self = this;
   log.log(['Server', null, message.type, 'Introduce failed. Reason: '+message.reason]);
-  self._trigger('introduceStateChange',self.INTRODUCE_STATE.ERROR, self._user.sid,
+  self._trigger('introduceStateChange',self.INTRODUCE_STATE.ERROR, self._user.id,
     message.sendingPeerId, message.receivingPeerId, message.reason);
 };
 
@@ -23181,13 +23003,13 @@ Skylink.prototype._approachEventHandler = function(message){
   var self = this;
   log.log(['Server', null, message.type, 'Approaching peer'], message.target);
   // self._room.connection.peerConfig = self._setIceServers(message.pc_config);
-  // self._inRoom = true;
-  self._trigger('handshakeProgress', self.HANDSHAKE_PROGRESS.ENTER, self._user.sid);
+  // self._user.room.connected = true;
+  self._trigger('handshakeProgress', self.HANDSHAKE_PROGRESS.ENTER, self._user.id);
 
   var enterMsg = {
     type: self._SIG_MESSAGE_TYPE.ENTER,
-    mid: self._user.sid,
-    rid: self._room.id,
+    mid: self._user.id,
+    rid: self._user.room.session.id,
     agent: window.webrtcDetectedBrowser,
     version: (window.webrtcDetectedVersion || 0).toString(),
     os: window.navigator.platform,
@@ -23203,17 +23025,17 @@ Skylink.prototype._approachEventHandler = function(message){
     DTProtocolVersion: self.DT_PROTOCOL_VERSION
   };
 
-  if (self._publishOnly) {
+  if (self._user.connection.publishOnly) {
     enterMsg.publishOnly = {
       type: self._streams.screenshare && self._streams.screenshare.stream ? 'screenshare' : 'video'
     };
   }
 
-  if (self._parentId) {
-    enterMsg.parentId = self._parentId;
+  if (self._user.parentId) {
+    enterMsg.parentId = self._user.parentId;
   }
 
-  self._sendChannelMessage(enterMsg);
+  self._socketSendMessage(enterMsg);
 };
 
 /**
@@ -23563,22 +23385,22 @@ Skylink.prototype._inRoomHandler = function(message) {
   var self = this;
   log.log(['Server', null, message.type, 'User is now in the room and ' +
     'functionalities are now available. Config received:'], message.pc_config);
-  self._room.connection.peerConfig = self._setIceServers(message.pc_config);
-  self._inRoom = true;
-  self._user.sid = message.sid;
-  self._peerPriorityWeight = message.tieBreaker;
+  self._user.iceServers = self._setIceServers(message.pc_config);
+  self._user.room.connected = true;
+  self._user.id = message.sid;
+  self._user.priorityWeight = message.tieBreaker;
 
-  self._trigger('peerJoined', self._user.sid, self.getPeerInfo(), true);
-  self._trigger('handshakeProgress', self.HANDSHAKE_PROGRESS.ENTER, self._user.sid);
+  self._trigger('peerJoined', self._user.id, self.getPeerInfo(), true);
+  self._trigger('handshakeProgress', self.HANDSHAKE_PROGRESS.ENTER, self._user.id);
 
   var streamId = null;
 
   if (self._streams.screenshare && self._streams.screenshare.stream) {
     streamId = self._streams.screenshare.stream.id || self._streams.screenshare.stream.label;
-    self._trigger('incomingStream', self._user.sid, self._streams.screenshare.stream, true, self.getPeerInfo(), true, streamId);
+    self._trigger('incomingStream', self._user.id, self._streams.screenshare.stream, true, self.getPeerInfo(), true, streamId);
   } else if (self._streams.userMedia && self._streams.userMedia.stream) {
     streamId = self._streams.userMedia.stream.id || self._streams.userMedia.stream.label;
-    self._trigger('incomingStream', self._user.sid, self._streams.userMedia.stream, true, self.getPeerInfo(), false, streamId);
+    self._trigger('incomingStream', self._user.id, self._streams.userMedia.stream, true, self.getPeerInfo(), false, streamId);
   }
   // NOTE ALEX: should we wait for local streams?
   // or just go with what we have (if no stream, then one way?)
@@ -23587,8 +23409,8 @@ Skylink.prototype._inRoomHandler = function(message) {
   // we want to communicate, instead of connecting automatically to all.
   var enterMsg = {
     type: self._SIG_MESSAGE_TYPE.ENTER,
-    mid: self._user.sid,
-    rid: self._room.id,
+    mid: self._user.id,
+    rid: self._user.room.session.id,
     agent: window.webrtcDetectedBrowser,
     version: (window.webrtcDetectedVersion || 0).toString(),
     os: window.navigator.platform,
@@ -23603,17 +23425,17 @@ Skylink.prototype._inRoomHandler = function(message) {
     DTProtocolVersion: self.DT_PROTOCOL_VERSION
   };
 
-  if (self._publishOnly) {
+  if (self._user.connection.publishOnly) {
     enterMsg.publishOnly = {
       type: self._streams.screenshare && self._streams.screenshare.stream ? 'screenshare' : 'video'
     };
   }
 
-  if (self._parentId) {
-    enterMsg.parentId = self._parentId;
+  if (self._user.parentId) {
+    enterMsg.parentId = self._user.parentId;
   }
 
-  self._sendChannelMessage(enterMsg);
+  self._socketSendMessage(enterMsg);
 };
 
 /**
@@ -23670,7 +23492,7 @@ Skylink.prototype._enterHandler = function(message) {
 
   log.log([targetMid, 'RTCPeerConnection', null, 'Peer "enter" received ->'], message);
 
-  if (targetMid !== 'MCU' && self._parentId && self._parentId === targetMid) {
+  if (targetMid !== 'MCU' && self._user.parentId && self._user.parentId === targetMid) {
     log.warn([targetMid, 'RTCPeerConnection', null, 'Discarding "enter" for parentId case ->'], message);
     return;
   }
@@ -23710,8 +23532,8 @@ Skylink.prototype._enterHandler = function(message) {
 
   var welcomeMsg = {
     type: self._SIG_MESSAGE_TYPE.WELCOME,
-    mid: self._user.sid,
-    rid: self._room.id,
+    mid: self._user.id,
+    rid: self._user.room.session.id,
     enableIceTrickle: self._options.enableIceTrickle,
     enableDataChannel: self._options.enableDataChannel,
     enableIceRestart: self._enableIceRestart,
@@ -23727,17 +23549,17 @@ Skylink.prototype._enterHandler = function(message) {
     DTProtocolVersion: self.DT_PROTOCOL_VERSION
   };
 
-  if (self._publishOnly) {
+  if (self._user.connection.publishOnly) {
     welcomeMsg.publishOnly = {
       type: self._streams.screenshare && self._streams.screenshare.stream ? 'screenshare' : 'video'
     };
   }
 
-  if (self._parentId) {
-    welcomeMsg.parentId = self._parentId;
+  if (self._user.parentId) {
+    welcomeMsg.parentId = self._user.parentId;
   }
 
-  self._sendChannelMessage(welcomeMsg);
+  self._socketSendMessage(welcomeMsg);
 
   if (isNewPeer) {
     self._trigger('handshakeProgress', self.HANDSHAKE_PROGRESS.WELCOME, targetMid);
@@ -23802,7 +23624,7 @@ Skylink.prototype._restartHandler = function(message){
     return;
   }
 
-  if (targetMid !== 'MCU' && self._parentId && self._parentId === targetMid) {
+  if (targetMid !== 'MCU' && self._user.parentId && self._user.parentId === targetMid) {
     log.warn([targetMid, 'RTCPeerConnection', null, 'Discarding "restart" for parentId case ->'], message);
     return;
   }
@@ -23844,8 +23666,8 @@ Skylink.prototype._restartHandler = function(message){
 
     var restartMsg = {
       type: self._SIG_MESSAGE_TYPE.RESTART,
-      mid: self._user.sid,
-      rid: self._room.id,
+      mid: self._user.id,
+      rid: self._user.room.session.id,
       agent: window.webrtcDetectedBrowser,
       version: (window.webrtcDetectedVersion || 0).toString(),
       os: window.navigator.platform,
@@ -23863,17 +23685,17 @@ Skylink.prototype._restartHandler = function(message){
       DTProtocolVersion: self.DT_PROTOCOL_VERSION,
     };
 
-    if (self._publishOnly) {
+    if (self._user.connection.publishOnly) {
       restartMsg.publishOnly = {
         type: self._streams.screenshare && self._streams.screenshare.stream ? 'screenshare' : 'video'
       };
     }
 
-    if (self._parentId) {
-      restartMsg.parentId = self._parentId;
+    if (self._user.parentId) {
+      restartMsg.parentId = self._user.parentId;
     }
 
-    self._sendChannelMessage(restartMsg);
+    self._socketSendMessage(restartMsg);
   }
 
   self._trigger('peerRestart', targetMid, self.getPeerInfo(targetMid), false, message.doIceRestart === true);
@@ -23933,7 +23755,7 @@ Skylink.prototype._welcomeHandler = function(message) {
 
   log.log([targetMid, 'RTCPeerConnection', null, 'Peer "welcome" received ->'], message);
 
-  if (targetMid !== 'MCU' && self._parentId && self._parentId === targetMid) {
+  if (targetMid !== 'MCU' && self._user.parentId && self._user.parentId === targetMid) {
     log.warn([targetMid, 'RTCPeerConnection', null, 'Discarding "welcome" for parentId case ->'], message);
     return;
   }
@@ -23993,8 +23815,8 @@ Skylink.prototype._welcomeHandler = function(message) {
 
     var welcomeMsg = {
       type: self._SIG_MESSAGE_TYPE.WELCOME,
-      mid: self._user.sid,
-      rid: self._room.id,
+      mid: self._user.id,
+      rid: self._user.room.session.id,
       enableIceTrickle: self._options.enableIceTrickle,
       enableDataChannel: self._options.enableDataChannel,
       enableIceRestart: self._enableIceRestart,
@@ -24010,17 +23832,17 @@ Skylink.prototype._welcomeHandler = function(message) {
       DTProtocolVersion: self.DT_PROTOCOL_VERSION
     };
 
-    if (self._publishOnly) {
+    if (self._user.connection.publishOnly) {
       welcomeMsg.publishOnly = {
         type: self._streams.screenshare && self._streams.screenshare.stream ? 'screenshare' : 'video'
       };
     }
 
-    if (self._parentId) {
-      welcomeMsg.parentId = self._parentId;
+    if (self._user.parentId) {
+      welcomeMsg.parentId = self._user.parentId;
     }
 
-    self._sendChannelMessage(welcomeMsg);
+    self._socketSendMessage(welcomeMsg);
   }
 };
 
@@ -25024,10 +24846,10 @@ Skylink.prototype.sendStream = function(options, callback) {
   var self = this;
 
   var restartFn = function (stream) {
-    if (self._inRoom) {
+    if (self._user.room.connected) {
       if (!self._streams.screenshare) {
-        self._trigger('incomingStream', self._user.sid, stream, true, self.getPeerInfo(), false, stream.id || stream.label);
-        self._trigger('peerUpdated', self._user.sid, self.getPeerInfo(), true);
+        self._trigger('incomingStream', self._user.id, stream, true, self.getPeerInfo(), false, stream.id || stream.label);
+        self._trigger('peerUpdated', self._user.id, self.getPeerInfo(), true);
       }
 
       if (Object.keys(self._peerConnections).length > 0 || self._hasMCU) {
@@ -25064,7 +24886,7 @@ Skylink.prototype.sendStream = function(options, callback) {
     return;
   }
 
-  if (!self._inRoom) {
+  if (!self._user.room.connected) {
     var notInRoomError = 'Unable to send stream as user is not in the Room.';
     log.error(notInRoomError, options);
     if (typeof callback === 'function'){
@@ -25266,22 +25088,22 @@ Skylink.prototype.muteStream = function(options) {
   if (hasToggledVideo || hasToggledAudio) {
     var streamTracksAvailability = self._muteStreams();
 
-    if (hasToggledVideo && self._inRoom) {
-      self._sendChannelMessage({
+    if (hasToggledVideo && self._user.room.connected) {
+      self._socketSendMessage({
         type: self._SIG_MESSAGE_TYPE.MUTE_VIDEO,
-        mid: self._user.sid,
-        rid: self._room.id,
+        mid: self._user.id,
+        rid: self._user.room.session.id,
         muted: self._streamsMutedSettings.videoMuted,
         stamp: (new Date()).getTime()
       });
     }
 
-    if (hasToggledAudio && self._inRoom) {
+    if (hasToggledAudio && self._user.room.connected) {
       setTimeout(function () {
-        self._sendChannelMessage({
+        self._socketSendMessage({
           type: self._SIG_MESSAGE_TYPE.MUTE_AUDIO,
-          mid: self._user.sid,
-          rid: self._room.id,
+          mid: self._user.id,
+          rid: self._user.room.session.id,
           muted: self._streamsMutedSettings.audioMuted,
           stamp: (new Date()).getTime()
         });
@@ -25296,10 +25118,10 @@ Skylink.prototype.muteStream = function(options) {
         videoMuted: streamTracksAvailability.hasVideo ? self._streamsMutedSettings.videoMuted : true
       });
 
-      if (self._inRoom) {
-        self._trigger('streamMuted', self._user.sid, self.getPeerInfo(), true,
+      if (self._user.room.connected) {
+        self._trigger('streamMuted', self._user.id, self.getPeerInfo(), true,
           self._streams.screenshare && self._streams.screenshare.stream);
-        self._trigger('peerUpdated', self._user.sid, self.getPeerInfo(), true);
+        self._trigger('peerUpdated', self._user.id, self.getPeerInfo(), true);
       }
     }
   }
@@ -25571,9 +25393,9 @@ Skylink.prototype.shareScreen = function (enableAudio, callback) {
     var mediaAccessSuccessFn = function (stream) {
       self.off('mediaAccessError', mediaAccessErrorFn);
 
-      if (self._inRoom) {
-        self._trigger('incomingStream', self._user.sid, stream, true, self.getPeerInfo(), true, stream.id || stream.label);
-        self._trigger('peerUpdated', self._user.sid, self.getPeerInfo(), true);
+      if (self._user.room.connected) {
+        self._trigger('incomingStream', self._user.id, stream, true, self.getPeerInfo(), true, stream.id || stream.label);
+        self._trigger('peerUpdated', self._user.id, self.getPeerInfo(), true);
 
         if (Object.keys(self._peerConnections).length > 0 || self._hasMCU) {
           self._refreshPeerConnection(Object.keys(self._peerConnections), false, function (err, success) {
@@ -25705,11 +25527,11 @@ Skylink.prototype.stopScreen = function () {
       screenshare: true
     });
 
-    if (this._inRoom) {
+    if (this._user.room.connected) {
       if (this._streams.userMedia && this._streams.userMedia.stream) {
-        this._trigger('incomingStream', this._user.sid, this._streams.userMedia.stream, true, this.getPeerInfo(),
+        this._trigger('incomingStream', this._user.id, this._streams.userMedia.stream, true, this.getPeerInfo(),
           false, this._streams.userMedia.stream.id || this._streams.userMedia.stream.label);
-        this._trigger('peerUpdated', this._user.sid, this.getPeerInfo(), true);
+        this._trigger('peerUpdated', this._user.id, this.getPeerInfo(), true);
       }
       this._refreshPeerConnection(Object.keys(this._peerConnections), false);
     }
@@ -25829,8 +25651,8 @@ Skylink.prototype._stopStreams = function (options) {
     hasStoppedMedia = true;
   }
 
-  if (self._inRoom && hasStoppedMedia) {
-    self._trigger('peerUpdated', self._user.sid, self.getPeerInfo(), true);
+  if (self._user.room.connected && hasStoppedMedia) {
+    self._trigger('peerUpdated', self._user.id, self.getPeerInfo(), true);
   }
 
   log.log('Stopping Streams with settings ->', options);
@@ -26047,20 +25869,19 @@ Skylink.prototype._onStreamAccessSuccess = function(stream, settings, isScreenSh
 
     self._trigger('mediaAccessStopped', !!isScreenSharing, !!isAudioFallback, streamId);
 
-    if (self._inRoom) {
+    if (self._user.room.connected) {
       log.debug([null, 'MediaStream', streamId, 'Sending Stream ended status to Peers']);
 
-      self._sendChannelMessage({
+      self._socketSendMessage({
         type: self._SIG_MESSAGE_TYPE.STREAM,
-        mid: self._user.sid,
-        rid: self._room.id,
-        cid: self._key,
+        mid: self._user.id,
+        rid: self._user.room.session.id,
         streamId: streamId,
         settings: settings.settings,
         status: 'ended'
       });
 
-      self._trigger('streamEnded', self._user.sid, self.getPeerInfo(), true, !!isScreenSharing, streamId);
+      self._trigger('streamEnded', self._user.id, self.getPeerInfo(), true, !!isScreenSharing, streamId);
 
       if (isScreenSharing && self._streams.screenshare && self._streams.screenshare.stream &&
         (self._streams.screenshare.stream.id || self._streams.screenshare.stream.label) === streamId) {

@@ -1361,8 +1361,8 @@ Skylink.prototype._restartPeerConnection = function (peerId, doIceRestart, callb
 
     var restartMsg = {
       type: self._SIG_MESSAGE_TYPE.RESTART,
-      mid: self._user.sid,
-      rid: self._room.id,
+      mid: self._user.id,
+      rid: self._user.room.session.id,
       agent: window.webrtcDetectedBrowser,
       version: (window.webrtcDetectedVersion || 0).toString(),
       os: window.navigator.platform,
@@ -1381,19 +1381,19 @@ Skylink.prototype._restartPeerConnection = function (peerId, doIceRestart, callb
       DTProtocolVersion: self.DT_PROTOCOL_VERSION
     };
 
-    if (self._publishOnly) {
+    if (self._user.connection.publishOnly) {
       restartMsg.publishOnly = {
         type: self._streams.screenshare && self._streams.screenshare.stream ? 'screenshare' : 'video'
       };
     }
 
-    if (self._parentId) {
-      restartMsg.parentId = self._parentId;
+    if (self._user.parentId) {
+      restartMsg.parentId = self._user.parentId;
     }
 
     self._peerEndOfCandidatesCounter[peerId] = self._peerEndOfCandidatesCounter[peerId] || {};
     self._peerEndOfCandidatesCounter[peerId].len = 0;
-    self._sendChannelMessage(restartMsg);
+    self._socketSendMessage(restartMsg);
     self._trigger('peerRestart', peerId, self.getPeerInfo(peerId), true, doIceRestart === true);
 
     if (typeof callback === 'function') {
@@ -1410,12 +1410,12 @@ Skylink.prototype._restartPeerConnection = function (peerId, doIceRestart, callb
       var hasLocalDescription = pc.localDescription && pc.localDescription.sdp;
       // By then it should have at least the local description..
       if (hasLocalDescription) {
-        self._sendChannelMessage({
+        self._socketSendMessage({
           type: pc.localDescription.type,
           sdp: pc.localDescription.sdp,
-          mid: self._user.sid,
+          mid: self._user.id,
           target: peerId,
-          rid: self._room.id,
+          rid: self._user.room.session.id,
           restart: true
         });
       } else {
@@ -1522,15 +1522,14 @@ Skylink.prototype._removePeer = function(peerId) {
  */
 Skylink.prototype._createPeerConnection = function(targetMid, isScreenSharing) {
   var pc, self = this;
-  if (!self._inRoom || !(self._room && self._room.connection &&
-    self._room.connection.peerConfig && Array.isArray(self._room.connection.peerConfig.iceServers))) {
+  if (!self._user.room.connected || !Array.isArray(self._user.iceServers)) {
     return;
   }
   // currently the AdapterJS 0.12.1-2 causes an issue to prevent firefox from
   // using .urls feature
   try {
     pc = new RTCPeerConnection({
-      iceServers: self._room.connection.peerConfig.iceServers,
+      iceServers: self._user.iceServers,
       iceTransportPolicy: self._options.filterCandidatesType.host && self._options.filterCandidatesType.srflx &&
         !self._options.filterCandidatesType.relay ? 'relay' : 'all',
       bundlePolicy: 'max-bundle',
@@ -1699,8 +1698,8 @@ Skylink.prototype._restartMCUConnection = function(callback, doIceRestart) {
   var sendRestartMsgFn = function (peerId) {
     var restartMsg = {
       type: self._SIG_MESSAGE_TYPE.RESTART,
-      mid: self._user.sid,
-      rid: self._room.id,
+      mid: self._user.id,
+      rid: self._user.room.session.id,
       agent: window.webrtcDetectedBrowser,
       version: (window.webrtcDetectedVersion || 0).toString(),
       os: window.navigator.platform,
@@ -1720,19 +1719,19 @@ Skylink.prototype._restartMCUConnection = function(callback, doIceRestart) {
       DTProtocolVersion: self.DT_PROTOCOL_VERSION
     };
 
-    if (self._publishOnly) {
+    if (self._user.connection.publishOnly) {
       restartMsg.publishOnly = {
         type: self._streams.screenshare && self._streams.screenshare.stream ? 'screenshare' : 'video'
       };
     }
 
-    if (self._parentId) {
-      restartMsg.parentId = self._parentId;
+    if (self._user.parentId) {
+      restartMsg.parentId = self._user.parentId;
     }
 
     log.log([peerId, 'RTCPeerConnection', null, 'Sending restart message to signaling server ->'], restartMsg);
 
-    self._sendChannelMessage(restartMsg);
+    self._socketSendMessage(restartMsg);
   };
 
   for (var i = 0; i < listOfPeers.length; i++) {

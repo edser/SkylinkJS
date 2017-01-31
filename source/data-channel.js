@@ -104,7 +104,7 @@ Skylink.prototype.DATA_CHANNEL_MESSAGE_ERROR = {
 Skylink.prototype._createDataChannel = function(peerId, dataChannel, createAsMessagingChannel) {
   var self = this;
 
-  if (!self._user) {
+  if (!self._user.room.connected) {
     log.error([peerId, 'RTCDataChannel', null,
       'Aborting of creating or initializing Datachannel as User does not have Room session']);
     return;
@@ -117,7 +117,7 @@ Skylink.prototype._createDataChannel = function(peerId, dataChannel, createAsMes
     return;
   }
 
-  var channelName = self._user.sid + '_' + peerId;
+  var channelName = self._user.id + '_' + peerId;
   var channelType = createAsMessagingChannel ? self.DATA_CHANNEL_TYPE.MESSAGING : self.DATA_CHANNEL_TYPE.DATA;
 
   if (dataChannel && typeof dataChannel === 'object') {

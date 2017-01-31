@@ -41,18 +41,18 @@ Skylink.prototype.setUserData = function(userData) {
     updatedUserData = userData;
   }
 
-  this._userData = updatedUserData;
+  self._user.data = updatedUserData;
 
-  if (self._inRoom) {
+  if (self._user.room.connected) {
     log.log('Updated userData -> ', updatedUserData);
-    self._sendChannelMessage({
+    self._socketSendMessage({
       type: self._SIG_MESSAGE_TYPE.UPDATE_USER,
-      mid: self._user.sid,
-      rid: self._room.id,
+      mid: self._user.id,
+      rid: self._user.room.session.id,
       userData: updatedUserData,
       stamp: (new Date()).getTime()
     });
-    self._trigger('peerUpdated', self._user.sid, self.getPeerInfo(), true);
+    self._trigger('peerUpdated', self._user.id, self.getPeerInfo(), true);
   } else {
     log.warn('User is not in the room. Broadcast of updated information will be dropped');
   }
@@ -82,7 +82,7 @@ Skylink.prototype.getUserData = function(peerId) {
     }
     return userData;
   }
-  return this._userData;
+  return this._user.data;
 };
 
 /**
@@ -188,7 +188,7 @@ Skylink.prototype.getPeerInfo = function(peerId) {
 
   } else {
     peerInfo = {
-      userData: clone(this._userData),
+      userData: clone(this._user.data),
       settings: {
         audio: false,
         video: false
@@ -202,14 +202,14 @@ Skylink.prototype.getPeerInfo = function(peerId) {
         SMProtocolVersion: this.SMProtocolVersion,
         DTProtocolVersion: this.DTProtocolVersion
       },
-      room: clone(this._selectedRoom),
+      room: clone(this._user.room.name),
       config: {
         enableDataChannel: this._options.enableDataChannel,
         enableIceTrickle: this._options.enableIceTrickle,
         enableIceRestart: this._enableIceRestart,
-        priorityWeight: this._peerPriorityWeight,
+        priorityWeight: this._user.priorityWeight,
         receiveOnly: false,
-        publishOnly: !!this._publishOnly
+        publishOnly: !!this._user.connection.publishOnly
       }
     };
 
@@ -223,9 +223,9 @@ Skylink.prototype.getPeerInfo = function(peerId) {
       peerInfo.settings = clone(this._streams.userMedia.settings);
     }
 
-    peerInfo.settings.bandwidth = clone(this._streamsBandwidthSettings.bAS);
-    peerInfo.settings.googleXBandwidth = clone(this._streamsBandwidthSettings.googleX);
-    peerInfo.parentId = this._parentId ? this._parentId : null;
+    peerInfo.settings.bandwidth = clone(this._user.connection.bandwidth.max);
+    peerInfo.settings.googleXBandwidth = clone(this._user.connection.bandwidth.xVideoCodec);
+    peerInfo.parentId = this._user.parentId ? this._user.parentId : null;
     peerInfo.config.receiveOnly = !peerInfo.settings.video && !peerInfo.settings.audio;
   }
 
@@ -268,9 +268,9 @@ Skylink.prototype.getPeersInRoom = function() {
     listOfPeersInfo[listOfPeers[i]].isSelf = false;
   }
 
-  if (this._user && this._user.sid) {
-    listOfPeersInfo[this._user.sid] = clone(this.getPeerInfo());
-    listOfPeersInfo[this._user.sid].isSelf = true;
+  if (this._user && this._user.id) {
+    listOfPeersInfo[this._user.id] = clone(this.getPeerInfo());
+    listOfPeersInfo[this._user.id].isSelf = true;
   }
 
   return listOfPeersInfo;
@@ -320,7 +320,7 @@ Skylink.prototype.getPeersStream = function() {
     };
   }
 
-  if (this._user && this._user.sid) {
+  if (this._user && this._user.id) {
     var selfStream = null;
 
     if (this._streams.screenshare && this._streams.screenshare.stream) {
@@ -329,7 +329,7 @@ Skylink.prototype.getPeersStream = function() {
       selfStream = this._streams.userMedia.stream;
     }
 
-    listOfPeersStreams[this._user.sid] = {
+    listOfPeersStreams[this._user.id] = {
       streamId: selfStream ? selfStream.id || selfStream.label || null : null,
       stream: selfStream,
       isSelf: true
@@ -360,16 +360,16 @@ Skylink.prototype.getPeersStream = function() {
 Skylink.prototype.getCurrentDataTransfers = function() {
   var listOfDataTransfers = {};
 
-  if (!(this._user && this._user.sid)) {
+  if (!(this._user && this._user.id)) {
     return {};
   }
 
   for (var prop in this._dataTransfers) {
     if (this._dataTransfers.hasOwnProperty(prop) && this._dataTransfers[prop]) {
       listOfDataTransfers[prop] = {
-        transferInfo: this._getTransferInfo(prop, this._user.sid, true, true, true),
-        isSelf: this._dataTransfers[prop].senderPeerId === this._user.sid,
-        peerId: this._dataTransfers[prop].senderPeerId || this._user.sid
+        transferInfo: this._getTransferInfo(prop, this._user.id, true, true, true),
+        isSelf: this._dataTransfers[prop].senderPeerId === this._user.id,
+        peerId: this._dataTransfers[prop].senderPeerId || this._user.id
       };
     }
   }

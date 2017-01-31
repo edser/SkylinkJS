@@ -246,12 +246,12 @@ Skylink.prototype._setLocalAndSendMessage = function(targetMid, sessionDescripti
       return;
     }
 
-    self._sendChannelMessage({
+    self._socketSendMessage({
       type: sessionDescription.type,
       sdp: self._addSDPMediaStreamTrackIDs(targetMid, sessionDescription),
-      mid: self._user.sid,
+      mid: self._user.id,
       target: targetMid,
-      rid: self._room.id,
+      rid: self._user.room.session.id,
       userInfo: self._getUserInfo()
     });
 
