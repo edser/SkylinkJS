@@ -118,7 +118,7 @@ Skylink.prototype._setIceServers = function(givenConfig) {
 
 
 
-  if (self._forceTURNSSL) {
+  if (self._options.forceTURNSSL) {
     if (window.webrtcDetectedBrowser === 'chrome' ||
       window.webrtcDetectedBrowser === 'safari' ||
       window.webrtcDetectedBrowser === 'IE') {
@@ -142,10 +142,10 @@ Skylink.prototype._setIceServers = function(givenConfig) {
       iceServersList[username][credential] = [];
     }
 
-    if (self._turnServer && url.indexOf('temasys') > 0) {
+    if (self._options.iceServer && url.indexOf('temasys') > 0) {
       var parts = url.split(':');
       var subparts = (parts[1] || '').split('?');
-      subparts[0] = self._turnServer;
+      subparts[0] = self._options.iceServer;
       parts[1] = subparts.join('?');
       url = parts.join(':');
     }
@@ -170,18 +170,18 @@ Skylink.prototype._setIceServers = function(givenConfig) {
     }
 
     if (server.url.indexOf('stun') === 0) {
-      if (!self._enableSTUN) {
+      if (!self._options.enableSTUNServer) {
         log.warn('Ignoring STUN server provided at index ' + i, clone(server));
         continue;
       }
 
-      if (!self._usePublicSTUN && server.url.indexOf('temasys') === -1) {
+      if (!self._options.usePublicSTUN && server.url.indexOf('temasys') === -1) {
         log.warn('Ignoring public STUN server provided at index ' + i, clone(server));
         continue;
       }
 
     } else if (server.url.indexOf('turn') === 0) {
-      if (!self._enableTURN) {
+      if (!self._options.enableTURNServer) {
         log.warn('Ignoring TURN server provided at index ' + i, clone(server));
         continue;
       }
@@ -218,7 +218,7 @@ Skylink.prototype._setIceServers = function(givenConfig) {
     var credential = typeof server.credential === 'string' ? server.credential : 'none';
 
     if (server.url.indexOf('turn') === 0) {
-      if (self._TURNTransport === self.TURN_TRANSPORT.ANY) {
+      if (self._options.TURNServerTransport === self.TURN_TRANSPORT.ANY) {
         pushIceServer(username, credential, server.url);
 
       } else {
@@ -228,17 +228,17 @@ Skylink.prototype._setIceServers = function(givenConfig) {
           rawUrl = rawUrl.split('?transport=')[0];
         }
 
-        if (self._TURNTransport === self.TURN_TRANSPORT.NONE) {
+        if (self._options.TURNServerTransport === self.TURN_TRANSPORT.NONE) {
           pushIceServer(username, credential, rawUrl);
-        } else if (self._TURNTransport === self.TURN_TRANSPORT.UDP) {
+        } else if (self._options.TURNServerTransport === self.TURN_TRANSPORT.UDP) {
           pushIceServer(username, credential, rawUrl + '?transport=udp');
-        } else if (self._TURNTransport === self.TURN_TRANSPORT.TCP) {
+        } else if (self._options.TURNServerTransport === self.TURN_TRANSPORT.TCP) {
           pushIceServer(username, credential, rawUrl + '?transport=tcp');
-        } else if (self._TURNTransport === self.TURN_TRANSPORT.ALL) {
+        } else if (self._options.TURNServerTransport === self.TURN_TRANSPORT.ALL) {
           pushIceServer(username, credential, rawUrl + '?transport=tcp');
           pushIceServer(username, credential, rawUrl + '?transport=udp');
         } else {
-          log.warn('Invalid TURN transport option "' + self._TURNTransport +
+          log.warn('Invalid TURN transport option "' + self._options.TURNServerTransport +
             '". Ignoring TURN server at index' + i, clone(server));
           continue;
         }
@@ -249,7 +249,7 @@ Skylink.prototype._setIceServers = function(givenConfig) {
   }
 
   // add mozilla STUN for firefox
-  if (self._enableSTUN && self._usePublicSTUN && window.webrtcDetectedBrowser === 'firefox') {
+  if (self._options.enableSTUNServer && self._options.usePublicSTUN && window.webrtcDetectedBrowser === 'firefox') {
     pushIceServer('none', 'none', 'stun:stun.services.mozilla.com', 0);
   }
 

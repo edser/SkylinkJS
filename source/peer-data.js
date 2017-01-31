@@ -204,8 +204,8 @@ Skylink.prototype.getPeerInfo = function(peerId) {
       },
       room: clone(this._selectedRoom),
       config: {
-        enableDataChannel: this._enableDataChannel,
-        enableIceTrickle: this._enableIceTrickle,
+        enableDataChannel: this._options.enableDataChannel,
+        enableIceTrickle: this._options.enableIceTrickle,
         enableIceRestart: this._enableIceRestart,
         priorityWeight: this._peerPriorityWeight,
         receiveOnly: false,

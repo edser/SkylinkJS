@@ -345,7 +345,7 @@ Skylink.prototype.generateUUID = function() {
  * @param {Number} callback.error.errorCode The <a href="#event_readyStateChange"><code>readyStateChange</code>
  *   event</a> <code>error.errorCode</code> parameter payload value.
  *   [Rel: Skylink.READY_STATE_CHANGE_ERROR]
- * @param {Object} callback.error.error The <a href="#event_readyStateChange"><code>readyStateChange</code>
+ * @param {Error} callback.error.error The <a href="#event_readyStateChange"><code>readyStateChange</code>
  *   event</a> <code>error.content</code> parameter payload value.
  * @param {Number} callback.error.status The <a href="#event_readyStateChange"><code>readyStateChange</code>
  *   event</a> <code>error.status</code> parameter payload value.
@@ -442,660 +442,444 @@ Skylink.prototype.generateUUID = function() {
 Skylink.prototype.init = function(options, callback) {
   var self = this;
 
+  // Default init() options
+  self._options = {
+    appKey: null,
+    defaultRoom: null,
+    credentials: null,
+    roomServer: '//api.temasys.io',
+    iceServer: null,
+    socketServer: null,
+    enableSTUNServer: true,
+    enableTURNServer: true,
+    enableDataChannel: true,
+    enableIceTrickle: true,
+    usePublicSTUN: true,
+    TURNServerTransport: self.TURN_TRANSPORT.ANY,
+    videoCodec: self.AUDIO_CODEC.AUTO,
+    audioCodec: self.VIDEO_CODEC.AUTO,
+    forceSSL: false,
+    forceTURN: false,
+    forceTURNSSL: false,
+    audioFallback: false,
+    throttleShouldThrowError: false,
+    mcuUseRenegoRestart: false,
+    disableREMB: false,
+    disableVideoFecCodecs: false,
+    disableComfortNoiseCodec: false,
+    socketTimeout: 20000,
+    filterCandidatesType: {
+      host: false,
+      srflx: false,
+      relay: false
+    },
+    throttleIntervals: {
+      shareScreen: 10000,
+      refreshConnection: 5000,
+      getUserMedia: 0
+    }
+  };
+
+  // Parse init() options
+  // --> init (function () {})
   if (typeof options === 'function'){
     callback = options;
-    options = undefined;
-  }
+    options = null;
 
-  if (!options) {
-    var error = 'No API key provided';
-    log.error(error);
-    if (typeof callback === 'function'){
-      callback(error,null);
-    }
-    return;
-  }
+  // --> init ("xxxxx-xxxxx-xxxxx-xxxxx", ..)
+  } else if (options && typeof options === 'string') {
+    self._options.appKey = options;
+    self._options.defaultRoom = options;
 
-  var appKey, room, defaultRoom;
-  var startDateTime, duration, credentials;
-  var roomServer = self._roomServer;
-  // NOTE: Should we get all the default values from the variables
-  // rather than setting it?
-  var enableIceTrickle = true;
-  var enableDataChannel = true;
-  var enableSTUNServer = true;
-  var enableTURNServer = true;
-  var TURNTransport = self.TURN_TRANSPORT.ANY;
-  var audioFallback = false;
-  var forceSSL = false;
-  var socketTimeout = 20000;
-  var forceTURNSSL = false;
-  var audioCodec = self.AUDIO_CODEC.AUTO;
-  var videoCodec = self.VIDEO_CODEC.AUTO;
-  var forceTURN = false;
-  var usePublicSTUN = true;
-  var disableVideoFecCodecs = false;
-  var disableComfortNoiseCodec = false;
-  var disableREMB = false;
-  var filterCandidatesType = {
-    host: false,
-    srflx: false,
-    relay: false
-  };
-  var throttleIntervals = {
-    shareScreen: 10000,
-    refreshConnection: 5000,
-    getUserMedia: 0
-  };
-  var throttleShouldThrowError = false;
-  var mcuUseRenegoRestart = false;
-  var iceServer = null;
-  var socketServer = null;
+  // --> init ({}, ..)
+  } else if (options && typeof options === 'object') {
+    // Parse options.appKey
+    if (options.appKey && typeof options.appKey === 'string') {
+      self._options.appKey = options.appKey;
+      self._options.defaultRoom = options.appKey;
 
-  log.log('Provided init options:', options);
-
-  if (typeof options === 'string') {
-    // set all the default api key, default room and room
-    appKey = options;
-    defaultRoom = appKey;
-    room = appKey;
-  } else {
-    // set the api key
-    appKey = options.appKey || options.apiKey;
-    // set the room server
-    roomServer = (typeof options.roomServer === 'string') ?
-      options.roomServer : roomServer;
-    // check room server if it ends with /. Remove the extra /
-    roomServer = (roomServer.lastIndexOf('/') ===
-      (roomServer.length - 1)) ? roomServer.substring(0,
-      roomServer.length - 1) : roomServer;
-    // set the default room
-    defaultRoom = (typeof options.defaultRoom === 'string' && options.defaultRoom) ?
-      options.defaultRoom : appKey;
-    // set the selected room
-    room = defaultRoom;
-    // set ice trickle option
-    enableIceTrickle = (typeof options.enableIceTrickle === 'boolean') ?
-      options.enableIceTrickle : enableIceTrickle;
-    // set data channel option
-    enableDataChannel = (typeof options.enableDataChannel === 'boolean') ?
-      options.enableDataChannel : enableDataChannel;
-    // set stun server option
-    enableSTUNServer = (typeof options.enableSTUNServer === 'boolean') ?
-      options.enableSTUNServer : enableSTUNServer;
-    // set turn server option
-    enableTURNServer = (typeof options.enableTURNServer === 'boolean') ?
-      options.enableTURNServer : enableTURNServer;
-    // set the force ssl always option
-    forceSSL = (typeof options.forceSSL === 'boolean') ?
-      options.forceSSL : forceSSL;
-    // set the socket timeout option
-    socketTimeout = (typeof options.socketTimeout === 'number') ?
-      options.socketTimeout : socketTimeout;
-    // set the socket timeout option to be above 5000
-    socketTimeout = (socketTimeout < 5000) ? 5000 : socketTimeout;
-    // set the force turn ssl always option
-    forceTURNSSL = (typeof options.forceTURNSSL === 'boolean') ?
-      options.forceTURNSSL : forceTURNSSL;
-    // set the preferred audio codec
-    audioCodec = typeof options.audioCodec === 'string' ?
-      options.audioCodec : audioCodec;
-    // set the preferred video codec
-    videoCodec = typeof options.videoCodec === 'string' ?
-      options.videoCodec : videoCodec;
-    // set the force turn server option
-    forceTURN = (typeof options.forceTURN === 'boolean') ?
-      options.forceTURN : forceTURN;
-    // set the use public stun option
-    usePublicSTUN = (typeof options.usePublicSTUN === 'boolean') ?
-      options.usePublicSTUN : usePublicSTUN;
-    // set the use of disabling ulpfec and red codecs
-    disableVideoFecCodecs = (typeof options.disableVideoFecCodecs === 'boolean') ?
-      options.disableVideoFecCodecs : disableVideoFecCodecs;
-    // set the use of disabling CN codecs
-    disableComfortNoiseCodec = (typeof options.disableComfortNoiseCodec === 'boolean') ?
-      options.disableComfortNoiseCodec : disableComfortNoiseCodec;
-    // set the use of disabling REMB packets
-    disableREMB = (typeof options.disableREMB === 'boolean') ?
-      options.disableREMB : disableREMB;
-    // set the flag if throttling should throw error when called less than the interval timeout configured
-    throttleShouldThrowError = (typeof options.throttleShouldThrowError === 'boolean') ?
-      options.throttleShouldThrowError : throttleShouldThrowError;
-    // set the flag if MCU refreshConnection() should use renegotiation
-    mcuUseRenegoRestart = (typeof options.mcuUseRenegoRestart === 'boolean') ?
-      options.mcuUseRenegoRestart : mcuUseRenegoRestart;
-    // set the TURN/STUN ICE server url for debugging purposes
-    iceServer = (options.iceServer && typeof options.iceServer === 'string') ?
-      options.iceServer : iceServer;
-    // set the Signaling server url for debugging purposes
-    socketServer = (options.socketServer && typeof options.socketServer === 'string') ?
-      options.socketServer : socketServer;
-    // set the flag if MCU refreshConnection() should use renegotiation
-    mcuUseRenegoRestart = (typeof options.mcuUseRenegoRestart === 'boolean') ?
-      options.mcuUseRenegoRestart : mcuUseRenegoRestart;
-    // set the use of filtering ICE candidates
-    if (typeof options.filterCandidatesType === 'object' && options.filterCandidatesType) {
-      filterCandidatesType.host = (typeof options.filterCandidatesType.host === 'boolean') ?
-        options.filterCandidatesType.host : filterCandidatesType.host;
-      filterCandidatesType.srflx = (typeof options.filterCandidatesType.srflx === 'boolean') ?
-        options.filterCandidatesType.srflx : filterCandidatesType.srflx;
-      filterCandidatesType.relay = (typeof options.filterCandidatesType.relay === 'boolean') ?
-        options.filterCandidatesType.relay : filterCandidatesType.relay;
-    }
-    // set the use of throttling interval timeouts
-    if (typeof options.throttleIntervals === 'object' && options.throttleIntervals) {
-      throttleIntervals.shareScreen = (typeof options.throttleIntervals.shareScreen === 'number') ?
-        options.throttleIntervals.shareScreen : throttleIntervals.shareScreen;
-      throttleIntervals.refreshConnection = (typeof options.throttleIntervals.refreshConnection === 'number') ?
-        options.throttleIntervals.refreshConnection : throttleIntervals.refreshConnection;
-      throttleIntervals.getUserMedia = (typeof options.throttleIntervals.getUserMedia === 'number') ?
-        options.throttleIntervals.getUserMedia : throttleIntervals.getUserMedia;
+    // Parse options.apiKey (deprecated)
+    } else if (options.apiKey && typeof options.apiKey === 'string') {
+      self._options.appKey = options.apiKey;
+      self._options.defaultRoom = options.apiKey;
     }
 
-    // set turn transport option
-    if (typeof options.TURNServerTransport === 'string') {
-      // loop out for every transport option
-      for (var type in self.TURN_TRANSPORT) {
-        if (self.TURN_TRANSPORT.hasOwnProperty(type)) {
-          // do a check if the transport option is valid
-          if (self.TURN_TRANSPORT[type] === options.TURNServerTransport) {
-            TURNTransport = options.TURNServerTransport;
-            break;
-          }
+    // Parse options.defaultRoom
+    if (options.defaultRoom && typeof options.defaultRoom === 'string') {
+      self._options.defaultRoom = options.defaultRoom;
+    }
+
+    // Parse options.roomServer
+    if (options.roomServer && typeof options.roomServer === 'string' &&
+      options.roomServer.indexOf('temasys') > -1 && options.roomServer.indexOf('//') === 0) {
+      self._options.roomServer = options.roomServer.lastIndexOf('/') === (options.roomServer.length - 1) ?
+        options.roomServer.substring(0, options.roomServer.length - 1) : options.roomServer;
+    }
+
+    // Parse options.iceServer
+    if (options.iceServer && typeof options.iceServer === 'string' && options.iceServer.indexOf('temasys') > -1) {
+      self._options.iceServer = options.iceServer;
+    }
+
+    // Parse options.socketServer
+    if (options.socketServer && typeof options.socketServer === 'string' && options.socketServer.indexOf('temasys') > -1) {
+      self._options.socketServer = options.socketServer;
+    }
+
+    // Parse options.credentials
+    // Ensure that values are all passed in correctly
+    if (options.credentials && typeof options.credentials === 'object' && options.credentials.credentials &&
+      typeof options.credentials.credentials === 'string' && typeof options.credentials.duration === 'number' &&
+      options.credentials.startDateTime && typeof options.credentials.startDateTime === 'string') {
+      self._options.credentials = {
+        startDateTime: options.credentials.startDateTime,
+        duration: options.credentials.duration,
+        credentials: options.credentials.credentials
+      };
+    }
+
+    // Parse options.socketTimeout
+    if (typeof options.socketTimeout === 'number' && options.socketTimeout >= 5000) {
+      self._options.socketTimeout = options.socketTimeout;
+    }
+
+    // Parse options.audioCodec
+    if (options.audioCodec && typeof options.audioCodec === 'string') {
+      for (var aprop in self.AUDIO_CODEC) {
+        if (self.AUDIO_CODEC.hasOwnProperty(aprop) && self.AUDIO_CODEC[aprop] === options.audioCodec) {
+          self._options.audioCodec = options.audioCodec;
         }
       }
     }
-    // set audio fallback option
-    audioFallback = options.audioFallback || audioFallback;
-    // Custom default meeting timing and duration
-    // Fallback to default if no duration or startDateTime provided
-    if (options.credentials &&
-      typeof options.credentials.credentials === 'string' &&
-      typeof options.credentials.duration === 'number' &&
-      typeof options.credentials.startDateTime === 'string') {
-      // set start data time
-      startDateTime = options.credentials.startDateTime;
-      // set the duration
-      duration = options.credentials.duration;
-      // set the credentials
-      credentials = options.credentials.credentials;
+
+    // Parse options.videoCodec
+    if (options.videoCodec && typeof options.videoCodec === 'string') {
+      for (var vprop in self.VIDEO_CODEC) {
+        if (self.VIDEO_CODEC.hasOwnProperty(vprop) && self.VIDEO_CODEC[vprop] === options.videoCodec) {
+          self._options.videoCodec = options.videoCodec;
+        }
+      }
     }
 
-    // if force turn option is set to on
-    if (forceTURN === true) {
-      enableTURNServer = true;
-      enableSTUNServer = false;
-      filterCandidatesType.host = true;
-      filterCandidatesType.srflx = true;
-      filterCandidatesType.relay = false;
+    // Parse options.TURNServerTransport
+    if (options.TURNServerTransport && typeof options.TURNServerTransport === 'string') {
+      for (var tprop in self.TURN_TRANSPORT) {
+        if (self.TURN_TRANSPORT.hasOwnProperty(tprop) && self.TURN_TRANSPORT[tprop] === options.TURNServerTransport) {
+          self._options.TURNServerTransport = options.TURNServerTransport;
+        }
+      }
+    }
+
+    // Parse options.filterCandidatesType
+    if (options.filterCandidatesType && typeof options.filterCandidatesType === 'object') {
+      // Parse options.filterCandidatesType.host
+      self._options.filterCandidatesType.host = options.filterCandidatesType.host === true;
+      // Parse options.filterCandidatesType.srflx
+      self._options.filterCandidatesType.srflx = options.filterCandidatesType.srflx === true;
+      // Parse options.filterCandidatesType.relay
+      self._options.filterCandidatesType.relay = options.filterCandidatesType.relay === true;
+    }
+
+    // Parse options.throttleIntervals
+    if (options.throttleIntervals && typeof options.throttleIntervals === 'object') {
+      // Parse options.throttleIntervals.getUserMedia
+      if (typeof options.throttleIntervals.getUserMedia === 'number') {
+        self._options.throttleIntervals.getUserMedia = options.throttleIntervals.getUserMedia;
+      }
+      // Parse options.throttleIntervals.refreshConnection
+      if (typeof options.throttleIntervals.refreshConnection === 'number') {
+        self._options.throttleIntervals.refreshConnection = options.throttleIntervals.refreshConnection;
+      }
+      // Parse options.throttleIntervals.shareScreen
+      if (typeof options.throttleIntervals.shareScreen === 'number') {
+        self._options.throttleIntervals.shareScreen = options.throttleIntervals.shareScreen;
+      }
+    }
+
+    // Parse options.enableSTUNServer
+    self._options.enableSTUNServer = options.enableSTUNServer !== false;
+    // Parse options.enableTURNServer
+    self._options.enableTURNServer = options.enableTURNServer !== false;
+    // Parse options.enableIceTrickle
+    self._options.enableIceTrickle = options.enableIceTrickle !== false;
+    // Parse options.enableDataChannel
+    self._options.enableDataChannel = options.enableDataChannel !== false;
+    // Parse options.usePublicSTUN
+    self._options.usePublicSTUN = options.usePublicSTUN !== false;
+    // Parse options.forceSSL
+    self._options.forceSSL = options.forceSSL === true;
+    // Parse options.forceTURNSSL
+    self._options.forceTURNSSL = options.forceTURNSSL === true;
+    // Parse options.audioFallback
+    self._options.audioFallback = options.audioFallback === true;
+    // Parse options.disableVideoFecCodecs
+    self._options.disableVideoFecCodecs = options.disableVideoFecCodecs === true;
+    // Parse options.disableComfortNoiseCodec
+    self._options.disableComfortNoiseCodec = options.disableComfortNoiseCodec === true;
+    // Parse options.disableREMB
+    self._options.disableREMB = options.disableREMB === true;
+    // Parse options.mcuUseRenegoRestart
+    self._options.mcuUseRenegoRestart = options.mcuUseRenegoRestart === true;
+    // Parse options.throttleShouldThrowError
+    self._options.throttleShouldThrowError = options.throttleShouldThrowError === true;
+
+    // Parse options.forceTURN
+    // Override any configuration for force TURN case
+    if (options.forceTURN === true) {
+      self._options.filterCandidatesType.host = true;
+      self._options.filterCandidatesType.srflx = true;
+      self._options.filterCandidatesType.relay = false;
+      self._options.enableTURNServer = true;
+      self._options.enableSTUNServer = false;
+      self._options.usePublicSTUN = false;
+      self._options.forceTURN = true;
     }
   }
 
+  // Edge does not support Datachannel, STUN server connections, TURN transports of UDP..
   if (window.webrtcDetectedBrowser === 'edge') {
-    enableSTUNServer = false;
-    forceTURNSSL = false;
-    TURNTransport = self.TURN_TRANSPORT.UDP;
-    audioCodec = self.AUDIO_CODEC.OPUS;
-    videoCodec = self.VIDEO_CODEC.H264;
-    enableDataChannel = false;
+    log.warn('init() overriding any configuration for Edge connection case.');
+
+    self._options.filterCandidatesType.host = true;
+    self._options.filterCandidatesType.srflx = true;
+    self._options.filterCandidatesType.relay = false;
+    self._options.enableTURNServer = true;
+    self._options.enableSTUNServer = false;
+    self._options.usePublicSTUN = false;
+    // Force Edge to prefer OPUS
+    self._options.audioCodec = self.AUDIO_CODEC.OPUS;
+    // Force Edge to prefer H264
+    self._options.videoCodec = self.AUDIO_CODEC.H264;
+    self._options.TURNServerTransport = self.TURN_TRANSPORT.UDP;
   }
 
-  // api key path options
-  self._appKey = appKey;
-  self._roomServer = roomServer;
-  self._defaultRoom = defaultRoom;
-  self._selectedRoom = room;
-  self._path = roomServer + '/api/' + appKey + '/' + room;
-  // set credentials if there is
-  if (credentials && startDateTime && duration) {
-    self._roomStart = startDateTime;
-    self._roomDuration = duration;
-    self._roomCredentials = credentials;
-    self._path += (credentials) ? ('/' + startDateTime + '/' +
-      duration + '?&cred=' + credentials) : '';
+  // Check if App Key is provided
+  if (!options.appKey) {
+    return self._initCallback(callback, 'No API key provided.');
   }
 
-  self._path += ((credentials) ? '&' : '?') + 'rand=' + (new Date()).toISOString();
-
-  // skylink functionality options
-  self._enableIceTrickle = enableIceTrickle;
-  self._enableDataChannel = enableDataChannel;
-  self._enableSTUN = enableSTUNServer;
-  self._enableTURN = enableTURNServer;
-  self._TURNTransport = TURNTransport;
-  self._audioFallback = audioFallback;
-  self._forceSSL = forceSSL;
-  self._socketTimeout = socketTimeout;
-  self._forceTURNSSL = forceTURNSSL;
-  self._selectedAudioCodec = audioCodec;
-  self._selectedVideoCodec = videoCodec;
-  self._forceTURN = forceTURN;
-  self._usePublicSTUN = usePublicSTUN;
-  self._disableVideoFecCodecs = disableVideoFecCodecs;
-  self._disableComfortNoiseCodec = disableComfortNoiseCodec;
-  self._filterCandidatesType = filterCandidatesType;
-  self._throttlingTimeouts = throttleIntervals;
-  self._throttlingShouldThrowError = throttleShouldThrowError;
-  self._disableREMB = disableREMB;
-  self._mcuUseRenegoRestart = mcuUseRenegoRestart;
-  self._turnServer = iceServer;
-  self._socketServer = socketServer;
-
-  log.log('Init configuration:', {
-    serverUrl: self._path,
-    readyState: self._readyState,
-    appKey: self._appKey,
-    roomServer: self._roomServer,
-    defaultRoom: self._defaultRoom,
-    selectedRoom: self._selectedRoom,
-    enableDataChannel: self._enableDataChannel,
-    enableIceTrickle: self._enableIceTrickle,
-    enableTURNServer: self._enableTURN,
-    enableSTUNServer: self._enableSTUN,
-    TURNTransport: self._TURNTransport,
-    audioFallback: self._audioFallback,
-    forceSSL: self._forceSSL,
-    socketTimeout: self._socketTimeout,
-    forceTURNSSL: self._forceTURNSSL,
-    audioCodec: self._selectedAudioCodec,
-    videoCodec: self._selectedVideoCodec,
-    forceTURN: self._forceTURN,
-    usePublicSTUN: self._usePublicSTUN,
-    disableVideoFecCodecs: self._disableVideoFecCodecs,
-    disableComfortNoiseCodec: self._disableComfortNoiseCodec,
-    disableREMB: self._disableREMB,
-    filterCandidatesType: self._filterCandidatesType,
-    throttleIntervals: self._throttlingTimeouts,
-    throttleShouldThrowError: self._throttlingShouldThrowError,
-    mcuUseRenegoRestart: self._mcuUseRenegoRestart,
-    iceServer: self._turnServer,
-    socketServer: self._socketServer
-  });
-  // trigger the readystate
-  self._readyState = 0;
-  self._trigger('readyStateChange', self.READY_STATE_CHANGE.INIT, null, self._selectedRoom);
-
-  if (typeof callback === 'function'){
-    var hasTriggered = false;
-
-    var readyStateChangeFn = function (readyState, error) {
-      if (!hasTriggered) {
-        if (readyState === self.READY_STATE_CHANGE.COMPLETED) {
-          log.log([null, 'Socket', null, 'Firing callback. ' +
-          'Ready state change has met provided state ->'], readyState);
-          hasTriggered = true;
-          self.off('readyStateChange', readyStateChangeFn);
-          callback(null,{
-            serverUrl: self._path,
-            readyState: self._readyState,
-            appKey: self._appKey,
-            roomServer: self._roomServer,
-            defaultRoom: self._defaultRoom,
-            selectedRoom: self._selectedRoom,
-            enableDataChannel: self._enableDataChannel,
-            enableIceTrickle: self._enableIceTrickle,
-            enableTURNServer: self._enableTURN,
-            enableSTUNServer: self._enableSTUN,
-            TURNTransport: self._TURNTransport,
-            audioFallback: self._audioFallback,
-            forceSSL: self._forceSSL,
-            socketTimeout: self._socketTimeout,
-            forceTURNSSL: self._forceTURNSSL,
-            audioCodec: self._selectedAudioCodec,
-            videoCodec: self._selectedVideoCodec,
-            forceTURN: self._forceTURN,
-            usePublicSTUN: self._usePublicSTUN,
-            disableVideoFecCodecs: self._disableVideoFecCodecs,
-            disableComfortNoiseCodec: self._disableComfortNoiseCodec,
-            disableREMB: self._disableREMB,
-            filterCandidatesType: self._filterCandidatesType,
-            throttleIntervals: self._throttlingTimeouts,
-            throttleShouldThrowError: self._throttlingShouldThrowError,
-            mcuUseRenegoRestart: self._mcuUseRenegoRestart,
-            iceServer: self._turnServer,
-            socketServer: self._socketServer
-          });
-        } else if (readyState === self.READY_STATE_CHANGE.ERROR) {
-          log.log([null, 'Socket', null, 'Firing callback. ' +
-            'Ready state change has met provided state ->'], readyState);
-          log.debug([null, 'Socket', null, 'Ready state met failure'], error);
-          hasTriggered = true;
-          self.off('readyStateChange', readyStateChangeFn);
-          callback({
-            error: new Error(error),
-            errorCode: error.errorCode,
-            status: error.status
-          },null);
-        }
-      }
-    };
-
-    self.on('readyStateChange', readyStateChangeFn);
+  // Check if XMLHttpRequest is supported
+  if (!(window.XMLHttpRequest || window.XDomainRequest)) {
+    return self._initCallback(callback, 'XMLHttpRequest not available',
+      self.READY_STATE_CHANGE_ERROR.NO_XMLHTTPREQUEST_SUPPORT);
   }
 
-  self._loadInfo();
-};
-
-/**
- * Starts retrieving Room credentials information from API server.
- * @method _requestServerInfo
- * @private
- * @for Skylink
- * @since 0.5.2
- */
-Skylink.prototype._requestServerInfo = function(method, url, callback, params) {
-  var self = this;
-  // XDomainRequest is supported in IE8 - 9
-  var useXDomainRequest = typeof window.XDomainRequest === 'function' ||
-    typeof window.XDomainRequest === 'object';
-
-  self._socketUseXDR = useXDomainRequest;
-  var xhr;
-
-  // set force SSL option
-  url = (self._forceSSL) ? 'https:' + url : url;
-
-  if (useXDomainRequest) {
-    log.debug([null, 'XMLHttpRequest', method, 'Using XDomainRequest. ' +
-      'XMLHttpRequest is now XDomainRequest'], {
-      agent: window.webrtcDetectedBrowser,
-      version: window.webrtcDetectedVersion
-    });
-    xhr = new XDomainRequest();
-    xhr.setContentType = function (contentType) {
-      xhr.contentType = contentType;
-    };
-  } else {
-    log.debug([null, 'XMLHttpRequest', method, 'Using XMLHttpRequest'], {
-      agent: window.webrtcDetectedBrowser,
-      version: window.webrtcDetectedVersion
-    });
-    xhr = new window.XMLHttpRequest();
-    xhr.setContentType = function (contentType) {
-      xhr.setRequestHeader('Content-type', contentType);
-    };
+  // Check if socket.io-client has been loaded
+  if (!(window.io || io)) {
+    return self._initCallback(callback, 'Socket.io not found',
+      self.READY_STATE_CHANGE_ERROR.NO_SOCKET_IO);
   }
 
-  xhr.onload = function () {
-    var response = xhr.responseText || xhr.response;
-    var status = xhr.status || 200;
-    log.debug([null, 'XMLHttpRequest', method, 'Received sessions parameters'],
-      JSON.parse(response || '{}'));
-    callback(status, JSON.parse(response || '{}'));
-  };
-
-  xhr.onerror = function (error) {
-    log.error([null, 'XMLHttpRequest', method, 'Failed retrieving information:'],
-      { status: xhr.status });
-    self._readyState = -1;
-    self._trigger('readyStateChange', self.READY_STATE_CHANGE.ERROR, {
-      status: xhr.status || null,
-      content: 'Network error occurred. (Status: ' + xhr.status + ')',
-      errorCode: self.READY_STATE_CHANGE_ERROR.XML_HTTP_REQUEST_ERROR
-    }, self._selectedRoom);
-  };
-
-  xhr.onprogress = function () {
-    log.debug([null, 'XMLHttpRequest', method,
-      'Retrieving information and config from webserver. Url:'], url);
-    log.debug([null, 'XMLHttpRequest', method, 'Provided parameters:'], params);
-  };
-
-  xhr.open(method, url, true);
-  if (params) {
-    xhr.setContentType('application/json;charset=UTF-8');
-    xhr.send(JSON.stringify(params));
-  } else {
-    xhr.send();
-  }
-};
-
-/**
- * Parses the Room credentials information retrieved from API server.
- * @method _parseInfo
- * @private
- * @for Skylink
- * @since 0.5.2
- */
-Skylink.prototype._parseInfo = function(info) {
-  log.log('Parsing parameter from server', info);
-  if (!info.pc_constraints && !info.offer_constraints) {
-    this._trigger('readyStateChange', this.READY_STATE_CHANGE.ERROR, {
-      status: 200,
-      content: info.info,
-      errorCode: info.error
-    }, self._selectedRoom);
-    return;
+  // Check if AdapterJS has been loaded
+  if (!((window.AdapterJS || AdapterJS) && typeof AdapterJS.webRTCReady === 'function')) {
+    return self._initCallback(callback, 'AdapterJS dependency is not loaded or incorrect AdapterJS dependency is used',
+      self.READY_STATE_CHANGE_ERROR.ADAPTER_NO_LOADED);
   }
 
-  log.debug('Peer connection constraints:', info.pc_constraints);
-  log.debug('Offer constraints:', info.offer_constraints);
-
-  this._key = info.cid;
-  this._appKeyOwner = info.apiOwner;
-
-  this._signalingServer = info.ipSigserver;
-  this._signalingServerPort = null;
-
-  this._isPrivileged = info.isPrivileged;
-  this._autoIntroduce = info.autoIntroduce;
-
-  this._user = {
-    uid: info.username,
-    token: info.userCred,
-    timeStamp: info.timeStamp,
-    streams: [],
-    info: {}
-  };
-  this._room = {
-    id: info.room_key,
-    token: info.roomCred,
-    startDateTime: info.start,
-    duration: info.len,
-    connection: {
-      peerConstraints: JSON.parse(info.pc_constraints),
-      peerConfig: null,
-      offerConstraints: JSON.parse(info.offer_constraints),
-      sdpConstraints: {
-        mandatory: {
-          OfferToReceiveAudio: true,
-          OfferToReceiveVideo: true
-        }
-      },
-      mediaConstraints: JSON.parse(info.media_constraints)
-    }
-  };
-  //this._parseDefaultMediaStreamSettings(this._room.connection.mediaConstraints);
-
-  // set the socket ports
-  this._socketPorts = {
-    'http:': info.httpPortList,
-    'https:': info.httpsPortList
-  };
-
-  // use default bandwidth and media resolution provided by server
-  //this._streamSettings.bandwidth = info.bandwidth;
-  //this._streamSettings.video = info.video;
-  this._readyState = 2;
-  this._trigger('readyStateChange', this.READY_STATE_CHANGE.COMPLETED, null, this._selectedRoom);
-  log.info('Parsed parameters from webserver. ' +
-    'Ready for web-realtime communication');
-
-};
-
-/**
- * Loads and checks the dependencies if they are loaded correctly.
- * @method _loadInfo
- * @private
- * @for Skylink
- * @since 0.5.2
- */
-Skylink.prototype._loadInfo = function() {
-  var self = this;
-
-  // check if adapterjs has been loaded already first or not
-  var adapter = (function () {
-    try {
-      return window.AdapterJS || AdapterJS;
-    } catch (error) {
-      return false;
-    }
-  })();
-
-  if (!(!!adapter ? typeof adapter.webRTCReady === 'function' : false)) {
-    var noAdapterErrorMsg = 'AdapterJS dependency is not loaded or incorrect AdapterJS dependency is used';
-    self._trigger('readyStateChange', self.READY_STATE_CHANGE.ERROR, {
-      status: null,
-      content: noAdapterErrorMsg,
-      errorCode: self.READY_STATE_CHANGE_ERROR.ADAPTER_NO_LOADED
-    }, self._selectedRoom);
-    return;
-  }
-  if (!window.io) {
-    log.error('Socket.io not loaded. Please load socket.io');
-    self._readyState = -1;
-    self._trigger('readyStateChange', self.READY_STATE_CHANGE.ERROR, {
-      status: null,
-      content: 'Socket.io not found',
-      errorCode: self.READY_STATE_CHANGE_ERROR.NO_SOCKET_IO
-    }, self._selectedRoom);
-    return;
-  }
-  if (!window.XMLHttpRequest) {
-    log.error('XMLHttpRequest not supported. Please upgrade your browser');
-    self._readyState = -1;
-    self._trigger('readyStateChange', self.READY_STATE_CHANGE.ERROR, {
-      status: null,
-      content: 'XMLHttpRequest not available',
-      errorCode: self.READY_STATE_CHANGE_ERROR.NO_XMLHTTPREQUEST_SUPPORT
-    }, self._selectedRoom);
-    return;
-  }
-  if (!self._path) {
-    log.error('Skylink is not initialised. Please call init() first');
-    self._readyState = -1;
-    self._trigger('readyStateChange', self.READY_STATE_CHANGE.ERROR, {
-      status: null,
-      content: 'No API Path is found',
-      errorCode: self.READY_STATE_CHANGE_ERROR.NO_PATH
-    }, self._selectedRoom);
-    return;
-  }
-  adapter.webRTCReady(function () {
-    self._isUsingPlugin = !!adapter.WebRTCPlugin.plugin && !!adapter.WebRTCPlugin.plugin.VERSION;
-
+  AdapterJS.webRTCReady(function () {
+    // Check if RTCPeerConnection is available
     if (!window.RTCPeerConnection) {
-      log.error('WebRTC not supported. Please upgrade your browser');
-      self._readyState = -1;
-      self._trigger('readyStateChange', self.READY_STATE_CHANGE.ERROR, {
-        status: null,
-        content: 'WebRTC not available',
-        errorCode: self.READY_STATE_CHANGE_ERROR.NO_WEBRTC_SUPPORT
-      }, self._selectedRoom);
-      return;
+      return self._initCallback(callback, 'WebRTC not available',
+        self.READY_STATE_CHANGE_ERROR.NO_WEBRTC_SUPPORT);
     }
 
+    // Check and get codecs support
     self._getCodecsSupport(function (error) {
       if (error) {
-        log.error(error);
-        self._readyState = -1;
-        self._trigger('readyStateChange', self.READY_STATE_CHANGE.ERROR, {
-          status: null,
-          content: error.message || error.toString(),
-          errorCode: self.READY_STATE_CHANGE_ERROR.PARSE_CODECS
-        }, self._selectedRoom);
-        return;
+        return self._initCallback(callback, error.message || error.toString(),
+          self.READY_STATE_CHANGE_ERROR.PARSE_CODECS);
       }
 
-      if (Object.keys(self._currentCodecSupport.audio).length === 0 && Object.keys(self._currentCodecSupport.video).length === 0) {
-        log.error('No audio/video codecs available to start connection.');
-        self._readyState = -1;
-        self._trigger('readyStateChange', self.READY_STATE_CHANGE.ERROR, {
-          status: null,
-          content: 'No audio/video codecs available to start connection',
-          errorCode: self.READY_STATE_CHANGE_ERROR.PARSE_CODECS
-        }, self._selectedRoom);
-        return;
+      // Check if there is any codecs retrieved to start connection
+      if (Object.keys(self._currentCodecSupport.audio).length === 0 &&
+        Object.keys(self._currentCodecSupport.video).length === 0) {
+        return self._initCallback(callback, 'No audio/video codecs available to start connection',
+          self.READY_STATE_CHANGE_ERROR.PARSE_CODECS);
       }
 
-      self._readyState = 1;
-      self._trigger('readyStateChange', self.READY_STATE_CHANGE.LOADING, null, self._selectedRoom);
-      self._requestServerInfo('GET', self._path, function(status, response) {
-        if (status !== 200) {
-          // 403 - Room is locked
-          // 401 - API Not authorized
-          // 402 - run out of credits
-          var errorMessage = 'XMLHttpRequest status not OK\nStatus was: ' + status;
-          self._readyState = 0;
-          self._trigger('readyStateChange', self.READY_STATE_CHANGE.ERROR, {
-            status: status,
-            content: (response) ? (response.info || errorMessage) : errorMessage,
-            errorCode: response.error ||
-              self.READY_STATE_CHANGE_ERROR.INVALID_XMLHTTPREQUEST_STATUS
-          }, self._selectedRoom);
-          return;
+      // Fetch API data
+      self._initFetchAPIData(self._options.defaultRoom, function (error, success) {
+        if (error) {
+          self._initCallback(callback, error);
+        } else {
+          self._initCallback(callback);
         }
-        self._parseInfo(response);
       });
     });
   });
 };
 
 /**
- * Starts initialising for Room credentials for room name provided in <code>joinRoom()</code> method.
- * @method _initSelectedRoom
+ * Function that handles `init()` callback.
+ * @method _initCallback
  * @private
  * @for Skylink
- * @since 0.5.5
+ * @since 0.6.18
  */
-Skylink.prototype._initSelectedRoom = function(room, callback) {
+Skylink.prototype._initCallback = function (callback, error, errorCode) {
   var self = this;
-  if (typeof room === 'function' || typeof room === 'undefined') {
-    log.error('Invalid room provided. Room:', room);
-    return;
-  }
-  var defaultRoom = self._defaultRoom;
-  var initOptions = {
-    appKey: self._appKey,
-    roomServer: self._roomServer,
-    defaultRoom: room,
-    enableDataChannel: self._enableDataChannel,
-    enableIceTrickle: self._enableIceTrickle,
-    enableTURNServer: self._enableTURN,
-    enableSTUNServer: self._enableSTUN,
-    TURNServerTransport: self._TURNTransport,
-    audioFallback: self._audioFallback,
-    forceSSL: self._forceSSL,
-    socketTimeout: self._socketTimeout,
-    forceTURNSSL: self._forceTURNSSL,
-    audioCodec: self._selectedAudioCodec,
-    videoCodec: self._selectedVideoCodec,
-    forceTURN: self._forceTURN,
-    usePublicSTUN: self._usePublicSTUN,
-    disableVideoFecCodecs: self._disableVideoFecCodecs,
-    disableComfortNoiseCodec: self._disableComfortNoiseCodec,
-    disableREMB: self._disableREMB,
-    filterCandidatesType: self._filterCandidatesType,
-    throttleIntervals: self._throttlingTimeouts,
-    throttleShouldThrowError: self._throttlingShouldThrowError,
-    mcuUseRenegoRestart: self._mcuUseRenegoRestart,
-    iceServer: self._turnServer,
-    socketServer: self._socketServer
-  };
-  if (self._roomCredentials) {
-    initOptions.credentials = {
-      credentials: self._roomCredentials,
-      duration: self._roomDuration,
-      startDateTime: self._roomStart
-    };
-  }
-  self.init(initOptions, function (error, success) {
-    self._defaultRoom = defaultRoom;
-    if (error) {
-      callback(error, null);
-    } else {
-      callback(null, success);
+
+  if (error) {
+    if (typeof error === 'string') {
+      error = {
+        content: error,
+        status: null,
+        errorCode: typeof errorCode === 'number' ? errorCode : self.READY_STATE_CHANGE_ERROR.NO_PATH
+      };
+
+      // Trigger state for "readyStateChange" event before data was fetched
+      self._readyState = self.READY_STATE_CHANGE.ERROR;
+      self._trigger('readyStateChange', self.READY_STATE_CHANGE.ERROR, error, self._options.defaultRoom);
     }
-  });
+
+    log.error('init() failed ->', error);
+
+    if (typeof callback === 'function') {
+      callback({
+        error: new Error(error.content),
+        status: error.status,
+        errorCode: error.errorCode
+      }, null);
+    }
+  } else {
+    log.info('init() success ->', clone(self._options));
+
+    if (typeof callback === 'function') {
+      callback(null, {
+        serverUrl: self._path,
+        readyState: self._readyState,
+        appKey: self._options.appKey,
+        roomServer: self._options.roomServer,
+        defaultRoom: self._options.defaultRoom,
+        selectedRoom: self._selectedRoom,
+        enableDataChannel: self._options.enableDataChannel,
+        enableIceTrickle: self._options.enableIceTrickle,
+        enableTURNServer: self._options.enableTURNServer,
+        enableSTUNServer: self._options.enableSTUNServer,
+        TURNTransport: self._options.TURNServerTransport,
+        audioFallback: self._options.audioFallback,
+        forceSSL: self._options.forceSSL,
+        socketTimeout: self._options.socketTimeout,
+        forceTURNSSL: self._options.forceTURNSSL,
+        audioCodec: self._options.audioCodec,
+        videoCodec: self._options.videoCodec,
+        forceTURN: self._options.forceTURN,
+        usePublicSTUN: self._options.usePublicSTUN,
+        disableVideoFecCodecs: self._options.disableVideoFecCodecs,
+        disableComfortNoiseCodec: self._options.disableComfortNoiseCodec,
+        disableREMB: self._options.disableREMB,
+        filterCandidatesType: self._options.filterCandidatesType,
+        throttleIntervals: self._options.throttleIntervals,
+        throttleShouldThrowError: self._options.throttlingShouldThrowError,
+        mcuUseRenegoRestart: self._options.mcuUseRenegoRestart,
+        iceServer: self._options.turnServer,
+        socketServer: self._options.socketServer
+      });
+    }
+  }
 };
 
+/**
+ * Function that handles `init()` fetching of API data.
+ * @method _initFetchAPIData
+ * @private
+ * @for Skylink
+ * @since 0.6.18
+ */
+Skylink.prototype._initFetchAPIData = function (room, callback) {
+  var self = this;
+  var xhr = new XMLHttpRequest();
+  var protocol = self._options.forceSSL ? 'https:' : window.location.protocol;
+
+  // Fallback support for IE8/9
+  if (['object', 'function'].indexOf(typeof window.XDomainRequest) > -1) {
+    xhr = new XDomainRequest();
+  }
+
+  // Can only use default room due to credentials generated!
+  self._selectedRoom = self._options.credentials ? self._options.defaultRoom : room;
+  self._readyState = self.READY_STATE_CHANGE.INIT;
+  self._trigger('readyStateChange', self.READY_STATE_CHANGE.INIT, null, self._selectedRoom);
+
+  // Construct API REST path
+  self._path = self._options.roomServer + '/api/' + self._options.appKey + '/' + self._selectedRoom;
+
+  // Construct path with credentials authentication.
+  if (self._options.credentials) {
+    self._path += '/' + self._options.credentials.startDateTime + '/' +
+      self._options.credentials.duration + '?&cred=' + self._options.credentials.credentials;
+  }
+
+  // Append random number to prevent network cache
+  self._path += '&' + (!self._options.credentials ? '?' :'') + 'rand=' + (new Date ()).toISOString();
+
+  // XMLHttpRequest success
+  xhr.onload = function () {
+    var response = JSON.parse(xhr.responseText || xhr.response || '{}') || {};
+    var status = xhr.status || 200;
+
+    log.debug('init() retrieved response ->', response);
+
+    // Successful authentication
+    if (response.success) {
+      self._key = response.cid;
+      self._appKeyOwner = response.apiOwner;
+      self._signalingServer = response.ipSigserver;
+      self._signalingServerPort = null;
+      self._isPrivileged = response.isPrivileged;
+      self._autoIntroduce = response.autoIntroduce;
+      self._user = {
+        uid: response.username,
+        token: response.userCred,
+        timeStamp: response.timeStamp
+      };
+      self._room = {
+        id: response.room_key,
+        token: response.roomCred,
+        startDateTime: response.start,
+        duration: response.len,
+        connection: {
+          peerConstraints: JSON.parse(response.pc_constraints),
+        }
+      };
+      self._socketPorts = {
+        'http:': response.httpPortList,
+        'https:': response.httpsPortList
+      };
+
+      self._readyState = self.READY_STATE_CHANGE.COMPLETED;
+      self._trigger('readyStateChange', self.READY_STATE_CHANGE.COMPLETED, null, self._selectedRoom);
+      callback(null);
+
+    // Failed authentication
+    } else {
+      var errorResponded = {
+        content: info.info,
+        status: status,
+        errorCode: info.errorCode
+      };
+
+      self._readyState = self.READY_STATE_CHANGE.ERROR;
+      self._trigger('readyStateChange', self.READY_STATE_CHANGE.ERROR, errorResponded, self._selectedRoom);
+      callback(errorResponded);
+    }
+  };
+
+  // XMLHttpRequest error
+  xhr.onerror = function () {
+    log.error('init() failed retrieving response due to network timeout.');
+
+    var errorTimeout = {
+      status: xhr.status || null,
+      content: 'Network error occurred. (Status: ' + xhr.status + ')',
+      errorCode: self.READY_STATE_CHANGE_ERROR.XML_HTTP_REQUEST_ERROR
+    };
+
+    self._readyState = self.READY_STATE_CHANGE.ERROR;
+    self._trigger('readyStateChange', this.READY_STATE_CHANGE.ERROR, errorTimeout, self._selectedRoom);
+    callback(errorTimeout);
+  };
+
+  xhr.open('GET', protocol + self._path, true);
+  xhr.send();
+};

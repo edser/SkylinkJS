@@ -529,8 +529,8 @@ Skylink.prototype.getUserMedia = function(options,callback) {
 
   self._throttle(function (runFn) {
     if (!runFn) {
-      if (self._throttlingShouldThrowError) {
-        var throttleLimitError = 'Unable to run as throttle interval has not reached (' + self._throttlingTimeouts.getUserMedia + 'ms).';
+      if (self._options.throttlingShouldThrowError) {
+        var throttleLimitError = 'Unable to run as throttle interval has not reached (' + self._options.throttleIntervals.getUserMedia + 'ms).';
         log.error(throttleLimitError);
 
         if (typeof callback === 'function') {
@@ -576,7 +576,7 @@ Skylink.prototype.getUserMedia = function(options,callback) {
     }, function (error) {
       self._onStreamAccessError(error, settings, false, false);
     });
-  }, 'getUserMedia', self._throttlingTimeouts.getUserMedia);
+  }, 'getUserMedia', self._options.throttleIntervals.getUserMedia);
 };
 
 /**
@@ -1214,8 +1214,8 @@ Skylink.prototype.shareScreen = function (enableAudio, callback) {
 
   self._throttle(function (runFn) {
     if (!runFn) {
-      if (self._throttlingShouldThrowError) {
-        var throttleLimitError = 'Unable to run as throttle interval has not reached (' + self._throttlingTimeouts.shareScreen + 'ms).';
+      if (self._options.throttlingShouldThrowError) {
+        var throttleLimitError = 'Unable to run as throttle interval has not reached (' + self._options.throttleIntervals.shareScreen + 'ms).';
         log.error(throttleLimitError);
 
         if (typeof callback === 'function') {
@@ -1326,7 +1326,7 @@ Skylink.prototype.shareScreen = function (enableAudio, callback) {
     } catch (error) {
       self._onStreamAccessError(error, settings, true, false);
     }
-  }, 'shareScreen', self._throttlingTimeouts.shareScreen);
+  }, 'shareScreen', self._options.throttleIntervals.shareScreen);
 };
 
 /**
@@ -1832,7 +1832,7 @@ Skylink.prototype._onStreamAccessSuccess = function(stream, settings, isScreenSh
 Skylink.prototype._onStreamAccessError = function(error, settings, isScreenSharing) {
   var self = this;
 
-  if (!isScreenSharing && settings.settings.audio && settings.settings.video && self._audioFallback) {
+  if (!isScreenSharing && settings.settings.audio && settings.settings.video && self._options.audioFallback) {
     log.debug('Fallbacking to retrieve audio only Stream');
 
     self._trigger('mediaAccessFallback', {

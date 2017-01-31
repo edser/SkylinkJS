@@ -94,7 +94,7 @@ Skylink.prototype._doOffer = function(targetMid, iceRestart, peerBrowser) {
     self._addLocalMediaStreams(targetMid);
   }
 
-  if (self._enableDataChannel && self._peerInformations[targetMid] &&
+  if (self._options.enableDataChannel && self._peerInformations[targetMid] &&
     self._peerInformations[targetMid].config.enableDataChannel &&
     !(!self._sdpSettings.connection.data && targetMid !== 'MCU')) {
     // Edge doesn't support datachannels yet
@@ -240,7 +240,7 @@ Skylink.prototype._setLocalAndSendMessage = function(targetMid, sessionDescripti
       pc.setOffer = 'local';
     }
 
-    if (!self._enableIceTrickle && !pc.gathered) {
+    if (!self._options.enableIceTrickle && !pc.gathered) {
       log.log([targetMid, 'RTCSessionDescription', sessionDescription.type,
         'Local session description sending is halted to complete ICE gathering.']);
       return;

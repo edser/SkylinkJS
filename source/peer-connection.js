@@ -251,13 +251,13 @@ Skylink.prototype.refreshConnection = function(targetPeerId, iceRestart, callbac
 
   self._throttle(function (runFn) {
     if (!runFn && self._hasMCU && !self._mcuUseRenegoRestart) {
-      if (self._throttlingShouldThrowError) {
-        emitErrorForPeersFn('Unable to run as throttle interval has not reached (' + self._throttlingTimeouts.refreshConnection + 'ms).');
+      if (self._options.throttlingShouldThrowError) {
+        emitErrorForPeersFn('Unable to run as throttle interval has not reached (' + self._options.throttleIntervals.refreshConnection + 'ms).');
       }
       return;
     }
     self._refreshPeerConnection(listOfPeers, doIceRestart, callback);
-  }, 'refreshConnection', self._throttlingTimeouts.refreshConnection);
+  }, 'refreshConnection', self._options.throttleIntervals.refreshConnection);
 
 };
 
@@ -1265,7 +1265,7 @@ Skylink.prototype._retrieveStats = function (peerId, callback) {
       result.selectedCandidate.local.turnMediaTransport = 'UDP';
       if (self._forceTURNSSL && window.webrtcDetectedBrowser !== 'firefox') {
         result.selectedCandidate.local.turnMediaTransport = 'TCP/TLS';
-      } else if ((self._TURNTransport === self.TURN_TRANSPORT.TCP || self._forceTURNSSL) &&
+      } else if ((self._options.TURNServerTransport === self.TURN_TRANSPORT.TCP || self._options.forceTURNSSL) &&
         self._room && self._room.connection && self._room.connection.peerConfig &&
         Array.isArray(self._room.connection.peerConfig.iceServers) &&
         self._room.connection.peerConfig.iceServers[0] &&
@@ -1302,7 +1302,7 @@ Skylink.prototype._addPeer = function(targetMid, peerBrowser, toOffer, restartCo
     peerBrowser: peerBrowser,
     toOffer: toOffer,
     receiveOnly: receiveOnly,
-    enableDataChannel: self._enableDataChannel
+    enableDataChannel: self._options.enableDataChannel
   });
 
   log.info('Adding peer', isSS);
@@ -1370,8 +1370,8 @@ Skylink.prototype._restartPeerConnection = function (peerId, doIceRestart, callb
       target: peerId,
       weight: self._peerPriorityWeight,
       receiveOnly: self.getPeerInfo().config.receiveOnly,
-      enableIceTrickle: self._enableIceTrickle,
-      enableDataChannel: self._enableDataChannel,
+      enableIceTrickle: self._options.enableIceTrickle,
+      enableDataChannel: self._options.enableDataChannel,
       enableIceRestart: self._enableIceRestart,
       doIceRestart: doIceRestart === true && self._enableIceRestart && self._peerInformations[peerId] &&
         self._peerInformations[peerId].config.enableIceRestart,
@@ -1531,8 +1531,8 @@ Skylink.prototype._createPeerConnection = function(targetMid, isScreenSharing) {
   try {
     pc = new RTCPeerConnection({
       iceServers: self._room.connection.peerConfig.iceServers,
-      iceTransportPolicy: self._filterCandidatesType.host && self._filterCandidatesType.srflx &&
-        !self._filterCandidatesType.relay ? 'relay' : 'all',
+      iceTransportPolicy: self._options.filterCandidatesType.host && self._options.filterCandidatesType.srflx &&
+        !self._options.filterCandidatesType.relay ? 'relay' : 'all',
       bundlePolicy: 'max-bundle',
       rtcpMuxPolicy: 'require'
     }, {
@@ -1575,7 +1575,7 @@ Skylink.prototype._createPeerConnection = function(targetMid, isScreenSharing) {
   pc.ondatachannel = function(event) {
     var dc = event.channel || event;
     log.debug([targetMid, 'RTCDataChannel', dc.label, 'Received datachannel ->'], dc);
-    if (self._enableDataChannel && self._peerInformations[targetMid] &&
+    if (self._options.enableDataChannel && self._peerInformations[targetMid] &&
       self._peerInformations[targetMid].config.enableDataChannel) {
       var channelType = self.DATA_CHANNEL_TYPE.DATA;
       var channelKey = dc.label;
@@ -1651,7 +1651,7 @@ Skylink.prototype._createPeerConnection = function(targetMid, isScreenSharing) {
 
     self._trigger('iceConnectionState', iceConnectionState, targetMid);
 
-    if (pc.iceConnectionState === self.ICE_CONNECTION_STATE.FAILED && self._enableIceTrickle) {
+    if (pc.iceConnectionState === self.ICE_CONNECTION_STATE.FAILED && self._options.enableIceTrickle) {
       self._trigger('iceConnectionState', self.ICE_CONNECTION_STATE.TRICKLE_FAILED, targetMid);
     }
   };
@@ -1708,10 +1708,10 @@ Skylink.prototype._restartMCUConnection = function(callback, doIceRestart) {
       target: peerId,
       weight: self._peerPriorityWeight,
       receiveOnly: self.getPeerInfo().config.receiveOnly,
-      enableIceTrickle: self._enableIceTrickle,
-      enableDataChannel: self._enableDataChannel,
+      enableIceTrickle: self._options.enableIceTrickle,
+      enableDataChannel: self._options.enableDataChannel,
       enableIceRestart: self._enableIceRestart,
-      doIceRestart: self._mcuUseRenegoRestart && doIceRestart === true &&
+      doIceRestart: self._options.mcuUseRenegoRestart && doIceRestart === true &&
         self._enableIceRestart && self._peerInformations[peerId] &&
         self._peerInformations[peerId].config.enableIceRestart,
       isRestartResend: false,

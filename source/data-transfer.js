@@ -491,7 +491,7 @@ Skylink.prototype.sendBlobData = function(data, timeout, targetPeerId, sendChunk
     return;
   }
 
-  if (!self._enableDataChannel) {
+  if (!self._options.enableDataChannel) {
     emitErrorBeforeDataTransferFn('Unable to send any blob data. Datachannel is disabled');
     return;
   }
@@ -727,7 +727,7 @@ Skylink.prototype.sendURLData = function(data, timeout, targetPeerId, callback) 
     return;
   }
 
-  if (!self._enableDataChannel) {
+  if (!self._options.enableDataChannel) {
     emitErrorBeforeDataTransferFn('Unable to send any dataURL. Datachannel is disabled');
     return;
   }
@@ -1079,7 +1079,7 @@ Skylink.prototype.sendP2PMessage = function(message, targetPeerId) {
     return;
   }
 
-  if (!this._enableDataChannel) {
+  if (!this._options.enableDataChannel) {
     log.error('Unable to send message as User does not have Datachannel enabled. ->', message);
     return;
   }
@@ -1222,7 +1222,7 @@ Skylink.prototype.streamData = function(data, targetPeerId) {
     return;
   }
 
-  if (!self._enableDataChannel) {
+  if (!self._options.enableDataChannel) {
     log.error('Unable to stream data chunk as User does not have Datachannel enabled. ->', data);
     return;
   }

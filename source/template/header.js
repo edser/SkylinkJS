@@ -206,15 +206,14 @@ var clone = function (obj) {
  */
 function Skylink() {
   /**
-   * Stores the flag if Peers should have any Datachannel connections.
-   * @attribute _enableDataChannel
-   * @default true
-   * @type Boolean
+   * Stores the `init()` method options.
+   * @attribute _options
+   * @type JSON
    * @private
    * @for Skylink
-   * @since 0.3.0
+   * @since 0.6.18
    */
-  this._enableDataChannel = true;
+  this._options = {};
 
   /**
    * Stores the list of Peer Datachannel connections.
@@ -277,64 +276,6 @@ function Skylink() {
   this._gatheredCandidates = {};
 
   /**
-   * Stores the flags for ICE candidate filtering.
-   * @attribute _filterCandidatesType
-   * @type JSON
-   * @private
-   * @for Skylink
-   * @since 0.6.16
-   */
-  this._filterCandidatesType = {
-    host: false,
-    srflx: false,
-    relay: false
-  };
-
-  /**
-   * Stores the flag that indicates if Peer connections should trickle ICE.
-   * @attribute _enableIceTrickle
-   * @type Boolean
-   * @default true
-   * @private
-   * @for Skylink
-   * @since 0.3.0
-   */
-  this._enableIceTrickle = true;
-
-  /**
-   * Stores the flag that indicates if STUN ICE servers should be used when constructing Peer connection.
-   * @attribute _enableSTUN
-   * @type Boolean
-   * @default true
-   * @private
-   * @for Skylink
-   * @since 0.5.4
-   */
-  this._enableSTUN = true;
-
-  /**
-   * Stores the flag that indicates if TURN ICE servers should be used when constructing Peer connection.
-   * @attribute _enableTURN
-   * @type Boolean
-   * @default true
-   * @private
-   * @for Skylink
-   * @since 0.5.4
-   */
-  this._enableTURN = true;
-
-  /**
-   * Stores the flag that indicates if public STUN ICE servers should be used when constructing Peer connection.
-   * @attribute _usePublicSTUN
-   * @type Boolean
-   * @default true
-   * @private
-   * @for Skylink
-   * @since 0.6.1
-   */
-  this._usePublicSTUN = true;
-
-  /**
    * Stores the global number of Peer connection retries that would increase the wait-for-response timeout
    *   for the Peer connection health timer.
    * @attribute _retryCounters
@@ -376,19 +317,6 @@ function Skylink() {
    * @since 0.6.16
    */
   this._isUsingPlugin = false;
-
-  /**
-   * Stores the option for the TURN protocols to use.
-   * This should configure the TURN ICE servers urls <code>?transport=protocol</code> flag.
-   * @attribute _TURNTransport
-   * @type String
-   * @default "any"
-   * @private
-   * @required
-   * @for Skylink
-   * @since 0.5.4
-   */
-  this._TURNTransport = 'any';
 
   /**
    * Stores the list of Peers session information.
@@ -550,30 +478,6 @@ function Skylink() {
   };
 
   /**
-   * Stores the throttling interval timeout.
-   * @attribute _throttlingTimeouts
-   * @type JSON
-   * @private
-   * @for Skylink
-   * @since 0.6.16
-   */
-  this._throttlingTimeouts = {
-    shareScreen: 10000,
-    refreshConnection: 5000,
-    getUserMedia: 0
-  };
-
-  /**
-   * Stores the flag if throttling should throw when called less than the interval timeout.
-   * @attribute _throttlingShouldThrowError
-   * @type JSON
-   * @private
-   * @for Skylink
-   * @since 0.6.16
-   */
-  this._throttlingShouldThrowError = false;
-
-  /**
    * Stores the current socket connection information.
    * @attribute _socketSession
    * @type JSON
@@ -673,16 +577,6 @@ function Skylink() {
   this._socket = null;
 
   /**
-   * Stores the socket connection timeout when establishing connection to the Signaling.
-   * @attribute _socketTimeout
-   * @type Number
-   * @private
-   * @for Skylink
-   * @since 0.5.4
-   */
-  this._socketTimeout = 20000;
-
-  /**
    * Stores the flag that indicates if XDomainRequest is used for IE 8/9.
    * @attribute _socketUseXDR
    * @type Boolean
@@ -714,44 +608,6 @@ function Skylink() {
   this._hasMCU = false;
 
   /**
-   * Stores the flag if HTTPS connections should be enforced when connecting to
-   *   the API or Signaling server if App is accessing from HTTP domain.
-   * HTTPS connections are enforced if App is accessing from HTTPS domains.
-   * @attribute _forceSSL
-   * @type Boolean
-   * @default false
-   * @private
-   * @for Skylink
-   * @since 0.5.4
-   */
-  this._forceSSL = false;
-
-  /**
-   * Stores the flag if TURNS connections should be enforced when connecting to
-   *   the TURN server if App is accessing from HTTP domain.
-   * TURNS connections are enforced if App is accessing from HTTPS domains.
-   * @attribute _forceTURNSSL
-   * @type Boolean
-   * @default false
-   * @private
-   * @for Skylink
-   * @since 0.6.1
-   */
-  this._forceTURNSSL = false;
-
-  /**
-   * Stores the flag if TURN connections should be enforced when connecting to Peers.
-   * This filters all non "relay" ICE candidates to enforce connections via the TURN server.
-   * @attribute _forceTURN
-   * @type Boolean
-   * @default false
-   * @private
-   * @for Skylink
-   * @since 0.6.1
-   */
-  this._forceTURN = false;
-
-  /**
    * Stores the construct API REST path to obtain Room credentials.
    * @attribute _path
    * @type String
@@ -760,66 +616,6 @@ function Skylink() {
    * @since 0.1.0
    */
   this._path = null;
-
-  /**
-   * Stores the API server url.
-   * @attribute _roomServer
-   * @type String
-   * @private
-   * @for Skylink
-   * @since 0.5.2
-   */
-  this._roomServer = '//api.temasys.io';
-
-  /**
-   * Stores the App Key configured in <code>init()</code>.
-   * @attribute _appKey
-   * @type String
-   * @private
-   * @for Skylink
-   * @since 0.3.0
-   */
-  this._appKey = null;
-
-  /**
-   * Stores the default Room name to connect to when <code>joinRoom()</code> does not provide a Room name.
-   * @attribute _defaultRoom
-   * @type String
-   * @private
-   * @for Skylink
-   * @since 0.3.0
-   */
-  this._defaultRoom = null;
-
-  /**
-   * Stores the <code>init()</code> credentials starting DateTime stamp in ISO 8601.
-   * @attribute _roomStart
-   * @type String
-   * @private
-   * @for Skylink
-   * @since 0.3.0
-   */
-  this._roomStart = null;
-
-  /**
-   * Stores the <code>init()</code> credentials duration counted in hours.
-   * @attribute _roomDuration
-   * @type Number
-   * @private
-   * @for Skylink
-   * @since 0.3.0
-   */
-  this._roomDuration = null;
-
-  /**
-   * Stores the <code>init()</code> generated credentials string.
-   * @attribute _roomCredentials
-   * @type String
-   * @private
-   * @for Skylink
-   * @since 0.3.0
-   */
-  this._roomCredentials = null;
 
   /**
    * Stores the current <code>init()</code> readyState.
@@ -876,18 +672,6 @@ function Skylink() {
    * @since 0.6.15
    */
   this._peerMessagesStamps = {};
-
-  /**
-   * Stores the flag that indicates if <code>getUserMedia()</code> should fallback to retrieve
-   *   audio only Stream after retrieval of audio and video Stream had failed.
-   * @attribute _audioFallback
-   * @type Boolean
-   * @default false
-   * @private
-   * @for Skylink
-   * @since 0.5.4
-   */
-  this._audioFallback = false;
 
   /**
    * Stores the Streams.
@@ -976,61 +760,6 @@ function Skylink() {
   this._streamsSession = {};
 
   /**
-   * Stores the preferred sending Peer connection streaming audio codec.
-   * @attribute _selectedAudioCodec
-   * @type String
-   * @default "auto"
-   * @private
-   * @for Skylink
-   * @since 0.5.10
-   */
-  this._selectedAudioCodec = 'auto';
-
-  /**
-   * Stores the preferred sending Peer connection streaming video codec.
-   * @attribute _selectedVideoCodec
-   * @type String
-   * @default "auto"
-   * @private
-   * @for Skylink
-   * @since 0.5.10
-   */
-  this._selectedVideoCodec = 'auto';
-
-  /**
-   * Stores the flag if ulpfec and red codecs should be removed.
-   * @attribute _disableVideoFecCodecs
-   * @type Boolean
-   * @default false
-   * @private
-   * @for Skylink
-   * @since 0.6.16
-   */
-  this._disableVideoFecCodecs = false;
-
-  /**
-   * Stores the flag if CN (Comfort Noise) codec should be removed.
-   * @attribute _disableComfortNoiseCodec
-   * @type Boolean
-   * @default false
-   * @private
-   * @for Skylink
-   * @since 0.6.16
-   */
-  this._disableComfortNoiseCodec = false;
-
-  /**
-   * Stores the flag if REMB feedback packets should be removed.
-   * @attribute _disableREMB
-   * @type Boolean
-   * @default false
-   * @private
-   * @for Skylink
-   * @since 0.6.16
-   */
-  this._disableREMB = false;
-
-  /**
    * Stores the session description settings.
    * @attribute _sdpSettings
    * @type JSON
@@ -1103,36 +832,6 @@ function Skylink() {
    * @since 0.6.16
    */
   this._recordingStartInterval = null;
-
-  /**
-   * Stores the flag if MCU should use renegotiation.
-   * @attribute _mcuUseRenegoRestart
-   * @type Boolean
-   * @private
-   * @for Skylink
-   * @since 0.6.16
-   */
-  this._mcuUseRenegoRestart = false;
-
-  /**
-   * Stores the debugging TURN/STUN ICE server.
-   * @attribute _turnServer
-   * @type String
-   * @private
-   * @for Skylink
-   * @since 0.6.18
-   */
-  this._turnServer = null;
-
-  /**
-   * Stores the debugging Signaling server.
-   * @attribute _socketServer
-   * @type String
-   * @private
-   * @for Skylink
-   * @since 0.6.18
-   */
-  this._socketServer = null;
 
   /**
    * Stores the currently supported codecs.

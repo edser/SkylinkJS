@@ -336,7 +336,7 @@ Skylink.prototype.SYSTEM_ACTION_REASON = {
 
 Skylink.prototype.joinRoom = function(room, options, callback) {
   var self = this;
-  var selectedRoom = self._defaultRoom;
+  var selectedRoom = self._options.defaultRoom;
   var previousRoom = self._selectedRoom;
   var mediaOptions = {};
 
@@ -367,7 +367,7 @@ Skylink.prototype.joinRoom = function(room, options, callback) {
   };
 
   var joinRoomFn = function () {
-    self._initSelectedRoom(selectedRoom, function(initError, initSuccess) {
+    self._initFetchAPIData(selectedRoom, function(initError, initSuccess) {
       if (initError) {
         resolveAsErrorFn(initError.error, self._selectedRoom, self._readyState);
         return;
@@ -406,7 +406,7 @@ Skylink.prototype.joinRoom = function(room, options, callback) {
           len: self._room.duration,
           isPrivileged: self._isPrivileged === true, // Default to false if undefined
           autoIntroduce: self._autoIntroduce !== false, // Default to true if undefined
-          key: self._appKey
+          key: self._options.appKey
         });
       });
     });
