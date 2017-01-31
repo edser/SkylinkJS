@@ -942,7 +942,7 @@ Skylink.prototype.muteStream = function(options) {
       self._socketSendMessage({
         type: self._SIG_MESSAGE_TYPE.MUTE_VIDEO,
         mid: self._user.id,
-        rid: self._user.room.session.id,
+        rid: self._user.room.session.rid,
         muted: self._streamsMutedSettings.videoMuted,
         stamp: (new Date()).getTime()
       });
@@ -953,7 +953,7 @@ Skylink.prototype.muteStream = function(options) {
         self._socketSendMessage({
           type: self._SIG_MESSAGE_TYPE.MUTE_AUDIO,
           mid: self._user.id,
-          rid: self._user.room.session.id,
+          rid: self._user.room.session.rid,
           muted: self._streamsMutedSettings.audioMuted,
           stamp: (new Date()).getTime()
         });
@@ -1725,7 +1725,7 @@ Skylink.prototype._onStreamAccessSuccess = function(stream, settings, isScreenSh
       self._socketSendMessage({
         type: self._SIG_MESSAGE_TYPE.STREAM,
         mid: self._user.id,
-        rid: self._user.room.session.id,
+        rid: self._user.room.session.rid,
         streamId: streamId,
         settings: settings.settings,
         status: 'ended'

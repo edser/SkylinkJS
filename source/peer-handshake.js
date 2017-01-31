@@ -131,8 +131,7 @@ Skylink.prototype._doOffer = function(targetMid, iceRestart, peerBrowser) {
  */
 Skylink.prototype._doAnswer = function(targetMid) {
   var self = this;
-  log.log([targetMid, null, null, 'Creating answer with config:'],
-    self._room.connection.sdpConstraints);
+  log.log([targetMid, null, null, 'Creating answer.']);
   var pc = self._peerConnections[targetMid];
 
   // Added checks to ensure that connection object is defined first
@@ -251,7 +250,7 @@ Skylink.prototype._setLocalAndSendMessage = function(targetMid, sessionDescripti
       sdp: self._addSDPMediaStreamTrackIDs(targetMid, sessionDescription),
       mid: self._user.id,
       target: targetMid,
-      rid: self._user.room.session.id,
+      rid: self._user.room.session.rid,
       userInfo: self._getUserInfo()
     });
 

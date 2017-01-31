@@ -664,7 +664,7 @@ Skylink.prototype.lockRoom = function() {
   self._socketSendMessage({
     type: 'roomLockEvent',
     mid: self._user.id,
-    rid: self._user.room.session.id,
+    rid: self._user.room.session.rid,
     lock: true
   });
 
@@ -702,7 +702,7 @@ Skylink.prototype.unlockRoom = function() {
   self._socketSendMessage({
     type: 'roomLockEvent',
     mid: self._user.id,
-    rid: self._user.room.session.id,
+    rid: self._user.room.session.rid,
     lock: false
   });
 

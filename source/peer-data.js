@@ -48,7 +48,7 @@ Skylink.prototype.setUserData = function(userData) {
     self._socketSendMessage({
       type: self._SIG_MESSAGE_TYPE.UPDATE_USER,
       mid: self._user.id,
-      rid: self._user.room.session.id,
+      rid: self._user.room.session.rid,
       userData: updatedUserData,
       stamp: (new Date()).getTime()
     });

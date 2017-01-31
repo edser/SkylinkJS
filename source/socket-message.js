@@ -142,7 +142,7 @@ Skylink.prototype.sendMessage = function(message, targetPeerId) {
       this._socketSendMessage({
         data: message,
         mid: this._user.id,
-        rid: this._user.room.session.id,
+        rid: this._user.room.session.rid,
         target: peerId,
         type: this._SIG_MESSAGE_TYPE.PRIVATE_MESSAGE
       });
@@ -160,7 +160,7 @@ Skylink.prototype.sendMessage = function(message, targetPeerId) {
     this._socketSendMessage({
       data: message,
       mid: this._user.id,
-      rid: this._user.room.session.id,
+      rid: this._user.room.session.rid,
       type: this._SIG_MESSAGE_TYPE.PUBLIC_MESSAGE
     });
   } else {
@@ -244,7 +244,7 @@ Skylink.prototype.startRecording = function (callback) {
 
   self._socketSendMessage({
     type: self._SIG_MESSAGE_TYPE.START_RECORDING,
-    rid: self._user.room.session.id,
+    rid: self._user.room.session.rid,
     target: 'MCU'
   });
 
@@ -380,7 +380,7 @@ Skylink.prototype.stopRecording = function (callback, callbackSuccessWhenLink) {
 
   self._socketSendMessage({
     type: self._SIG_MESSAGE_TYPE.STOP_RECORDING,
-    rid: self._user.room.session.id,
+    rid: self._user.room.session.rid,
     target: 'MCU'
   });
 
@@ -592,14 +592,14 @@ Skylink.prototype._approachEventHandler = function(message){
   var enterMsg = {
     type: self._SIG_MESSAGE_TYPE.ENTER,
     mid: self._user.id,
-    rid: self._user.room.session.id,
+    rid: self._user.room.session.rid,
     agent: window.webrtcDetectedBrowser,
     version: (window.webrtcDetectedVersion || 0).toString(),
     os: window.navigator.platform,
     userInfo: self._getUserInfo(),
     receiveOnly: self.getPeerInfo().config.receiveOnly,
     target: message.target,
-    weight: self._peerPriorityWeight,
+    weight: self._user.priorityWeight,
     temasysPluginVersion: AdapterJS.WebRTCPlugin.plugin ? AdapterJS.WebRTCPlugin.plugin.VERSION : null,
     enableIceTrickle: self._options.enableIceTrickle,
     enableDataChannel: self._options.enableDataChannel,
@@ -993,13 +993,13 @@ Skylink.prototype._inRoomHandler = function(message) {
   var enterMsg = {
     type: self._SIG_MESSAGE_TYPE.ENTER,
     mid: self._user.id,
-    rid: self._user.room.session.id,
+    rid: self._user.room.session.rid,
     agent: window.webrtcDetectedBrowser,
     version: (window.webrtcDetectedVersion || 0).toString(),
     os: window.navigator.platform,
     userInfo: self._getUserInfo(),
     receiveOnly: self.getPeerInfo().config.receiveOnly,
-    weight: self._peerPriorityWeight,
+    weight: self._user.priorityWeight,
     temasysPluginVersion: AdapterJS.WebRTCPlugin.plugin ? AdapterJS.WebRTCPlugin.plugin.VERSION : null,
     enableIceTrickle: self._options.enableIceTrickle,
     enableDataChannel: self._options.enableDataChannel,
@@ -1116,7 +1116,7 @@ Skylink.prototype._enterHandler = function(message) {
   var welcomeMsg = {
     type: self._SIG_MESSAGE_TYPE.WELCOME,
     mid: self._user.id,
-    rid: self._user.room.session.id,
+    rid: self._user.room.session.rid,
     enableIceTrickle: self._options.enableIceTrickle,
     enableDataChannel: self._options.enableDataChannel,
     enableIceRestart: self._enableIceRestart,
@@ -1126,7 +1126,7 @@ Skylink.prototype._enterHandler = function(message) {
     os: window.navigator.platform,
     userInfo: self._getUserInfo(),
     target: targetMid,
-    weight: self._peerPriorityWeight,
+    weight: self._user.priorityWeight,
     temasysPluginVersion: AdapterJS.WebRTCPlugin.plugin ? AdapterJS.WebRTCPlugin.plugin.VERSION : null,
     SMProtocolVersion: self.SM_PROTOCOL_VERSION,
     DTProtocolVersion: self.DT_PROTOCOL_VERSION
@@ -1229,7 +1229,7 @@ Skylink.prototype._restartHandler = function(message){
   self._peerEndOfCandidatesCounter[targetMid].len = 0;
 
   // Make peer with highest weight do the offer
-  if (self._peerPriorityWeight > message.weight) {
+  if (self._user.priorityWeight > message.weight) {
     log.debug([targetMid, 'RTCPeerConnection', null, 'Re-negotiating new offer/answer.']);
 
     if (self._peerMessagesStamps[targetMid].hasRestart) {
@@ -1250,13 +1250,13 @@ Skylink.prototype._restartHandler = function(message){
     var restartMsg = {
       type: self._SIG_MESSAGE_TYPE.RESTART,
       mid: self._user.id,
-      rid: self._user.room.session.id,
+      rid: self._user.room.session.rid,
       agent: window.webrtcDetectedBrowser,
       version: (window.webrtcDetectedVersion || 0).toString(),
       os: window.navigator.platform,
       userInfo: self._getUserInfo(),
       target: targetMid,
-      weight: self._peerPriorityWeight,
+      weight: self._user.priorityWeight,
       enableIceTrickle: self._options.enableIceTrickle,
       enableDataChannel: self._options.enableDataChannel,
       enableIceRestart: self._enableIceRestart,
@@ -1378,7 +1378,7 @@ Skylink.prototype._welcomeHandler = function(message) {
     hasWelcome: false
   };
 
-  if (self._hasMCU || self._peerPriorityWeight > message.weight) {
+  if (self._hasMCU || self._user.priorityWeight > message.weight) {
     if (self._peerMessagesStamps[targetMid].hasWelcome) {
       log.warn([targetMid, 'RTCPeerConnection', null, 'Discarding extra "welcome" received.']);
       return;
@@ -1399,7 +1399,7 @@ Skylink.prototype._welcomeHandler = function(message) {
     var welcomeMsg = {
       type: self._SIG_MESSAGE_TYPE.WELCOME,
       mid: self._user.id,
-      rid: self._user.room.session.id,
+      rid: self._user.room.session.rid,
       enableIceTrickle: self._options.enableIceTrickle,
       enableDataChannel: self._options.enableDataChannel,
       enableIceRestart: self._enableIceRestart,
@@ -1409,7 +1409,7 @@ Skylink.prototype._welcomeHandler = function(message) {
       os: window.navigator.platform,
       userInfo: self._getUserInfo(),
       target: targetMid,
-      weight: self._peerPriorityWeight,
+      weight: self._user.priorityWeight,
       temasysPluginVersion: AdapterJS.WebRTCPlugin.plugin ? AdapterJS.WebRTCPlugin.plugin.VERSION : null,
       SMProtocolVersion: self.SM_PROTOCOL_VERSION,
       DTProtocolVersion: self.DT_PROTOCOL_VERSION

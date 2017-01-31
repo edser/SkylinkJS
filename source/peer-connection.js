@@ -1266,11 +1266,8 @@ Skylink.prototype._retrieveStats = function (peerId, callback) {
       if (self._forceTURNSSL && window.webrtcDetectedBrowser !== 'firefox') {
         result.selectedCandidate.local.turnMediaTransport = 'TCP/TLS';
       } else if ((self._options.TURNServerTransport === self.TURN_TRANSPORT.TCP || self._options.forceTURNSSL) &&
-        self._room && self._room.connection && self._room.connection.peerConfig &&
-        Array.isArray(self._room.connection.peerConfig.iceServers) &&
-        self._room.connection.peerConfig.iceServers[0] &&
-        self._room.connection.peerConfig.iceServers[0].urls[0] &&
-        self._room.connection.peerConfig.iceServers[0].urls[0].indexOf('?transport=tcp') > 0) {
+        self._user.iceServers.length > 0 && self._user.iceServers[0] && self._user.iceServers[0].urls[0] &&
+        self._user.iceServers[0].urls[0].indexOf('?transport=tcp') > 0) {
         result.selectedCandidate.local.turnMediaTransport = 'TCP';
       }
     } else {
@@ -1362,13 +1359,13 @@ Skylink.prototype._restartPeerConnection = function (peerId, doIceRestart, callb
     var restartMsg = {
       type: self._SIG_MESSAGE_TYPE.RESTART,
       mid: self._user.id,
-      rid: self._user.room.session.id,
+      rid: self._user.room.session.rid,
       agent: window.webrtcDetectedBrowser,
       version: (window.webrtcDetectedVersion || 0).toString(),
       os: window.navigator.platform,
       userInfo: self._getUserInfo(),
       target: peerId,
-      weight: self._peerPriorityWeight,
+      weight: self._user.priorityWeight,
       receiveOnly: self.getPeerInfo().config.receiveOnly,
       enableIceTrickle: self._options.enableIceTrickle,
       enableDataChannel: self._options.enableDataChannel,
@@ -1415,7 +1412,7 @@ Skylink.prototype._restartPeerConnection = function (peerId, doIceRestart, callb
           sdp: pc.localDescription.sdp,
           mid: self._user.id,
           target: peerId,
-          rid: self._user.room.session.id,
+          rid: self._user.room.session.rid,
           restart: true
         });
       } else {
@@ -1541,8 +1538,6 @@ Skylink.prototype._createPeerConnection = function(targetMid, isScreenSharing) {
       ]
     });
     log.info([targetMid, null, null, 'Created peer connection']);
-    log.debug([targetMid, null, null, 'Peer connection config:'], self._room.connection.peerConfig);
-    log.debug([targetMid, null, null, 'Peer connection constraints:'], self._room.connection.peerConstraints);
   } catch (error) {
     log.error([targetMid, null, null, 'Failed creating peer connection:'], error);
     return null;
@@ -1699,13 +1694,13 @@ Skylink.prototype._restartMCUConnection = function(callback, doIceRestart) {
     var restartMsg = {
       type: self._SIG_MESSAGE_TYPE.RESTART,
       mid: self._user.id,
-      rid: self._user.room.session.id,
+      rid: self._user.room.session.rid,
       agent: window.webrtcDetectedBrowser,
       version: (window.webrtcDetectedVersion || 0).toString(),
       os: window.navigator.platform,
       userInfo: self._getUserInfo(),
       target: peerId,
-      weight: self._peerPriorityWeight,
+      weight: self._user.priorityWeight,
       receiveOnly: self.getPeerInfo().config.receiveOnly,
       enableIceTrickle: self._options.enableIceTrickle,
       enableDataChannel: self._options.enableDataChannel,

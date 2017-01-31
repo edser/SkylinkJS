@@ -179,7 +179,7 @@ Skylink.prototype._socketSendMessageProcessNextQueue = function () {
         type: self._SIG_MESSAGE_TYPE.GROUP,
         lists: currentStack,
         mid: self._user.id,
-        rid: self._user.room.session.id
+        rid: self._user.room.session.rid
       }));
       self._socket.queue.timestamp = (new Date()).getTime();
 

@@ -1,4 +1,4 @@
-/*! skylinkjs - v0.6.17 - Wed Feb 01 2017 00:48:44 GMT+0800 (SGT) */
+/*! skylinkjs - v0.6.17 - Wed Feb 01 2017 01:24:15 GMT+0800 (SGT) */
 
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.io = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
 
@@ -11532,7 +11532,7 @@ if ( (navigator.mozGetUserMedia ||
   }
 })();
 
-/*! skylinkjs - v0.6.17 - Wed Feb 01 2017 00:48:44 GMT+0800 (SGT) */
+/*! skylinkjs - v0.6.17 - Wed Feb 01 2017 01:24:15 GMT+0800 (SGT) */
 
 (function(refThis) {
 
@@ -15215,7 +15215,7 @@ Skylink.prototype._onIceCandidate = function(targetMid, candidate) {
       candidate: candidate.candidate,
       mid: self._user.id,
       target: targetMid,
-      rid: self._user.room.session.id
+      rid: self._user.room.session.rid
     });
 
   } else {
@@ -15243,7 +15243,7 @@ Skylink.prototype._onIceCandidate = function(targetMid, candidate) {
         mid: self._user.id,
         userInfo: self._getUserInfo(),
         target: targetMid,
-        rid: self._user.room.session.id
+        rid: self._user.room.session.rid
       });
     } else if (self._gatheredCandidates[targetMid]) {
       self._socketSendMessage({
@@ -15253,7 +15253,7 @@ Skylink.prototype._onIceCandidate = function(targetMid, candidate) {
           self._gatheredCandidates[targetMid].sending.relay.length,
         mid: self._user.id,
         target: targetMid,
-        rid: self._user.room.session.id
+        rid: self._user.room.session.rid
       });
     }
   }
@@ -16898,11 +16898,8 @@ Skylink.prototype._retrieveStats = function (peerId, callback) {
       if (self._forceTURNSSL && window.webrtcDetectedBrowser !== 'firefox') {
         result.selectedCandidate.local.turnMediaTransport = 'TCP/TLS';
       } else if ((self._options.TURNServerTransport === self.TURN_TRANSPORT.TCP || self._options.forceTURNSSL) &&
-        self._room && self._room.connection && self._room.connection.peerConfig &&
-        Array.isArray(self._room.connection.peerConfig.iceServers) &&
-        self._room.connection.peerConfig.iceServers[0] &&
-        self._room.connection.peerConfig.iceServers[0].urls[0] &&
-        self._room.connection.peerConfig.iceServers[0].urls[0].indexOf('?transport=tcp') > 0) {
+        self._user.iceServers.length > 0 && self._user.iceServers[0] && self._user.iceServers[0].urls[0] &&
+        self._user.iceServers[0].urls[0].indexOf('?transport=tcp') > 0) {
         result.selectedCandidate.local.turnMediaTransport = 'TCP';
       }
     } else {
@@ -16994,13 +16991,13 @@ Skylink.prototype._restartPeerConnection = function (peerId, doIceRestart, callb
     var restartMsg = {
       type: self._SIG_MESSAGE_TYPE.RESTART,
       mid: self._user.id,
-      rid: self._user.room.session.id,
+      rid: self._user.room.session.rid,
       agent: window.webrtcDetectedBrowser,
       version: (window.webrtcDetectedVersion || 0).toString(),
       os: window.navigator.platform,
       userInfo: self._getUserInfo(),
       target: peerId,
-      weight: self._peerPriorityWeight,
+      weight: self._user.priorityWeight,
       receiveOnly: self.getPeerInfo().config.receiveOnly,
       enableIceTrickle: self._options.enableIceTrickle,
       enableDataChannel: self._options.enableDataChannel,
@@ -17047,7 +17044,7 @@ Skylink.prototype._restartPeerConnection = function (peerId, doIceRestart, callb
           sdp: pc.localDescription.sdp,
           mid: self._user.id,
           target: peerId,
-          rid: self._user.room.session.id,
+          rid: self._user.room.session.rid,
           restart: true
         });
       } else {
@@ -17173,8 +17170,6 @@ Skylink.prototype._createPeerConnection = function(targetMid, isScreenSharing) {
       ]
     });
     log.info([targetMid, null, null, 'Created peer connection']);
-    log.debug([targetMid, null, null, 'Peer connection config:'], self._room.connection.peerConfig);
-    log.debug([targetMid, null, null, 'Peer connection constraints:'], self._room.connection.peerConstraints);
   } catch (error) {
     log.error([targetMid, null, null, 'Failed creating peer connection:'], error);
     return null;
@@ -17331,13 +17326,13 @@ Skylink.prototype._restartMCUConnection = function(callback, doIceRestart) {
     var restartMsg = {
       type: self._SIG_MESSAGE_TYPE.RESTART,
       mid: self._user.id,
-      rid: self._user.room.session.id,
+      rid: self._user.room.session.rid,
       agent: window.webrtcDetectedBrowser,
       version: (window.webrtcDetectedVersion || 0).toString(),
       os: window.navigator.platform,
       userInfo: self._getUserInfo(),
       target: peerId,
-      weight: self._peerPriorityWeight,
+      weight: self._user.priorityWeight,
       receiveOnly: self.getPeerInfo().config.receiveOnly,
       enableIceTrickle: self._options.enableIceTrickle,
       enableDataChannel: self._options.enableDataChannel,
@@ -17536,7 +17531,7 @@ Skylink.prototype.setUserData = function(userData) {
     self._socketSendMessage({
       type: self._SIG_MESSAGE_TYPE.UPDATE_USER,
       mid: self._user.id,
-      rid: self._user.room.session.id,
+      rid: self._user.room.session.rid,
       userData: updatedUserData,
       stamp: (new Date()).getTime()
     });
@@ -18034,8 +18029,7 @@ Skylink.prototype._doOffer = function(targetMid, iceRestart, peerBrowser) {
  */
 Skylink.prototype._doAnswer = function(targetMid) {
   var self = this;
-  log.log([targetMid, null, null, 'Creating answer with config:'],
-    self._room.connection.sdpConstraints);
+  log.log([targetMid, null, null, 'Creating answer.']);
   var pc = self._peerConnections[targetMid];
 
   // Added checks to ensure that connection object is defined first
@@ -18154,7 +18148,7 @@ Skylink.prototype._setLocalAndSendMessage = function(targetMid, sessionDescripti
       sdp: self._addSDPMediaStreamTrackIDs(targetMid, sessionDescription),
       mid: self._user.id,
       target: targetMid,
-      rid: self._user.room.session.id,
+      rid: self._user.room.session.rid,
       userInfo: self._getUserInfo()
     });
 
@@ -19003,7 +18997,7 @@ Skylink.prototype.lockRoom = function() {
   self._socketSendMessage({
     type: 'roomLockEvent',
     mid: self._user.id,
-    rid: self._user.room.session.id,
+    rid: self._user.room.session.rid,
     lock: true
   });
 
@@ -19041,7 +19035,7 @@ Skylink.prototype.unlockRoom = function() {
   self._socketSendMessage({
     type: 'roomLockEvent',
     mid: self._user.id,
-    rid: self._user.room.session.id,
+    rid: self._user.room.session.rid,
     lock: false
   });
 
@@ -22118,7 +22112,7 @@ Skylink.prototype._socketSendMessageProcessNextQueue = function () {
         type: self._SIG_MESSAGE_TYPE.GROUP,
         lists: currentStack,
         mid: self._user.id,
-        rid: self._user.room.session.id
+        rid: self._user.room.session.rid
       }));
       self._socket.queue.timestamp = (new Date()).getTime();
 
@@ -22559,7 +22553,7 @@ Skylink.prototype.sendMessage = function(message, targetPeerId) {
       this._socketSendMessage({
         data: message,
         mid: this._user.id,
-        rid: this._user.room.session.id,
+        rid: this._user.room.session.rid,
         target: peerId,
         type: this._SIG_MESSAGE_TYPE.PRIVATE_MESSAGE
       });
@@ -22577,7 +22571,7 @@ Skylink.prototype.sendMessage = function(message, targetPeerId) {
     this._socketSendMessage({
       data: message,
       mid: this._user.id,
-      rid: this._user.room.session.id,
+      rid: this._user.room.session.rid,
       type: this._SIG_MESSAGE_TYPE.PUBLIC_MESSAGE
     });
   } else {
@@ -22661,7 +22655,7 @@ Skylink.prototype.startRecording = function (callback) {
 
   self._socketSendMessage({
     type: self._SIG_MESSAGE_TYPE.START_RECORDING,
-    rid: self._user.room.session.id,
+    rid: self._user.room.session.rid,
     target: 'MCU'
   });
 
@@ -22797,7 +22791,7 @@ Skylink.prototype.stopRecording = function (callback, callbackSuccessWhenLink) {
 
   self._socketSendMessage({
     type: self._SIG_MESSAGE_TYPE.STOP_RECORDING,
-    rid: self._user.room.session.id,
+    rid: self._user.room.session.rid,
     target: 'MCU'
   });
 
@@ -23009,14 +23003,14 @@ Skylink.prototype._approachEventHandler = function(message){
   var enterMsg = {
     type: self._SIG_MESSAGE_TYPE.ENTER,
     mid: self._user.id,
-    rid: self._user.room.session.id,
+    rid: self._user.room.session.rid,
     agent: window.webrtcDetectedBrowser,
     version: (window.webrtcDetectedVersion || 0).toString(),
     os: window.navigator.platform,
     userInfo: self._getUserInfo(),
     receiveOnly: self.getPeerInfo().config.receiveOnly,
     target: message.target,
-    weight: self._peerPriorityWeight,
+    weight: self._user.priorityWeight,
     temasysPluginVersion: AdapterJS.WebRTCPlugin.plugin ? AdapterJS.WebRTCPlugin.plugin.VERSION : null,
     enableIceTrickle: self._options.enableIceTrickle,
     enableDataChannel: self._options.enableDataChannel,
@@ -23410,13 +23404,13 @@ Skylink.prototype._inRoomHandler = function(message) {
   var enterMsg = {
     type: self._SIG_MESSAGE_TYPE.ENTER,
     mid: self._user.id,
-    rid: self._user.room.session.id,
+    rid: self._user.room.session.rid,
     agent: window.webrtcDetectedBrowser,
     version: (window.webrtcDetectedVersion || 0).toString(),
     os: window.navigator.platform,
     userInfo: self._getUserInfo(),
     receiveOnly: self.getPeerInfo().config.receiveOnly,
-    weight: self._peerPriorityWeight,
+    weight: self._user.priorityWeight,
     temasysPluginVersion: AdapterJS.WebRTCPlugin.plugin ? AdapterJS.WebRTCPlugin.plugin.VERSION : null,
     enableIceTrickle: self._options.enableIceTrickle,
     enableDataChannel: self._options.enableDataChannel,
@@ -23533,7 +23527,7 @@ Skylink.prototype._enterHandler = function(message) {
   var welcomeMsg = {
     type: self._SIG_MESSAGE_TYPE.WELCOME,
     mid: self._user.id,
-    rid: self._user.room.session.id,
+    rid: self._user.room.session.rid,
     enableIceTrickle: self._options.enableIceTrickle,
     enableDataChannel: self._options.enableDataChannel,
     enableIceRestart: self._enableIceRestart,
@@ -23543,7 +23537,7 @@ Skylink.prototype._enterHandler = function(message) {
     os: window.navigator.platform,
     userInfo: self._getUserInfo(),
     target: targetMid,
-    weight: self._peerPriorityWeight,
+    weight: self._user.priorityWeight,
     temasysPluginVersion: AdapterJS.WebRTCPlugin.plugin ? AdapterJS.WebRTCPlugin.plugin.VERSION : null,
     SMProtocolVersion: self.SM_PROTOCOL_VERSION,
     DTProtocolVersion: self.DT_PROTOCOL_VERSION
@@ -23646,7 +23640,7 @@ Skylink.prototype._restartHandler = function(message){
   self._peerEndOfCandidatesCounter[targetMid].len = 0;
 
   // Make peer with highest weight do the offer
-  if (self._peerPriorityWeight > message.weight) {
+  if (self._user.priorityWeight > message.weight) {
     log.debug([targetMid, 'RTCPeerConnection', null, 'Re-negotiating new offer/answer.']);
 
     if (self._peerMessagesStamps[targetMid].hasRestart) {
@@ -23667,13 +23661,13 @@ Skylink.prototype._restartHandler = function(message){
     var restartMsg = {
       type: self._SIG_MESSAGE_TYPE.RESTART,
       mid: self._user.id,
-      rid: self._user.room.session.id,
+      rid: self._user.room.session.rid,
       agent: window.webrtcDetectedBrowser,
       version: (window.webrtcDetectedVersion || 0).toString(),
       os: window.navigator.platform,
       userInfo: self._getUserInfo(),
       target: targetMid,
-      weight: self._peerPriorityWeight,
+      weight: self._user.priorityWeight,
       enableIceTrickle: self._options.enableIceTrickle,
       enableDataChannel: self._options.enableDataChannel,
       enableIceRestart: self._enableIceRestart,
@@ -23795,7 +23789,7 @@ Skylink.prototype._welcomeHandler = function(message) {
     hasWelcome: false
   };
 
-  if (self._hasMCU || self._peerPriorityWeight > message.weight) {
+  if (self._hasMCU || self._user.priorityWeight > message.weight) {
     if (self._peerMessagesStamps[targetMid].hasWelcome) {
       log.warn([targetMid, 'RTCPeerConnection', null, 'Discarding extra "welcome" received.']);
       return;
@@ -23816,7 +23810,7 @@ Skylink.prototype._welcomeHandler = function(message) {
     var welcomeMsg = {
       type: self._SIG_MESSAGE_TYPE.WELCOME,
       mid: self._user.id,
-      rid: self._user.room.session.id,
+      rid: self._user.room.session.rid,
       enableIceTrickle: self._options.enableIceTrickle,
       enableDataChannel: self._options.enableDataChannel,
       enableIceRestart: self._enableIceRestart,
@@ -23826,7 +23820,7 @@ Skylink.prototype._welcomeHandler = function(message) {
       os: window.navigator.platform,
       userInfo: self._getUserInfo(),
       target: targetMid,
-      weight: self._peerPriorityWeight,
+      weight: self._user.priorityWeight,
       temasysPluginVersion: AdapterJS.WebRTCPlugin.plugin ? AdapterJS.WebRTCPlugin.plugin.VERSION : null,
       SMProtocolVersion: self.SM_PROTOCOL_VERSION,
       DTProtocolVersion: self.DT_PROTOCOL_VERSION
@@ -25092,7 +25086,7 @@ Skylink.prototype.muteStream = function(options) {
       self._socketSendMessage({
         type: self._SIG_MESSAGE_TYPE.MUTE_VIDEO,
         mid: self._user.id,
-        rid: self._user.room.session.id,
+        rid: self._user.room.session.rid,
         muted: self._streamsMutedSettings.videoMuted,
         stamp: (new Date()).getTime()
       });
@@ -25103,7 +25097,7 @@ Skylink.prototype.muteStream = function(options) {
         self._socketSendMessage({
           type: self._SIG_MESSAGE_TYPE.MUTE_AUDIO,
           mid: self._user.id,
-          rid: self._user.room.session.id,
+          rid: self._user.room.session.rid,
           muted: self._streamsMutedSettings.audioMuted,
           stamp: (new Date()).getTime()
         });
@@ -25875,7 +25869,7 @@ Skylink.prototype._onStreamAccessSuccess = function(stream, settings, isScreenSh
       self._socketSendMessage({
         type: self._SIG_MESSAGE_TYPE.STREAM,
         mid: self._user.id,
-        rid: self._user.room.session.id,
+        rid: self._user.room.session.rid,
         streamId: streamId,
         settings: settings.settings,
         status: 'ended'

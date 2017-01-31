@@ -138,7 +138,7 @@ Skylink.prototype._onIceCandidate = function(targetMid, candidate) {
       candidate: candidate.candidate,
       mid: self._user.id,
       target: targetMid,
-      rid: self._user.room.session.id
+      rid: self._user.room.session.rid
     });
 
   } else {
@@ -166,7 +166,7 @@ Skylink.prototype._onIceCandidate = function(targetMid, candidate) {
         mid: self._user.id,
         userInfo: self._getUserInfo(),
         target: targetMid,
-        rid: self._user.room.session.id
+        rid: self._user.room.session.rid
       });
     } else if (self._gatheredCandidates[targetMid]) {
       self._socketSendMessage({
@@ -176,7 +176,7 @@ Skylink.prototype._onIceCandidate = function(targetMid, candidate) {
           self._gatheredCandidates[targetMid].sending.relay.length,
         mid: self._user.id,
         target: targetMid,
-        rid: self._user.room.session.id
+        rid: self._user.room.session.rid
       });
     }
   }
