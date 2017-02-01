@@ -9,8 +9,6 @@ module.exports = function(grunt) {
 
         source: 'source',
 
-        template: '<%= source %>/template',
-
         production: 'publish',
 
         bamboo: 'bamboo',
@@ -65,9 +63,8 @@ module.exports = function(grunt) {
             production: {
                 files: {
                     '<%= production %>/skylink.debug.js': [
-                        '<%= template %>/header.js',
-                        '<%= source %>/*.js',
-                        '<%= template %>/footer.js'
+                        '<%= source %>/main.js',
+                        '<%= source %>/*.js'
                     ],
                     '<%= production %>/skylink.complete.js': [
                         'node_modules/socket.io-client/socket.io.js',

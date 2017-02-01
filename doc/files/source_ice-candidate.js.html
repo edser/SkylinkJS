@@ -90,69 +90,6 @@
 <div class="file">
     <pre class="code prettyprint linenums">
 /**
- * &lt;blockquote class=&quot;info&quot;&gt;
- *   Learn more about how ICE works in this
- *   &lt;a href=&quot;https://temasys.com.sg/ice-what-is-this-sorcery/&quot;&gt;article here&lt;/a&gt;.
- * &lt;/blockquote&gt;
- * The list of Peer connection ICE gathering states.
- * @attribute CANDIDATE_GENERATION_STATE
- * @param {String} GATHERING &lt;small&gt;Value &lt;code&gt;&quot;gathering&quot;&lt;/code&gt;&lt;/small&gt;
- *   The value of the state when Peer connection is gathering ICE candidates.
- *   &lt;small&gt;These ICE candidates are sent to Peer for its connection to check for a suitable matching
- *   pair of ICE candidates to establish an ICE connection for stream audio, video and data.
- *   See &lt;a href=&quot;#event_iceConnectionState&quot;&gt;&lt;code&gt;iceConnectionState&lt;/code&gt; event&lt;/a&gt; for ICE connection status.&lt;/small&gt;
- *   &lt;small&gt;This state cannot happen until Peer connection remote &lt;code&gt;&quot;offer&quot;&lt;/code&gt; / &lt;code&gt;&quot;answer&quot;&lt;/code&gt;
- *   session description is set. See &lt;a href=&quot;#event_peerConnectionState&quot;&gt;
- *   &lt;code&gt;peerConnectionState&lt;/code&gt; event&lt;/a&gt; for session description exchanging status.&lt;/small&gt;
- * @param {String} COMPLETED &lt;small&gt;Value &lt;code&gt;&quot;completed&quot;&lt;/code&gt;&lt;/small&gt;
- *   The value of the state when Peer connection gathering of ICE candidates has completed.
- * @type JSON
- * @readOnly
- * @for Skylink
- * @since 0.4.1
- */
-Skylink.prototype.CANDIDATE_GENERATION_STATE = {
-  NEW: &#x27;new&#x27;,
-  GATHERING: &#x27;gathering&#x27;,
-  COMPLETED: &#x27;completed&#x27;
-};
-
-/**
- * &lt;blockquote class=&quot;info&quot;&gt;
- *   Learn more about how ICE works in this
- *   &lt;a href=&quot;https://temasys.com.sg/ice-what-is-this-sorcery/&quot;&gt;article here&lt;/a&gt;.
- * &lt;/blockquote&gt;
- * The list of Peer connection remote ICE candidate processing states for trickle ICE connections.
- * @attribute CANDIDATE_PROCESSING_STATE
- * @param {String} RECEIVED &lt;small&gt;Value &lt;code&gt;&quot;received&quot;&lt;/code&gt;&lt;/small&gt;
- *   The value of the state when the remote ICE candidate was received.
- * @param {String} DROPPED  &lt;small&gt;Value &lt;code&gt;&quot;received&quot;&lt;/code&gt;&lt;/small&gt;
- *   The value of the state when the remote ICE candidate is dropped.
- * @param {String} BUFFERED  &lt;small&gt;Value &lt;code&gt;&quot;buffered&quot;&lt;/code&gt;&lt;/small&gt;
- *   The value of the state when the remote ICE candidate is buffered.
- * @param {String} PROCESSING  &lt;small&gt;Value &lt;code&gt;&quot;processing&quot;&lt;/code&gt;&lt;/small&gt;
- *   The value of the state when the remote ICE candidate is being processed.
- * @param {String} PROCESS_SUCCESS  &lt;small&gt;Value &lt;code&gt;&quot;processSuccess&quot;&lt;/code&gt;&lt;/small&gt;
- *   The value of the state when the remote ICE candidate has been processed successfully.
- *   &lt;small&gt;The ICE candidate that is processed will be used to check against the list of
- *   locally generated ICE candidate to start matching for the suitable pair for the best ICE connection.&lt;/small&gt;
- * @param {String} PROCESS_ERROR  &lt;small&gt;Value &lt;code&gt;&quot;processError&quot;&lt;/code&gt;&lt;/small&gt;
- *   The value of the state when the remote ICE candidate has failed to be processed.
- * @type JSON
- * @readOnly
- * @for Skylink
- * @since 0.6.16
- */
-Skylink.prototype.CANDIDATE_PROCESSING_STATE = {
-  RECEIVED: &#x27;received&#x27;,
-  DROPPED: &#x27;dropped&#x27;,
-  BUFFERED: &#x27;buffered&#x27;,
-  PROCESSING: &#x27;processing&#x27;,
-  PROCESS_SUCCESS: &#x27;processSuccess&#x27;,
-  PROCESS_ERROR: &#x27;processError&#x27;
-};
-
-/**
  * Function that handles the Peer connection gathered ICE candidate to be sent.
  * @method _onIceCandidate
  * @private
@@ -189,7 +126,7 @@ Skylink.prototype._onIceCandidate = function(targetMid, candidate) {
       return;
     }
 
-    if (self._filterCandidatesType[candidateType]) {
+    if (self._options.filterCandidatesType[candidateType]) {
       if (!(self._hasMCU &amp;&amp; self._forceTURN)) {
         log.warn([targetMid, &#x27;RTCIceCandidate&#x27;, candidateType, &#x27;Dropping of sending ICE candidate as &#x27; +
           &#x27;it matches ICE candidate filtering flag -&gt;&#x27;], candidate);
@@ -214,7 +151,7 @@ Skylink.prototype._onIceCandidate = function(targetMid, candidate) {
       candidate: candidate.candidate
     });
 
-    if (!self._enableIceTrickle) {
+    if (!self._options.enableIceTrickle) {
       log.warn([targetMid, &#x27;RTCIceCandidate&#x27;, candidateType, &#x27;Dropping of sending ICE candidate as &#x27; +
         &#x27;trickle ICE is disabled -&gt;&#x27;], candidate);
       return;
@@ -222,14 +159,14 @@ Skylink.prototype._onIceCandidate = function(targetMid, candidate) {
 
     log.debug([targetMid, &#x27;RTCIceCandidate&#x27;, candidateType, &#x27;Sending ICE candidate -&gt;&#x27;], candidate);
 
-    self._sendChannelMessage({
+    self._socketSendMessage({
       type: self._SIG_MESSAGE_TYPE.CANDIDATE,
       label: candidate.sdpMLineIndex,
       id: candidate.sdpMid,
       candidate: candidate.candidate,
-      mid: self._user.sid,
+      mid: self._user.id,
       target: targetMid,
-      rid: self._room.id
+      rid: self._user.room.session.rid
     });
 
   } else {
@@ -241,7 +178,7 @@ Skylink.prototype._onIceCandidate = function(targetMid, candidate) {
     self._trigger(&#x27;candidateGenerationState&#x27;, self.CANDIDATE_GENERATION_STATE.COMPLETED, targetMid);
 
     // Disable Ice trickle option
-    if (!self._enableIceTrickle) {
+    if (!self._options.enableIceTrickle) {
       var sessionDescription = self._peerConnections[targetMid].localDescription;
 
       if (!(sessionDescription &amp;&amp; sessionDescription.type &amp;&amp; sessionDescription.sdp)) {
@@ -251,23 +188,23 @@ Skylink.prototype._onIceCandidate = function(targetMid, candidate) {
       }
 
       // a=end-of-candidates should present in non-trickle ICE connections so no need to send endOfCandidates message
-      self._sendChannelMessage({
+      self._socketSendMessage({
         type: sessionDescription.type,
         sdp: self._addSDPMediaStreamTrackIDs(targetMid, sessionDescription),
-        mid: self._user.sid,
+        mid: self._user.id,
         userInfo: self._getUserInfo(),
         target: targetMid,
-        rid: self._room.id
+        rid: self._user.room.session.rid
       });
     } else if (self._gatheredCandidates[targetMid]) {
-      self._sendChannelMessage({
+      self._socketSendMessage({
         type: self._SIG_MESSAGE_TYPE.END_OF_CANDIDATES,
         noOfExpectedCandidates: self._gatheredCandidates[targetMid].sending.srflx.length +
           self._gatheredCandidates[targetMid].sending.host.length +
           self._gatheredCandidates[targetMid].sending.relay.length,
-        mid: self._user.sid,
+        mid: self._user.id,
         target: targetMid,
-        rid: self._room.id
+        rid: self._user.room.session.rid
       });
     }
   }

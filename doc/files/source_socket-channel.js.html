@@ -90,421 +90,349 @@
 <div class="file">
     <pre class="code prettyprint linenums">
 /**
- * The list of &lt;a href=&quot;#method_joinRoom&quot;&gt;&lt;code&gt;joinRoom()&lt;/code&gt; method&lt;/a&gt; socket connection failure states.
- * @attribute SOCKET_ERROR
- * @param {Number} CONNECTION_FAILED    &lt;small&gt;Value &lt;code&gt;0&lt;/code&gt;&lt;/small&gt;
- *   The value of the failure state when &lt;code&gt;joinRoom()&lt;/code&gt; socket connection failed to establish with
- *   the Signaling server at the first attempt.
- * @param {Number} RECONNECTION_FAILED  &lt;small&gt;Value &lt;code&gt;-1&lt;/code&gt;&lt;/small&gt;
- *   The value of the failure state when &lt;code&gt;joinRoom()&lt;/code&gt; socket connection failed to establish
- *   the Signaling server after the first attempt.
- * @param {Number} CONNECTION_ABORTED   &lt;small&gt;Value &lt;code&gt;-2&lt;/code&gt;&lt;/small&gt;
- *   The value of the failure state when &lt;code&gt;joinRoom()&lt;/code&gt; socket connection will not attempt
- *   to reconnect after the failure of the first attempt in &lt;code&gt;CONNECTION_FAILED&lt;/code&gt; as there
- *   are no more ports or transports to attempt for reconnection.
- * @param {Number} RECONNECTION_ABORTED &lt;small&gt;Value &lt;code&gt;-3&lt;/code&gt;&lt;/small&gt;
- *   The value of the failure state when &lt;code&gt;joinRoom()&lt;/code&gt; socket connection will not attempt
- *   to reconnect after the failure of several attempts in &lt;code&gt;RECONNECTION_FAILED&lt;/code&gt; as there
- *   are no more ports or transports to attempt for reconnection.
- * @param {Number} RECONNECTION_ATTEMPT &lt;small&gt;Value &lt;code&gt;-4&lt;/code&gt;&lt;/small&gt;
- *   The value of the failure state when &lt;code&gt;joinRoom()&lt;/code&gt; socket connection is attempting
- *   to reconnect with a new port or transport after the failure of attempts in
- *   &lt;code&gt;CONNECTION_FAILED&lt;/code&gt; or &lt;code&gt;RECONNECTED_FAILED&lt;/code&gt;.
- * @type JSON
- * @readOnly
- * @for Skylink
- * @since 0.5.6
- */
-Skylink.prototype.SOCKET_ERROR = {
-  CONNECTION_FAILED: 0,
-  RECONNECTION_FAILED: -1,
-  CONNECTION_ABORTED: -2,
-  RECONNECTION_ABORTED: -3,
-  RECONNECTION_ATTEMPT: -4
-};
-
-/**
- * The list of &lt;a href=&quot;#method_joinRoom&quot;&gt;&lt;code&gt;joinRoom()&lt;/code&gt; method&lt;/a&gt; socket connection reconnection states.
- * @attribute SOCKET_FALLBACK
- * @param {String} NON_FALLBACK      &lt;small&gt;Value &lt;code&gt;&quot;nonfallback&quot;&lt;/code&gt;&lt;/small&gt;
- *   The value of the reconnection state when &lt;code&gt;joinRoom()&lt;/code&gt; socket connection is at its initial state
- *   without transitioning to any new socket port or transports yet.
- * @param {String} FALLBACK_PORT     &lt;small&gt;Value &lt;code&gt;&quot;fallbackPortNonSSL&quot;&lt;/code&gt;&lt;/small&gt;
- *   The value of the reconnection state when &lt;code&gt;joinRoom()&lt;/code&gt; socket connection is reconnecting with
- *   another new HTTP port using WebSocket transports to attempt to establish connection with Signaling server.
- * @param {String} FALLBACK_PORT_SSL &lt;small&gt;Value &lt;code&gt;&quot;fallbackPortSSL&quot;&lt;/code&gt;&lt;/small&gt;
- *   The value of the reconnection state when &lt;code&gt;joinRoom()&lt;/code&gt; socket connection is reconnecting with
- *   another new HTTPS port using WebSocket transports to attempt to establish connection with Signaling server.
- * @param {String} LONG_POLLING      &lt;small&gt;Value &lt;code&gt;&quot;fallbackLongPollingNonSSL&quot;&lt;/code&gt;&lt;/small&gt;
- *   The value of the reconnection state when &lt;code&gt;joinRoom()&lt;/code&gt; socket connection is reconnecting with
- *   another new HTTP port using Polling transports to attempt to establish connection with Signaling server.
- * @param {String} LONG_POLLING_SSL  &lt;small&gt;Value &lt;code&gt;&quot;fallbackLongPollingSSL&quot;&lt;/code&gt;&lt;/small&gt;
- *   The value of the reconnection state when &lt;code&gt;joinRoom()&lt;/code&gt; socket connection is reconnecting with
- *   another new HTTPS port using Polling transports to attempt to establish connection with Signaling server.
- * @type JSON
- * @readOnly
- * @for Skylink
- * @since 0.5.6
- */
-Skylink.prototype.SOCKET_FALLBACK = {
-  NON_FALLBACK: &#x27;nonfallback&#x27;,
-  FALLBACK_PORT: &#x27;fallbackPortNonSSL&#x27;,
-  FALLBACK_SSL_PORT: &#x27;fallbackPortSSL&#x27;,
-  LONG_POLLING: &#x27;fallbackLongPollingNonSSL&#x27;,
-  LONG_POLLING_SSL: &#x27;fallbackLongPollingSSL&#x27;
-};
-
-/**
- * Function that sends a socket message over the socket connection to the Signaling.
- * @method _sendChannelMessage
+ * Function that sends Socket message to Signaling.
+ * @method _socketSendMessage
  * @private
  * @for Skylink
- * @since 0.5.8
+ * @since 0.6.18
  */
-Skylink.prototype._sendChannelMessage = function(message) {
+Skylink.prototype._socketSendMessage = function(message) {
   var self = this;
-  var interval = 1000;
-  var throughput = 16;
 
-  if (!self._channelOpen || !self._user || !self._socket) {
-    log.warn([null, &#x27;Socket&#x27;, null, &#x27;Dropping of message as Socket connection is not opened or is at &#x27; +
-      &#x27;incorrect step -&gt;&#x27;], message);
-    return;
+  // Check and prevent sending message if socket connection is not connected
+  if (!self._socket.connected) {
+    return log.warn([message.target || &#x27;(all)&#x27;, &#x27;Socket&#x27;, message.type,
+      &#x27;Dropping of message as Socket connection is not opened -&gt;&#x27;], message);
   }
 
-  if (self._user.sid &amp;&amp; !self._peerMessagesStamps[self._user.sid]) {
-    self._peerMessagesStamps[self._user.sid] = {
-      userData: 0,
-      audioMuted: 0,
-      videoMuted: 0
-    };
+  // Check if message matches group list
+  if (self._socket.queue.types.indexOf(message.type) &gt; -1) {
+    // &quot;Queuing&quot; mechanism just simply send if interval has reached.
+    // It does go by order, it&#x27;s kinda like UDP and messages may be sent in unordered manner
+    // Whatever available broadcasted messages that can be sent, just be sent
+    // Check if timestamp is within the specified interval
+    if (!(self._socket.queue.timestamp &amp;&amp; ((new Date ()).getTime() - self._socket.queue.timestamp) &lt;= self._socket.queue.interval)) {
+      // Clear existing timeout intervals since the current item is sent.
+      // The rest of the queue items can wait. Sadz
+      if (self._socket.queue.fn) {
+        clearTimeout(self._socket.queue.fn);
+      }
+      self._socket.socket.send(JSON.stringify(message));
+      // Trigger &#x60;incomingMessage&#x60; event if &quot;public&quot; type
+      if (message.type === &#x27;public&#x27;) {
+        self._trigger(&#x27;incomingMessage&#x27;, {
+          content: message.data,
+          isPrivate: false,
+          targetPeerId: null,
+          listOfPeers: Object.keys(self._peerInformations),
+          isDataChannel: false,
+          senderPeerId: self._user.id
+        }, self._user.id, self.getPeerInfo(), true);
+      // Update socket message timestamp event
+      } else if (message.type !== &#x27;stream&#x27;) {
+        self._user.timestamps[message.type] = message.stamp;
+      }
+      // Update socket messages queue timestamp
+      self._socket.queue.timestamp = (new Date()).getTime();
+      // Check if there is a current queue and start timing if so
+      if (self._socket.queue.messages.length &gt; 0) {
+        self._socketSendMessageProcessNextQueue();
+      }
+
+    // Time to queue the socket messages
+    } else {
+      log.debug([&#x27;(all)&#x27;, &#x27;Socket&#x27;, message.type, &#x27;Queueing message -&gt;&#x27;], message);
+      self._socket.queue.messages.push(message);
+      self._socketSendMessageProcessNextQueue();
+    }
+  // Send direct message without queuing.
+  // Do note that the Signaling messages does throttling drops hence the queuing of broadcasted messages
+  } else {
+    log.debug([message.target || &#x27;(all)&#x27;, &#x27;Socket&#x27;, message.type, &#x27;Sending message -&gt;&#x27;], message);
+    self._socket.socket.send(JSON.stringify(message));
   }
+};
 
-  var checkStampFn = function (statusMessage) {
-    if (statusMessage.type === self._SIG_MESSAGE_TYPE.UPDATE_USER) {
-      if (!self._user.sid) {
-        return false;
-      }
-      return statusMessage.stamp &gt; self._peerMessagesStamps[self._user.sid].userData;
-    } else if (statusMessage.type === self._SIG_MESSAGE_TYPE.MUTE_VIDEO) {
-      if (!self._user.sid) {
-        return false;
-      }
-      return statusMessage.stamp &gt; self._peerMessagesStamps[self._user.sid].videoMuted;
-    } else if (statusMessage.type === self._SIG_MESSAGE_TYPE.MUTE_AUDIO) {
-      if (!self._user.sid) {
-        return false;
-      }
-      return statusMessage.stamp &gt; self._peerMessagesStamps[self._user.sid].audioMuted;
-    }
-    return true;
-  };
+/**
+ * Function that sends Socket message to Signaling.
+ * @method _socketSendMessage
+ * @private
+ * @for Skylink
+ * @since 0.6.18
+ */
+Skylink.prototype._socketSendMessageProcessNextQueue = function () {
+  var self = this;
 
-  var setStampFn = function (statusMessage) {
-    if (statusMessage.type === self._SIG_MESSAGE_TYPE.UPDATE_USER) {
-      self._peerMessagesStamps[self._user.sid].userData = statusMessage.stamp;
-    } else if (statusMessage.type === self._SIG_MESSAGE_TYPE.MUTE_VIDEO) {
-      self._peerMessagesStamps[self._user.sid].videoMuted = statusMessage.stamp;
-    } else if (statusMessage.type === self._SIG_MESSAGE_TYPE.MUTE_AUDIO) {
-      self._peerMessagesStamps[self._user.sid].audioMuted = statusMessage.stamp;
-    }
-  };
-
-  var setQueueFn = function () {
-    log.debug([null, &#x27;Socket&#x27;, null, &#x27;Starting queue timeout&#x27;]);
-
-    self._socketMessageTimeout = setTimeout(function () {
-      if (((new Date ()).getTime() - self._timestamp.socketMessage) &lt;= interval) {
-        log.debug([null, &#x27;Socket&#x27;, null, &#x27;Restarting queue timeout&#x27;]);
-        setQueueFn();
+  // Append socket queue if it does exists
+  if (!self._socket.queue.fn) {
+    self._socket.queue.fn = setTimeout(function () {
+      // Clear socket queue interval
+      self._socket.queue.fn = null;
+      // Check if socket connection is opened
+      if (!self._socket.connected) {
+        log.warn(&#x27;Dropping queue stack of messages as socket connection is closed -&gt;&#x27;, self._socket.queue.messages);
         return;
       }
-      startSendingQueuedMessageFn();
-    }, interval - ((new Date ()).getTime() - self._timestamp.socketMessage));
-  };
+      // Check if there is any queue stack at all first
+      if (self._socket.queue.messages.length === 0) {
+        return;
+      }
 
-  var triggerEventFn = function (eventMessage) {
-    if (eventMessage.type === self._SIG_MESSAGE_TYPE.PUBLIC_MESSAGE) {
-      self._trigger(&#x27;incomingMessage&#x27;, {
-        content: eventMessage.data,
-        isPrivate: false,
-        targetPeerId: null,
-        listOfPeers: Object.keys(self._peerInformations),
-        isDataChannel: false,
-        senderPeerId: self._user.sid
-      }, self._user.sid, self.getPeerInfo(), true);
-    }
-  };
+      var currentStack = [];
 
-  var sendGroupMessageFn = function (groupMessageList) {
-    self._socketMessageTimeout = null;
-
-    if (!self._channelOpen || !(self._user &amp;&amp; self._user.sid) || !self._socket) {
-      log.warn([null, &#x27;Socket&#x27;, null, &#x27;Dropping of group messages as Socket connection is not opened or is at &#x27; +
-        &#x27;incorrect step -&gt;&#x27;], groupMessageList);
-      return;
-    }
-
-    var strGroupMessageList = [];
-    var stamps = {
-      userData: 0,
-      audioMuted: 0,
-      videoMuted: 0
-    };
-
-    for (var k = 0; k &lt; groupMessageList.length; k++) {
-      if (checkStampFn(groupMessageList[k])) {
-        if (groupMessageList[k].type === self._SIG_MESSAGE_TYPE.UPDATE_USER &amp;&amp;
-          groupMessageList[k].stamp &gt; self._peerMessagesStamps[self._user.sid].userData &amp;&amp;
-          groupMessageList[k].stamp &gt; stamps.userData) {
-          stamps.userData = groupMessageList[k].stamp;
-        } else if (groupMessageList[k].type === self._SIG_MESSAGE_TYPE.MUTE_AUDIO &amp;&amp;
-          groupMessageList[k].stamp &gt; self._peerMessagesStamps[self._user.sid].audioMuted &amp;&amp;
-          groupMessageList[k].stamp &gt; stamps.audioMuted) {
-          stamps.audioMuted = groupMessageList[k].stamp;
-        } else if (groupMessageList[k].type === self._SIG_MESSAGE_TYPE.MUTE_VIDEO &amp;&amp;
-          groupMessageList[k].stamp &gt; self._peerMessagesStamps[self._user.sid].videoMuted &amp;&amp;
-          groupMessageList[k].stamp &gt; stamps.videoMuted) {
-          stamps.videoMuted = groupMessageList[k].stamp;
+      // Remove outdated messages
+      for (var i = 0; i &lt; self._socket.queue.messages.length; i++) {
+        var messageItem = self._socket.queue.messages[i];
+        // Check if it is outdated before dropping them
+        if ([&#x27;muteAudioEvent&#x27;, &#x27;muteVideoEvent&#x27;, &#x27;updateUserEvent&#x27;].indexOf(messageItem.type) &gt; -1 &amp;&amp;
+          self._user.timestamps[messageItem.type] &gt;= messageItem.stamp) {
+          self._socket.queue.messages.splice(i, 1);
+          i--;
+        } else if (currentStack.length &lt;= self._socket.queue.throughput) {
+          if ([&#x27;muteAudioEvent&#x27;, &#x27;muteVideoEvent&#x27;, &#x27;updateUserEvent&#x27;].indexOf(messageItem.type) &gt; -1) {
+            self._user.timestamps[messageItem.type] = messageItem.stamp;
+          }
+          self._socket.queue.messages.splice(i, 1);
+          i--;
+          currentStack.push(JSON.stringify(messageItem));
         }
       }
-    }
 
-    for (var i = 0; i &lt; groupMessageList.length; i++) {
-      if ((groupMessageList[i].type === self._SIG_MESSAGE_TYPE.UPDATE_USER &amp;&amp;
-          groupMessageList[i].stamp &lt; stamps.userData) ||
-          (groupMessageList[i].type === self._SIG_MESSAGE_TYPE.MUTE_AUDIO &amp;&amp;
-          groupMessageList[i].stamp &lt; stamps.audioMuted) ||
-          (groupMessageList[i].type === self._SIG_MESSAGE_TYPE.MUTE_VIDEO &amp;&amp;
-          groupMessageList[i].stamp &lt; stamps.videoMuted)) {
-        log.warn([null, &#x27;Socket&#x27;, null, &#x27;Dropping of outdated status message -&gt;&#x27;], clone(groupMessageList[i]));
-        groupMessageList.splice(i, 1);
-        i--;
-        continue;
-      }
-      strGroupMessageList.push(JSON.stringify(groupMessageList[i]));
-    }
+      // Send current queue of stack messages
+      log.debug([&#x27;(all)&#x27;, &#x27;Socket&#x27;, &#x27;group&#x27;, &#x27;Sending queue stack -&gt;&#x27;], currentStack);
 
-    if (strGroupMessageList.length &gt; 0) {
-      var groupMessage = {
+      self._socket.socket.send(JSON.stringify({
         type: self._SIG_MESSAGE_TYPE.GROUP,
-        lists: strGroupMessageList,
-        mid: self._user.sid,
-        rid: self._room.id
-      };
+        lists: currentStack,
+        mid: self._user.id,
+        rid: self._user.room.session.rid
+      }));
+      self._socket.queue.timestamp = (new Date()).getTime();
 
-      log.debug([null, &#x27;Socket&#x27;, groupMessage.type, &#x27;Sending queued grouped message (max: 16 per group) -&gt;&#x27;], groupMessage);
-
-      self._socket.send(JSON.stringify(groupMessage));
-      self._timestamp.socketMessage = (new Date()).getTime();
-
-      for (var j = 0; j &lt; groupMessageList.length; j++) {
-        setStampFn(groupMessageList[j]);
-        triggerEventFn(groupMessageList[j]);
+      // Trigger &#x60;incomingMessage&#x60; events
+      for (var j = 0; j &lt; currentStack.length; j++) {
+        if (currentStack[j].type === &#x27;public&#x27;) {
+          self._trigger(&#x27;incomingMessage&#x27;, {
+            content: currentStack[j].data,
+            isPrivate: false,
+            targetPeerId: null,
+            listOfPeers: Object.keys(self._peerInformations),
+            isDataChannel: false,
+            senderPeerId: self._user.id
+          }, self._user.id, self.getPeerInfo(), true);
+        }
       }
-    }
-  };
 
-  var startSendingQueuedMessageFn = function(){
-    if (self._socketMessageQueue.length &gt; 0){
-      if (self._socketMessageQueue.length &lt; throughput){
-        sendGroupMessageFn(self._socketMessageQueue.splice(0, self._socketMessageQueue.length));
-      } else {
-        sendGroupMessageFn(self._socketMessageQueue.splice(0, throughput));
-        setQueueFn();
-      }
-    }
-  };
+      // Process next queue
+      self._socketSendMessageProcessNextQueue();
 
-  if (self._groupMessageList.indexOf(message.type) &gt; -1) {
-    if (!(self._timestamp.socketMessage &amp;&amp; ((new Date ()).getTime() - self._timestamp.socketMessage) &lt;= interval)) {
-      if (!checkStampFn(message)) {
-        log.warn([null, &#x27;Socket&#x27;, message.type, &#x27;Dropping of outdated status message -&gt;&#x27;], message);
-        return;
-      }
-      if (self._socketMessageTimeout) {
-        clearTimeout(self._socketMessageTimeout);
-      }
-      log.warn([null, &#x27;Socket&#x27;, message.type, &#x27;Sending message -&gt;&#x27;], message);
-      self._socket.send(JSON.stringify(message));
-      setStampFn(message);
-      triggerEventFn(message);
-
-      self._timestamp.socketMessage = (new Date()).getTime();
-
-    } else {
-      log.warn([null, &#x27;Socket&#x27;, message.type, &#x27;Queueing socket message to prevent message drop -&gt;&#x27;], message);
-
-      self._socketMessageQueue.push(message);
-
-      if (!self._socketMessageTimeout) {
-        setQueueFn();
-      }
-    }
-  } else {
-    log.debug([message.target || null, &#x27;Socket&#x27;, message.type, &#x27;Sending message -&gt;&#x27;], message);
-    self._socket.send(JSON.stringify(message));
-
-    // If Peer sends &quot;bye&quot; on its own, we trigger it as session disconnected abruptly
-    if (message.type === self._SIG_MESSAGE_TYPE.BYE &amp;&amp; self._inRoom &amp;&amp;
-      self._user &amp;&amp; self._user.sid &amp;&amp; message.mid === self._user.sid) {
-      self.leaveRoom(false);
-      self._trigger(&#x27;sessionDisconnect&#x27;, self._user.sid, self.getPeerInfo());
-    }
+    }, self._socket.queue.interval);
   }
 };
 
 /**
- * Function that creates and opens a socket connection to the Signaling.
- * @method _createSocket
+ * Function that establishes the Socket connection to Signaling.
+ * @method _socketAttemptConnection
  * @private
  * @for Skylink
- * @since 0.5.10
+ * @since 0.6.18
  */
-Skylink.prototype._createSocket = function (type) {
+Skylink.prototype._socketAttemptConnection = function (callback) {
   var self = this;
-  var options = {
+  var socketPorts = self._socket.ports[self._socket.session.protocol];
+  // The &#x60;socketError&#x60; and &#x60;channelRetry&#x60; fallback state
+  var fallbackState = null;
+
+  // State when there is no existing current port
+  if (self._socket.session.port === null) {
+    self._socket.session.port = socketPorts[0];
+    self._socket.session.finalAttempts = 0;
+    self._socket.session.retries = 0;
+    // Set the initial fallback state
+    fallbackState = self.SOCKET_FALLBACK.NON_FALLBACK;
+
+  // State when current port has reached the final last port
+  } else if (ports.indexOf(self._signalingServerPort) === ports.length - 1) {
+    // Let&#x27;s attempt to use Polling transports from the first port
+    if (self._socket.session.transportType === &#x27;WebSocket&#x27;) {
+      self._socket.session.transportType = &#x27;Polling&#x27;;
+      self._socket.session.port = socketPorts[0];
+    // Let&#x27;s attempt with another last 4 rounds
+    } else {
+      self._socket.session.finalAttempts++;
+    }
+  // State to go to the next port
+  } else {
+    self._socket.session.port = socketPorts[socketPorts.indexOf(self._socket.session.port) + 1];
+  }
+
+  // Socket.io-client options
+  // Handle socket.io-client options for WebSocket transports (by default)
+  self._socket.session.options = {
     forceNew: true,
     reconnection: true,
-    timeout: self._socketTimeout,
+    timeout: self._options.socketTimeout,
     reconnectionAttempts: 2,
     reconnectionDelayMax: 5000,
     reconnectionDelay: 1000,
     transports: [&#x27;websocket&#x27;]
   };
-  var ports = self._socketPorts[self._signalingServerProtocol];
-  var fallbackType = null;
 
-  // just beginning
-  if (self._signalingServerPort === null) {
-    self._signalingServerPort = ports[0];
-    self._socketSession.finalAttempts = 0;
-    self._socketSession.attempts = 0;
-    fallbackType = self.SOCKET_FALLBACK.NON_FALLBACK;
-
-  // reached the end of the last port for the protocol type
-  } else if (ports.indexOf(self._signalingServerPort) === ports.length - 1) {
-    // re-refresh to long-polling port
-    if (type === &#x27;WebSocket&#x27;) {
-      type = &#x27;Polling&#x27;;
-      self._signalingServerPort = ports[0];
-    } else {
-      self._socketSession.finalAttempts++;
-    }
-  // move to the next port
-  } else {
-    self._signalingServerPort = ports[ ports.indexOf(self._signalingServerPort) + 1 ];
+  // Handle socket.io-client options for Polling transports
+  if (self._socket.session.transportType === &#x27;Polling&#x27;) {
+    self._socket.session.options.reconnectionDelayMax = 1000;
+    self._socket.session.options.reconnectionAttempts = 4;
+    self._socket.session.options.transports = [&#x27;xhr-polling&#x27;, &#x27;jsonp-polling&#x27;, &#x27;polling&#x27;];
   }
 
-  if (type === &#x27;Polling&#x27;) {
-    options.reconnectionDelayMax = 1000;
-    options.reconnectionAttempts = 4;
-    options.transports = [&#x27;xhr-polling&#x27;, &#x27;jsonp-polling&#x27;, &#x27;polling&#x27;];
+  // Configure the non-initial fallback types
+  if (fallbackState === null) {
+    fallbackState = self._socket.session.protocol === &#x27;http:&#x27; ?
+    // Configure the HTTP protocol Polling or WebSocket type
+      (self._socket.session.transportType === &#x27;Polling&#x27; ? self.SOCKET_FALLBACK.LONG_POLLING :
+      self.SOCKET_FALLBACK.FALLBACK_PORT) : (self._socket.session.transportType === &#x27;Polling&#x27; ?
+    // Configure the HTTPS protocol Polling or WebSocket type
+      self.SOCKET_FALLBACK.LONG_POLLING_SSL : self.SOCKET_FALLBACK.FALLBACK_SSL_PORT);
+
+    self._socket.session.retries++;
+
+    // Trigger &#x60;socketError&#x60; event for RECONNECTION_ATTEMPT
+    self._trigger(&#x27;socketError&#x27;, self.SOCKET_ERROR.RECONNECTION_ATTEMPT, null,
+      fallbackState, self._socketGetSession());
+    // Trigger &#x60;channelRetry&#x60; event for the first failure, not the reconnect attempts retries
+    self._trigger(&#x27;channelRetry&#x27;, fallbackState, self._socket.session.retries, self._socketGetSession());
   }
 
-  var url = self._signalingServerProtocol + &#x27;//&#x27; + (self._socketServer || self._signalingServer) + &#x27;:&#x27; + self._signalingServerPort;
-    //&#x27;http://ec2-52-8-93-170.us-west-1.compute.amazonaws.com:6001&#x27;;
+  // Construct Signaling server path
+  self._socket.session.path = self._socket.session.protocol + &#x27;//&#x27; + self._socket.server + &#x27;:&#x27; +
+    self._socket.session.port; //&#x27;http://ec2-52-8-93-170.us-west-1.compute.amazonaws.com:6001&#x27;;
 
-  self._socketSession.transportType = type;
-  self._socketSession.socketOptions = options;
-  self._socketSession.socketServer = url;
-
-  if (fallbackType === null) {
-    fallbackType = self._signalingServerProtocol === &#x27;http:&#x27; ?
-      (type === &#x27;Polling&#x27; ? self.SOCKET_FALLBACK.LONG_POLLING : self.SOCKET_FALLBACK.FALLBACK_PORT) :
-      (type === &#x27;Polling&#x27; ? self.SOCKET_FALLBACK.LONG_POLLING_SSL : self.SOCKET_FALLBACK.FALLBACK_SSL_PORT);
-
-    self._socketSession.attempts++;
-    self._trigger(&#x27;socketError&#x27;, self.SOCKET_ERROR.RECONNECTION_ATTEMPT, null, fallbackType, clone(self._socketSession));
-    self._trigger(&#x27;channelRetry&#x27;, fallbackType, self._socketSession.attempts, clone(self._socketSession));
+  // Use the custom Signaling server url
+  if (typeof self._options.socketServer === &#x27;string&#x27;) {
+    self._socket.session.path = self._socket.session.protocol + &#x27;//&#x27; + self._options.socketServer + &#x27;:&#x27; +
+      self._socket.session.port;
   }
 
-  // if socket instance already exists, exit
-  if (self._socket) {
-    self._socket.removeAllListeners(&#x27;connect_error&#x27;);
-    self._socket.removeAllListeners(&#x27;reconnect_attempt&#x27;);
-    self._socket.removeAllListeners(&#x27;reconnect_error&#x27;);
-    self._socket.removeAllListeners(&#x27;reconnect_failed&#x27;);
-    self._socket.removeAllListeners(&#x27;connect&#x27;);
-    self._socket.removeAllListeners(&#x27;reconnect&#x27;);
-    self._socket.removeAllListeners(&#x27;error&#x27;);
-    self._socket.removeAllListeners(&#x27;disconnect&#x27;);
-    self._socket.removeAllListeners(&#x27;message&#x27;);
+  // Disconnect any existing socket connection
+  if (self._socket.socket) {
+    self._socket.removeAllListeners();
     self._socket.disconnect();
     self._socket = null;
   }
 
-  self._channelOpen = false;
+  self._socket.connected = false;
 
-  log.log(&#x27;Opening channel with signaling server url:&#x27;, clone(self._socketSession));
+  log.log(&#x27;Opening socket connection -&gt;&#x27;, self._socketGetSession());
 
-  self._socket = io.connect(url, options);
+  self._socket.socket = io.connect(self._socket.session.path, self._socket.session.options);
 
-  self._socket.on(&#x27;reconnect_attempt&#x27;, function (attempt) {
-    self._socketSession.attempts++;
-    self._trigger(&#x27;channelRetry&#x27;, fallbackType, self._socketSession.attempts, clone(self._socketSession));
+  // socket.io-client &#x60;reconnect_attempt&#x60; event
+  // Triggered each time socket.io-client attempts to reconnect
+  self._socket.socket.on(&#x27;reconnect_attempt&#x27;, function (attempt) {
+    self._socket.session.retries++;
+    // Trigger &#x60;channelRetry&#x60; event
+    self._trigger(&#x27;channelRetry&#x27;, fallbackState, self._socket.session.retries, self._socketGetSession());
   });
 
-  self._socket.on(&#x27;reconnect_failed&#x27;, function () {
-    if (fallbackType === self.SOCKET_FALLBACK.NON_FALLBACK) {
-      self._trigger(&#x27;socketError&#x27;, self.SOCKET_ERROR.CONNECTION_FAILED, new Error(&#x27;Failed connection with transport &quot;&#x27; +
-        type + &#x27;&quot; and port &#x27; + self._signalingServerPort + &#x27;.&#x27;), fallbackType, clone(self._socketSession));
+  // socket.io-client &#x60;reconnect_attempt&#x60; event
+  // Triggered each time socket.io-client fails to reconnect after all the maximum attempt configured
+  self._socket.socket.on(&#x27;reconnect_failed&#x27;, function () {
+    // Check if its the initial state, return as first connection failure
+    if (fallbackState === self.SOCKET_FALLBACK.NON_FALLBACK) {
+      // Trigger &#x60;socketError&#x60; event for CONNECTION FAILED
+      self._trigger(&#x27;socketError&#x27;, self.SOCKET_ERROR.CONNECTION_FAILED,
+        new Error(&#x27;Failed connection with transport &quot;&#x27; + self._socket.session.transportType +
+        &#x27;&quot; and port &#x27; + self._socket.session.port + &#x27;.&#x27;), fallbackState, self._socketGetSession());
+    // Else trigger as subsequent connection failure
     } else {
-      self._trigger(&#x27;socketError&#x27;, self.SOCKET_ERROR.RECONNECTION_FAILED, new Error(&#x27;Failed reconnection with transport &quot;&#x27; +
-        type + &#x27;&quot; and port &#x27; + self._signalingServerPort + &#x27;.&#x27;), fallbackType, clone(self._socketSession));
+      // Trigger &#x60;socketError&#x60; event for RECONNECTION_FAILED
+      self._trigger(&#x27;socketError&#x27;, self.SOCKET_ERROR.RECONNECTION_FAILED,
+        new Error(&#x27;Failed reconnection with transport &quot;&#x27; + self._socket.session.transportType +
+        &#x27;&quot; and port &#x27; + self._socket.session.port + &#x27;.&#x27;), fallbackState, self._socketGetSession());
     }
-
-    if (self._socketSession.finalAttempts &lt; 4) {
-      self._createSocket(type);
+    // Check if it has reached the final attempt limit before fallbacking to the next available port / transport type
+    if (self._socket.session.finalAttempts &lt; 4) {
+      self._socketAttemptConnection();
+    // Check if it has reached the final attempt limit
     } else {
+      // Trigger &#x60;socketError&#x60; event for RECONNECTION_ABORTED. Not more attempts to go on to retry.
       self._trigger(&#x27;socketError&#x27;, self.SOCKET_ERROR.RECONNECTION_ABORTED, new Error(&#x27;Reconnection aborted as &#x27; +
-        &#x27;there no more available ports, transports and final attempts left.&#x27;), fallbackType, clone(self._socketSession));
+        &#x27;there no more available ports, transports and final attempts left.&#x27;), fallbackState, self._socketGetSession());
+      callback(new Error(&#x27;Reconnection aborted.&#x27;));
     }
   });
 
-  self._socket.on(&#x27;connect&#x27;, function () {
-    if (!self._channelOpen) {
-      log.log([null, &#x27;Socket&#x27;, null, &#x27;Channel opened&#x27;]);
-      self._channelOpen = true;
+  // socket.io-client &#x60;reconnect_attempt&#x60; event
+  // Triggered each time socket.io-client has connected
+  self._socket.socket.on(&#x27;connect&#x27;, function () {
+    if (!self._socket.connected) {
+      log.log(&#x27;Socket channel opened for port @&#x27; + self._socket.session.port + &#x27;.&#x27;);
+      self._socket.connected = true;
+      // Trigger &#x60;channelOpen&#x60; event
       self._trigger(&#x27;channelOpen&#x27;, clone(self._socketSession));
+      callback();
     }
   });
 
-  self._socket.on(&#x27;reconnect&#x27;, function () {
-    if (!self._channelOpen) {
-      log.log([null, &#x27;Socket&#x27;, null, &#x27;Channel opened&#x27;]);
-      self._channelOpen = true;
-      self._trigger(&#x27;channelOpen&#x27;, clone(self._socketSession));
+  // socket.io-client &#x60;reconnect&#x60; event
+  // Triggered each time socket.io-client has connected after several reconnection attempts
+  self._socket.socket.on(&#x27;reconnect&#x27;, function () {
+    if (!self._socket.connected) {
+      log.log(&#x27;Socket channel opened after reconnection attempt (&#x27; + self._socket.session.retries +
+        &#x27;) for port @&#x27; + self._socket.session.port + &#x27;.&#x27;);
+      self._socket.connected = true;
+      // Trigger &#x60;channelOpen&#x60; event
+      self._trigger(&#x27;channelOpen&#x27;, self._socketGetSession());
+      callback();
     }
   });
 
-  self._socket.on(&#x27;error&#x27;, function(error) {
-    log.error([null, &#x27;Socket&#x27;, null, &#x27;Exception occurred -&gt;&#x27;], error);
-    self._trigger(&#x27;channelError&#x27;, error, clone(self._socketSession));
+  // socket.io-client &#x60;error&#x60; event
+  // Triggered when socket.io-client event handler errors like &#x60;peerJoined&#x60; event from the call-stack.
+  // Can be xhr-poll errors
+  self._socket.socket.on(&#x27;error&#x27;, function(error) {
+    // Disconnect Polling errors
+    if (error.message.indexOf(&#x27;xhr post error&#x27;) &gt; -1) {
+      log.error(&#x27;Socket channel Polling errors and connection is unstable. Disconnecting..&#x27;);
+      // Trigger &#x60;socketError&#x60; event
+      self._trigger(&#x27;socketError&#x27;, self.SOCKET_ERROR.CONNECTION_ABORTED,
+        new Error(&#x27;Failed reconnection with transport &quot;&#x27; + self._socket.session.transportType +
+        &#x27;&quot; and port &#x27; + self._socket.session.port + &#x27;.&#x27;), fallbackState, self._socketGetSession());
+      // Close socket connection
+      self._socketClose();
+      return;
+    }
+    log.error(&#x27;App exception occurred. Please check your event handlers for code errors. -&gt;&#x27;, error);
+    // Trigger &#x60;channelError&#x60; event
+    self._trigger(&#x27;channelError&#x27;, error, self._socketGetSession());
   });
 
-  self._socket.on(&#x27;disconnect&#x27;, function() {
-    self._channelOpen = false;
-    self._trigger(&#x27;channelClose&#x27;, clone(self._socketSession));
-    log.log([null, &#x27;Socket&#x27;, null, &#x27;Channel closed&#x27;]);
-
-    if (self._inRoom &amp;&amp; self._user &amp;&amp; self._user.sid) {
-      self.leaveRoom(false);
-      self._trigger(&#x27;sessionDisconnect&#x27;, self._user.sid, self.getPeerInfo());
+  // socket.io-client &#x60;error&#x60; event
+  // Triggered when socket.io-client is disconnected abruptly
+  self._socket.socket.on(&#x27;disconnect&#x27;, function() {
+    if (self._socket.connected) {
+      log.warn(&#x27;Socket connection closed abruptly.&#x27;);
+      self._socket.connected = false;
+      // Trigger &#x60;channelClose&#x60; event
+      self._trigger(&#x27;channelClose&#x27;, self._socketGetSession());
+      // Check if User is in Room and Socket connection was disconnected
+      if (self._user.room.connected) {
+        self.leaveRoom(false);
+        self._trigger(&#x27;sessionDisconnect&#x27;, self._user.id, self.getPeerInfo());
+      }
     }
   });
 
-  self._socket.on(&#x27;message&#x27;, function(messageStr) {
+  // socket.io-client &#x60;message&#x60; event
+  // Triggered when socket.io-client receives message from Peers
+  self._socket.socket.on(&#x27;message&#x27;, function(messageStr) {
     var message = JSON.parse(messageStr);
-
-    log.log([null, &#x27;Socket&#x27;, null, &#x27;Received message -&gt;&#x27;], message);
-
     if (message.type === self._SIG_MESSAGE_TYPE.GROUP) {
       log.debug(&#x27;Bundle of &#x27; + message.lists.length + &#x27; messages&#x27;);
       for (var i = 0; i &lt; message.lists.length; i++) {
         var indiMessage = JSON.parse(message.lists[i]);
         self._processSigMessage(indiMessage);
-        self._trigger(&#x27;channelMessage&#x27;, indiMessage, clone(self._socketSession));
+        self._trigger(&#x27;channelMessage&#x27;, indiMessage, self._socketGetSession());
       }
     } else {
       self._processSigMessage(message);
@@ -514,79 +442,76 @@ Skylink.prototype._createSocket = function (type) {
 };
 
 /**
- * Function that starts the socket connection to the Signaling.
- * This starts creating the socket connection and called at first not when requiring to fallback.
- * @method _openChannel
+ * Function that starts the Socket connection.
+ * @method _socketOpen
  * @private
  * @for Skylink
  * @since 0.5.5
  */
-Skylink.prototype._openChannel = function() {
+Skylink.prototype._socketOpen = function (callback) {
   var self = this;
-  if (self._channelOpen) {
-    log.error([null, &#x27;Socket&#x27;, null, &#x27;Unable to instantiate a new channel connection &#x27; +
-      &#x27;as there is already an ongoing channel connection&#x27;]);
-    return;
+
+  if (self._socket.socket) {
+    self._socketClose();
   }
 
-  if (self._readyState !== self.READY_STATE_CHANGE.COMPLETED) {
-    log.error([null, &#x27;Socket&#x27;, null, &#x27;Unable to instantiate a new channel connection &#x27; +
-      &#x27;as readyState is not ready&#x27;]);
-    return;
-  }
-
-  // set if forceSSL
-  if (self._forceSSL) {
-    self._signalingServerProtocol = &#x27;https:&#x27;;
-  } else {
-    self._signalingServerProtocol = window.location.protocol;
-  }
-
-  var socketType = &#x27;WebSocket&#x27;;
-
-  // For IE &lt; 9 that doesn&#x27;t support WebSocket
-  if (!window.WebSocket) {
-    socketType = &#x27;Polling&#x27;;
-  }
-
-  self._signalingServerPort = null;
+  self._socket.session.port = null;
+  self._socket.session.protocol = self._options.forceSSL ? &#x27;https:&#x27; : window.location.protocol;
+  // IE &lt; 9 doesn&#x27;t support WebSocket
+  self._socket.session.transportType = !window.WebSocket ? &#x27;Polling&#x27; : &#x27;WebSocket&#x27;;
+  self._socket.session.retries = 0;
+  self._socket.session.finalAttempts = 0;
+  self._socket.session.fallbackState = null;
 
   // Begin with a websocket connection
-  self._createSocket(socketType);
+  self._socketAttemptConnection(callback);
 };
 
 /**
- * Function that stops the socket connection to the Signaling.
- * @method _closeChannel
+ * Function that returns the Socket session information.
+ * @method _socketGetSession
  * @private
  * @for Skylink
- * @since 0.5.5
+ * @since 0.6.18
  */
-Skylink.prototype._closeChannel = function() {
-  if (this._socket) {
-    this._socket.removeAllListeners(&#x27;connect_error&#x27;);
-    this._socket.removeAllListeners(&#x27;reconnect_attempt&#x27;);
-    this._socket.removeAllListeners(&#x27;reconnect_error&#x27;);
-    this._socket.removeAllListeners(&#x27;reconnect_failed&#x27;);
-    this._socket.removeAllListeners(&#x27;connect&#x27;);
-    this._socket.removeAllListeners(&#x27;reconnect&#x27;);
-    this._socket.removeAllListeners(&#x27;error&#x27;);
-    this._socket.removeAllListeners(&#x27;disconnect&#x27;);
-    this._socket.removeAllListeners(&#x27;message&#x27;);
+Skylink.prototype._socketGetSession = function () {
+  var self = this;
+  return {
+    finalAttempts: self._socket.session.finalAttempts,
+    serverUrl: self._socket.session.path,
+    socketOptions: clone(self._socket.session.options),
+    attempts: self._socket.session.retries,
+    transportType: self._socket.session.transportType
+  };
+};
+
+/**
+ * Function that stops the Socket connection.
+ * @method _socketClose
+ * @private
+ * @for Skylink
+ * @since 0.6.18
+ */
+Skylink.prototype._socketClose = function() {
+  var self = this;
+
+  // Remove all current event listeners
+  if (self._socket.socket) {
+    self._socket.socket.removeAllListeners();
   }
 
-  if (this._channelOpen) {
-    if (this._socket) {
-      this._socket.disconnect();
+  // Close connection or return as close if state is connected
+  if (self._socket.connected) {
+    if (self._socket.socket) {
+      self._socket.socket.disconnect();
     }
 
-    log.log([null, &#x27;Socket&#x27;, null, &#x27;Channel closed&#x27;]);
+    self._socket.connected = false;
 
-    this._channelOpen = false;
-    this._trigger(&#x27;channelClose&#x27;, clone(this._socketSession));
+    self._trigger(&#x27;channelClose&#x27;, self._socketGetSession());
   }
 
-  this._socket = null;
+  self._socket.socket = null;
 };
     </pre>
 </div>

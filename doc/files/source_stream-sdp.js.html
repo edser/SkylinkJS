@@ -368,8 +368,8 @@ Skylink.prototype._setSDPCodec = function(targetMid, sessionDescription) {
     }
   };
 
-  parseFn(&#x27;audio&#x27;, this._selectedAudioCodec);
-  parseFn(&#x27;video&#x27;, this._selectedVideoCodec);
+  parseFn(&#x27;audio&#x27;, this._options.audioCodec);
+  parseFn(&#x27;video&#x27;, this._options.videoCodec);
 
   return sdpLines.join(&#x27;\r\n&#x27;);
 };
@@ -407,7 +407,7 @@ Skylink.prototype._addSDPMediaStreamTrackIDs = function (targetMid, sessionDescr
 
   var sessionDescriptionStr = sessionDescription.sdp;
 
-  if (!this._enableIceTrickle) {
+  if (!this._options.enableIceTrickle) {
     sessionDescriptionStr = sessionDescriptionStr.replace(/a=end-of-candidates\r\n/g, &#x27;&#x27;);
   }
 
@@ -473,7 +473,7 @@ Skylink.prototype._addSDPMediaStreamTrackIDs = function (targetMid, sessionDescr
   parseFn(&#x27;video&#x27;, localStream.getVideoTracks());
 
   // Append signaling of end-of-candidates
-  if (!this._enableIceTrickle){
+  if (!this._options.enableIceTrickle){
     log.info([targetMid, &#x27;RTCSessionDesription&#x27;, sessionDescription.type,
       &#x27;Appending end-of-candidates signal for non-trickle ICE connection.&#x27;]);
     for (var i = 0; i &lt; sdpLines.length; i++) {
@@ -616,7 +616,7 @@ Skylink.prototype._removeSDPCodecs = function (targetMid, sessionDescription) {
     }
   };
 
-  if (this._disableVideoFecCodecs) {
+  if (this._options.disableVideoFecCodecs) {
     if (this._hasMCU) {
       log.warn([targetMid, &#x27;RTCSessionDesription&#x27;, sessionDescription.type,
         &#x27;Not removing &quot;ulpfec&quot; or &quot;red&quot; codecs as connected to MCU to prevent connectivity issues.&#x27;]);
@@ -626,7 +626,7 @@ Skylink.prototype._removeSDPCodecs = function (targetMid, sessionDescription) {
     }
   }
 
-  if (this._disableComfortNoiseCodec &amp;&amp; audioSettings &amp;&amp; typeof audioSettings === &#x27;object&#x27; &amp;&amp; audioSettings.stereo) {
+  if (this._options.disableComfortNoiseCodec &amp;&amp; audioSettings &amp;&amp; typeof audioSettings === &#x27;object&#x27; &amp;&amp; audioSettings.stereo) {
     parseFn(&#x27;audio&#x27;, &#x27;CN&#x27;);
   }
 
@@ -641,7 +641,7 @@ Skylink.prototype._removeSDPCodecs = function (targetMid, sessionDescription) {
  * @since 0.6.16
  */
 Skylink.prototype._removeSDPREMBPackets = function (targetMid, sessionDescription) {
-  if (!this._disableREMB) {
+  if (!this._options.disableREMB) {
     return sessionDescription.sdp;
   }
 
@@ -726,17 +726,17 @@ Skylink.prototype._removeSDPFilteredCandidates = function (targetMid, sessionDes
     return sessionDescription.sdp;
   }
 
-  if (this._filterCandidatesType.host) {
+  if (this._options.filterCandidatesType.host) {
     log.info([targetMid, &#x27;RTCSessionDesription&#x27;, sessionDescription.type, &#x27;Removing &quot;host&quot; ICE candidates.&#x27;]);
     sessionDescription.sdp = sessionDescription.sdp.replace(/a=candidate:.*host.*\r\n/g, &#x27;&#x27;);
   }
 
-  if (this._filterCandidatesType.srflx) {
+  if (this._options.filterCandidatesType.srflx) {
     log.info([targetMid, &#x27;RTCSessionDesription&#x27;, sessionDescription.type, &#x27;Removing &quot;srflx&quot; ICE candidates.&#x27;]);
     sessionDescription.sdp = sessionDescription.sdp.replace(/a=candidate:.*srflx.*\r\n/g, &#x27;&#x27;);
   }
 
-  if (this._filterCandidatesType.relay) {
+  if (this._options.filterCandidatesType.relay) {
     log.info([targetMid, &#x27;RTCSessionDesription&#x27;, sessionDescription.type, &#x27;Removing &quot;relay&quot; ICE candidates.&#x27;]);
     sessionDescription.sdp = sessionDescription.sdp.replace(/a=candidate:.*relay.*\r\n/g, &#x27;&#x27;);
   }

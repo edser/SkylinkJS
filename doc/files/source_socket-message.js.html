@@ -90,19 +90,6 @@
 <div class="file">
     <pre class="code prettyprint linenums">
 /**
- * &lt;blockquote class=&quot;info&quot;&gt;
- *   Note that this is used only for SDK developer purposes.&lt;br&gt;
- *   Current version: &lt;code&gt;0.1.1&lt;/code&gt;
- * &lt;/blockquote&gt;
- * The value of the current version of the Signaling socket message protocol.
- * @attribute SM_PROTOCOL_VERSION
- * @type String
- * @for Skylink
- * @since 0.6.0
- */
-Skylink.prototype.SM_PROTOCOL_VERSION = &#x27;0.1.2.3&#x27;;
-
-/**
  * Stores the list of socket messaging protocol types.
  * See confluence docs for the list based on the current &lt;code&gt;SM_PROTOCOL_VERSION&lt;/code&gt;.
  * @attribute _SIG_MESSAGE_TYPE
@@ -159,369 +146,6 @@ Skylink.prototype._groupMessageList = [
 ];
 
 /**
- * &lt;blockquote class=&quot;info&quot;&gt;
- *   Note that broadcasted events from &lt;a href=&quot;#method_muteStream&quot;&gt;&lt;code&gt;muteStream()&lt;/code&gt; method&lt;/a&gt;,
- *   &lt;a href=&quot;#method_stopStream&quot;&gt;&lt;code&gt;stopStream()&lt;/code&gt; method&lt;/a&gt;,
- *   &lt;a href=&quot;#method_stopScreen&quot;&gt;&lt;code&gt;stopScreen()&lt;/code&gt; method&lt;/a&gt;,
- *   &lt;a href=&quot;#method_sendMessage&quot;&gt;&lt;code&gt;sendMessage()&lt;/code&gt; method&lt;/a&gt;,
- *   &lt;a href=&quot;#method_unlockRoom&quot;&gt;&lt;code&gt;unlockRoom()&lt;/code&gt; method&lt;/a&gt; and
- *   &lt;a href=&quot;#method_lockRoom&quot;&gt;&lt;code&gt;lockRoom()&lt;/code&gt; method&lt;/a&gt; may be queued when
- *   sent within less than an interval.
- * &lt;/blockquote&gt;
- * Function that sends a message to Peers via the Signaling socket connection.
- * @method sendMessage
- * @param {String|JSON} message The message.
- * @param {String|Array} [targetPeerId] The target Peer ID to send message to.
- * - When provided as an Array, it will send the message to only Peers which IDs are in the list.
- * - When not provided, it will broadcast the message to all connected Peers in the Room.
- * @example
- *   // Example 1: Broadcasting to all Peers
- *   skylinkDemo.sendMessage(&quot;Hi all!&quot;);
- *
- *   // Example 2: Sending to specific Peers
- *   var peersInExclusiveParty = [];
- *
- *   skylinkDemo.on(&quot;peerJoined&quot;, function (peerId, peerInfo, isSelf) {
- *     if (isSelf) return;
- *     if (peerInfo.userData.exclusive) {
- *       peersInExclusiveParty.push(peerId);
- *     }
- *   });
- *
- *   function updateExclusivePartyStatus (message) {
- *     skylinkDemo.sendMessage(message, peersInExclusiveParty);
- *   }
- * @trigger &lt;ol class=&quot;desc-seq&quot;&gt;
- *   &lt;li&gt;Sends socket connection message to all targeted Peers via Signaling server. &lt;ol&gt;
- *   &lt;li&gt;&lt;a href=&quot;#event_incomingMessage&quot;&gt;&lt;code&gt;incomingMessage&lt;/code&gt; event&lt;/a&gt; triggers parameter payload
- *   &lt;code&gt;message.isDataChannel&lt;/code&gt; value as &lt;code&gt;false&lt;/code&gt;.&lt;/li&gt;&lt;/ol&gt;&lt;/li&gt;&lt;/ol&gt;
- * @for Skylink
- * @since 0.4.0
- */
-Skylink.prototype.sendMessage = function(message, targetPeerId) {
-  var listOfPeers = Object.keys(this._peerInformations);
-  var isPrivate = false;
-
-  if (Array.isArray(targetPeerId)) {
-    listOfPeers = targetPeerId;
-    isPrivate = true;
-  } else if (targetPeerId &amp;&amp; typeof targetPeerId === &#x27;string&#x27;) {
-    listOfPeers = [targetPeerId];
-    isPrivate = true;
-  }
-
-  if (!this._inRoom || !this._socket || !this._user) {
-    log.error(&#x27;Unable to send message as User is not in Room. -&gt;&#x27;, message);
-    return;
-  }
-
-  // Loop out unwanted Peers
-  for (var i = 0; i &lt; listOfPeers.length; i++) {
-    var peerId = listOfPeers[i];
-
-    if (!this._peerInformations[peerId]) {
-      log.error([peerId, &#x27;Socket&#x27;, null, &#x27;Dropping of sending message to Peer as &#x27; +
-        &#x27;Peer session does not exists&#x27;]);
-      listOfPeers.splice(i, 1);
-      i--;
-    } else if (peerId === &#x27;MCU&#x27;) {
-      listOfPeers.splice(i, 1);
-      i--;
-    } else if (isPrivate) {
-      log.debug([peerId, &#x27;Socket&#x27;, null, &#x27;Sending private message to Peer&#x27;]);
-
-      this._sendChannelMessage({
-        cid: this._key,
-        data: message,
-        mid: this._user.sid,
-        rid: this._room.id,
-        target: peerId,
-        type: this._SIG_MESSAGE_TYPE.PRIVATE_MESSAGE
-      });
-    }
-  }
-
-  if (listOfPeers.length === 0) {
-    log.warn(&#x27;Currently there are no Peers to send message to (unless the message is queued and &#x27; +
-      &#x27;there are Peer connected by then).&#x27;);
-  }
-
-  if (!isPrivate) {
-    log.debug([null, &#x27;Socket&#x27;, null, &#x27;Broadcasting message to Peers&#x27;]);
-
-    this._sendChannelMessage({
-      cid: this._key,
-      data: message,
-      mid: this._user.sid,
-      rid: this._room.id,
-      type: this._SIG_MESSAGE_TYPE.PUBLIC_MESSAGE
-    });
-  } else {
-    this._trigger(&#x27;incomingMessage&#x27;, {
-      content: message,
-      isPrivate: isPrivate,
-      targetPeerId: targetPeerId || null,
-      listOfPeers: listOfPeers,
-      isDataChannel: false,
-      senderPeerId: this._user.sid
-    }, this._user.sid, this.getPeerInfo(), true);
-  }
-};
-
-/**
- * &lt;blockquote class=&quot;info&quot;&gt;
- *   Note that this feature requires MCU and recording to be enabled for the App Key provided in the
- *   &lt;a href=&quot;#method_init&quot;&gt;&lt;code&gt;init()&lt;/code&gt; method&lt;/a&gt;. If recording feature is not available to
- *   be enabled in the &lt;a href=&quot;https://console.temasys.io&quot;&gt;Developer Console&lt;/a&gt;, please
- *   &lt;a href=&quot;http://support.temasys.io&quot;&gt;contact us on our support portal&lt;/a&gt;.
- * &lt;/blockquote&gt;
- * Starts a recording session.
- * @method startRecording
- * @param {Function} [callback] The callback function fired when request has completed.
- *   &lt;small&gt;Function parameters signature is &lt;code&gt;function (error, success)&lt;/code&gt;&lt;/small&gt;
- *   &lt;small&gt;Function request completion is determined by the &lt;a href=&quot;#event_recordingState&quot;&gt;
- *   &lt;code&gt;recordingState&lt;/code&gt; event&lt;/a&gt; triggering &lt;code&gt;state&lt;/code&gt; parameter payload as &lt;code&gt;START&lt;/code&gt;.&lt;/small&gt;
- * @param {Error|String} callback.error The error result in request.
- *   &lt;small&gt;Defined as &lt;code&gt;null&lt;/code&gt; when there are no errors in request&lt;/small&gt;
- *   &lt;small&gt;Object signature is the &lt;code&gt;startRecording()&lt;/code&gt; error when starting a new recording session.&lt;/small&gt;
- * @param {String|JSON} callback.success The success result in request.
- *   &lt;small&gt;Defined as &lt;code&gt;null&lt;/code&gt; when there are errors in request&lt;/small&gt;
- *   &lt;small&gt;Object signature is the &lt;a href=&quot;#event_recordingState&quot;&gt;
- *   &lt;code&gt;recordingState&lt;/code&gt; event&lt;/a&gt; triggered &lt;code&gt;recordingId&lt;/code&gt; parameter payload.&lt;/small&gt;
- * @example
- *   // Example 1: Start recording session
- *   skylinkDemo.startRecording(function (error, success) {
- *     if (error) return;
- *     console.info(&quot;Recording session has started. ID -&gt;&quot;, success);
- *   });
- * @trigger &lt;ol class=&quot;desc-seq&quot;&gt;
- *   &lt;li&gt;If MCU is not connected: &lt;ol&gt;&lt;li&gt;&lt;b&gt;ABORT&lt;/b&gt; and return error.&lt;/li&gt;&lt;/ol&gt;&lt;/li&gt;
- *   &lt;li&gt;If there is an existing recording session currently going on: &lt;ol&gt;
- *   &lt;li&gt;&lt;b&gt;ABORT&lt;/b&gt; and return error.&lt;/li&gt;&lt;/ol&gt;&lt;/li&gt;
- *   &lt;li&gt;Sends to MCU via Signaling server to start recording session. &lt;ol&gt;
- *   &lt;li&gt;If recording session has been started successfully: &lt;ol&gt;
- *   &lt;li&gt;&lt;a href=&quot;#event_recordingState&quot;&gt;&lt;code&gt;recordingState&lt;/code&gt; event&lt;/a&gt; triggers
- *   parameter payload &lt;code&gt;state&lt;/code&gt; as &lt;code&gt;START&lt;/code&gt;.&lt;/li&gt;&lt;/ol&gt;&lt;/li&gt;&lt;/ol&gt;&lt;/li&gt;&lt;/ol&gt;
- * @beta
- * @for Skylink
- * @since 0.6.16
- */
-Skylink.prototype.startRecording = function (callback) {
-  var self = this;
-
-  if (!self._hasMCU) {
-    var noMCUError = &#x27;Unable to start recording as MCU is not connected&#x27;;
-    log.error(noMCUError);
-    if (typeof callback === &#x27;function&#x27;) {
-      callback(new Error(noMCUError), null);
-    }
-    return;
-  }
-
-  if (self._currentRecordingId) {
-    var hasRecordingSessionError = &#x27;Unable to start recording as there is an existing recording in-progress&#x27;;
-    log.error(hasRecordingSessionError);
-    if (typeof callback === &#x27;function&#x27;) {
-      callback(new Error(hasRecordingSessionError), null);
-    }
-    return;
-  }
-
-  if (typeof callback === &#x27;function&#x27;) {
-    self.once(&#x27;recordingState&#x27;, function (state, recordingId) {
-      callback(null, recordingId);
-    }, function (state) {
-      return state === self.RECORDING_STATE.START;
-    });
-  }
-
-  self._sendChannelMessage({
-    type: self._SIG_MESSAGE_TYPE.START_RECORDING,
-    rid: self._room.id,
-    target: &#x27;MCU&#x27;
-  });
-
-  log.debug([&#x27;MCU&#x27;, &#x27;Recording&#x27;, null, &#x27;Starting recording&#x27;]);
-};
-
-/**
- * &lt;blockquote class=&quot;info&quot;&gt;
- *   Note that this feature requires MCU and recording to be enabled for the App Key provided in the
- *   &lt;a href=&quot;#method_init&quot;&gt;&lt;code&gt;init()&lt;/code&gt; method&lt;/a&gt;. If recording feature is not available to
- *   be enabled in the &lt;a href=&quot;https://console.temasys.io&quot;&gt;Developer Console&lt;/a&gt;, please
- *   &lt;a href=&quot;http://support.temasys.io&quot;&gt;contact us on our support portal&lt;/a&gt;.
- * &lt;/blockquote&gt;
- * Stops a recording session.
- * @param {Function} [callback] The callback function fired when request has completed.
- *   &lt;small&gt;Function parameters signature is &lt;code&gt;function (error, success)&lt;/code&gt;&lt;/small&gt;
- *   &lt;small&gt;Function request completion is determined by the &lt;a href=&quot;#event_recordingState&quot;&gt;
- *   &lt;code&gt;recordingState&lt;/code&gt; event&lt;/a&gt; triggering &lt;code&gt;state&lt;/code&gt; parameter payload as &lt;code&gt;STOP&lt;/code&gt;
- *   or as &lt;code&gt;LINK&lt;/code&gt; when the value of &lt;code&gt;callbackSuccessWhenLink&lt;/code&gt; is &lt;code&gt;true&lt;/code&gt;.&lt;/small&gt;
- * @param {Error|String} callback.error The error result in request.
- *   &lt;small&gt;Defined as &lt;code&gt;null&lt;/code&gt; when there are no errors in request&lt;/small&gt;
- *   &lt;small&gt;Object signature is the &lt;code&gt;stopRecording()&lt;/code&gt; error when stopping current recording session.&lt;/small&gt;
- * @param {String|JSON} callback.success The success result in request.
- * - When &lt;code&gt;callbackSuccessWhenLink&lt;/code&gt; value is &lt;code&gt;false&lt;/code&gt;, it is defined as string as
- *   the recording session ID.
- * - when &lt;code&gt;callbackSuccessWhenLink&lt;/code&gt; value is &lt;code&gt;true&lt;/code&gt;, it is defined as an object as
- *   the recording session information.
- *   &lt;small&gt;Defined as &lt;code&gt;null&lt;/code&gt; when there are errors in request&lt;/small&gt;
- * @param {JSON} callback.success.recordingId The recording session ID.
- * @param {JSON} callback.success.link The recording session mixin videos link in
- *   &lt;a href=&quot;https://en.wikipedia.org/wiki/MPEG-4_Part_14&quot;&gt;MP4&lt;/a&gt; format.
- *   &lt;small&gt;Object signature matches the &lt;code&gt;link&lt;/code&gt; parameter payload received in the
- *   &lt;a href=&quot;#event_recordingState&quot;&gt;&lt;code&gt;recordingState&lt;/code&gt; event&lt;/a&gt;.&lt;/small&gt;
- * @param {Boolean} [callbackSuccessWhenLink=false] The flag if &lt;code&gt;callback&lt;/code&gt; function provided
- *   should result in success only when &lt;a href=&quot;#event_recordingState&quot;&gt;&lt;code&gt;recordingState&lt;/code&gt; event&lt;/a&gt;
- *   triggering &lt;code&gt;state&lt;/code&gt; parameter payload as &lt;code&gt;LINK&lt;/code&gt;.
- * @method stopRecording
- * @example
- *   // Example 1: Stop recording session
- *   skylinkDemo.stopRecording(function (error, success) {
- *     if (error) return;
- *     console.info(&quot;Recording session has stopped. ID -&gt;&quot;, success);
- *   });
- *
- *   // Example 2: Stop recording session with mixin videos link
- *   skylinkDemo.stopRecording(function (error, success) {
- *     if (error) return;
- *     console.info(&quot;Recording session has compiled with links -&gt;&quot;, success.link);
- *   }, true);
- * @trigger &lt;ol class=&quot;desc-seq&quot;&gt;
- *   &lt;li&gt;If MCU is not connected: &lt;ol&gt;&lt;li&gt;&lt;b&gt;ABORT&lt;/b&gt; and return error.&lt;/li&gt;&lt;/ol&gt;&lt;/li&gt;
- *   &lt;li&gt;If there is no existing recording session currently going on: &lt;ol&gt;
- *   &lt;li&gt;&lt;b&gt;ABORT&lt;/b&gt; and return error.&lt;/li&gt;&lt;/ol&gt;&lt;/li&gt;
- *   &lt;li&gt;If existing recording session recording time has not elapsed more than 4 seconds:
- *   &lt;small&gt;4 seconds is mandatory for recording session to ensure better recording
- *   experience and stability.&lt;/small&gt; &lt;ol&gt;&lt;li&gt;&lt;b&gt;ABORT&lt;/b&gt; and return error.&lt;/li&gt;&lt;/ol&gt;&lt;/li&gt;
- *   &lt;li&gt;Sends to MCU via Signaling server to stop recording session: &lt;ol&gt;
- *   &lt;li&gt;If recording session has been stopped successfully: &lt;ol&gt;
- *   &lt;li&gt;&lt;a href=&quot;#event_recordingState&quot;&gt;&lt;code&gt;recordingState&lt;/code&gt; event&lt;/a&gt;
- *   triggers parameter payload &lt;code&gt;state&lt;/code&gt; as &lt;code&gt;START&lt;/code&gt;.
- *   &lt;li&gt;MCU starts mixin recorded session videos: &lt;ol&gt;
- *   &lt;li&gt;If recording session has been mixin successfully with links: &lt;ol&gt;
- *   &lt;li&gt;&lt;a href=&quot;#event_recordingState&quot;&gt;&lt;code&gt;recordingState&lt;/code&gt; event&lt;/a&gt; triggers
- *   parameter payload &lt;code&gt;state&lt;/code&gt; as &lt;code&gt;LINK&lt;/code&gt;.&lt;li&gt;Else: &lt;ol&gt;
- *   &lt;li&gt;&lt;a href=&quot;#event_recordingState&quot;&gt;&lt;code&gt;recordingState&lt;/code&gt; event&lt;/a&gt; triggers
- *   parameter payload &lt;code&gt;state&lt;/code&gt; as &lt;code&gt;ERROR&lt;/code&gt;.&lt;li&gt;&lt;b&gt;ABORT&lt;/b&gt; and return error.&lt;/ol&gt;&lt;/li&gt;
- *   &lt;/ol&gt;&lt;/li&gt;&lt;/ol&gt;&lt;/li&gt;&lt;li&gt;Else: &lt;ol&gt;
- *   &lt;li&gt;&lt;a href=&quot;#event_recordingState&quot;&gt;&lt;code&gt;recordingState&lt;/code&gt; event&lt;/a&gt;
- *   triggers parameter payload &lt;code&gt;state&lt;/code&gt; as &lt;code&gt;ERROR&lt;/code&gt;.&lt;/li&gt;&lt;li&gt;&lt;b&gt;ABORT&lt;/b&gt; and return error.&lt;/li&gt;
- *   &lt;/ol&gt;&lt;/li&gt;&lt;/ol&gt;&lt;/li&gt;&lt;/ol&gt;
- * @beta
- * @for Skylink
- * @since 0.6.16
- */
-Skylink.prototype.stopRecording = function (callback, callbackSuccessWhenLink) {
-  var self = this;
-
-  if (!self._hasMCU) {
-    var noMCUError = &#x27;Unable to stop recording as MCU is not connected&#x27;;
-    log.error(noMCUError);
-    if (typeof callback === &#x27;function&#x27;) {
-      callback(new Error(noMCUError), null);
-    }
-    return;
-  }
-
-  if (!self._currentRecordingId) {
-    var noRecordingSessionError = &#x27;Unable to stop recording as there is no recording in-progress&#x27;;
-    log.error(noRecordingSessionError);
-    if (typeof callback === &#x27;function&#x27;) {
-      callback(new Error(noRecordingSessionError), null);
-    }
-    return;
-  }
-
-  if (self._recordingStartInterval) {
-    var recordingSecsRequiredError = &#x27;Unable to stop recording as 4 seconds has not been recorded yet&#x27;;
-    log.error(recordingSecsRequiredError);
-    if (typeof callback === &#x27;function&#x27;) {
-      callback(new Error(recordingSecsRequiredError), null);
-    }
-    return;
-  }
-
-  if (typeof callback === &#x27;function&#x27;) {
-    var expectedRecordingId = self._currentRecordingId;
-
-    self.once(&#x27;recordingState&#x27;, function (state, recordingId, link, error) {
-      if (callbackSuccessWhenLink) {
-        if (error) {
-          callback(error, null);
-          return;
-        }
-
-        callback(null, {
-          link: link,
-          recordingId: recordingId
-        });
-        return;
-      }
-
-      callback(null, recordingId);
-
-    }, function (state, recordingId) {
-      if (expectedRecordingId === recordingId) {
-        if (callbackSuccessWhenLink) {
-          return [self.RECORDING_STATE.LINK, self.RECORDING_STATE.ERROR].indexOf(state) &gt; -1;
-        }
-        return state === self.RECORDING_STATE.STOP;
-      }
-    });
-  }
-
-  self._sendChannelMessage({
-    type: self._SIG_MESSAGE_TYPE.STOP_RECORDING,
-    rid: self._room.id,
-    target: &#x27;MCU&#x27;
-  });
-
-  log.debug([&#x27;MCU&#x27;, &#x27;Recording&#x27;, null, &#x27;Stopping recording&#x27;]);
-};
-
-/**
- * &lt;blockquote class=&quot;info&quot;&gt;
- *   Note that this feature requires MCU and recording to be enabled for the App Key provided in the
- *   &lt;a href=&quot;#method_init&quot;&gt;&lt;code&gt;init()&lt;/code&gt; method&lt;/a&gt;. If recording feature is not available to
- *   be enabled in the &lt;a href=&quot;https://console.temasys.io&quot;&gt;Developer Console&lt;/a&gt;, please
- *   &lt;a href=&quot;http://support.temasys.io&quot;&gt;contact us on our support portal&lt;/a&gt;.
- * &lt;/blockquote&gt;
- * Gets the list of current recording sessions since User has connected to the Room.
- * @method getRecordings
- * @return {JSON} The list of recording sessions.&lt;ul&gt;
- *   &lt;li&gt;&lt;code&gt;#recordingId&lt;/code&gt;&lt;var&gt;&lt;b&gt;{&lt;/b&gt;JSON&lt;b&gt;}&lt;/b&gt;&lt;/var&gt;&lt;p&gt;The recording session.&lt;/p&gt;&lt;ul&gt;
- *   &lt;li&gt;&lt;code&gt;active&lt;/code&gt;&lt;var&gt;&lt;b&gt;{&lt;/b&gt;Boolean&lt;b&gt;}&lt;/b&gt;&lt;/var&gt;&lt;p&gt;The flag that indicates if the recording session is currently active.&lt;/p&gt;&lt;/li&gt;
- *   &lt;li&gt;&lt;code&gt;state&lt;/code&gt;&lt;var&gt;&lt;b&gt;{&lt;/b&gt;Number&lt;b&gt;}&lt;/b&gt;&lt;/var&gt;&lt;p&gt;The current recording state. [Rel: Skylink.RECORDING_STATE]&lt;/p&gt;&lt;/li&gt;
- *   &lt;li&gt;&lt;code&gt;startedDateTime&lt;/code&gt;&lt;var&gt;&lt;b&gt;{&lt;/b&gt;String&lt;b&gt;}&lt;/b&gt;&lt;/var&gt;&lt;p&gt;The recording session started DateTime in
- *   &lt;a href=&quot;https://en.wikipedia.org/wiki/ISO_8601&quot;&gt;ISO 8601 format&lt;/a&gt;.&lt;small&gt;Note that this value may not be
- *   very accurate as this value is recorded when the start event is received.&lt;/small&gt;&lt;/p&gt;&lt;/li&gt;
- *   &lt;li&gt;&lt;code&gt;endedDateTime&lt;/code&gt;&lt;var&gt;&lt;b&gt;{&lt;/b&gt;String&lt;b&gt;}&lt;/b&gt;&lt;/var&gt;&lt;p&gt;The recording session ended DateTime in
- *   &lt;a href=&quot;https://en.wikipedia.org/wiki/ISO_8601&quot;&gt;ISO 8601 format&lt;/a&gt;.&lt;small&gt;Note that this value may not be
- *   very accurate as this value is recorded when the stop event is received.&lt;/small&gt;
- *   &lt;small&gt;Defined only after &lt;code&gt;state&lt;/code&gt; has triggered &lt;code&gt;STOP&lt;/code&gt;.&lt;/small&gt;&lt;/p&gt;&lt;/li&gt;
- *   &lt;li&gt;&lt;code&gt;mixingDateTime&lt;/code&gt;&lt;var&gt;&lt;b&gt;{&lt;/b&gt;String&lt;b&gt;}&lt;/b&gt;&lt;/var&gt;&lt;p&gt;The recording session mixing completed DateTime in
- *   &lt;a href=&quot;https://en.wikipedia.org/wiki/ISO_8601&quot;&gt;ISO 8601 format&lt;/a&gt;.&lt;small&gt;Note that this value may not be
- *   very accurate as this value is recorded when the mixing completed event is received.&lt;/small&gt;
- *   &lt;small&gt;Defined only when &lt;code&gt;state&lt;/code&gt; is &lt;code&gt;LINK&lt;/code&gt;.&lt;/small&gt;&lt;/p&gt;&lt;/li&gt;
- *   &lt;li&gt;&lt;code&gt;links&lt;/code&gt;&lt;var&gt;&lt;b&gt;{&lt;/b&gt;JSON&lt;b&gt;}&lt;/b&gt;&lt;/var&gt;&lt;p&gt;The recording session links.
- *   &lt;small&gt;Object signature matches the &lt;code&gt;link&lt;/code&gt; parameter payload received in the
- *   &lt;a href=&quot;#event_recordingState&quot;&gt;&lt;code&gt;recordingState&lt;/code&gt; event&lt;/a&gt;.&lt;/small&gt;
- *   &lt;small&gt;Defined only when &lt;code&gt;state&lt;/code&gt; is &lt;code&gt;LINK&lt;/code&gt;.&lt;/small&gt;&lt;/p&gt;&lt;/li&gt;
- *   &lt;li&gt;&lt;code&gt;error&lt;/code&gt;&lt;var&gt;&lt;b&gt;{&lt;/b&gt;Error&lt;b&gt;}&lt;/b&gt;&lt;/var&gt;&lt;p&gt;The recording session error.
- *   &lt;small&gt;Defined only when &lt;code&gt;state&lt;/code&gt; is &lt;code&gt;ERROR&lt;/code&gt;.&lt;/small&gt;&lt;/p&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;/ul&gt;
- * @example
- *   // Example 1: Get recording sessions
- *   skylinkDemo.getRecordings();
- * @beta
- * @for Skylink
- * @since 0.6.16
- */
-Skylink.prototype.getRecordings = function () {
-  return clone(this._recordings);
-};
-
-/**
  * Function that handles and processes the socket message received.
  * @method _processSigMessage
  * @private
@@ -530,11 +154,11 @@ Skylink.prototype.getRecordings = function () {
  */
 Skylink.prototype._processSigMessage = function(message, session) {
   var origin = message.mid;
-  if (!origin || origin === this._user.sid) {
+  if (!origin || origin === this._user.id) {
     origin = &#x27;Server&#x27;;
   }
   log.debug([origin, null, null, &#x27;Received from peer -&gt;&#x27;], message.type);
-  if (message.mid === this._user.sid &amp;&amp;
+  if (message.mid === this._user.id &amp;&amp;
     message.type !== this._SIG_MESSAGE_TYPE.REDIRECT &amp;&amp;
     message.type !== this._SIG_MESSAGE_TYPE.IN_ROOM) {
     log.debug([origin, null, null, &#x27;Ignoring message -&gt;&#x27;], message.type);
@@ -625,7 +249,7 @@ Skylink.prototype._peerListEventHandler = function(message){
   var self = this;
   self._peerList = message.result;
   log.log([&#x27;Server&#x27;, null, message.type, &#x27;Received list of peers&#x27;], self._peerList);
-  self._trigger(&#x27;getPeersStateChange&#x27;,self.GET_PEERS_STATE.RECEIVED, self._user.sid, self._peerList);
+  self._trigger(&#x27;getPeersStateChange&#x27;,self.GET_PEERS_STATE.RECEIVED, self._user.id, self._peerList);
 };
 
 /**
@@ -662,7 +286,7 @@ Skylink.prototype._endOfCandidatesHandler = function(message){
 Skylink.prototype._introduceErrorEventHandler = function(message){
   var self = this;
   log.log([&#x27;Server&#x27;, null, message.type, &#x27;Introduce failed. Reason: &#x27;+message.reason]);
-  self._trigger(&#x27;introduceStateChange&#x27;,self.INTRODUCE_STATE.ERROR, self._user.sid,
+  self._trigger(&#x27;introduceStateChange&#x27;,self.INTRODUCE_STATE.ERROR, self._user.id,
     message.sendingPeerId, message.receivingPeerId, message.reason);
 };
 
@@ -679,39 +303,39 @@ Skylink.prototype._approachEventHandler = function(message){
   var self = this;
   log.log([&#x27;Server&#x27;, null, message.type, &#x27;Approaching peer&#x27;], message.target);
   // self._room.connection.peerConfig = self._setIceServers(message.pc_config);
-  // self._inRoom = true;
-  self._trigger(&#x27;handshakeProgress&#x27;, self.HANDSHAKE_PROGRESS.ENTER, self._user.sid);
+  // self._user.room.connected = true;
+  self._trigger(&#x27;handshakeProgress&#x27;, self.HANDSHAKE_PROGRESS.ENTER, self._user.id);
 
   var enterMsg = {
     type: self._SIG_MESSAGE_TYPE.ENTER,
-    mid: self._user.sid,
-    rid: self._room.id,
+    mid: self._user.id,
+    rid: self._user.room.session.rid,
     agent: window.webrtcDetectedBrowser,
     version: (window.webrtcDetectedVersion || 0).toString(),
     os: window.navigator.platform,
     userInfo: self._getUserInfo(),
     receiveOnly: self.getPeerInfo().config.receiveOnly,
     target: message.target,
-    weight: self._peerPriorityWeight,
+    weight: self._user.priorityWeight,
     temasysPluginVersion: AdapterJS.WebRTCPlugin.plugin ? AdapterJS.WebRTCPlugin.plugin.VERSION : null,
-    enableIceTrickle: self._enableIceTrickle,
-    enableDataChannel: self._enableDataChannel,
+    enableIceTrickle: self._options.enableIceTrickle,
+    enableDataChannel: self._options.enableDataChannel,
     enableIceRestart: self._enableIceRestart,
     SMProtocolVersion: self.SM_PROTOCOL_VERSION,
     DTProtocolVersion: self.DT_PROTOCOL_VERSION
   };
 
-  if (self._publishOnly) {
+  if (self._user.connection.publishOnly) {
     enterMsg.publishOnly = {
       type: self._streams.screenshare &amp;&amp; self._streams.screenshare.stream ? &#x27;screenshare&#x27; : &#x27;video&#x27;
     };
   }
 
-  if (self._parentId) {
-    enterMsg.parentId = self._parentId;
+  if (self._user.parentId) {
+    enterMsg.parentId = self._user.parentId;
   }
 
-  self._sendChannelMessage(enterMsg);
+  self._socketSendMessage(enterMsg);
 };
 
 /**
@@ -1061,22 +685,22 @@ Skylink.prototype._inRoomHandler = function(message) {
   var self = this;
   log.log([&#x27;Server&#x27;, null, message.type, &#x27;User is now in the room and &#x27; +
     &#x27;functionalities are now available. Config received:&#x27;], message.pc_config);
-  self._room.connection.peerConfig = self._setIceServers(message.pc_config);
-  self._inRoom = true;
-  self._user.sid = message.sid;
-  self._peerPriorityWeight = message.tieBreaker;
+  self._user.iceServers = self._setIceServers(message.pc_config);
+  self._user.room.connected = true;
+  self._user.id = message.sid;
+  self._user.priorityWeight = message.tieBreaker;
 
-  self._trigger(&#x27;peerJoined&#x27;, self._user.sid, self.getPeerInfo(), true);
-  self._trigger(&#x27;handshakeProgress&#x27;, self.HANDSHAKE_PROGRESS.ENTER, self._user.sid);
+  self._trigger(&#x27;peerJoined&#x27;, self._user.id, self.getPeerInfo(), true);
+  self._trigger(&#x27;handshakeProgress&#x27;, self.HANDSHAKE_PROGRESS.ENTER, self._user.id);
 
   var streamId = null;
 
   if (self._streams.screenshare &amp;&amp; self._streams.screenshare.stream) {
     streamId = self._streams.screenshare.stream.id || self._streams.screenshare.stream.label;
-    self._trigger(&#x27;incomingStream&#x27;, self._user.sid, self._streams.screenshare.stream, true, self.getPeerInfo(), true, streamId);
+    self._trigger(&#x27;incomingStream&#x27;, self._user.id, self._streams.screenshare.stream, true, self.getPeerInfo(), true, streamId);
   } else if (self._streams.userMedia &amp;&amp; self._streams.userMedia.stream) {
     streamId = self._streams.userMedia.stream.id || self._streams.userMedia.stream.label;
-    self._trigger(&#x27;incomingStream&#x27;, self._user.sid, self._streams.userMedia.stream, true, self.getPeerInfo(), false, streamId);
+    self._trigger(&#x27;incomingStream&#x27;, self._user.id, self._streams.userMedia.stream, true, self.getPeerInfo(), false, streamId);
   }
   // NOTE ALEX: should we wait for local streams?
   // or just go with what we have (if no stream, then one way?)
@@ -1085,33 +709,33 @@ Skylink.prototype._inRoomHandler = function(message) {
   // we want to communicate, instead of connecting automatically to all.
   var enterMsg = {
     type: self._SIG_MESSAGE_TYPE.ENTER,
-    mid: self._user.sid,
-    rid: self._room.id,
+    mid: self._user.id,
+    rid: self._user.room.session.rid,
     agent: window.webrtcDetectedBrowser,
     version: (window.webrtcDetectedVersion || 0).toString(),
     os: window.navigator.platform,
     userInfo: self._getUserInfo(),
     receiveOnly: self.getPeerInfo().config.receiveOnly,
-    weight: self._peerPriorityWeight,
+    weight: self._user.priorityWeight,
     temasysPluginVersion: AdapterJS.WebRTCPlugin.plugin ? AdapterJS.WebRTCPlugin.plugin.VERSION : null,
-    enableIceTrickle: self._enableIceTrickle,
-    enableDataChannel: self._enableDataChannel,
+    enableIceTrickle: self._options.enableIceTrickle,
+    enableDataChannel: self._options.enableDataChannel,
     enableIceRestart: self._enableIceRestart,
     SMProtocolVersion: self.SM_PROTOCOL_VERSION,
     DTProtocolVersion: self.DT_PROTOCOL_VERSION
   };
 
-  if (self._publishOnly) {
+  if (self._user.connection.publishOnly) {
     enterMsg.publishOnly = {
       type: self._streams.screenshare &amp;&amp; self._streams.screenshare.stream ? &#x27;screenshare&#x27; : &#x27;video&#x27;
     };
   }
 
-  if (self._parentId) {
-    enterMsg.parentId = self._parentId;
+  if (self._user.parentId) {
+    enterMsg.parentId = self._user.parentId;
   }
 
-  self._sendChannelMessage(enterMsg);
+  self._socketSendMessage(enterMsg);
 };
 
 /**
@@ -1168,7 +792,7 @@ Skylink.prototype._enterHandler = function(message) {
 
   log.log([targetMid, &#x27;RTCPeerConnection&#x27;, null, &#x27;Peer &quot;enter&quot; received -&gt;&#x27;], message);
 
-  if (targetMid !== &#x27;MCU&#x27; &amp;&amp; self._parentId &amp;&amp; self._parentId === targetMid) {
+  if (targetMid !== &#x27;MCU&#x27; &amp;&amp; self._user.parentId &amp;&amp; self._user.parentId === targetMid) {
     log.warn([targetMid, &#x27;RTCPeerConnection&#x27;, null, &#x27;Discarding &quot;enter&quot; for parentId case -&gt;&#x27;], message);
     return;
   }
@@ -1208,10 +832,10 @@ Skylink.prototype._enterHandler = function(message) {
 
   var welcomeMsg = {
     type: self._SIG_MESSAGE_TYPE.WELCOME,
-    mid: self._user.sid,
-    rid: self._room.id,
-    enableIceTrickle: self._enableIceTrickle,
-    enableDataChannel: self._enableDataChannel,
+    mid: self._user.id,
+    rid: self._user.room.session.rid,
+    enableIceTrickle: self._options.enableIceTrickle,
+    enableDataChannel: self._options.enableDataChannel,
     enableIceRestart: self._enableIceRestart,
     agent: window.webrtcDetectedBrowser,
     version: (window.webrtcDetectedVersion || 0).toString(),
@@ -1219,23 +843,23 @@ Skylink.prototype._enterHandler = function(message) {
     os: window.navigator.platform,
     userInfo: self._getUserInfo(),
     target: targetMid,
-    weight: self._peerPriorityWeight,
+    weight: self._user.priorityWeight,
     temasysPluginVersion: AdapterJS.WebRTCPlugin.plugin ? AdapterJS.WebRTCPlugin.plugin.VERSION : null,
     SMProtocolVersion: self.SM_PROTOCOL_VERSION,
     DTProtocolVersion: self.DT_PROTOCOL_VERSION
   };
 
-  if (self._publishOnly) {
+  if (self._user.connection.publishOnly) {
     welcomeMsg.publishOnly = {
       type: self._streams.screenshare &amp;&amp; self._streams.screenshare.stream ? &#x27;screenshare&#x27; : &#x27;video&#x27;
     };
   }
 
-  if (self._parentId) {
-    welcomeMsg.parentId = self._parentId;
+  if (self._user.parentId) {
+    welcomeMsg.parentId = self._user.parentId;
   }
 
-  self._sendChannelMessage(welcomeMsg);
+  self._socketSendMessage(welcomeMsg);
 
   if (isNewPeer) {
     self._trigger(&#x27;handshakeProgress&#x27;, self.HANDSHAKE_PROGRESS.WELCOME, targetMid);
@@ -1300,7 +924,7 @@ Skylink.prototype._restartHandler = function(message){
     return;
   }
 
-  if (targetMid !== &#x27;MCU&#x27; &amp;&amp; self._parentId &amp;&amp; self._parentId === targetMid) {
+  if (targetMid !== &#x27;MCU&#x27; &amp;&amp; self._user.parentId &amp;&amp; self._user.parentId === targetMid) {
     log.warn([targetMid, &#x27;RTCPeerConnection&#x27;, null, &#x27;Discarding &quot;restart&quot; for parentId case -&gt;&#x27;], message);
     return;
   }
@@ -1322,7 +946,7 @@ Skylink.prototype._restartHandler = function(message){
   self._peerEndOfCandidatesCounter[targetMid].len = 0;
 
   // Make peer with highest weight do the offer
-  if (self._peerPriorityWeight &gt; message.weight) {
+  if (self._user.priorityWeight &gt; message.weight) {
     log.debug([targetMid, &#x27;RTCPeerConnection&#x27;, null, &#x27;Re-negotiating new offer/answer.&#x27;]);
 
     if (self._peerMessagesStamps[targetMid].hasRestart) {
@@ -1342,16 +966,16 @@ Skylink.prototype._restartHandler = function(message){
 
     var restartMsg = {
       type: self._SIG_MESSAGE_TYPE.RESTART,
-      mid: self._user.sid,
-      rid: self._room.id,
+      mid: self._user.id,
+      rid: self._user.room.session.rid,
       agent: window.webrtcDetectedBrowser,
       version: (window.webrtcDetectedVersion || 0).toString(),
       os: window.navigator.platform,
       userInfo: self._getUserInfo(),
       target: targetMid,
-      weight: self._peerPriorityWeight,
-      enableIceTrickle: self._enableIceTrickle,
-      enableDataChannel: self._enableDataChannel,
+      weight: self._user.priorityWeight,
+      enableIceTrickle: self._options.enableIceTrickle,
+      enableDataChannel: self._options.enableDataChannel,
       enableIceRestart: self._enableIceRestart,
       doIceRestart: message.doIceRestart === true,
       receiveOnly: self.getPeerInfo().config.receiveOnly,
@@ -1361,17 +985,17 @@ Skylink.prototype._restartHandler = function(message){
       DTProtocolVersion: self.DT_PROTOCOL_VERSION,
     };
 
-    if (self._publishOnly) {
+    if (self._user.connection.publishOnly) {
       restartMsg.publishOnly = {
         type: self._streams.screenshare &amp;&amp; self._streams.screenshare.stream ? &#x27;screenshare&#x27; : &#x27;video&#x27;
       };
     }
 
-    if (self._parentId) {
-      restartMsg.parentId = self._parentId;
+    if (self._user.parentId) {
+      restartMsg.parentId = self._user.parentId;
     }
 
-    self._sendChannelMessage(restartMsg);
+    self._socketSendMessage(restartMsg);
   }
 
   self._trigger(&#x27;peerRestart&#x27;, targetMid, self.getPeerInfo(targetMid), false, message.doIceRestart === true);
@@ -1431,7 +1055,7 @@ Skylink.prototype._welcomeHandler = function(message) {
 
   log.log([targetMid, &#x27;RTCPeerConnection&#x27;, null, &#x27;Peer &quot;welcome&quot; received -&gt;&#x27;], message);
 
-  if (targetMid !== &#x27;MCU&#x27; &amp;&amp; self._parentId &amp;&amp; self._parentId === targetMid) {
+  if (targetMid !== &#x27;MCU&#x27; &amp;&amp; self._user.parentId &amp;&amp; self._user.parentId === targetMid) {
     log.warn([targetMid, &#x27;RTCPeerConnection&#x27;, null, &#x27;Discarding &quot;welcome&quot; for parentId case -&gt;&#x27;], message);
     return;
   }
@@ -1471,7 +1095,7 @@ Skylink.prototype._welcomeHandler = function(message) {
     hasWelcome: false
   };
 
-  if (self._hasMCU || self._peerPriorityWeight &gt; message.weight) {
+  if (self._hasMCU || self._user.priorityWeight &gt; message.weight) {
     if (self._peerMessagesStamps[targetMid].hasWelcome) {
       log.warn([targetMid, &#x27;RTCPeerConnection&#x27;, null, &#x27;Discarding extra &quot;welcome&quot; received.&#x27;]);
       return;
@@ -1491,10 +1115,10 @@ Skylink.prototype._welcomeHandler = function(message) {
 
     var welcomeMsg = {
       type: self._SIG_MESSAGE_TYPE.WELCOME,
-      mid: self._user.sid,
-      rid: self._room.id,
-      enableIceTrickle: self._enableIceTrickle,
-      enableDataChannel: self._enableDataChannel,
+      mid: self._user.id,
+      rid: self._user.room.session.rid,
+      enableIceTrickle: self._options.enableIceTrickle,
+      enableDataChannel: self._options.enableDataChannel,
       enableIceRestart: self._enableIceRestart,
       receiveOnly: self.getPeerInfo().config.receiveOnly,
       agent: window.webrtcDetectedBrowser,
@@ -1502,23 +1126,23 @@ Skylink.prototype._welcomeHandler = function(message) {
       os: window.navigator.platform,
       userInfo: self._getUserInfo(),
       target: targetMid,
-      weight: self._peerPriorityWeight,
+      weight: self._user.priorityWeight,
       temasysPluginVersion: AdapterJS.WebRTCPlugin.plugin ? AdapterJS.WebRTCPlugin.plugin.VERSION : null,
       SMProtocolVersion: self.SM_PROTOCOL_VERSION,
       DTProtocolVersion: self.DT_PROTOCOL_VERSION
     };
 
-    if (self._publishOnly) {
+    if (self._user.connection.publishOnly) {
       welcomeMsg.publishOnly = {
         type: self._streams.screenshare &amp;&amp; self._streams.screenshare.stream ? &#x27;screenshare&#x27; : &#x27;video&#x27;
       };
     }
 
-    if (self._parentId) {
-      welcomeMsg.parentId = self._parentId;
+    if (self._user.parentId) {
+      welcomeMsg.parentId = self._user.parentId;
     }
 
-    self._sendChannelMessage(welcomeMsg);
+    self._socketSendMessage(welcomeMsg);
   }
 };
 
@@ -1672,7 +1296,7 @@ Skylink.prototype._candidateHandler = function(message) {
     return;
   }
 
-  if (this._filterCandidatesType[candidateType]) {
+  if (this._options.filterCandidatesType[candidateType]) {
     if (!(this._hasMCU &amp;&amp; this._forceTURN)) {
       log.warn([targetMid, &#x27;RTCIceCandidate&#x27;, canId + &#x27;:&#x27; + candidateType, &#x27;Dropping received ICE candidate as &#x27; +
         &#x27;it matches ICE candidate filtering flag -&gt;&#x27;], candidate);
