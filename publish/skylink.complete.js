@@ -1,4 +1,4 @@
-/*! skylinkjs - v0.6.17 - Wed Feb 01 2017 22:23:27 GMT+0800 (SGT) */
+/*! skylinkjs - v0.6.17 - Thu Feb 02 2017 01:17:03 GMT+0800 (SGT) */
 
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.io = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
 
@@ -11532,7 +11532,7 @@ if ( (navigator.mozGetUserMedia ||
   }
 })();
 
-/*! skylinkjs - v0.6.17 - Wed Feb 01 2017 22:23:27 GMT+0800 (SGT) */
+/*! skylinkjs - v0.6.17 - Thu Feb 02 2017 01:17:03 GMT+0800 (SGT) */
 
 /**
  * Polyfill for Object.keys() from Mozilla
@@ -11767,101 +11767,49 @@ var clone = function (obj) {
  * @since 0.5.0
  */
 function Skylink() {
+  var self = this;
+
   /**
    * Stores the `init()` method options.
-   * @attribute _options
-   * @type JSON
-   * @private
-   * @for Skylink
-   * @since 0.6.18
    */
   this._options = {};
 
   /**
-   * Stores the User session.
-   * @attribute _user
-   * @type JSON
-   * @private
-   * @for Skylink
-   * @since 0.5.6
+   * Stores the Room connection session information.
+   */
+  this._session = null;
+
+  /**
+   * Stores the User information.
    */
   this._user = {
+    // User current Peer ID
     id: null,
+    // User current priority weight
+    weight: 0,
+    // User current custom data
     data: '',
-    priorityWeight: 0,
-    iceServers: [],
-    timestamps: {
-      updateUserEvent: 0,
-      muteAudioEvent: 0,
-      muteVideoEvent: 0
-    },
-    mutedStreams: {
-      audio: false,
-      video: false
-    },
-    room: {
-      name: null,
-      readyState: null,
-      connected: false,
-      locked: false,
-      hasMCU: false,
-      session: null,
-      path: null,
-      protocol: null
-    },
-    settings: {
-      mediaConnection: {
-        audio: true,
-        video: true,
-        data: true
-      },
-      mediaDirection: {
-        audio: { send: true, receive: true },
-        video: { send: true, receive: true }
-      },
-      bandwidth: {
-        max: {},
-        xVideoCodec: {}
-      }
-    }
+    // User sessionDescription media connection settings
+    mediaConnection: {},
+    // User sessionDescription media connection direction settings
+    mediaDirection: {},
+    // User bandwidth settings
+    bandwidth: {}
   };
 
   /**
-   * Stores the list of Peers.
-   * @attribute _peers
-   * @type JSON
-   * @private
-   * @for Skylink
-   * @since 0.6.18
-   */
-  this._peers = {};
-
-  /**
-   * Stores the Socket connection.
-   * @attribute _socket
-   * @type JSON
-   * @private
-   * @for Skylink
-   * @since 0.1.0
+   * Stores the Socket connection information to Signaling server.
    */
   this._socket = {
-    connected: false,
-    pollDead: false,
-    socket: null,
+    // Signaling server
     server: 'signaling.temasys.io',
-    ports: {
-      'https:': [443, 3443],
-      'http:': [80, 3000]
-    },
-    session: {
-      path: null,
-      options: null,
-      retries: 0,
-      finalAttempts: 0,
-      port: null,
-      protocol: null,
-      transportType: 'WebSocket'
-    },
+    // Signaling server socket connection states
+    states: {},
+    // Signaling server socket connection object
+    socket: null,
+    // Signaling server socket available ports list
+    ports: {},
+    // Signaling server queued broadcasted messages
     queue: {
       fn: null,
       interval: 1000,
@@ -23571,6 +23519,142 @@ Skylink.prototype._addIceCandidate = function (targetMid, canId, candidate) {
   self._peerConnections[targetMid].addIceCandidate(candidate, onSuccessCbFn, onErrorCbFn);
 };
 
+Skylink.prototype._createSessionFactory = function () {
+  var self = this;
+  return {
+    // Room connection session states
+    states: {
+      locked: false,
+      connected: false,
+      hasMCU: false,
+      readyState: null,
+      readyStateError: null,
+      readyStateHTTPStatus: null
+    },
+    // Room connection session HTTP GET path to Auth (API) server
+    path: null,
+    // Room name
+    name: null,
+    // Room connection session HTTP protocol (or over TLS)
+    protocol: null,
+    // Room credentials for connection
+    credentials: {},
+    // Room socket connection to Signaling server
+    socket: null,
+
+    /**
+     * Function that sets the current readyState.
+     */
+    setReadyState: function (state, error) {
+      var room = this;
+      log.debug([null, 'Room', room.name, 'Ready state ->'], state);
+
+      room.states.readyState = state;
+      room.states.readyStateError = error ? error.errorCode : null;
+      room.states.readyStateHTTPStatus = error ? error.status : null;
+
+      if (error) {
+        log.error([null, 'Room', room.name, 'Ready state error ->'], error);
+      }
+
+      self._trigger('readyStateChange', state, error, room.name);
+    },
+
+    /**
+     * Function that gets the Room session token to start connection.
+     */
+    getSessionCredentials: function (name) {
+      var room = this;
+      var xhr = new XMLHttpRequest();
+
+      // Fallback support for IE8/9 that supports XDomainRequest for credentials
+      if (['object', 'function'].indexOf(typeof window.XDomainRequest) > -1) {
+        xhr = new XDomainRequest();
+      }
+
+      room.protocol = self._options.forceSSL ? 'https:' : window.location.protocol;
+      // Enforce Room name to be the defaultRoom provided as credentials based authentication does not allow Room switch
+      // because the credentials are generated by on the duration, startDateTime and defaultRoom name which is
+      // compared against by the Auth (API) server
+      room.name = self._options.credentials ? self._options.defaultRoom : room;
+      room.path = self._options.roomServer + '/api/' + self._options.appKey + '/' + room.name +
+      // Append additional path for credentials based authentication
+        (self._options.credentials ? '/' + self._options.credentials.startDateTime + '/' +
+        self._options.credentials.duration + '?&cred=' + self._options.credentials.credentials + '&' :
+      // Append additional random string query to prevent network cache
+        '?&') + 'rand=' + Date.now();
+
+      room.setReadyState(self.READY_STATE_CHANGE.INIT);
+
+      // ------------------------------------------------
+      //  Received response from Auth (API) server
+      // ------------------------------------------------
+      xhr.onload = function () {
+        var response = JSON.parse(xhr.responseText || xhr.response || '{}') || {};
+        var status = xhr.status || 200;
+
+        log.debug('init() retrieved response ->', response);
+
+        if (response.success) {
+          // The required credentials to start Room connection
+          room.credentials = {
+            uid: response.username,
+            userCred: response.userCred,
+            timeStamp: response.timeStamp,
+            rid: response.room_key,
+            roomCred: response.roomCred,
+            len: response.len,
+            start: response.start,
+            cid: response.cid,
+            apiOwner: response.apiOwner,
+            isPrivileged: response.isPrivileged === true,
+            autoIntroduce: response.autoIntroduce !== false
+          };
+
+          room.socket = self._createSocketFactory(response.ipSigServer, {
+            'https:': response.httpsPortList,
+            'http:': response.httpPortList
+          });
+
+          room.setReadyState(self.READY_STATE_CHANGE.COMPLETED);
+
+        } else {
+          room.setReadyState(self.READY_STATE_CHANGE.ERROR, {
+            content: response.info,
+            status: status,
+            errorCode: response.error
+          });
+        }
+      };
+
+      // ------------------------------------------------
+      //  Network timeout from Auth (API) server
+      // ------------------------------------------------
+      xhr.onerror = function () {
+        log.error('init() failed retrieving response due to network timeout.');
+
+        room.setReadyState(self.READY_STATE_CHANGE.ERROR, {
+          status: xhr.status || null,
+          content: 'Network error occurred. (Status: ' + xhr.status + ')',
+          errorCode: self.READY_STATE_CHANGE_ERROR.XML_HTTP_REQUEST_ERROR
+        });
+      };
+
+      room.setReadyState(self.READY_STATE_CHANGE.LOADING);
+
+      xhr.open('GET', room.protocol + room.path, true);
+      xhr.send();
+    }
+  };
+};
+
+/**
+ * Function that handles `joinRoom()` async callbacks to proceed to the next step.
+ * @method _joinRoomCallback
+ * @private
+ * @for Skylink
+ * @since 0.6.18
+ */
 Skylink.prototype._joinRoomCallback = function (result, callback) {
   var self = this;
 
@@ -23732,108 +23816,7 @@ Skylink.prototype._initCallback = function (result, callback) {
  * @since 0.6.18
  */
 Skylink.prototype._initFetchAPIData = function (room, callback, isInit) {
-  var self = this;
-  var xhr = new XMLHttpRequest();
-  var protocol = self._options.forceSSL ? 'https:' : window.location.protocol;
-
-  // Fallback support for IE8/9
-  if (['object', 'function'].indexOf(typeof window.XDomainRequest) > -1) {
-    xhr = new XDomainRequest();
-  }
-
-  // Can only use default room due to credentials generated!
-  self._user.room.name = self._options.credentials ? self._options.defaultRoom : room;
-  self._user.room.protocol = protocol;
-
-  self._initCallback({
-    state: self.READY_STATE_CHANGE.INIT,
-    room: self._user.room.name
-  });
-
-  // Construct API REST path
-  self._user.room.path = self._options.roomServer + '/api/' + self._options.appKey + '/' + self._user.room.name;
-
-  // Construct path with credentials authentication.
-  if (self._options.credentials) {
-    self._user.room.path += '/' + self._options.credentials.startDateTime + '/' +
-      self._options.credentials.duration + '?&cred=' + self._options.credentials.credentials;
-  }
-
-  // Append random number to prevent network cache
-  self._user.room.path += '&' + (!self._options.credentials ? '?' :'') + 'rand=' + (new Date ()).toISOString();
-
-  // XMLHttpRequest success
-  xhr.onload = function () {
-    var response = JSON.parse(xhr.responseText || xhr.response || '{}') || {};
-    var status = xhr.status || 200;
-
-    log.debug('init() retrieved response ->', response);
-
-    // Successful authentication
-    if (response.success) {
-      // Configure User session settings
-      self._user.room.session = {
-        uid: response.username,
-        userCred: response.userCred,
-        timeStamp: response.timeStamp,
-        rid: response.room_key,
-        roomCred: response.roomCred,
-        len: response.len,
-        start: response.start,
-        cid: response.cid,
-        apiOwner: response.apiOwner,
-        isPrivileged: response.isPrivileged,
-        autoIntroduce: response.autoIntroduce
-      };
-
-      // Configure Signaling settings
-      self._socket.ports = {
-        'https:': Array.isArray(response.httpsPortList) && response.httpsPortList.length > 0 ?
-          response.httpsPortList : [443, 3443],
-        'http:': Array.isArray(response.httpPortList) && response.httpPortList.length > 0 ?
-          response.httpPortList : [80, 3000]
-      };
-      self._socket.server = response.ipSigserver;
-
-      // Trigger `readyStateChange` event as COMPLETED
-      self._initCallback({
-        state: self.READY_STATE_CHANGE.COMPLETED,
-        room: self._user.room.name
-      }, callback);
-
-    // Failed authentication
-    } else {
-      // Trigger `readyStateChange` event as ERROR
-      self._initCallback({
-        state: self.READY_STATE_CHANGE.ERROR,
-        content: response.info,
-        status: status,
-        errorCode: response.error,
-        room: self._user.room.name
-      }, callback);
-    }
-  };
-
-  // XMLHttpRequest error
-  xhr.onerror = function () {
-    log.error('init() failed retrieving response due to network timeout.');
-    self._initCallback({
-      state: self.READY_STATE_CHANGE.ERROR,
-      status: xhr.status || null,
-      content: 'Network error occurred. (Status: ' + xhr.status + ')',
-      errorCode: self.READY_STATE_CHANGE_ERROR.XML_HTTP_REQUEST_ERROR,
-      room: self._user.room.name
-    }, callback);
-  };
-
-  // Trigger `readyStateChange` event as LOADING
-  self._initCallback({
-    state: self.READY_STATE_CHANGE.LOADING,
-    room: self._user.room.name
-  });
-
-  xhr.open('GET', protocol + self._user.room.path, true);
-  xhr.send();
+  
 };
 
 

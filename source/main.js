@@ -232,101 +232,49 @@ var clone = function (obj) {
  * @since 0.5.0
  */
 function Skylink() {
+  var self = this;
+
   /**
    * Stores the `init()` method options.
-   * @attribute _options
-   * @type JSON
-   * @private
-   * @for Skylink
-   * @since 0.6.18
    */
   this._options = {};
 
   /**
-   * Stores the User session.
-   * @attribute _user
-   * @type JSON
-   * @private
-   * @for Skylink
-   * @since 0.5.6
+   * Stores the Room connection session information.
+   */
+  this._session = null;
+
+  /**
+   * Stores the User information.
    */
   this._user = {
+    // User current Peer ID
     id: null,
+    // User current priority weight
+    weight: 0,
+    // User current custom data
     data: '',
-    priorityWeight: 0,
-    iceServers: [],
-    timestamps: {
-      updateUserEvent: 0,
-      muteAudioEvent: 0,
-      muteVideoEvent: 0
-    },
-    mutedStreams: {
-      audio: false,
-      video: false
-    },
-    room: {
-      name: null,
-      readyState: null,
-      connected: false,
-      locked: false,
-      hasMCU: false,
-      session: null,
-      path: null,
-      protocol: null
-    },
-    settings: {
-      mediaConnection: {
-        audio: true,
-        video: true,
-        data: true
-      },
-      mediaDirection: {
-        audio: { send: true, receive: true },
-        video: { send: true, receive: true }
-      },
-      bandwidth: {
-        max: {},
-        xVideoCodec: {}
-      }
-    }
+    // User sessionDescription media connection settings
+    mediaConnection: {},
+    // User sessionDescription media connection direction settings
+    mediaDirection: {},
+    // User bandwidth settings
+    bandwidth: {}
   };
 
   /**
-   * Stores the list of Peers.
-   * @attribute _peers
-   * @type JSON
-   * @private
-   * @for Skylink
-   * @since 0.6.18
-   */
-  this._peers = {};
-
-  /**
-   * Stores the Socket connection.
-   * @attribute _socket
-   * @type JSON
-   * @private
-   * @for Skylink
-   * @since 0.1.0
+   * Stores the Socket connection information to Signaling server.
    */
   this._socket = {
-    connected: false,
-    pollDead: false,
-    socket: null,
+    // Signaling server
     server: 'signaling.temasys.io',
-    ports: {
-      'https:': [443, 3443],
-      'http:': [80, 3000]
-    },
-    session: {
-      path: null,
-      options: null,
-      retries: 0,
-      finalAttempts: 0,
-      port: null,
-      protocol: null,
-      transportType: 'WebSocket'
-    },
+    // Signaling server socket connection states
+    states: {},
+    // Signaling server socket connection object
+    socket: null,
+    // Signaling server socket available ports list
+    ports: {},
+    // Signaling server queued broadcasted messages
     queue: {
       fn: null,
       interval: 1000,
