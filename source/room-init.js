@@ -654,7 +654,7 @@ Skylink.prototype.init = function(options, callback) {
   }
 
   // Check if App Key is provided
-  if (!options.appKey) {
+  if (!self._options.appKey) {
     return self._initCallback({
       state: self.READY_STATE_CHANGE.ERROR,
       content: 'No API key provided.',
@@ -830,7 +830,7 @@ Skylink.prototype._initFetchAPIData = function (room, callback, isInit) {
   });
 
   // Construct API REST path
-  self._user.room.path = self._options.roomServer + '/api/' + self._options.appKey + '/' + self._selectedRoom;
+  self._user.room.path = self._options.roomServer + '/api/' + self._options.appKey + '/' + self._user.room.name;
 
   // Construct path with credentials authentication.
   if (self._options.credentials) {
@@ -885,9 +885,9 @@ Skylink.prototype._initFetchAPIData = function (room, callback, isInit) {
       // Trigger `readyStateChange` event as ERROR
       self._initCallback({
         state: self.READY_STATE_CHANGE.ERROR,
-        content: info.info,
+        content: response.info,
         status: status,
-        errorCode: info.errorCode,
+        errorCode: response.error,
         room: self._user.room.name
       }, callback);
     }
