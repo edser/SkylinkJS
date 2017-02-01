@@ -1,3 +1,66 @@
+/**
+ * Function that returns the User session information to be sent to Peers.
+ * @method _getUserInfo
+ * @private
+ * @for Skylink
+ * @since 0.4.0
+ */
+Skylink.prototype._getUserInfo = function(peerId) {
+  var userInfo = clone(this.getPeerInfo());
+  var peerInfo = clone(this.getPeerInfo(peerId));
+
+  // Adhere to SM protocol without breaking the other SDKs.
+  if (userInfo.settings.video && typeof userInfo.settings.video === 'object') {
+    userInfo.settings.video.customSettings = {};
+
+    if (userInfo.settings.video.frameRate && typeof userInfo.settings.video.frameRate === 'object') {
+      userInfo.settings.video.customSettings.frameRate = clone(userInfo.settings.video.frameRate);
+      userInfo.settings.video.frameRate = -1;
+    }
+
+    if (userInfo.settings.video.facingMode && typeof userInfo.settings.video.facingMode === 'object') {
+      userInfo.settings.video.customSettings.facingMode = clone(userInfo.settings.video.facingMode);
+      userInfo.settings.video.facingMode = '-1';
+    }
+
+    if (userInfo.settings.video.resolution && typeof userInfo.settings.video.resolution === 'object') {
+      if (userInfo.settings.video.resolution.width && typeof userInfo.settings.video.resolution.width === 'object') {
+        userInfo.settings.video.customSettings.width = clone(userInfo.settings.video.width);
+        userInfo.settings.video.resolution.width = -1;
+      }
+
+      if (userInfo.settings.video.resolution.height && typeof userInfo.settings.video.resolution.height === 'object') {
+        userInfo.settings.video.customSettings.height = clone(userInfo.settings.video.height);
+        userInfo.settings.video.resolution.height = -1;
+      }
+    }
+  }
+
+  if (userInfo.settings.bandwidth) {
+    userInfo.settings.maxBandwidth = clone(userInfo.settings.bandwidth);
+    delete userInfo.settings.bandwidth;
+  }
+
+  // If there is Peer ID (not broadcast ENTER message) and Peer is Edge browser and User is not
+  if (peerId ? (window.webrtcDetectedBrowser !== 'edge' && peerInfo.agent.name === 'edge' ?
+  // If User is IE/safari and does not have H264 support, remove video support
+    ['IE', 'safari'].indexOf(window.webrtcDetectedBrowser) > -1 && !this._currentCodecSupport.video.h264 :
+  // If User is Edge and Peer is not and no H264 support, remove video support
+    window.webrtcDetectedBrowser === 'edge' && peerInfo.agent.name !== 'edge' && !this._currentCodecSupport.video.h264) :
+  // If broadcast ENTER message and User is Edge and has no H264 support
+    window.webrtcDetectedBrowser === 'edge' && !this._currentCodecSupport.video.h264) {
+    userInfo.settings.video = false;
+    userInfo.mediaStatus.videoMuted = true;
+  }
+
+  delete userInfo.agent;
+  delete userInfo.room;
+  delete userInfo.config;
+  delete userInfo.parentId;
+  return userInfo;
+};
+
+
 
 /**
  * Function that refresh connections.
@@ -1350,3 +1413,696 @@ Skylink.prototype._signalingEndOfCandidates = function(targetMid) {
 };
 
 
+/**
+ * Function that creates the Peer connection offer session description.
+ * @method _doOffer
+ * @private
+ * @for Skylink
+ * @since 0.5.2
+ */
+Skylink.prototype._doOffer = function(targetMid, iceRestart, peerBrowser) {
+  var self = this;
+  var pc = self._peerConnections[targetMid] || self._addPeer(targetMid, peerBrowser);
+
+  log.log([targetMid, null, null, 'Checking caller status'], peerBrowser);
+
+  // Added checks to ensure that connection object is defined first
+  if (!pc) {
+    log.warn([targetMid, 'RTCSessionDescription', 'offer', 'Dropping of creating of offer ' +
+      'as connection does not exists']);
+    return;
+  }
+
+  // Added checks to ensure that state is "stable" if setting local "offer"
+  if (pc.signalingState !== self.PEER_CONNECTION_STATE.STABLE) {
+    log.warn([targetMid, 'RTCSessionDescription', 'offer',
+      'Dropping of creating of offer as signalingState is not "' +
+      self.PEER_CONNECTION_STATE.STABLE + '" ->'], pc.signalingState);
+    return;
+  }
+
+  var peerAgent = ((self._peerInformations[targetMid] || {}).agent || {}).name || '';
+  var doIceRestart = !!((self._peerInformations[targetMid] || {}).config || {}).enableIceRestart &&
+    iceRestart && self._enableIceRestart;
+  var offerToReceiveAudio = !(!self._sdpSettings.connection.audio && targetMid !== 'MCU');
+  var offerToReceiveVideo = !(!self._sdpSettings.connection.video && targetMid !== 'MCU') &&
+    ((window.webrtcDetectedBrowser === 'edge' && peerAgent !== 'edge') ||
+    (['IE', 'safari'].indexOf(window.webrtcDetectedBrowser) > -1 && peerAgent === 'edge') ?
+    !!self._currentCodecSupport.video.h264 : true);
+
+  var offerConstraints = {
+    offerToReceiveAudio: offerToReceiveAudio,
+    offerToReceiveVideo: offerToReceiveVideo,
+    iceRestart: doIceRestart
+  };
+
+  // Prevent undefined OS errors
+  peerBrowser.os = peerBrowser.os || '';
+
+  // Fallback to use mandatory constraints for plugin based browsers
+  if (['IE', 'safari'].indexOf(window.webrtcDetectedBrowser) > -1) {
+    offerConstraints = {
+      mandatory: {
+        OfferToReceiveAudio: offerToReceiveAudio,
+        OfferToReceiveVideo: offerToReceiveVideo,
+        iceRestart: doIceRestart
+      }
+    };
+  }
+
+  // Add stream only at offer/answer end
+  if (!self._hasMCU || targetMid === 'MCU') {
+    self._addLocalMediaStreams(targetMid);
+  }
+
+  if (self._options.enableDataChannel && self._peerInformations[targetMid] &&
+    self._peerInformations[targetMid].config.enableDataChannel &&
+    !(!self._sdpSettings.connection.data && targetMid !== 'MCU')) {
+    // Edge doesn't support datachannels yet
+    if (!(self._dataChannels[targetMid] && self._dataChannels[targetMid].main)) {
+      self._createDataChannel(targetMid);
+      self._peerConnections[targetMid].hasMainChannel = true;
+    }
+  }
+
+  log.debug([targetMid, null, null, 'Creating offer with config:'], offerConstraints);
+
+  pc.endOfCandidates = false;
+
+  pc.createOffer(function(offer) {
+    log.debug([targetMid, null, null, 'Created offer'], offer);
+
+    self._setLocalAndSendMessage(targetMid, offer);
+
+  }, function(error) {
+    self._trigger('handshakeProgress', self.HANDSHAKE_PROGRESS.ERROR, targetMid, error);
+
+    log.error([targetMid, null, null, 'Failed creating an offer:'], error);
+
+  }, offerConstraints);
+};
+
+/**
+ * Function that creates the Peer connection answer session description.
+ * This comes after receiving and setting the offer session description.
+ * @method _doAnswer
+ * @private
+ * @for Skylink
+ * @since 0.1.0
+ */
+Skylink.prototype._doAnswer = function(targetMid) {
+  var self = this;
+  log.log([targetMid, null, null, 'Creating answer.']);
+  var pc = self._peerConnections[targetMid];
+
+  // Added checks to ensure that connection object is defined first
+  if (!pc) {
+    log.warn([targetMid, 'RTCSessionDescription', 'answer', 'Dropping of creating of answer ' +
+      'as connection does not exists']);
+    return;
+  }
+
+  // Added checks to ensure that state is "have-remote-offer" if setting local "answer"
+  if (pc.signalingState !== self.PEER_CONNECTION_STATE.HAVE_REMOTE_OFFER) {
+    log.warn([targetMid, 'RTCSessionDescription', 'answer',
+      'Dropping of creating of answer as signalingState is not "' +
+      self.PEER_CONNECTION_STATE.HAVE_REMOTE_OFFER + '" ->'], pc.signalingState);
+    return;
+  }
+
+  // Add stream only at offer/answer end
+  if (!self._hasMCU || targetMid === 'MCU') {
+    self._addLocalMediaStreams(targetMid);
+  }
+
+  // No ICE restart constraints for createAnswer as it fails in chrome 48
+  // { iceRestart: true }
+  pc.createAnswer(function(answer) {
+    log.debug([targetMid, null, null, 'Created answer'], answer);
+    self._setLocalAndSendMessage(targetMid, answer);
+  }, function(error) {
+    log.error([targetMid, null, null, 'Failed creating an answer:'], error);
+    self._trigger('handshakeProgress', self.HANDSHAKE_PROGRESS.ERROR, targetMid, error);
+  });
+};
+
+/**
+ * Function that sets the local session description and sends to Peer.
+ * If trickle ICE is disabled, the local session description will be sent after
+ *   ICE gathering has been completed.
+ * @method _setLocalAndSendMessage
+ * @private
+ * @for Skylink
+ * @since 0.5.2
+ */
+Skylink.prototype._setLocalAndSendMessage = function(targetMid, sessionDescription) {
+  var self = this;
+  var pc = self._peerConnections[targetMid];
+
+  // Added checks to ensure that sessionDescription is defined first
+  if (!(!!sessionDescription && !!sessionDescription.sdp)) {
+    log.warn([targetMid, 'RTCSessionDescription', null, 'Local session description is undefined ->'], sessionDescription);
+    return;
+  }
+
+  // Added checks to ensure that connection object is defined first
+  if (!pc) {
+    log.warn([targetMid, 'RTCSessionDescription', sessionDescription.type,
+      'Local session description will not be set as connection does not exists ->'], sessionDescription);
+    return;
+
+  } else if (sessionDescription.type === self.HANDSHAKE_PROGRESS.OFFER &&
+    pc.signalingState !== self.PEER_CONNECTION_STATE.STABLE) {
+    log.warn([targetMid, 'RTCSessionDescription', sessionDescription.type, 'Local session description ' +
+      'will not be set as signaling state is "' + pc.signalingState + '" ->'], sessionDescription);
+    return;
+
+  // Added checks to ensure that state is "have-remote-offer" if setting local "answer"
+  } else if (sessionDescription.type === self.HANDSHAKE_PROGRESS.ANSWER &&
+    pc.signalingState !== self.PEER_CONNECTION_STATE.HAVE_REMOTE_OFFER) {
+    log.warn([targetMid, 'RTCSessionDescription', sessionDescription.type, 'Local session description ' +
+      'will not be set as signaling state is "' + pc.signalingState + '" ->'], sessionDescription);
+    return;
+
+  // Added checks if there is a current local sessionDescription being processing before processing this one
+  } else if (pc.processingLocalSDP) {
+    log.warn([targetMid, 'RTCSessionDescription', sessionDescription.type,
+      'Local session description will not be set as another is being processed ->'], sessionDescription);
+    return;
+  }
+
+  pc.processingLocalSDP = true;
+
+  // Sets and expected receiving codecs etc.
+  //sessionDescription.sdp = self._setSDPOpusConfig(targetMid, sessionDescription);
+  //sessionDescription.sdp = self._setSDPCodec(targetMid, sessionDescription);
+  sessionDescription.sdp = self._removeSDPFirefoxH264Pref(targetMid, sessionDescription);
+  sessionDescription.sdp = self._removeSDPH264VP9AptRtxForOlderPlugin(targetMid, sessionDescription);
+  sessionDescription.sdp = self._removeSDPCodecs(targetMid, sessionDescription);
+  sessionDescription.sdp = self._handleSDPConnectionSettings(targetMid, sessionDescription, 'local');
+  //sessionDescription.sdp = self._setSDPBitrate(targetMid, sessionDescription);
+  sessionDescription.sdp = self._removeSDPREMBPackets(targetMid, sessionDescription);
+
+  log.log([targetMid, 'RTCSessionDescription', sessionDescription.type,
+    'Local session description updated ->'], sessionDescription.sdp);
+
+  pc.setLocalDescription(sessionDescription, function() {
+    log.debug([targetMid, 'RTCSessionDescription', sessionDescription.type,
+      'Local session description has been set ->'], sessionDescription);
+
+    pc.processingLocalSDP = false;
+
+    self._trigger('handshakeProgress', sessionDescription.type, targetMid);
+
+    if (sessionDescription.type === self.HANDSHAKE_PROGRESS.ANSWER) {
+      pc.setAnswer = 'local';
+    } else {
+      pc.setOffer = 'local';
+    }
+
+    if (!self._options.enableIceTrickle && !pc.gathered) {
+      log.log([targetMid, 'RTCSessionDescription', sessionDescription.type,
+        'Local session description sending is halted to complete ICE gathering.']);
+      return;
+    }
+
+    self._socketSendMessage({
+      type: sessionDescription.type,
+      sdp: self._addSDPMediaStreamTrackIDs(targetMid, sessionDescription),
+      mid: self._user.id,
+      target: targetMid,
+      rid: self._user.room.session.rid,
+      userInfo: self._getUserInfo()
+    });
+
+  }, function(error) {
+    log.error([targetMid, 'RTCSessionDescription', sessionDescription.type, 'Local description failed setting ->'], error);
+
+    pc.processingLocalSDP = false;
+
+    self._trigger('handshakeProgress', self.HANDSHAKE_PROGRESS.ERROR, targetMid, error);
+  });
+};
+
+/**
+ * Function that filters and configures the ICE servers received from Signaling
+ *   based on the <code>init()</code> configuration and returns the updated
+ *   list of ICE servers to be used when constructing Peer connection.
+ * @method _setIceServers
+ * @private
+ * @for Skylink
+ * @since 0.5.4
+ */
+Skylink.prototype._setIceServers = function(givenConfig) {
+  var self = this;
+  var givenIceServers = clone(givenConfig.iceServers);
+  var iceServersList = {};
+  var newIceServers = [];
+  // TURN SSL config
+  var useTURNSSLProtocol = false;
+  var useTURNSSLPort = false;
+
+
+
+  if (self._options.forceTURNSSL) {
+    if (window.webrtcDetectedBrowser === 'chrome' ||
+      window.webrtcDetectedBrowser === 'safari' ||
+      window.webrtcDetectedBrowser === 'IE') {
+      useTURNSSLProtocol = true;
+    } else {
+      useTURNSSLPort = true;
+    }
+  }
+
+  log.log('TURN server connections SSL configuration', {
+    useTURNSSLProtocol: useTURNSSLProtocol,
+    useTURNSSLPort: useTURNSSLPort
+  });
+
+  var pushIceServer = function (username, credential, url, index) {
+    if (!iceServersList[username]) {
+      iceServersList[username] = {};
+    }
+
+    if (!iceServersList[username][credential]) {
+      iceServersList[username][credential] = [];
+    }
+
+    if (self._options.iceServer && url.indexOf('temasys') > 0) {
+      var parts = url.split(':');
+      var subparts = (parts[1] || '').split('?');
+      subparts[0] = self._options.iceServer;
+      parts[1] = subparts.join('?');
+      url = parts.join(':');
+    }
+
+    if (iceServersList[username][credential].indexOf(url) === -1) {
+      if (typeof index === 'number') {
+        iceServersList[username][credential].splice(index, 0, url);
+      } else {
+        iceServersList[username][credential].push(url);
+      }
+    }
+  };
+
+  var i, serverItem;
+
+  for (i = 0; i < givenIceServers.length; i++) {
+    var server = givenIceServers[i];
+
+    if (typeof server.url !== 'string') {
+      log.warn('Ignoring ICE server provided at index ' + i, clone(server));
+      continue;
+    }
+
+    if (server.url.indexOf('stun') === 0) {
+      if (!self._options.enableSTUNServer) {
+        log.warn('Ignoring STUN server provided at index ' + i, clone(server));
+        continue;
+      }
+
+      if (!self._options.usePublicSTUN && server.url.indexOf('temasys') === -1) {
+        log.warn('Ignoring public STUN server provided at index ' + i, clone(server));
+        continue;
+      }
+
+    } else if (server.url.indexOf('turn') === 0) {
+      if (!self._options.enableTURNServer) {
+        log.warn('Ignoring TURN server provided at index ' + i, clone(server));
+        continue;
+      }
+
+      if (server.url.indexOf(':443') === -1 && useTURNSSLPort) {
+        log.log('Ignoring TURN Server (non-SSL port) provided at index ' + i, clone(server));
+        continue;
+      }
+
+      if (useTURNSSLProtocol) {
+        var parts = server.url.split(':');
+        parts[0] = 'turns';
+        server.url = parts.join(':');
+      }
+    }
+
+    // parse "@" settings
+    if (server.url.indexOf('@') > 0) {
+      var protocolParts = server.url.split(':');
+      var urlParts = protocolParts[1].split('@');
+      server.username = urlParts[0];
+      server.url = protocolParts[0] + ':' + urlParts[1];
+
+      // add the ICE server port
+      // Edge uses 3478 with ?transport=udp for now
+      if (window.webrtcDetectedBrowser === 'edge') {
+        server.url += ':3478';
+      } else if (protocolParts[2]) {
+        server.url += ':' + protocolParts[2];
+      }
+    }
+
+    var username = typeof server.username === 'string' ? server.username : 'none';
+    var credential = typeof server.credential === 'string' ? server.credential : 'none';
+
+    if (server.url.indexOf('turn') === 0) {
+      if (self._options.TURNServerTransport === self.TURN_TRANSPORT.ANY) {
+        pushIceServer(username, credential, server.url);
+
+      } else {
+        var rawUrl = server.url;
+
+        if (rawUrl.indexOf('?transport=') > 0) {
+          rawUrl = rawUrl.split('?transport=')[0];
+        }
+
+        if (self._options.TURNServerTransport === self.TURN_TRANSPORT.NONE) {
+          pushIceServer(username, credential, rawUrl);
+        } else if (self._options.TURNServerTransport === self.TURN_TRANSPORT.UDP) {
+          pushIceServer(username, credential, rawUrl + '?transport=udp');
+        } else if (self._options.TURNServerTransport === self.TURN_TRANSPORT.TCP) {
+          pushIceServer(username, credential, rawUrl + '?transport=tcp');
+        } else if (self._options.TURNServerTransport === self.TURN_TRANSPORT.ALL) {
+          pushIceServer(username, credential, rawUrl + '?transport=tcp');
+          pushIceServer(username, credential, rawUrl + '?transport=udp');
+        } else {
+          log.warn('Invalid TURN transport option "' + self._options.TURNServerTransport +
+            '". Ignoring TURN server at index' + i, clone(server));
+          continue;
+        }
+      }
+    } else {
+      pushIceServer(username, credential, server.url);
+    }
+  }
+
+  // add mozilla STUN for firefox
+  if (self._options.enableSTUNServer && self._options.usePublicSTUN && window.webrtcDetectedBrowser === 'firefox') {
+    pushIceServer('none', 'none', 'stun:stun.services.mozilla.com', 0);
+  }
+
+  var hasUrlsSupport = false;
+
+  if (window.webrtcDetectedBrowser === 'chrome' && window.webrtcDetectedVersion > 34) {
+    hasUrlsSupport = true;
+  }
+
+  if (window.webrtcDetectedBrowser === 'firefox' && window.webrtcDetectedVersion > 38) {
+    hasUrlsSupport = true;
+  }
+
+  if (window.webrtcDetectedBrowser === 'opera' && window.webrtcDetectedVersion > 31) {
+    hasUrlsSupport = true;
+  }
+
+  // plugin supports .urls
+  if (window.webrtcDetectedBrowser === 'safari' || window.webrtcDetectedBrowser === 'IE') {
+    hasUrlsSupport = true;
+  }
+
+  // bowser / edge
+  if (['bowser', 'edge'].indexOf(window.webrtcDetectedBrowser) > -1) {
+    hasUrlsSupport = true;
+  }
+
+  for (var serverUsername in iceServersList) {
+    if (iceServersList.hasOwnProperty(serverUsername)) {
+      for (var serverCred in iceServersList[serverUsername]) {
+        if (iceServersList[serverUsername].hasOwnProperty(serverCred)) {
+          if (hasUrlsSupport) {
+            var urlsItem = {
+              urls: iceServersList[serverUsername][serverCred]
+            };
+            if (serverUsername !== 'none') {
+              urlsItem.username = serverUsername;
+            }
+            if (serverCred !== 'none') {
+              urlsItem.credential = serverCred;
+            }
+
+            // Edge uses 1 url only for now
+            if (window.webrtcDetectedBrowser === 'edge') {
+              if (urlsItem.username && urlsItem.credential) {
+                urlsItem.urls = [urlsItem.urls[0]];
+                newIceServers.push(urlsItem);
+                break;
+              }
+            } else {
+              newIceServers.push(urlsItem);
+            }
+          } else {
+            for (var j = 0; j < iceServersList[serverUsername][serverCred].length; j++) {
+              var urlItem = {
+                url: iceServersList[serverUsername][serverCred][j]
+              };
+              if (serverUsername !== 'none') {
+                urlItem.username = serverUsername;
+              }
+              if (serverCred !== 'none') {
+                urlItem.credential = serverCred;
+              }
+              newIceServers.push(urlItem);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  log.log('Output iceServers configuration:', newIceServers);
+
+  return newIceServers;
+};
+
+/**
+ * Function that handles the Peer connection gathered ICE candidate to be sent.
+ * @method _onIceCandidate
+ * @private
+ * @for Skylink
+ * @since 0.1.0
+ */
+Skylink.prototype._onIceCandidate = function(targetMid, candidate) {
+  var self = this;
+  var pc = self._peerConnections[targetMid];
+
+  if (!pc) {
+    log.warn([targetMid, 'RTCIceCandidate', null, 'Ignoring of ICE candidate event as ' +
+      'Peer connection does not exists ->'], candidate);
+    return;
+  }
+
+  if (candidate.candidate) {
+    if (!pc.gathering) {
+      log.log([targetMid, 'RTCIceCandidate', null, 'ICE gathering has started.']);
+
+      pc.gathering = true;
+      pc.gathered = false;
+
+      self._trigger('candidateGenerationState', self.CANDIDATE_GENERATION_STATE.GATHERING, targetMid);
+    }
+
+    var candidateType = candidate.candidate.split(' ')[7];
+
+    log.debug([targetMid, 'RTCIceCandidate', candidateType, 'Generated ICE candidate ->'], candidate);
+
+    if (candidateType === 'endOfCandidates') {
+      log.warn([targetMid, 'RTCIceCandidate', candidateType, 'Dropping of sending ICE candidate ' +
+        'end-of-candidates signal to prevent errors ->'], candidate);
+      return;
+    }
+
+    if (self._options.filterCandidatesType[candidateType]) {
+      if (!(self._hasMCU && self._forceTURN)) {
+        log.warn([targetMid, 'RTCIceCandidate', candidateType, 'Dropping of sending ICE candidate as ' +
+          'it matches ICE candidate filtering flag ->'], candidate);
+        return;
+      }
+
+      log.warn([targetMid, 'RTCIceCandidate', candidateType, 'Not dropping of sending ICE candidate as ' +
+        'TURN connections are enforced as MCU is present (and act as a TURN itself) so filtering of ICE candidate ' +
+        'flags are not honoured ->'], candidate);
+    }
+
+    if (!self._gatheredCandidates[targetMid]) {
+      self._gatheredCandidates[targetMid] = {
+        sending: { host: [], srflx: [], relay: [] },
+        receiving: { host: [], srflx: [], relay: [] }
+      };
+    }
+
+    self._gatheredCandidates[targetMid].sending[candidateType].push({
+      sdpMid: candidate.sdpMid,
+      sdpMLineIndex: candidate.sdpMLineIndex,
+      candidate: candidate.candidate
+    });
+
+    if (!self._options.enableIceTrickle) {
+      log.warn([targetMid, 'RTCIceCandidate', candidateType, 'Dropping of sending ICE candidate as ' +
+        'trickle ICE is disabled ->'], candidate);
+      return;
+    }
+
+    log.debug([targetMid, 'RTCIceCandidate', candidateType, 'Sending ICE candidate ->'], candidate);
+
+    self._socketSendMessage({
+      type: self._SIG_MESSAGE_TYPE.CANDIDATE,
+      label: candidate.sdpMLineIndex,
+      id: candidate.sdpMid,
+      candidate: candidate.candidate,
+      mid: self._user.id,
+      target: targetMid,
+      rid: self._user.room.session.rid
+    });
+
+  } else {
+    log.log([targetMid, 'RTCIceCandidate', null, 'ICE gathering has completed.']);
+
+    pc.gathering = false;
+    pc.gathered = true;
+
+    self._trigger('candidateGenerationState', self.CANDIDATE_GENERATION_STATE.COMPLETED, targetMid);
+
+    // Disable Ice trickle option
+    if (!self._options.enableIceTrickle) {
+      var sessionDescription = self._peerConnections[targetMid].localDescription;
+
+      if (!(sessionDescription && sessionDescription.type && sessionDescription.sdp)) {
+        log.warn([targetMid, 'RTCSessionDescription', null, 'Not sending any session description after ' +
+          'ICE gathering completed as it is not present.']);
+        return;
+      }
+
+      // a=end-of-candidates should present in non-trickle ICE connections so no need to send endOfCandidates message
+      self._socketSendMessage({
+        type: sessionDescription.type,
+        sdp: self._addSDPMediaStreamTrackIDs(targetMid, sessionDescription),
+        mid: self._user.id,
+        userInfo: self._getUserInfo(),
+        target: targetMid,
+        rid: self._user.room.session.rid
+      });
+    } else if (self._gatheredCandidates[targetMid]) {
+      self._socketSendMessage({
+        type: self._SIG_MESSAGE_TYPE.END_OF_CANDIDATES,
+        noOfExpectedCandidates: self._gatheredCandidates[targetMid].sending.srflx.length +
+          self._gatheredCandidates[targetMid].sending.host.length +
+          self._gatheredCandidates[targetMid].sending.relay.length,
+        mid: self._user.id,
+        target: targetMid,
+        rid: self._user.room.session.rid
+      });
+    }
+  }
+};
+
+/**
+ * Function that buffers the Peer connection ICE candidate when received
+ *   before remote session description is received and set.
+ * @method _addIceCandidateToQueue
+ * @private
+ * @for Skylink
+ * @since 0.5.2
+ */
+Skylink.prototype._addIceCandidateToQueue = function(targetMid, canId, candidate) {
+  var candidateType = candidate.candidate.split(' ')[7];
+
+  log.debug([targetMid, 'RTCIceCandidate', canId + ':' + candidateType, 'Buffering ICE candidate.']);
+
+  this._trigger('candidateProcessingState', this.CANDIDATE_PROCESSING_STATE.BUFFERED,
+    targetMid, canId, candidateType, {
+    candidate: candidate.candidate,
+    sdpMid: candidate.sdpMid,
+    sdpMLineIndex: candidate.sdpMLineIndex
+  }, null);
+
+  this._peerCandidatesQueue[targetMid] = this._peerCandidatesQueue[targetMid] || [];
+  this._peerCandidatesQueue[targetMid].push([canId, candidate]);
+};
+
+/**
+ * Function that adds all the Peer connection buffered ICE candidates received.
+ * This should be called only after the remote session description is received and set.
+ * @method _addIceCandidateFromQueue
+ * @private
+ * @for Skylink
+ * @since 0.5.2
+ */
+Skylink.prototype._addIceCandidateFromQueue = function(targetMid) {
+  this._peerCandidatesQueue[targetMid] = this._peerCandidatesQueue[targetMid] || [];
+
+  for (var i = 0; i < this._peerCandidatesQueue[targetMid].length; i++) {
+    var canArray = this._peerCandidatesQueue[targetMid][i];
+
+    if (canArray) {
+      var candidateType = canArray[1].candidate.split(' ')[7];
+
+      log.debug([targetMid, 'RTCIceCandidate', canArray[0] + ':' + candidateType, 'Adding buffered ICE candidate.']);
+
+      this._addIceCandidate(targetMid, canArray[0], canArray[1]);
+    } else if (this._peerConnections[targetMid] &&
+      this._peerConnections[targetMid].signalingState !== this.PEER_CONNECTION_STATE.CLOSED) {
+      log.debug([targetMid, 'RTCPeerConnection', null, 'Signaling of end-of-candidates remote ICE gathering.']);
+      this._peerConnections[targetMid].addIceCandidate(null);
+    }
+  }
+
+  delete this._peerCandidatesQueue[targetMid];
+
+  this._signalingEndOfCandidates(targetMid);
+};
+
+/**
+ * Function that adds the ICE candidate to Peer connection.
+ * @method _addIceCandidate
+ * @private
+ * @for Skylink
+ * @since 0.6.16
+ */
+Skylink.prototype._addIceCandidate = function (targetMid, canId, candidate) {
+  var self = this;
+  var candidateType = candidate.candidate.split(' ')[7];
+
+  var onSuccessCbFn = function () {
+    log.log([targetMid, 'RTCIceCandidate', canId + ':' + candidateType,
+      'Added ICE candidate successfully.']);
+    self._trigger('candidateProcessingState', self.CANDIDATE_PROCESSING_STATE.PROCESS_SUCCESS,
+      targetMid, canId, candidateType, {
+      candidate: candidate.candidate,
+      sdpMid: candidate.sdpMid,
+      sdpMLineIndex: candidate.sdpMLineIndex
+    }, null);
+  };
+
+  var onErrorCbFn = function (error) {
+    log.error([targetMid, 'RTCIceCandidate', canId + ':' + candidateType,
+      'Failed adding ICE candidate ->'], error);
+    self._trigger('candidateProcessingState', self.CANDIDATE_PROCESSING_STATE.PROCESS_ERROR,
+      targetMid, canId, candidateType, {
+      candidate: candidate.candidate,
+      sdpMid: candidate.sdpMid,
+      sdpMLineIndex: candidate.sdpMLineIndex
+    }, error);
+  };
+
+  log.debug([targetMid, 'RTCIceCandidate', canId + ':' + candidateType, 'Adding ICE candidate.']);
+
+  self._trigger('candidateProcessingState', self.CANDIDATE_PROCESSING_STATE.PROCESSING,
+    targetMid, canId, candidateType, {
+      candidate: candidate.candidate,
+      sdpMid: candidate.sdpMid,
+      sdpMLineIndex: candidate.sdpMLineIndex
+    }, null);
+
+  if (!(self._peerConnections[targetMid] &&
+    self._peerConnections[targetMid].signalingState !== self.PEER_CONNECTION_STATE.CLOSED)) {
+    log.warn([targetMid, 'RTCIceCandidate', canId + ':' + candidateType, 'Dropping ICE candidate ' +
+      'as Peer connection does not exists or is closed']);
+    self._trigger('candidateProcessingState', self.CANDIDATE_PROCESSING_STATE.DROPPED,
+      targetMid, canId, candidateType, {
+      candidate: candidate.candidate,
+      sdpMid: candidate.sdpMid,
+      sdpMLineIndex: candidate.sdpMLineIndex
+    }, new Error('Failed processing ICE candidate as Peer connection does not exists or is closed.'));
+    return;
+  }
+
+  self._peerConnections[targetMid].addIceCandidate(candidate, onSuccessCbFn, onErrorCbFn);
+};

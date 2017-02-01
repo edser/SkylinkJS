@@ -1,4 +1,488 @@
 /**
+ * Function that starts a Datachannel connection with Peer.
+ * @method _createDataChannel
+ * @private
+ * @for Skylink
+ * @since 0.5.5
+ */
+Skylink.prototype._createDataChannel = function(peerId, dataChannel, createAsMessagingChannel) {
+  var self = this;
+
+  if (!self._user.room.connected) {
+    log.error([peerId, 'RTCDataChannel', null,
+      'Aborting of creating or initializing Datachannel as User does not have Room session']);
+    return;
+  }
+
+  if (!(self._peerConnections[peerId] &&
+    self._peerConnections[peerId].signalingState !== self.PEER_CONNECTION_STATE.CLOSED)) {
+    log.error([peerId, 'RTCDataChannel', null,
+      'Aborting of creating or initializing Datachannel as Peer connection does not exists']);
+    return;
+  }
+
+  var channelName = self._user.id + '_' + peerId;
+  var channelType = createAsMessagingChannel ? self.DATA_CHANNEL_TYPE.MESSAGING : self.DATA_CHANNEL_TYPE.DATA;
+
+  if (dataChannel && typeof dataChannel === 'object') {
+    channelName = dataChannel.label;
+
+  } else if (typeof dataChannel === 'string') {
+    channelName = dataChannel;
+    dataChannel = null;
+  }
+
+  if (!dataChannel) {
+    try {
+      dataChannel = self._peerConnections[peerId].createDataChannel(channelName, {
+        reliable: true,
+        ordered: true
+      });
+
+    } catch (error) {
+      log.error([peerId, 'RTCDataChannel', channelName, 'Failed creating Datachannel ->'], error);
+      self._trigger('dataChannelState', self.DATA_CHANNEL_STATE.CREATE_ERROR, peerId, error, channelName, channelType, null);
+      return;
+    }
+  }
+
+  if (!self._dataChannels[peerId]) {
+    log.debug([peerId, 'RTCDataChannel', channelName, 'initializing main DataChannel']);
+
+    channelType = self.DATA_CHANNEL_TYPE.MESSAGING;
+
+    self._dataChannels[peerId] = {};
+
+  } else if (self._dataChannels[peerId].main && self._dataChannels[peerId].main.channel.label === channelName) {
+    channelType = self.DATA_CHANNEL_TYPE.MESSAGING;
+  }
+
+  /**
+   * Subscribe to events
+   */
+  dataChannel.onerror = function (evt) {
+    var channelError = evt.error || evt;
+
+    log.error([peerId, 'RTCDataChannel', channelName, 'Datachannel has an exception ->'], channelError);
+
+    self._trigger('dataChannelState', self.DATA_CHANNEL_STATE.ERROR, peerId, channelError, channelName, channelType, null);
+  };
+
+  dataChannel.onbufferedamountlow = function () {
+    log.debug([peerId, 'RTCDataChannel', channelName, 'Datachannel buffering data transfer low']);
+
+    // TODO: Should we add an event here
+    self._trigger('dataChannelState', self.DATA_CHANNEL_STATE.BUFFERED_AMOUNT_LOW, peerId, null, channelName, channelType, null);
+  };
+
+  dataChannel.onmessage = function(event) {
+    self._processDataChannelData(event.data, peerId, channelName, channelType);
+  };
+
+  var onOpenHandlerFn = function () {
+    log.debug([peerId, 'RTCDataChannel', channelName, 'Datachannel has opened']);
+
+    self._trigger('dataChannelState', self.DATA_CHANNEL_STATE.OPEN, peerId, null, channelName, channelType, null);
+  };
+
+  if (dataChannel.readyState === self.DATA_CHANNEL_STATE.OPEN) {
+    setTimeout(onOpenHandlerFn, 500);
+
+  } else {
+    self._trigger('dataChannelState', dataChannel.readyState, peerId, null, channelName, channelType, null);
+
+    dataChannel.onopen = onOpenHandlerFn;
+  }
+
+  var onCloseHandlerFn = function () {
+    log.debug([peerId, 'RTCDataChannel', channelName, 'Datachannel has closed']);
+
+    self._trigger('dataChannelState', self.DATA_CHANNEL_STATE.CLOSED, peerId, null, channelName, channelType, null);
+
+    if (self._peerConnections[peerId] && self._peerConnections[peerId].remoteDescription &&
+      self._peerConnections[peerId].remoteDescription.sdp && (self._peerConnections[peerId].remoteDescription.sdp.indexOf(
+      'm=application') === -1 || self._peerConnections[peerId].remoteDescription.sdp.indexOf('m=application 0') > 0)) {
+      return;
+    }
+
+    if (channelType === self.DATA_CHANNEL_TYPE.MESSAGING) {
+      setTimeout(function () {
+        if (self._peerConnections[peerId] &&
+          self._peerConnections[peerId].signalingState !== self.PEER_CONNECTION_STATE.CLOSED &&
+          (self._peerConnections[peerId].localDescription &&
+          self._peerConnections[peerId].localDescription.type === self.HANDSHAKE_PROGRESS.OFFER)) {
+          log.debug([peerId, 'RTCDataChannel', channelName, 'Reviving Datachannel connection']);
+          self._createDataChannel(peerId, channelName, true);
+        }
+      }, 100);
+    }
+  };
+
+  // Fixes for Firefox bug (49 is working) -> https://bugzilla.mozilla.org/show_bug.cgi?id=1118398
+  if (window.webrtcDetectedBrowser === 'firefox') {
+    var hasTriggeredClose = false;
+    var timeBlockAfterClosing = 0;
+
+    dataChannel.onclose = function () {
+      if (!hasTriggeredClose) {
+        hasTriggeredClose = true;
+        onCloseHandlerFn();
+      }
+    };
+
+    var onFFClosed = setInterval(function () {
+      if (dataChannel.readyState === self.DATA_CHANNEL_STATE.CLOSED ||
+        hasTriggeredClose || timeBlockAfterClosing === 5) {
+        clearInterval(onFFClosed);
+
+        if (!hasTriggeredClose) {
+          hasTriggeredClose = true;
+          onCloseHandlerFn();
+        }
+      // After 5 seconds from CLOSING state and Firefox is not rendering to close, we have to assume to close it.
+      // It is dead! This fixes the case where if it's Firefox who closes the Datachannel, the connection will
+      // still assume as CLOSING..
+      } else if (dataChannel.readyState === self.DATA_CHANNEL_STATE.CLOSING) {
+        timeBlockAfterClosing++;
+      }
+    }, 1000);
+
+  } else {
+    dataChannel.onclose = onCloseHandlerFn;
+  }
+
+  if (channelType === self.DATA_CHANNEL_TYPE.MESSAGING) {
+    self._dataChannels[peerId].main = {
+      channelName: channelName,
+      channelType: channelType,
+      transferId: null,
+      channel: dataChannel
+    };
+  } else {
+    self._dataChannels[peerId][channelName] = {
+      channelName: channelName,
+      channelType: channelType,
+      transferId: channelName,
+      channel: dataChannel
+    };
+  }
+};
+
+/**
+ * Function that sends data over the Datachannel connection.
+ * @method _sendMessageToDataChannel
+ * @private
+ * @for Skylink
+ * @since 0.5.2
+ */
+Skylink.prototype._sendMessageToDataChannel = function(peerId, data, channelProp, doNotConvert) {
+  var self = this;
+
+  // Set it as "main" (MESSAGING) Datachannel
+  if (!channelProp || channelProp === peerId) {
+    channelProp = 'main';
+  }
+
+  // TODO: What happens when we want to send binary data over or ArrayBuffers?
+  if (!(typeof data === 'object' && data) && !(data && typeof data === 'string')) {
+    log.warn([peerId, 'RTCDataChannel', 'prop:' + channelProp, 'Dropping invalid data ->'], data);
+    return;
+  }
+
+  if (!(self._peerConnections[peerId] &&
+    self._peerConnections[peerId].signalingState !== self.PEER_CONNECTION_STATE.CLOSED)) {
+    log.warn([peerId, 'RTCDataChannel', 'prop:' + channelProp,
+      'Dropping for sending message as Peer connection does not exists or is closed ->'], data);
+    return;
+  }
+
+  if (!(self._dataChannels[peerId] && self._dataChannels[peerId][channelProp])) {
+    log.warn([peerId, 'RTCDataChannel', 'prop:' + channelProp,
+      'Dropping for sending message as Datachannel connection does not exists ->'], data);
+    return;
+  }
+
+  var channelName = self._dataChannels[peerId][channelProp].channelName;
+  var channelType = self._dataChannels[peerId][channelProp].channelType;
+  var readyState  = self._dataChannels[peerId][channelProp].channel.readyState;
+  var messageType = typeof data === 'object' && data.type === self._DC_PROTOCOL_TYPE.MESSAGE ?
+    self.DATA_CHANNEL_MESSAGE_ERROR.MESSAGE : self.DATA_CHANNEL_MESSAGE_ERROR.TRANSFER;
+
+  if (messageType === self.DATA_CHANNEL_MESSAGE_ERROR.TRANSFER) {
+    var transferId = self._dataChannels[peerId][channelProp].transferId;
+
+    if (transferId && self._dataTransfers[transferId] && ([self.DATA_TRANSFER_DATA_TYPE.BINARY_STRING,
+      self.DATA_TRANSFER_DATA_TYPE.STRING].indexOf(self._dataTransfers[transferId].chunkType) > -1 ||
+      (Array.isArray(self._dataTransfers[transferId].enforceBSPeers) &&
+      self._dataTransfers[transferId].enforceBSPeers.indexOf(peerId) > -1)) && !(data instanceof Blob) && !data.type) {
+      messageType = self.DATA_CHANNEL_MESSAGE_ERROR.STREAM_DATA;
+    }
+  }
+
+  if (readyState !== self.DATA_CHANNEL_STATE.OPEN) {
+    var notOpenError = 'Failed sending message as Datachannel connection state is not opened. Current ' +
+      'readyState is "' + readyState + '"';
+
+    log.error([peerId, 'RTCDataChannel', 'prop:' + channelProp, notOpenError + ' ->'], data);
+
+    self._trigger('dataChannelState', self.DATA_CHANNEL_STATE.SEND_MESSAGE_ERROR, peerId,
+      new Error(notOpenError), channelName, channelType, messageType);
+
+    throw new Error(notOpenError);
+  }
+
+  try {
+    if (!doNotConvert && typeof data === 'object') {
+      log.debug([peerId, 'RTCDataChannel', 'prop:' + channelProp, 'Sending message ->'], data);
+
+      self._dataChannels[peerId][channelProp].channel.send(JSON.stringify(data));
+
+    } else {
+      log.debug([peerId, 'RTCDataChannel', 'prop:' + channelProp, 'Sending data with size ->'],
+        data.size || data.length || data.byteLength);
+
+      self._dataChannels[peerId][channelProp].channel.send(data);
+    }
+  } catch (error) {
+    log.error([peerId, 'RTCDataChannel', 'prop:' + channelProp, 'Failed sending message ->'], error);
+
+    self._trigger('dataChannelState', self.DATA_CHANNEL_STATE.SEND_MESSAGE_ERROR, peerId,
+      error, channelName, channelType, messageType);
+
+    throw error;
+  }
+};
+
+/**
+ * Function that stops the Datachannel connection and removes object references.
+ * @method _closeDataChannel
+ * @private
+ * @for Skylink
+ * @since 0.1.0
+ */
+Skylink.prototype._closeDataChannel = function(peerId, channelProp) {
+  var self = this;
+
+  if (!self._dataChannels[peerId]) {
+    log.warn([peerId, 'RTCDataChannel', channelProp || null,
+      'Aborting closing Datachannels as Peer connection does not have Datachannel sessions']);
+    return;
+  }
+
+  var closeFn = function (rChannelProp) {
+    var channelName = self._dataChannels[peerId][rChannelProp].channelName;
+    var channelType = self._dataChannels[peerId][rChannelProp].channelType;
+
+    if (self._dataChannels[peerId][rChannelProp].readyState !== self.DATA_CHANNEL_STATE.CLOSED) {
+      log.debug([peerId, 'RTCDataChannel', channelName, 'Closing Datachannel']);
+
+      self._trigger('dataChannelState', self.DATA_CHANNEL_STATE.CLOSING, peerId, null, channelName, channelType, null);
+
+      self._dataChannels[peerId][rChannelProp].channel.close();
+
+      delete self._dataChannels[peerId][rChannelProp];
+    }
+  };
+
+  if (!channelProp) {
+    for (var channelNameProp in self._dataChannels) {
+      if (self._dataChannels[peerId].hasOwnProperty(channelNameProp)) {
+        if (self._dataChannels[peerId][channelNameProp]) {
+          closeFn(channelNameProp);
+        }
+      }
+    }
+  } else {
+    if (!self._dataChannels[peerId][channelProp]) {
+      log.warn([peerId, 'RTCDataChannel', channelProp, 'Aborting closing Datachannel as it does not exists']);
+      return;
+    }
+
+    closeFn(channelProp);
+  }
+};
+
+/**
+ * Stores the data chunk size for Blob transfers.
+ * @attribute _CHUNK_FILE_SIZE
+ * @type Number
+ * @private
+ * @readOnly
+ * @for Skylink
+ * @since 0.5.2
+ */
+Skylink.prototype._CHUNK_FILE_SIZE = 49152;
+
+/**
+ * Stores the data chunk size for Blob transfers transferring from/to
+ *   Firefox browsers due to limitation tested in the past in some PCs (linx predominatly).
+ * @attribute _MOZ_CHUNK_FILE_SIZE
+ * @type Number
+ * @private
+ * @readOnly
+ * @for Skylink
+ * @since 0.5.2
+ */
+Skylink.prototype._MOZ_CHUNK_FILE_SIZE = 12288;
+
+/**
+ * Stores the data chunk size for binary Blob transfers.
+ * @attribute _BINARY_FILE_SIZE
+ * @type Number
+ * @private
+ * @readOnly
+ * @for Skylink
+ * @since 0.6.16
+ */
+Skylink.prototype._BINARY_FILE_SIZE = 65456;
+
+/**
+ * Stores the data chunk size for binary Blob transfers.
+ * @attribute _MOZ_BINARY_FILE_SIZE
+ * @type Number
+ * @private
+ * @readOnly
+ * @for Skylink
+ * @since 0.6.16
+ */
+Skylink.prototype._MOZ_BINARY_FILE_SIZE = 16384;
+
+/**
+ * Stores the data chunk size for data URI string transfers.
+ * @attribute _CHUNK_DATAURL_SIZE
+ * @type Number
+ * @private
+ * @readOnly
+ * @for Skylink
+ * @since 0.5.2
+ */
+Skylink.prototype._CHUNK_DATAURL_SIZE = 1212;
+
+/**
+ * Function that converts Base64 string into Blob object.
+ * This is referenced from devnull69@stackoverflow.com #6850276.
+ * @method _base64ToBlob
+ * @private
+ * @for Skylink
+ * @since 0.1.0
+ */
+Skylink.prototype._base64ToBlob = function(dataURL) {
+  var byteString = atob(dataURL);
+  // write the bytes of the string to an ArrayBuffer
+  var ab = new ArrayBuffer(byteString.length);
+  var ia = new Uint8Array(ab);
+  for (var j = 0; j < byteString.length; j++) {
+    ia[j] = byteString.charCodeAt(j);
+  }
+  // write the ArrayBuffer to a blob, and you're done
+  return new Blob([ab]);
+};
+
+/**
+ * Function that converts a Blob object into Base64 string.
+ * @method _blobToBase64
+ * @private
+ * @for Skylink
+ * @since 0.1.0
+ */
+Skylink.prototype._blobToBase64 = function(data, callback) {
+  var fileReader = new FileReader();
+  fileReader.onload = function() {
+    // Load Blob as dataurl base64 string
+    var base64BinaryString = fileReader.result.split(',')[1];
+    callback(base64BinaryString);
+  };
+  fileReader.readAsDataURL(data);
+};
+
+/**
+ * Function that converts a Blob object into ArrayBuffer object.
+ * @method _blobToArrayBuffer
+ * @private
+ * @for Skylink
+ * @since 0.1.0
+ */
+Skylink.prototype._blobToArrayBuffer = function(data, callback) {
+  var self = this;
+  var fileReader = new FileReader();
+  fileReader.onload = function() {
+    // Load Blob as dataurl base64 string
+    if (self._isUsingPlugin) {
+      callback(new Int8Array(fileReader.result));
+    } else {
+      callback(fileReader.result);
+    }
+  };
+  fileReader.readAsArrayBuffer(data);
+};
+
+/**
+ * Function that chunks Blob object based on the data chunk size provided.
+ * If provided Blob object size is lesser than or equals to the chunk size, it should return an array
+ *   of length of <code>1</code>.
+ * @method _chunkBlobData
+ * @private
+ * @for Skylink
+ * @since 0.5.2
+ */
+Skylink.prototype._chunkBlobData = function(blob, chunkSize) {
+  var chunksArray = [];
+  var startCount = 0;
+  var endCount = 0;
+  var blobByteSize = blob.size;
+
+  if (blobByteSize > chunkSize) {
+    // File Size greater than Chunk size
+    while ((blobByteSize - 1) > endCount) {
+      endCount = startCount + chunkSize;
+      chunksArray.push(blob.slice(startCount, endCount));
+      startCount += chunkSize;
+    }
+    if ((blobByteSize - (startCount + 1)) > 0) {
+      chunksArray.push(blob.slice(startCount, blobByteSize - 1));
+    }
+  } else {
+    // File Size below Chunk size
+    chunksArray.push(blob);
+  }
+  return chunksArray;
+};
+
+/**
+ * Function that chunks large string into string chunks based on the data chunk size provided.
+ * If provided string length is lesser than or equals to the chunk size, it should return an array
+ *   of length of <code>1</code>.
+ * @method _chunkDataURL
+ * @private
+ * @for Skylink
+ * @since 0.6.1
+ */
+Skylink.prototype._chunkDataURL = function(dataURL, chunkSize) {
+  var outputStr = dataURL; //encodeURIComponent(dataURL);
+  var dataURLArray = [];
+  var startCount = 0;
+  var endCount = 0;
+  var dataByteSize = dataURL.size || dataURL.length;
+
+  if (dataByteSize > chunkSize) {
+    // File Size greater than Chunk size
+    while ((dataByteSize - 1) > endCount) {
+      endCount = startCount + chunkSize;
+      dataURLArray.push(outputStr.slice(startCount, endCount));
+      startCount += chunkSize;
+    }
+    if ((dataByteSize - (startCount + 1)) > 0) {
+      chunksArray.push(outputStr.slice(startCount, dataByteSize - 1));
+    }
+  } else {
+    // File Size below Chunk size
+    dataURLArray.push(outputStr);
+  }
+
+  return dataURLArray;
+};
+
+/**
  * Stores the list of data transfer protocols.
  * @attribute _DC_PROTOCOL_TYPE
  * @param {String} WRQ The protocol to initiate data transfer.
