@@ -101,32 +101,61 @@ if (!Object.keys) {
 })(window, document);
 
 /**
- * Global function that clones an object.
+ * Function that loops an object.
  */
-var clone = function (obj) {
-  if (obj === null || typeof obj !== 'object') {
-    return obj;
-  }
-
-  var copy = function (data) {
-    var copy = data.constructor();
-    for (var attr in data) {
-      if (data.hasOwnProperty(attr)) {
-        copy[attr] = data[attr];
+var forEach = function (obj, fn) {
+  if (Array.isArray(obj)) {
+    // Use native forEach method
+    if (typeof obj.forEach === 'function') {
+      obj.forEach(fn);
+    // Use for i loop
+    } else {
+      for (var i = 0; i < obj.length; i++) {
+        fn(obj[i], i);
       }
     }
-    return copy;
-  };
-
-  if (typeof obj === 'object' && !Array.isArray(obj)) {
-    try {
-      return JSON.parse( JSON.stringify(obj) );
-    } catch (err) {
-      return copy(obj);
+  } else {
+    // Loop each properties
+    for (var p in obj) {
+      if (obj.hasOwnProperty(p)) {
+        fn(obj[p], p);
+      }
     }
   }
+};
 
-  return copy(obj);
+/**
+ * Function that loops an object.
+ */
+var clone = function (obj) {
+  // There's not a need to clone a non-object 
+  if (!(obj && typeof obj === 'object')) {
+    return obj;
+  }
+  // Return "cloned" array object
+  if (Array.isArray(obj)) {
+    return obj.concat([]);
+  }
+  // Return "cloned" object
+  try {
+    return JSON.parse(JSON.stringify(obj));
+  // Use backup option
+  } catch (e) {
+    var copy = {};
+    var fn = function (item) {
+      utils.forEach(item, function (subitem, prop) {
+        if (Array.isArray(subitem)) {
+          copy[prop] = subitem.concat([]);
+        } else if (subitem && typeof subitem === 'object') {
+          copy[prop] = fn(subitem);
+        } else {
+          copy[prop] = subitem;
+        }
+      });
+    };
+    fn(obj);
+  }
+  return obj;
 };
 
 /**
@@ -263,6 +292,16 @@ function Skylink() {
       }
     }
   };
+
+  /**
+   * Stores the list of Peers.
+   * @attribute _peers
+   * @type JSON
+   * @private
+   * @for Skylink
+   * @since 0.6.18
+   */
+  this._peers = {};
 
   /**
    * Stores the Socket connection.
