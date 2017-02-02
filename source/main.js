@@ -188,6 +188,9 @@ var clone = function (obj) {
  * [See License (Apache 2.0)](https://github.com/Temasys/SkylinkJS/blob/master/LICENSE)
  *
  * @class Skylink
+ * @param {String} [instanceLabel] The Skylink object instance label ID for identification.
+ * - When not provided, an instance label ID would be generated.
+ *   <small>It is recommended to provide an unique instance label ID.</small>
  * @constructor
  * @example
  *   // Here's a simple example on how you can start using Skylink.
@@ -231,8 +234,19 @@ var clone = function (obj) {
  * @for Skylink
  * @since 0.5.0
  */
-function Skylink() {
+function Skylink(instanceLabel) {
   var self = this;
+
+  /**
+   * The Skylink object instance label ID.
+   * @attribute INSTANCE_LABEL
+   * @type String
+   * @readOnly
+   * @for Skylink
+   * @since 0.6.18
+   */
+  this.INSTANCE_LABEL = typeof instanceLabel === 'string' && instanceLabel && instanceLabel !== '_' ?
+    instanceLabel : 'in_' + Date.now() + Math.floor(Math.random() * 10000);
 
   /**
    * Stores the `init()` method options.

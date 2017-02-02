@@ -1,4 +1,71 @@
 /**
+ * Global logs array.
+ */
+var SkylinkLogsStorage = [];
+
+/**
+ * Factory that stores the logging functions.
+ */
+Skylink.prototype._logFactory = function () {
+  var self = this;
+  var logger = {
+    level: self.LOG_LEVEL.ERROR,
+    options: {
+      storeLogs: false,
+      trace: false,
+      printTimestamp: false,
+      printInstanceLabel: false
+    }
+  };
+
+  /**
+   * - Function that logs a message to console.
+   */
+  var logFn = function (logProp, log, object) {
+    var output = '';
+    var consoleOutput = '';
+    var timestamp = (new Date ());
+
+    // Print the format when provided as array
+    if (Array.isArray(log)) {
+      // Print the Peer ID
+      output += (log[0]) ? ' [' + log[0] + '] -' : ' -';
+      // Print the component
+      output += (log[1]) ? ' <<' + log[1] + '>>' : '';
+      // Print the sub-item
+      output += (log[2]) ? ' (' + log[2] + ')' : '';
+      // Print the log message
+      output += ' ' + log[3];
+    // Print just as log message format
+    } else {
+      output += ' - ' + log;
+    }
+
+    consoleOutput = (logger.options.printTimestamp ? '[' + timestamp.toISOString() + '] ' : '') +
+      'SkylinkJS' + (logger.options.printInstanceLabel ? ' :: ' + self.INSTANCE_LABEL : '') + output;
+    output = 'SkylinkJS' + output;
+
+    // store the logs
+    if (logger.options.storeLogs) {
+      SkylinkLogsStorage[self.INSTANCE_LABEL] = SkylinkLogsStorage[self.INSTANCE_LABEL] || [];
+      SkylinkLogsStorage[self.INSTANCE_LABEL].push(
+        [(new Date()), logProp, output, object || null, self.INSTANCE_LABEL]);
+    }
+
+    if (logger.level >= self.LOG_LEVEL[logProp.toUpperCase()]) {
+      // Fallback to use console.log when for e.g. console.debug is not available
+      var useLogProp = (typeof console[logProp] === 'undefined') ? 'log' : logProp;
+      // Use trace mode when requested
+      useLogProp = (logger.options.traceMode && typeof console.trace === 'undefined') ? useLogProp : 'trace';
+      // Print when only available
+      console[useLogProp](useLogProp === 'trace' ? '[' + logProp.toUpperCase() + ']' : '', consoleOutput,
+          typeof object !== 'undefined' ? object : '');
+    }
+  }
+}
+
+
+/**
  * Stores the log message starting header string.
  * E.g. "<header> - <the log message>".
  * @attribute _LOG_KEY
