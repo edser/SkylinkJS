@@ -57,7 +57,8 @@ module.exports = function(grunt) {
                 separator: '\n',
                 stripBanners: true,
                 banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - ' +
-                    (new Date()).toString() + ' */\n\n'
+                    (new Date()).toString() + ' */\n\n (function (globals) {',
+                footer: '})(this);'
             },
 
             production: {
@@ -69,7 +70,8 @@ module.exports = function(grunt) {
                     '<%= production %>/skylink.complete.js': [
                         'node_modules/socket.io-client/socket.io.js',
                         'node_modules/adapterjs/publish/adapter.screenshare.js',
-                        '<%= production %>/skylink.debug.js'
+                        '<%= source %>/main.js',
+                        '<%= source %>/*.js'
                     ]
                 }
             },

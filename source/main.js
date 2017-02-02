@@ -635,6 +635,6 @@ if (typeof exports !== 'undefined') {
   window.Skylink = Skylink;
 }
 
-if (this) {
-  this.Skylink = Skylink;
+if (globals) {
+  globals.Skylink = Skylink;
 }

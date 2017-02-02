@@ -1,6 +1,6 @@
-/*! skylinkjs - v0.6.17 - Thu Feb 02 2017 01:17:03 GMT+0800 (SGT) */
+/*! skylinkjs - v0.6.17 - Thu Feb 02 2017 18:44:52 GMT+0800 (SGT) */
 
-/**
+ (function (globals) {/**
  * Polyfill for Object.keys() from Mozilla
  * From https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/keys
  */
@@ -636,8 +636,8 @@ if (typeof exports !== 'undefined') {
   window.Skylink = Skylink;
 }
 
-if (this) {
-  this.Skylink = Skylink;
+if (globals) {
+  globals.Skylink = Skylink;
 }
 
 Skylink.prototype.DATA_CHANNEL_STATE = {
@@ -12008,9 +12008,9 @@ Skylink.prototype._createSessionFactory = function () {
     // Room socket connection to Signaling server
     socket: null,
 
-    /**
-     * Function that sets the current readyState.
-     */
+/**
+ * -- Function that sets the current readyState.
+ */
     setReadyState: function (state, error) {
       var room = this;
       log.debug([null, 'Room', room.name, 'Ready state ->'], state);
@@ -12026,9 +12026,9 @@ Skylink.prototype._createSessionFactory = function () {
       self._trigger('readyStateChange', state, error, room.name);
     },
 
-    /**
-     * Function that gets the Room session token to start connection.
-     */
+/**
+ * -- Function that gets the Room session token to start connection.
+ */
     getSessionCredentials: function (name) {
       var room = this;
       var xhr = new XMLHttpRequest();
@@ -13214,6 +13214,72 @@ Skylink.prototype._getSDPFingerprint = function (targetMid, sessionDescription) 
   return fingerprint;
 };
 
+var SkylinkLogs = (function () {
+  return {
+    // Store the local logs
+    logs: [],
+
+    /**
+     * Function that gets the current stored SDK <code>console</code> logs.
+     * @property SkylinkLogs.getLogs
+     * @param {Number} [logLevel] The specific log level of logs to return.
+     * - When not provided or that the level does not exists, it will return all logs of all levels.
+     *  [Rel: Skylink.LOG_LEVEL]
+     * @return {Array} The array of stored logs.<ul>
+     *   <li><code><#index></code><var><b>{</b>Array<b>}</b></var><p>The stored log item.</p><ul>
+     *   <li><code>0</code><var><b>{</b>Date<b>}</b></var><p>The DateTime of when the log was stored.</p></li>
+     *   <li><code>1</code><var><b>{</b>String<b>}</b></var><p>The log level. [Rel: Skylink.LOG_LEVEL]</p></li>
+     *   <li><code>2</code><var><b>{</b>String<b>}</b></var><p>The log message.</p></li>
+     *   <li><code>3</code><var><b>{</b>Any<b>}</b></var><span class="label">Optional</span><p>The log message object.
+     *   </p></li></ul></li></ul>
+     * @example
+     *  // Example 1: Get logs of specific level
+     *  var debugLogs = SkylinkLogs.getLogs(skylinkDemo.LOG_LEVEL.DEBUG);
+     *
+     *  // Example 2: Get all the logs
+     *  var allLogs = SkylinkLogs.getLogs();
+     * @type Function
+     * @global true
+     * @triggerForPropHackNone true
+     * @for Skylink
+     * @since 0.5.5
+     */
+    getLogs: function () {
+    },
+
+    /**
+     * Function that clears all the current stored SDK <code>console</code> logs.
+     * @property SkylinkLogs.clearAllLogs
+     * @type Function
+     * @example
+     *   // Example 1: Clear all the logs
+     *   SkylinkLogs.clearAllLogs();
+     * @global true
+     * @triggerForPropHackNone true
+     * @for Skylink
+     * @since 0.5.5
+     */
+    clearAllLogs: function () {
+    },
+
+    /**
+     * Function that prints all the current stored SDK <code>console</code> logs into the
+     * <a href="https://developer.mozilla.org/en/docs/Web/API/console">Javascript Web Console</a>.
+     * @property SkylinkLogs.printAllLogs
+     * @type Function
+     * @example
+     *   // Example 1: Print all the logs
+     *   SkylinkLogs.printAllLogs();
+     * @global true
+     * @triggerForPropHackNone true
+     * @for Skylink
+     * @since 0.5.5
+     */
+    printAllLogs: function () {
+
+    }
+  };
+})();
 Skylink.prototype._socketSendMessage = function(message) {
   var self = this;
 
@@ -15636,3 +15702,61 @@ Skylink.prototype._handleEndedStreams = function (peerId, checkStreamId) {
     }
   }
 };
+Skylink.prototype._utilsFactory = {
+	/**
+	 * - Function that loops an object.
+	 */
+	forEach: function (obj, fn) {
+	  if (Array.isArray(obj)) {
+	    // Use native forEach method
+	    if (typeof obj.forEach === 'function') {
+	      obj.forEach(fn);
+	    // Use for i loop
+	    } else {
+	      for (var i = 0; i < obj.length; i++) {
+	        fn(obj[i], i);
+	      }
+	    }
+	  } else {
+	    // Loop each properties
+	    for (var p in obj) {
+	      if (obj.hasOwnProperty(p)) {
+	        fn(obj[p], p);
+	      }
+	    }
+	  }
+	},
+	/**
+	 * - Function that loops an object.
+	 */
+	clone: function (obj) {
+	  // There's not a need to clone a non-object 
+	  if (!(obj && typeof obj === 'object')) {
+	    return obj;
+	  }
+	  // Return "cloned" array object
+	  if (Array.isArray(obj)) {
+	    return obj.concat([]);
+	  }
+	  // Return "cloned" object
+	  try {
+	    return JSON.parse(JSON.stringify(obj));
+	  // Use backup option
+	  } catch (e) {
+	    var copy = {};
+	    var fn = function (item) {
+	      utils.forEach(item, function (subitem, prop) {
+	        if (Array.isArray(subitem)) {
+	          copy[prop] = subitem.concat([]);
+	        } else if (subitem && typeof subitem === 'object') {
+	          copy[prop] = fn(subitem);
+	        } else {
+	          copy[prop] = subitem;
+	        }
+	      });
+	    };
+	    fn(obj);
+	  }
+	  return obj;
+	}
+};})(this);
