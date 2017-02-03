@@ -1,5 +1,6 @@
 /**
- * + Factory that handles the stored logs.
+ * + Factory (Singleton) that handles the stored logs.
+ *   This can be called by all Skylink objects.
  */
 var LogStorageFactory = (function () {
   var storedLogs = {};

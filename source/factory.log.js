@@ -1,5 +1,6 @@
 /**
  * + Factory that handles the logging.
+ *   This returns the logging object that the Skylink object can invoke to push log.
  */
 function LogFactory (instanceLabel) {
   var logger = {
