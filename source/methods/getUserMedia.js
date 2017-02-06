@@ -273,7 +273,7 @@ Skylink.prototype.getUserMedia = function(options,callback) {
 
     } else {
       var invalidOptionsError = 'Please provide a valid options';
-      self._log.error(invalidOptionsError, options);
+      Log.error(self._debugOptions.instanceId, invalidOptionsError, options);
       if (typeof callback === 'function') {
         callback(new Error(invalidOptionsError), null);
       }
@@ -282,7 +282,7 @@ Skylink.prototype.getUserMedia = function(options,callback) {
 
   } else if (!options.audio && !options.video) {
     var noConstraintOptionsSelectedError = 'Please select audio or video';
-    self._log.error(noConstraintOptionsSelectedError, options);
+    Log.error(self._debugOptions.instanceId, noConstraintOptionsSelectedError, options);
     if (typeof callback === 'function') {
       callback(new Error(noConstraintOptionsSelectedError), null);
     }
@@ -292,7 +292,7 @@ Skylink.prototype.getUserMedia = function(options,callback) {
   /*if (window.location.protocol !== 'https:' && window.webrtcDetectedBrowser === 'chrome' &&
     window.webrtcDetectedVersion > 46) {
     errorMsg = 'getUserMedia() has to be called in https:// application';
-    log.error(errorMsg, options);
+    Log.error(errorMsg, options);
     if (typeof callback === 'function') {
       callback(new Error(errorMsg), null);
     }
@@ -303,7 +303,7 @@ Skylink.prototype.getUserMedia = function(options,callback) {
     if (!runFn) {
       if (self._throttlingShouldThrowError) {
         var throttleLimitError = 'Unable to run as throttle interval has not reached (' + self._throttlingTimeouts.getUserMedia + 'ms).';
-        log.error(throttleLimitError);
+        Log.error(self._debugOptions.instanceId, throttleLimitError);
 
         if (typeof callback === 'function') {
           callback(new Error(throttleLimitError), null);

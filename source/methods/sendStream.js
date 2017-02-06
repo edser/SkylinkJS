@@ -124,7 +124,7 @@ Skylink.prototype.sendStream = function(options, callback) {
       if (Object.keys(self._peerConnections).length > 0 || self._hasMCU) {
         self._refreshPeerConnection(Object.keys(self._peerConnections), false, function (err, success) {
           if (err) {
-            self._log.error('Failed refreshing connections for sendStream() ->', err);
+            Log.error(self._debugOptions.instanceId, 'Failed refreshing connections for sendStream() ->', err);
             if (typeof callback === 'function') {
               callback(new Error('Failed refreshing connections.'), null);
             }
@@ -139,7 +139,7 @@ Skylink.prototype.sendStream = function(options, callback) {
       }
     } else {
       var notInRoomAgainError = 'Unable to send stream as user is not in the Room.';
-      self._log.error(notInRoomAgainError, stream);
+      Log.error(self._debugOptions.instanceId, notInRoomAgainError, stream);
       if (typeof callback === 'function') {
         callback(new Error(notInRoomAgainError), null);
       }
@@ -148,7 +148,7 @@ Skylink.prototype.sendStream = function(options, callback) {
 
   if (typeof options !== 'object' || options === null) {
     var invalidOptionsError = 'Provided stream settings is invalid';
-    self._log.error(invalidOptionsError, options);
+    Log.error(self._debugOptions.instanceId, invalidOptionsError, options);
     if (typeof callback === 'function'){
       callback(new Error(invalidOptionsError),null);
     }
@@ -157,7 +157,7 @@ Skylink.prototype.sendStream = function(options, callback) {
 
   if (!self._inRoom) {
     var notInRoomError = 'Unable to send stream as user is not in the Room.';
-    self._log.error(notInRoomError, options);
+    Log.error(self._debugOptions.instanceId, notInRoomError, options);
     if (typeof callback === 'function'){
       callback(new Error(notInRoomError),null);
     }
@@ -166,7 +166,7 @@ Skylink.prototype.sendStream = function(options, callback) {
 
   if (window.webrtcDetectedBrowser === 'edge') {
     var edgeNotSupportError = 'Edge browser currently does not support renegotiation.';
-    self._log.error(edgeNotSupportError, options);
+    Log.error(self._debugOptions.instanceId, edgeNotSupportError, options);
     if (typeof callback === 'function'){
       callback(new Error(edgeNotSupportError),null);
     }
@@ -186,7 +186,7 @@ Skylink.prototype.sendStream = function(options, callback) {
 
     if (!checkActiveTracksFn( options.getAudioTracks() ) && !checkActiveTracksFn( options.getVideoTracks() )) {
       var invalidStreamError = 'Provided stream object does not have audio or video tracks.';
-      self._log.error(invalidStreamError, options);
+      Log.error(self._debugOptions.instanceId, invalidStreamError, options);
       if (typeof callback === 'function'){
         callback(new Error(invalidStreamError),null);
       }

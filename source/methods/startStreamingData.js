@@ -157,7 +157,7 @@ Skylink.prototype.startStreamingData = function(isStringStream, targetPeerId) {
   }
 
   var emitErrorBeforeStreamingFn = function (error) {
-    self._log.error(error);
+    Log.error(self._debugOptions.instanceId, error);
 
     if (listOfPeers.length > 0) {
       for (var i = 0; i < listOfPeers.length; i++) {
@@ -238,9 +238,9 @@ Skylink.prototype.startStreamingData = function(isStringStream, targetPeerId) {
       if (channelProp === 'main') {
         var dataTransferId = self._hasMCU ? self._dataChannels.MCU.main.transferId : self._dataChannels[peerId].main.transferId;
 
-        if (self._dataChannels[peerId].main.streamId) {
+        if (self._dataChannels[peerId].main.getInfo().custom.streamId) {
           error = 'Peer Datachannel currently has an active data transfer session.';
-        } else if (self._hasMCU && self._dataChannels.MCU.main.streamId) {
+        } else if (self._hasMCU && self._dataChannels.MCU.main.getInfo().custom.streamId) {
           error = 'MCU Peer Datachannel currently has an active data transfer session.';
         } else if (self._dataTransfers[dataTransferId] && self._dataTransfers[dataTransferId].sessionChunkType === sessionChunkType) {
           error = (self._hasMCU ? 'MCU ' : '') + 'Peer Datachannel currently has an active ' + sessionChunkType + ' data transfer.';
@@ -262,7 +262,7 @@ Skylink.prototype.startStreamingData = function(isStringStream, targetPeerId) {
   }
 
   if (listOfPeers.length === 0) {
-    self._log.warn('There are no Peers to start data session with.');
+    Log.warn(self._debugOptions.instanceId, 'There are no Peers to start data session with.');
     return;
   }
 
@@ -304,7 +304,7 @@ Skylink.prototype.startStreamingData = function(isStringStream, targetPeerId) {
     });
 
     if (!(self._dataChannels[peerId][channelProp] &&
-      self._dataChannels[peerId][channelProp].channel.readyState === self.DATA_CHANNEL_STATE.OPEN)) {
+      self._dataChannels[peerId][channelProp].getInfo().readyState === self.DATA_CHANNEL_STATE.OPEN)) {
       var notOpenError = new Error('Failed starting data streaming session as channel is not opened.');
       if (peerId === 'MCU') {
         for (i = 0; i < targetPeers.length; i++) {
@@ -331,8 +331,10 @@ Skylink.prototype.startStreamingData = function(isStringStream, targetPeerId) {
       agent: window.webrtcDetectedBrowser,
       version: window.webrtcDetectedVersion,
       target: peerId === 'MCU' ? targetPeers : peerId
-    }, channelProp);
-    self._dataChannels[peerId][channelProp].streamId = transferId;
+    }, channelProp, function (error) {
+
+    });
+    self._dataChannels[peerId][channelProp].setCustom('streamId', transferId);
 
     var updatedSessionInfo = UtilsFactory.clone(sessionInfo);
     delete updatedSessionInfo.chunk;

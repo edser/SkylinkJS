@@ -58,11 +58,11 @@
 Skylink.prototype.getPeers = function(showAll, callback){
 	var self = this;
 	if (!self._isPrivileged){
-		self._log.warn('Please upgrade your key to privileged to use this function');
+		Log.warn(self._debugOptions.instanceId, 'Please upgrade your key to privileged to use this function');
 		return;
 	}
 	if (!self._appKey){
-		self._log.warn('App key is not defined. Please authenticate again.');
+		Log.warn(self._debugOptions.instanceId, 'App key is not defined. Please authenticate again.');
 		return;
 	}
 
@@ -79,7 +79,7 @@ Skylink.prototype.getPeers = function(showAll, callback){
 
 	self._trigger('getPeersStateChange',self.GET_PEERS_STATE.ENQUIRED, self._user.sid, null);
 
-	self._log.log('Enquired server for peers within the realm');
+	Log.log(self._debugOptions.instanceId, 'Enquired server for peers within the realm');
 
 	if (typeof callback === 'function'){
 		self.once('getPeersStateChange', function(state, privilegedPeerId, peerList){

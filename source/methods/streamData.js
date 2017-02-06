@@ -72,33 +72,33 @@ Skylink.prototype.streamData = function(transferId, dataChunk) {
   var self = this;
 
   if (!(transferId && typeof transferId === 'string')) {
-    self._log.error('Failed streaming data chunk as stream session ID is not provided.');
+    Log.error(self._debugOptions.instanceId, 'Failed streaming data chunk as stream session ID is not provided.');
     return;
   }
 
   if (!(dataChunk && typeof dataChunk === 'object' && (dataChunk instanceof Blob || dataChunk instanceof ArrayBuffer))) {
-    self._log.error('Failed streaming data chunk as it is not provided.');
+    Log.error(self._debugOptions.instanceId, 'Failed streaming data chunk as it is not provided.');
     return;
   }
 
   if (!(self._inRoom && self._user && self._user.sid)) {
-    self._log.error('Failed streaming data chunk as User is not in the Room.');
+    Log.error(self._debugOptions.instanceId, 'Failed streaming data chunk as User is not in the Room.');
     return;
   }
 
   if (!self._dataStreams[transferId]) {
-    self._log.error('Failed streaming data chunk as session does not exists.');
+    Log.error(self._debugOptions.instanceId, 'Failed streaming data chunk as session does not exists.');
     return;
   }
 
   if (!self._dataStreams[transferId].isUpload) {
-    self._log.error('Failed streaming data chunk as session is not sending.');
+    Log.error(self._debugOptions.instanceId, 'Failed streaming data chunk as session is not sending.');
     return;
   }
 
   if (self._dataStreams[transferId].sessionChunkType === 'string' ? typeof dataChunk !== 'string' :
     typeof dataChunk !== 'object') {
-    self._log.error('Failed streaming data chunk as data chunk does not match expected data type.');
+    Log.error(self._debugOptions.instanceId, 'Failed streaming data chunk as data chunk does not match expected data type.');
     return;
   }
 
@@ -106,7 +106,7 @@ Skylink.prototype.streamData = function(transferId, dataChunk) {
 
   if (self._dataStreams[transferId].sessionChunkType === 'string' ? updatedDataChunk.length > self._CHUNK_DATAURL_SIZE :
     updatedDataChunk.length > self._BINARY_FILE_SIZE) {
-    self._log.error('Failed streaming data chunk as data chunk exceeds maximum chunk limit.');
+    Log.error(self._debugOptions.instanceId, 'Failed streaming data chunk as data chunk exceeds maximum chunk limit.');
     return;
   }
 
@@ -158,9 +158,9 @@ Skylink.prototype.streamData = function(transferId, dataChunk) {
       var channelProp = self._dataStreams[transferId].sessions[peerId];
 
       if (!(self._dataChannels[self._hasMCU ? 'MCU' : peerId] && self._dataChannels[self._hasMCU ? 'MCU' : peerId][channelProp] &&
-        self._dataChannels[self._hasMCU ? 'MCU' : peerId][channelProp].channel.readyState === self.DATA_CHANNEL_STATE.OPEN &&
-        self._dataChannels[self._hasMCU ? 'MCU' : peerId][channelProp].streamId === transferId)) {
-        self._log.error([peerId, 'RTCDataChannel', transferId, 'Failed streaming data as it has not started or is ready.']);
+        self._dataChannels[self._hasMCU ? 'MCU' : peerId][channelProp].getInfo().readyState === self.DATA_CHANNEL_STATE.OPEN &&
+        self._dataChannels[self._hasMCU ? 'MCU' : peerId][channelProp].getInfo().custom.streamId === transferId)) {
+        Log.error(self._debugOptions.instanceId, [peerId, 'RTCDataChannel', transferId, 'Failed streaming data as it has not started or is ready.']);
         self._trigger('dataStreamState', self.DATA_STREAM_STATE.ERROR, transferId, peerId, sessionInfo,
           new Error('Streaming as it has not started or Datachannel connection is not open.'));
         return;

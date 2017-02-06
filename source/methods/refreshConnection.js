@@ -144,7 +144,7 @@ Skylink.prototype.refreshConnection = function(targetPeerId, iceRestart, callbac
   }
 
   var emitErrorForPeersFn = function (error) {
-    self._log.error(error);
+    Log.error(self._debugOptions.instanceId, error);
 
     if (typeof callback === 'function') {
       var listOfPeerErrors = {};

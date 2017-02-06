@@ -37,7 +37,7 @@ Skylink.prototype._muteStreams = function () {
     muteFn(self._streams.screenshare.streamClone);
   }
 
-  self._log.debug('Updated Streams muted status ->', self._streamsMutedSettings);
+  Log.debug(self._debugOptions.instanceId, 'Updated Streams muted status ->', self._streamsMutedSettings);
 
   return {
     hasVideo: hasVideo,
@@ -56,7 +56,7 @@ Skylink.prototype._stopStreams = function (options) {
   var self = this;
   var stopFn = function (stream) {
     var streamId = stream.id || stream.label;
-    self._log.debug([null, 'MediaStream', streamId, 'Stopping Stream ->'], stream);
+    Log.debug(self._debugOptions.instanceId, [null, 'MediaStream', streamId, 'Stopping Stream ->'], stream);
 
     try {
       var audioTracks = stream.getAudioTracks();
@@ -115,7 +115,7 @@ Skylink.prototype._stopStreams = function (options) {
     self._trigger('peerUpdated', self._user.sid, self.getPeerInfo(), true);
   }
 
-  self._log.log('Stopping Streams with settings ->', options);
+  Log.log(self._debugOptions.instanceId, 'Stopping Streams with settings ->', options);
 };
 
 /**
@@ -308,7 +308,7 @@ Skylink.prototype._onStreamAccessSuccess = function(stream, settings, isScreenSh
   var self = this;
   var streamId = stream.id || stream.label;
 
-  self._log.log([null, 'MediaStream', streamId, 'Has access to stream ->'], stream);
+  Log.log(self._debugOptions.instanceId, [null, 'MediaStream', streamId, 'Has access to stream ->'], stream);
 
   // Stop previous stream
   if (!isScreenSharing && self._streams.userMedia) {
@@ -325,12 +325,12 @@ Skylink.prototype._onStreamAccessSuccess = function(stream, settings, isScreenSh
   }
 
   self._streamsStoppedCbs[streamId] = function () {
-    self._log.log([null, 'MediaStream', streamId, 'Stream has ended']);
+    Log.log(self._debugOptions.instanceId, [null, 'MediaStream', streamId, 'Stream has ended']);
 
     self._trigger('mediaAccessStopped', !!isScreenSharing, !!isAudioFallback, streamId);
 
     if (self._inRoom) {
-      self._log.debug([null, 'MediaStream', streamId, 'Sending Stream ended status to Peers']);
+      Log.debug(self._debugOptions.instanceId, [null, 'MediaStream', streamId, 'Sending Stream ended status to Peers']);
 
       self._sendChannelMessage({
         type: self._SIG_MESSAGE_TYPE.STREAM,
@@ -401,7 +401,7 @@ Skylink.prototype._onStreamAccessSuccess = function(stream, settings, isScreenSh
       'with ' + stream.getAudioTracks().length + ' and video ' +
       'tracks length with ' + stream.getVideoTracks().length;
 
-    self._log.warn([null, 'MediaStream', streamId, tracksNotSameError]);
+    Log.error(self._debugOptions.instanceId, [null, 'MediaStream', streamId, tracksNotSameError]);
 
     var requireAudio = !!settings.settings.audio;
     var requireVideo = !!settings.settings.video;
@@ -443,7 +443,7 @@ Skylink.prototype._onStreamAccessError = function(error, settings, isScreenShari
   var self = this;
 
   if (!isScreenSharing && settings.settings.audio && settings.settings.video && self._audioFallback) {
-    self._log.debug('Fallbacking to retrieve audio only Stream');
+    Log.debug(self._debugOptions.instanceId, 'Fallbacking to retrieve audio only Stream');
 
     self._trigger('mediaAccessFallback', {
       error: error,
@@ -456,7 +456,7 @@ Skylink.prototype._onStreamAccessError = function(error, settings, isScreenShari
       self._onStreamAccessSuccess(stream, settings, false, true);
 
     }, function (error) {
-      self._log.error('Failed fallbacking to retrieve audio only Stream ->', error);
+      Log.error(self._debugOptions.instanceId, 'Failed fallbacking to retrieve audio only Stream ->', error);
 
       self._trigger('mediaAccessError', error, false, true);
       self._trigger('mediaAccessFallback', {
@@ -467,7 +467,7 @@ Skylink.prototype._onStreamAccessError = function(error, settings, isScreenShari
     return;
   }
 
-  self._log.error('Failed retrieving ' + (isScreenSharing ? 'screensharing' : 'camera') + ' Stream ->', error);
+  Log.error(self._debugOptions.instanceId, 'Failed retrieving ' + (isScreenSharing ? 'screensharing' : 'camera') + ' Stream ->', error);
 
   self._trigger('mediaAccessError', error, !!isScreenSharing, false);
 };
@@ -483,7 +483,7 @@ Skylink.prototype._onRemoteStreamAdded = function(targetMid, stream, isScreenSha
   var self = this;
 
   if (!self._peerInformations[targetMid]) {
-    self._log.warn([targetMid, 'MediaStream', stream.id,
+    Log.error(self._debugOptions.instanceId, [targetMid, 'MediaStream', stream.id,
       'Received remote stream when peer is not connected. ' +
       'Ignoring stream ->'], stream);
     return;
@@ -491,15 +491,15 @@ Skylink.prototype._onRemoteStreamAdded = function(targetMid, stream, isScreenSha
 
   /*if (!self._peerInformations[targetMid].settings.audio &&
     !self._peerInformations[targetMid].settings.video && !isScreenSharing) {
-    log.log([targetMid, 'MediaStream', stream.id,
+    Log.log([targetMid, 'MediaStream', stream.id,
       'Receive remote stream but ignoring stream as it is empty ->'
       ], stream);
     return;
   }*/
-  self._log.log([targetMid, 'MediaStream', stream.id, 'Received remote stream ->'], stream);
+  Log.log(self._debugOptions.instanceId, [targetMid, 'MediaStream', stream.id, 'Received remote stream ->'], stream);
 
   if (isScreenSharing) {
-    self._log.log([targetMid, 'MediaStream', stream.id, 'Peer is having a screensharing session with user']);
+    Log.log(self._debugOptions.instanceId, [targetMid, 'MediaStream', stream.id, 'Peer is having a screensharing session with user']);
   }
 
   self._trigger('incomingStream', targetMid, stream, false, self.getPeerInfo(targetMid), isScreenSharing, stream.id || stream.label);
@@ -521,7 +521,7 @@ Skylink.prototype._addLocalMediaStreams = function(peerId) {
   // a mediastream is mainly a container, most of the info
   // are attached to the tracks. We should iterates over track and print
   try {
-    self._log.log([peerId, null, null, 'Adding local stream']);
+    Log.log(self._debugOptions.instanceId, [peerId, null, null, 'Adding local stream']);
 
     var pc = self._peerConnections[peerId];
 
@@ -548,35 +548,35 @@ Skylink.prototype._addLocalMediaStreams = function(peerId) {
         };
 
         if (self._streams.screenshare && self._streams.screenshare.stream) {
-          self._log.debug([peerId, 'MediaStream', null, 'Sending screen'], self._streams.screenshare.stream);
+          Log.debug(self._debugOptions.instanceId, [peerId, 'MediaStream', null, 'Sending screen'], self._streams.screenshare.stream);
 
           updateStreamFn(self._streams.screenshare.stream);
 
         } else if (self._streams.userMedia && self._streams.userMedia.stream) {
-          self._log.debug([peerId, 'MediaStream', null, 'Sending stream'], self._streams.userMedia.stream);
+          Log.debug(self._debugOptions.instanceId, [peerId, 'MediaStream', null, 'Sending stream'], self._streams.userMedia.stream);
 
           updateStreamFn(self._streams.userMedia.stream);
 
         } else {
-          self._log.warn([peerId, 'MediaStream', null, 'No media to send. Will be only receiving']);
+          Log.error(self._debugOptions.instanceId, [peerId, 'MediaStream', null, 'No media to send. Will be only receiving']);
 
           updateStreamFn(null);
         }
 
       } else {
-        self._log.warn([peerId, 'MediaStream', null,
+        Log.error(self._debugOptions.instanceId, [peerId, 'MediaStream', null,
           'Not adding any stream as signalingState is closed']);
       }
     } else {
-      self._log.warn([peerId, 'MediaStream', self._mediaStream,
+      Log.error(self._debugOptions.instanceId, [peerId, 'MediaStream', self._mediaStream,
         'Not adding stream as peerconnection object does not exists']);
     }
   } catch (error) {
     if ((error.message || '').indexOf('already added') > -1) {
-      self._log.warn([peerId, null, null, 'Not re-adding stream as LocalMediaStream is already added'], error);
+      Log.error(self._debugOptions.instanceId, [peerId, null, null, 'Not re-adding stream as LocalMediaStream is already added'], error);
     } else {
       // Fix errors thrown like NS_ERROR_UNEXPECTED
-      self._log.error([peerId, null, null, 'Failed adding local stream'], error);
+      Log.error(self._debugOptions.instanceId, [peerId, null, null, 'Failed adding local stream'], error);
     }
   }
 };

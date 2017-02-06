@@ -129,7 +129,7 @@ Skylink.prototype.shareScreen = function (enableAudio, callback) {
     if (!runFn) {
       if (self._throttlingShouldThrowError) {
         var throttleLimitError = 'Unable to run as throttle interval has not reached (' + self._throttlingTimeouts.shareScreen + 'ms).';
-        self._log.error(throttleLimitError);
+        Log.error(self._debugOptions.instanceId, throttleLimitError);
 
         if (typeof callback === 'function') {
           callback(new Error(throttleLimitError), null);
@@ -163,7 +163,7 @@ Skylink.prototype.shareScreen = function (enableAudio, callback) {
         if (Object.keys(self._peerConnections).length > 0 || self._hasMCU) {
           self._refreshPeerConnection(Object.keys(self._peerConnections), false, function (err, success) {
             if (err) {
-              log.error('Failed refreshing connections for shareScreen() ->', err);
+              Log.error('Failed refreshing connections for shareScreen() ->', err);
               if (typeof callback === 'function') {
                 callback(new Error('Failed refreshing connections.'), null);
               }
@@ -224,11 +224,11 @@ Skylink.prototype.shareScreen = function (enableAudio, callback) {
             self._onStreamAccessSuccess(audioStream, settings, true, false);
 
           } catch (error) {
-            self._log.error('Failed retrieving audio stream for screensharing stream', error);
+            Log.error(self._debugOptions.instanceId, 'Failed retrieving audio stream for screensharing stream', error);
             self._onStreamAccessSuccess(stream, settings, true, false);
           }
         }, function (error) {
-          self._log.error('Failed retrieving audio stream for screensharing stream', error);
+          Log.error(self._debugOptions.instanceId, 'Failed retrieving audio stream for screensharing stream', error);
           self._onStreamAccessSuccess(stream, settings, true, false);
         });
 

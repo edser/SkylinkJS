@@ -47,8 +47,8 @@ Skylink.prototype.once = function(eventName, callback, condition, fireAlways) {
   if (typeof callback === 'function') {
     this._onceEvents[eventName] = this._onceEvents[eventName] || [];
     this._onceEvents[eventName].push([callback, condition, fireAlways]);
-    this._log.log([null, 'Event', eventName, 'Event is subscribed on condition']);
+    Log.log(this._debugOptions.instanceId, [null, 'Event', eventName, 'Event is subscribed on condition']);
   } else {
-    this._log.error([null, 'Event', eventName, 'Provided callback is not a function']);
+    Log.error(this._debugOptions.instanceId, [null, 'Event', eventName, 'Provided callback is not a function']);
   }
 };

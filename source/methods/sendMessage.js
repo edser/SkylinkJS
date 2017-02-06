@@ -51,7 +51,7 @@ Skylink.prototype.sendMessage = function(message, targetPeerId) {
   }
 
   if (!this._inRoom || !this._socket || !this._user) {
-    this._log.error('Unable to send message as User is not in Room. ->', message);
+    Log.error(this._debugOptions.instanceId, 'Unable to send message as User is not in Room. ->', message);
     return;
   }
 
@@ -60,7 +60,7 @@ Skylink.prototype.sendMessage = function(message, targetPeerId) {
     var peerId = listOfPeers[i];
 
     if (!this._peerInformations[peerId]) {
-      this._log.error([peerId, 'Socket', null, 'Dropping of sending message to Peer as ' +
+      Log.error(this._debugOptions.instanceId, [peerId, 'Socket', null, 'Dropping of sending message to Peer as ' +
         'Peer session does not exists']);
       listOfPeers.splice(i, 1);
       i--;
@@ -68,7 +68,7 @@ Skylink.prototype.sendMessage = function(message, targetPeerId) {
       listOfPeers.splice(i, 1);
       i--;
     } else if (isPrivate) {
-      this._log.debug([peerId, 'Socket', null, 'Sending private message to Peer']);
+      Log.debug(this._debugOptions.instanceId, [peerId, 'Socket', null, 'Sending private message to Peer']);
 
       this._sendChannelMessage({
         cid: this._key,
@@ -82,12 +82,12 @@ Skylink.prototype.sendMessage = function(message, targetPeerId) {
   }
 
   if (listOfPeers.length === 0) {
-    this._log.warn('Currently there are no Peers to send message to (unless the message is queued and ' +
+    Log.warn(this._debugOptions.instanceId, 'Currently there are no Peers to send message to (unless the message is queued and ' +
       'there are Peer connected by then).');
   }
 
   if (!isPrivate) {
-    this._log.debug([null, 'Socket', null, 'Broadcasting message to Peers']);
+    Log.debug(this._debugOptions.instanceId, [null, 'Socket', null, 'Broadcasting message to Peers']);
 
     this._sendChannelMessage({
       cid: this._key,

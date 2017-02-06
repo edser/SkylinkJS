@@ -21,7 +21,7 @@ Skylink.prototype.lockRoom = function() {
   if (!(this._user && this._user.sid)) {
     return;
   }
-  this._log.log('Update to isRoomLocked status ->', true);
+  Log.log(this._debugOptions.instanceId, 'Update to isRoomLocked status ->', true);
   this._sendChannelMessage({
     type: this._SIG_MESSAGE_TYPE.ROOM_LOCK,
     mid: this._user.sid,

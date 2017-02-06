@@ -70,12 +70,12 @@ Skylink.prototype.sendP2PMessage = function(message, targetPeerId) {
   }
 
   if (!this._inRoom || !(this._user && this._user.sid)) {
-    this._log.error('Unable to send message as User is not in Room. ->', message);
+    Log.error(this._debugOptions.instanceId, 'Unable to send message as User is not in Room. ->', message);
     return;
   }
 
   if (!this._enableDataChannel) {
-    this._log.error('Unable to send message as User does not have Datachannel enabled. ->', message);
+    Log.error(this._debugOptions.instanceId, 'Unable to send message as User does not have Datachannel enabled. ->', message);
     return;
   }
 
@@ -84,7 +84,7 @@ Skylink.prototype.sendP2PMessage = function(message, targetPeerId) {
     var peerId = listOfPeers[i];
 
     if (!this._dataChannels[peerId]) {
-      this._log.error([peerId, 'RTCDataChannel', null, 'Dropping of sending message to Peer as ' +
+      Log.error(this._debugOptions.instanceId, [peerId, 'RTCDataChannel', null, 'Dropping of sending message to Peer as ' +
         'Datachannel connection does not exists']);
       listOfPeers.splice(i, 1);
       i--;
@@ -92,7 +92,7 @@ Skylink.prototype.sendP2PMessage = function(message, targetPeerId) {
       listOfPeers.splice(i, 1);
       i--;
     } else if (!this._hasMCU) {
-      this._log.debug([peerId, 'RTCDataChannel', null, 'Sending ' + (isPrivate ? 'private' : '') +
+      Log.debug(this._debugOptions.instanceId, [peerId, 'RTCDataChannel', null, 'Sending ' + (isPrivate ? 'private' : '') +
         ' P2P message to Peer']);
 
       this._sendMessageToDataChannel(peerId, {
@@ -106,12 +106,12 @@ Skylink.prototype.sendP2PMessage = function(message, targetPeerId) {
   }
 
   if (listOfPeers.length === 0) {
-    this._log.warn('Currently there are no Peers to send P2P message to (unless the message is queued ' +
+    Log.warn(this._debugOptions.instanceId, 'Currently there are no Peers to send P2P message to (unless the message is queued ' +
       'and there are Peer connected by then).');
   }
 
   if (this._hasMCU) {
-    this._log.debug(['MCU', 'RTCDataChannel', null, 'Broadcasting ' + (isPrivate ? 'private' : '') +
+    Log.debug(this._debugOptions.instanceId, ['MCU', 'RTCDataChannel', null, 'Broadcasting ' + (isPrivate ? 'private' : '') +
       ' P2P message to Peers']);
 
     this._sendMessageToDataChannel('MCU', {

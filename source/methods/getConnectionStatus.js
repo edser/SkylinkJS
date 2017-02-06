@@ -163,7 +163,7 @@ Skylink.prototype.getConnectionStatus = function (targetPeerId, callback) {
   if (listOfPeers.length === 0) {
     listOfPeerErrors.self = new Error('There is currently no peer connections to retrieve connection status');
 
-    self._log.error([null, 'RTCStatsReport', null, 'Retrieving request failure ->'], listOfPeerErrors.self);
+    Log.error(self._debugOptions.instanceId, [null, 'RTCStatsReport', null, 'Retrieving request failure ->'], listOfPeerErrors.self);
 
     if (typeof callback === 'function') {
       callback({
@@ -176,7 +176,7 @@ Skylink.prototype.getConnectionStatus = function (targetPeerId, callback) {
   }
 
   if (window.webrtcDetectedBrowser === 'edge') {
-    self._log.warn('Edge browser does not have well support for stats.');
+    Log.warn(self._debugOptions.instanceId, 'Edge browser does not have well support for stats.');
   }
 
   var completedTaskCounter = [];
@@ -209,7 +209,7 @@ Skylink.prototype.getConnectionStatus = function (targetPeerId, callback) {
     var retrieveFn = function (firstRetrieval, nextCb) {
       return function (err, result) {
         if (err) {
-          self._log.error([peerId, 'RTCStatsReport', null, 'Retrieval failure ->'], error);
+          Log.error(self._debugOptions.instanceId, [peerId, 'RTCStatsReport', null, 'Retrieval failure ->'], error);
           listOfPeerErrors[peerId] = error;
           self._trigger('getConnectionStatusStateChange', self.GET_CONNECTION_STATUS_STATE.RETRIEVE_ERROR,
             peerId, null, error);
@@ -234,7 +234,7 @@ Skylink.prototype.getConnectionStatus = function (targetPeerId, callback) {
     if (!self._peerStats[peerId]) {
       self._peerStats[peerId] = {};
 
-      self._log.debug([peerId, 'RTCStatsReport', null, 'Retrieving first report to tabulate results']);
+      Log.debug(self._debugOptions.instanceId, [peerId, 'RTCStatsReport', null, 'Retrieving first report to tabulate results']);
 
       self._retrieveStats(peerId, retrieveFn(true, function () {
         self._retrieveStats(peerId, retrieveFn());
@@ -259,7 +259,7 @@ Skylink.prototype.getConnectionStatus = function (targetPeerId, callback) {
     } else {
       listOfPeerErrors[peerId] = new Error('The peer connection object does not exists');
 
-      self._log.error([peerId, 'RTCStatsReport', null, 'Retrieval failure ->'], listOfPeerErrors[peerId]);
+      Log.error(self._debugOptions.instanceId, [peerId, 'RTCStatsReport', null, 'Retrieval failure ->'], listOfPeerErrors[peerId]);
 
       self._trigger('getConnectionStatusStateChange', self.GET_CONNECTION_STATUS_STATE.RETRIEVE_ERROR,
         peerId, null, listOfPeerErrors[peerId]);

@@ -9,18 +9,18 @@ Skylink.prototype._doOffer = function(targetMid, iceRestart, peerBrowser) {
   var self = this;
   var pc = self._peerConnections[targetMid] || self._addPeer(targetMid, peerBrowser);
 
-  self._log.log([targetMid, null, null, 'Checking caller status'], peerBrowser);
+  Log.log(self._debugOptions.instanceId, [targetMid, null, null, 'Checking caller status'], peerBrowser);
 
   // Added checks to ensure that connection object is defined first
   if (!pc) {
-    self._log.warn([targetMid, 'RTCSessionDescription', 'offer', 'Dropping of creating of offer ' +
+    Log.error(self._debugOptions.instanceId, [targetMid, 'RTCSessionDescription', 'offer', 'Dropping of creating of offer ' +
       'as connection does not exists']);
     return;
   }
 
   // Added checks to ensure that state is "stable" if setting local "offer"
   if (pc.signalingState !== self.PEER_CONNECTION_STATE.STABLE) {
-    self._log.warn([targetMid, 'RTCSessionDescription', 'offer',
+    Log.error(self._debugOptions.instanceId, [targetMid, 'RTCSessionDescription', 'offer',
       'Dropping of creating of offer as signalingState is not "' +
       self.PEER_CONNECTION_STATE.STABLE + '" ->'], pc.signalingState);
     return;
@@ -70,19 +70,19 @@ Skylink.prototype._doOffer = function(targetMid, iceRestart, peerBrowser) {
     }
   }
 
-  self._log.debug([targetMid, null, null, 'Creating offer with config:'], offerConstraints);
+  Log.debug(self._debugOptions.instanceId, [targetMid, null, null, 'Creating offer with config:'], offerConstraints);
 
   pc.endOfCandidates = false;
 
   pc.createOffer(function(offer) {
-    self._log.debug([targetMid, null, null, 'Created offer'], offer);
+    Log.debug(self._debugOptions.instanceId, [targetMid, null, null, 'Created offer'], offer);
 
     self._setLocalAndSendMessage(targetMid, offer);
 
   }, function(error) {
     self._trigger('handshakeProgress', self.HANDSHAKE_PROGRESS.ERROR, targetMid, error);
 
-    self._log.error([targetMid, null, null, 'Failed creating an offer:'], error);
+    Log.error(self._debugOptions.instanceId, [targetMid, null, null, 'Failed creating an offer:'], error);
 
   }, offerConstraints);
 };
@@ -97,20 +97,20 @@ Skylink.prototype._doOffer = function(targetMid, iceRestart, peerBrowser) {
  */
 Skylink.prototype._doAnswer = function(targetMid) {
   var self = this;
-  self._log.log([targetMid, null, null, 'Creating answer with config:'],
+  Log.log(self._debugOptions.instanceId, [targetMid, null, null, 'Creating answer with config:'],
     self._room.connection.sdpConstraints);
   var pc = self._peerConnections[targetMid];
 
   // Added checks to ensure that connection object is defined first
   if (!pc) {
-    self._log.warn([targetMid, 'RTCSessionDescription', 'answer', 'Dropping of creating of answer ' +
+    Log.error(self._debugOptions.instanceId, [targetMid, 'RTCSessionDescription', 'answer', 'Dropping of creating of answer ' +
       'as connection does not exists']);
     return;
   }
 
   // Added checks to ensure that state is "have-remote-offer" if setting local "answer"
   if (pc.signalingState !== self.PEER_CONNECTION_STATE.HAVE_REMOTE_OFFER) {
-    self._log.warn([targetMid, 'RTCSessionDescription', 'answer',
+    Log.error(self._debugOptions.instanceId, [targetMid, 'RTCSessionDescription', 'answer',
       'Dropping of creating of answer as signalingState is not "' +
       self.PEER_CONNECTION_STATE.HAVE_REMOTE_OFFER + '" ->'], pc.signalingState);
     return;
@@ -124,10 +124,10 @@ Skylink.prototype._doAnswer = function(targetMid) {
   // No ICE restart constraints for createAnswer as it fails in chrome 48
   // { iceRestart: true }
   pc.createAnswer(function(answer) {
-    self._log.debug([targetMid, null, null, 'Created answer'], answer);
+    Log.debug(self._debugOptions.instanceId, [targetMid, null, null, 'Created answer'], answer);
     self._setLocalAndSendMessage(targetMid, answer);
   }, function(error) {
-    self._log.error([targetMid, null, null, 'Failed creating an answer:'], error);
+    Log.error(self._debugOptions.instanceId, [targetMid, null, null, 'Failed creating an answer:'], error);
     self._trigger('handshakeProgress', self.HANDSHAKE_PROGRESS.ERROR, targetMid, error);
   });
 };
@@ -147,32 +147,33 @@ Skylink.prototype._setLocalAndSendMessage = function(targetMid, sessionDescripti
 
   // Added checks to ensure that sessionDescription is defined first
   if (!(!!sessionDescription && !!sessionDescription.sdp)) {
-    self._log.warn([targetMid, 'RTCSessionDescription', null, 'Local session description is undefined ->'], sessionDescription);
+    Log.error(self._debugOptions.instanceId, [targetMid, 'RTCSessionDescription', null,
+      'Local session description is undefined ->'], sessionDescription);
     return;
   }
 
   // Added checks to ensure that connection object is defined first
   if (!pc) {
-    self._log.warn([targetMid, 'RTCSessionDescription', sessionDescription.type,
+    Log.error(self._debugOptions.instanceId, [targetMid, 'RTCSessionDescription', sessionDescription.type,
       'Local session description will not be set as connection does not exists ->'], sessionDescription);
     return;
 
   } else if (sessionDescription.type === self.HANDSHAKE_PROGRESS.OFFER &&
     pc.signalingState !== self.PEER_CONNECTION_STATE.STABLE) {
-    self._log.warn([targetMid, 'RTCSessionDescription', sessionDescription.type, 'Local session description ' +
+    Log.error(self._debugOptions.instanceId, [targetMid, 'RTCSessionDescription', sessionDescription.type, 'Local session description ' +
       'will not be set as signaling state is "' + pc.signalingState + '" ->'], sessionDescription);
     return;
 
   // Added checks to ensure that state is "have-remote-offer" if setting local "answer"
   } else if (sessionDescription.type === self.HANDSHAKE_PROGRESS.ANSWER &&
     pc.signalingState !== self.PEER_CONNECTION_STATE.HAVE_REMOTE_OFFER) {
-    self._log.warn([targetMid, 'RTCSessionDescription', sessionDescription.type, 'Local session description ' +
+    Log.error(self._debugOptions.instanceId, [targetMid, 'RTCSessionDescription', sessionDescription.type, 'Local session description ' +
       'will not be set as signaling state is "' + pc.signalingState + '" ->'], sessionDescription);
     return;
 
   // Added checks if there is a current local sessionDescription being processing before processing this one
   } else if (pc.processingLocalSDP) {
-    self._log.warn([targetMid, 'RTCSessionDescription', sessionDescription.type,
+    Log.error(self._debugOptions.instanceId, [targetMid, 'RTCSessionDescription', sessionDescription.type,
       'Local session description will not be set as another is being processed ->'], sessionDescription);
     return;
   }
@@ -189,11 +190,11 @@ Skylink.prototype._setLocalAndSendMessage = function(targetMid, sessionDescripti
   //sessionDescription.sdp = self._setSDPBitrate(targetMid, sessionDescription);
   sessionDescription.sdp = self._removeSDPREMBPackets(targetMid, sessionDescription);
 
-  self._log.log([targetMid, 'RTCSessionDescription', sessionDescription.type,
+  Log.log(self._debugOptions.instanceId, [targetMid, 'RTCSessionDescription', sessionDescription.type,
     'Local session description updated ->'], sessionDescription.sdp);
 
   pc.setLocalDescription(sessionDescription, function() {
-    self._log.debug([targetMid, 'RTCSessionDescription', sessionDescription.type,
+    Log.debug(self._debugOptions.instanceId, [targetMid, 'RTCSessionDescription', sessionDescription.type,
       'Local session description has been set ->'], sessionDescription);
 
     pc.processingLocalSDP = false;
@@ -207,7 +208,7 @@ Skylink.prototype._setLocalAndSendMessage = function(targetMid, sessionDescripti
     }
 
     if (!self._enableIceTrickle && !pc.gathered) {
-      self._log.log([targetMid, 'RTCSessionDescription', sessionDescription.type,
+      Log.log(self._debugOptions.instanceId, [targetMid, 'RTCSessionDescription', sessionDescription.type,
         'Local session description sending is halted to complete ICE gathering.']);
       return;
     }
@@ -222,7 +223,8 @@ Skylink.prototype._setLocalAndSendMessage = function(targetMid, sessionDescripti
     });
 
   }, function(error) {
-    self._log.error([targetMid, 'RTCSessionDescription', sessionDescription.type, 'Local description failed setting ->'], error);
+    Log.error(self._debugOptions.instanceId, [targetMid, 'RTCSessionDescription',
+      sessionDescription.type, 'Local description failed setting ->'], error);
 
     pc.processingLocalSDP = false;
 

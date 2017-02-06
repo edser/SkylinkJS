@@ -71,7 +71,7 @@ Skylink.prototype.stopRecording = function (callback, callbackSuccessWhenLink) {
 
   if (!self._hasMCU) {
     var noMCUError = 'Unable to stop recording as MCU is not connected';
-    self._log.error(noMCUError);
+    Log.error(self._debugOptions.instanceId, noMCUError);
     if (typeof callback === 'function') {
       callback(new Error(noMCUError), null);
     }
@@ -80,7 +80,7 @@ Skylink.prototype.stopRecording = function (callback, callbackSuccessWhenLink) {
 
   if (!self._currentRecordingId) {
     var noRecordingSessionError = 'Unable to stop recording as there is no recording in-progress';
-    self._log.error(noRecordingSessionError);
+    Log.error(self._debugOptions.instanceId, noRecordingSessionError);
     if (typeof callback === 'function') {
       callback(new Error(noRecordingSessionError), null);
     }
@@ -89,7 +89,7 @@ Skylink.prototype.stopRecording = function (callback, callbackSuccessWhenLink) {
 
   if (self._recordingStartInterval) {
     var recordingSecsRequiredError = 'Unable to stop recording as 4 seconds has not been recorded yet';
-    self._log.error(recordingSecsRequiredError);
+    Log.error(self._debugOptions.instanceId, recordingSecsRequiredError);
     if (typeof callback === 'function') {
       callback(new Error(recordingSecsRequiredError), null);
     }
@@ -131,5 +131,5 @@ Skylink.prototype.stopRecording = function (callback, callbackSuccessWhenLink) {
     target: 'MCU'
   });
 
-  self._log.debug(['MCU', 'Recording', null, 'Stopping recording']);
+  Log.debug(self._debugOptions.instanceId, ['MCU', 'Recording', null, 'Stopping recording']);
 };

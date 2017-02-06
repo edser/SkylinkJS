@@ -69,13 +69,13 @@ Skylink.prototype.muteStream = function(options) {
   var self = this;
 
   if (typeof options !== 'object') {
-    self._log.error('Provided settings is not an object');
+    Log.error(self._debugOptions.instanceId, 'Provided settings is not an object');
     return;
   }
 
   if (!(self._streams.userMedia && self._streams.userMedia.stream) &&
     !(self._streams.screenshare && self._streams.screenshare.stream)) {
-    self._log.warn('No streams are available to mute / unmute!');
+    Log.warn(self._debugOptions.instanceId, 'No streams are available to mute / unmute!');
     return;
   }
 

@@ -26,5 +26,20 @@
  */
 Skylink.prototype.setLogLevel = function(logLevel) {
   var self = this;
-  var error = self._log.setLogLevel(logLevel);
+  var hasSet = false;
+
+  if (typeof logLevel === 'number') {
+    UtilsFactory.forEach(self.LOG_LEVEL, function (opt, prop) {
+      if (opt === logLevel) {
+        self._debugOptions.level = logLevel;
+        Log.configure(self._debugOptions.instanceId, self._debugOptions);
+        Log.log(self._debugOptions.instanceId, 'setLogLevel(): Log level of "' + prop + '" set.');
+        hasSet = true;
+      }
+    });
+  }
+
+  if (!hasSet) {
+    Log.error(self._debugOptions.instanceId, 'setLogLevel(): Log level does not exist. Level is not set.');
+  }
 };

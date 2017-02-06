@@ -32,10 +32,22 @@ Skylink.prototype.setDebugMode = function(options) {
   var self = this;
 
   if (options && typeof options === 'object') {
-    self._log.setDebugMode(options.trace, options.storeLogs, options.printInstanceLabel, options.printTimeStamp);
+    self._debugOptions.trace = options.trace === true;
+    self._debugOptions.storeLogs = options.storeLogs === true;
+    self._debugOptions.printInstanceLabel = options.printInstanceLabel === true;
+    self._debugOptions.printTimeStamp = options.printTimeStamp === true;
   } else if (options === true) {
-    self._log.setDebugMode(true, true, true, true);
+    self._debugOptions.trace = true;
+    self._debugOptions.storeLogs = true;
+    self._debugOptions.printInstanceLabel = true;
+    self._debugOptions.printTimeStamp = true;
   } else {
-    self._log.setDebugMode();
+    self._debugOptions.trace = false;
+    self._debugOptions.storeLogs = false;
+    self._debugOptions.printInstanceLabel = false;
+    self._debugOptions.printTimeStamp = false;
   }
+
+  Log.configure(self._debugOptions.instanceId, self._debugOptions);
+  Log.log(self._debugOptions.instanceId, 'setDebugMode(): Set debug options ->', UtilsFactory.clone(self._debugOptions));
 };

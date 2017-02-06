@@ -41,7 +41,7 @@ Skylink.prototype.startRecording = function (callback) {
 
   if (!self._hasMCU) {
     var noMCUError = 'Unable to start recording as MCU is not connected';
-    self._log.error(noMCUError);
+    Log.error(self._debugOptions.instanceId, noMCUError);
     if (typeof callback === 'function') {
       callback(new Error(noMCUError), null);
     }
@@ -50,7 +50,7 @@ Skylink.prototype.startRecording = function (callback) {
 
   if (self._currentRecordingId) {
     var hasRecordingSessionError = 'Unable to start recording as there is an existing recording in-progress';
-    self._log.error(hasRecordingSessionError);
+    Log.error(self._debugOptions.instanceId, hasRecordingSessionError);
     if (typeof callback === 'function') {
       callback(new Error(hasRecordingSessionError), null);
     }
@@ -71,5 +71,5 @@ Skylink.prototype.startRecording = function (callback) {
     target: 'MCU'
   });
 
-  self._log.debug(['MCU', 'Recording', null, 'Starting recording']);
+  Log.debug(self._debugOptions.instanceId, ['MCU', 'Recording', null, 'Starting recording']);
 };

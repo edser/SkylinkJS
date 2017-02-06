@@ -91,7 +91,15 @@ function Skylink(instanceLabel) {
   /**
    * - Stores the logging function.
    */
-  this._log = LogFactory(this.INSTANCE_LABEL);
+  this._debugOptions = {
+    level: this.LOG_LEVEL.ERROR,
+    instanceId: Date.now() + '_' + Math.floor(Math.random() * 10000) + '_' + performance.now(),
+    instanceLabel: this.INSTANCE_LABEL,
+    trace: false,
+    storeLogs: false,
+    printInstanceLabel: false,
+    printTimeStamp: false
+  };
 
   /**
    * Stores the flag if Peers should have any Datachannel connections.

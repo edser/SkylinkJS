@@ -45,7 +45,7 @@ var SkylinkLogs = {
       logLevel = null;
     }
 
-    return LogStorageFactory.loop(instanceLabel, logLevel);
+    return Log.loopLogs(instanceLabel, logLevel);
   },
 
   /**
@@ -66,7 +66,7 @@ var SkylinkLogs = {
       instanceLabel = null;
     }
 
-    LogStorageFactory.clear(instanceLabel, logLevel);
+    Log.clearLogs(instanceLabel, logLevel);
   },
 
   /**
@@ -88,8 +88,8 @@ var SkylinkLogs = {
       instanceLabel = null;
     }
 
-    var logs = LogStorageFactory.loop(instanceLabel, logLevel);
-    forEach(logs, function (log) {
+    var logs = Log.loopLogs(instanceLabel, logLevel);
+    UtilsFactory.forEach(logs, function (log) {
       console[log[1]].apply(log);
     });
   }

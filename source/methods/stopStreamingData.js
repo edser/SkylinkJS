@@ -31,22 +31,22 @@ Skylink.prototype.stopStreamingData = function(transferId) {
   var self = this;
 
   if (!(transferId && typeof transferId === 'string')) {
-    self._log.error('Failed streaming data chunk as stream session ID is not provided.');
+    Log.error(self._debugOptions.instanceId, 'Failed streaming data chunk as stream session ID is not provided.');
     return;
   }
 
   if (!(self._inRoom && self._user && self._user.sid)) {
-    self._log.error('Failed streaming data chunk as User is not in the Room.');
+    Log.error(self._debugOptions.instanceId, 'Failed streaming data chunk as User is not in the Room.');
     return;
   }
 
   if (!self._dataStreams[transferId]) {
-    self._log.error('Failed stopping data streaming session as it does not exists.');
+    Log.error(self._debugOptions.instanceId, 'Failed stopping data streaming session as it does not exists.');
     return;
   }
 
   if (!self._dataStreams[transferId].isUpload) {
-    self._log.error('Failed stopping data streaming session as it is not sending.');
+    Log.error(self._debugOptions.instanceId, 'Failed stopping data streaming session as it is not sending.');
     return;
   }
 
@@ -100,9 +100,9 @@ Skylink.prototype.stopStreamingData = function(transferId) {
       var channelProp = self._dataStreams[transferId].sessions[peerId];
 
       if (!(self._dataChannels[self._hasMCU ? 'MCU' : peerId] && self._dataChannels[self._hasMCU ? 'MCU' : peerId][channelProp] &&
-        self._dataChannels[self._hasMCU ? 'MCU' : peerId][channelProp].channel.readyState === self.DATA_CHANNEL_STATE.OPEN &&
-        self._dataChannels[self._hasMCU ? 'MCU' : peerId][channelProp].streamId === transferId)) {
-        self._log.error([peerId, 'RTCDataChannel', transferId, 'Failed stopping data streaming session as channel is closed.']);
+        self._dataChannels[self._hasMCU ? 'MCU' : peerId][channelProp].getInfo().readyState === self.DATA_CHANNEL_STATE.OPEN &&
+        self._dataChannels[self._hasMCU ? 'MCU' : peerId][channelProp].getInfo().custom.streamId === transferId)) {
+        Log.error(self._debugOptions.instanceId, [peerId, 'RTCDataChannel', transferId, 'Failed stopping data streaming session as channel is closed.']);
         self._trigger('dataStreamState', self.DATA_STREAM_STATE.ERROR, transferId, peerId, sessionInfo,
           new Error('Failed stopping data streaming session as Datachannel connection is not open or is active.'));
         return;

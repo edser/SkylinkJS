@@ -36,22 +36,22 @@ Skylink.prototype.cancelDataTransfer = function (peerId, transferId) {
   var self = this;
 
   if (!(transferId && typeof transferId === 'string')) {
-    self._log.error([peerId, 'RTCDataChannel', transferId, 'Aborting cancel data transfer as data transfer ID is not provided']);
+    Log.error(self._debugOptions.instanceId, [peerId, 'RTCDataChannel', transferId, 'Aborting cancel data transfer as data transfer ID is not provided']);
     return;
   }
 
   if (!(peerId && typeof peerId === 'string')) {
-    self._log.error([peerId, 'RTCDataChannel', transferId, 'Aborting cancel data transfer as peer ID is not provided']);
+    Log.error(self._debugOptions.instanceId, [peerId, 'RTCDataChannel', transferId, 'Aborting cancel data transfer as peer ID is not provided']);
     return;
   }
 
   if (!self._dataTransfers[transferId]) {
-    self._log.error([peerId, 'RTCDataChannel', transferId, 'Aborting cancel data transfer as ' +
+    Log.error(self._debugOptions.instanceId, [peerId, 'RTCDataChannel', transferId, 'Aborting cancel data transfer as ' +
       'data transfer session does not exists.']);
     return;
   }
 
-  self._log.debug([peerId, 'RTCDataChannel', transferId, 'Canceling data transfer ...']);
+  Log.debug(self._debugOptions.instanceId, [peerId, 'RTCDataChannel', transferId, 'Canceling data transfer ...']);
 
   /**
    * Emit data state event function.
@@ -69,13 +69,13 @@ Skylink.prototype.cancelDataTransfer = function (peerId, transferId) {
   // For uploading from Peer to MCU case of broadcast
   if (self._hasMCU && self._dataTransfers[transferId].direction === self.DATA_TRANSFER_TYPE.UPLOAD) {
     if (!self._dataChannels.MCU) {
-      self._log.error([peerId, 'RTCDataChannel', transferId, 'Aborting cancel data transfer as ' +
+      Log.error(self._debugOptions.instanceId, [peerId, 'RTCDataChannel', transferId, 'Aborting cancel data transfer as ' +
         'Peer does not have any Datachannel connections']);
       return;
     }
 
     // We abort all data transfers to all Peers if uploading via MCU since it broadcasts to MCU
-    self._log.warn([peerId, 'RTCDataChannel', transferId, 'Aborting all data transfers to Peers']);
+    Log.warn(self._debugOptions.instanceId, [peerId, 'RTCDataChannel', transferId, 'Aborting all data transfers to Peers']);
 
     // If data transfer to MCU broadcast has interop Peers, send to MCU via the "main" Datachannel
     if (Object.keys(self._dataTransfers[transferId].peers.main).length > 0) {
@@ -105,7 +105,7 @@ Skylink.prototype.cancelDataTransfer = function (peerId, transferId) {
     var channelProp = 'main';
 
     if (!self._dataChannels[peerId]) {
-      self._log.error([peerId, 'RTCDataChannel', transferId, 'Aborting cancel data transfer as ' +
+      Log.error(self._debugOptions.instanceId, [peerId, 'RTCDataChannel', transferId, 'Aborting cancel data transfer as ' +
         'Peer does not have any Datachannel connections']);
       return;
     }

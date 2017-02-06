@@ -39,7 +39,7 @@ var UtilsFactory = {
   forEach: function (obj, fn) {
     if (Array.isArray(obj)) {
       if (typeof obj.forEach === 'function') {
-        obj.UtilsFactory.forEach(fn);
+        obj.forEach(fn);
       } else {
         for (var i = 0; i < obj.length; i++) {
           fn(obj[i], i);

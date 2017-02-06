@@ -16,12 +16,12 @@ Skylink.prototype._trigger = function(eventName) {
     // for events subscribed forever
     for (var i = 0; i < arr.length; i++) {
       try {
-        this._log.log([null, 'Event', eventName, 'Event is fired']);
+        Log.log(this._debugOptions.instanceId, [null, 'Event', eventName, 'Event is fired']);
         if(arr[i].apply(this, args) === false) {
           break;
         }
       } catch(error) {
-        this._log.error([null, 'Event', eventName, 'Exception occurred in event:'], error);
+        Log.error(this._debugOptions.instanceId, [null, 'Event', eventName, 'Exception occurred in event:'], error);
         throw error;
       }
     }
@@ -30,23 +30,23 @@ Skylink.prototype._trigger = function(eventName) {
     // for events subscribed on once
     for (var j = 0; j < once.length; j++) {
       if (once[j][1].apply(this, args) === true) {
-        this._log.log([null, 'Event', eventName, 'Condition is met. Firing event']);
+        Log.log(this._debugOptions.instanceId, [null, 'Event', eventName, 'Condition is met. Firing event']);
         if(once[j][0].apply(this, args) === false) {
           break;
         }
         if (once[j] && !once[j][2]) {
-          this._log.log([null, 'Event', eventName, 'Removing event after firing once']);
+          Log.log(this._debugOptions.instanceId, [null, 'Event', eventName, 'Removing event after firing once']);
           once.splice(j, 1);
           //After removing current element, the next element should be element of the same index
           j--;
         }
       } else {
-        this._log.log([null, 'Event', eventName, 'Condition is still not met. ' +
+        Log.log(this._debugOptions.instanceId, [null, 'Event', eventName, 'Condition is still not met. ' +
           'Holding event from being fired']);
       }
     }
   }
-  this._log.log([null, 'Event', eventName, 'Event is triggered']);
+  Log.log(this._debugOptions.instanceId, [null, 'Event', eventName, 'Event is triggered']);
 };
 
 
@@ -66,14 +66,14 @@ Skylink.prototype._condition = function(eventName, callback, checkFirst, conditi
   }
   if (typeof callback === 'function' && typeof checkFirst === 'function') {
     if (checkFirst()) {
-      this._log.log([null, 'Event', eventName, 'First condition is met. Firing callback']);
+      Log.log(this._debugOptions.instanceId, [null, 'Event', eventName, 'First condition is met. Firing callback']);
       callback();
       return;
     }
-    this._log.log([null, 'Event', eventName, 'First condition is not met. Subscribing to event']);
+    Log.log(this._debugOptions.instanceId, [null, 'Event', eventName, 'First condition is not met. Subscribing to event']);
     this.once(eventName, callback, condition, fireAlways);
   } else {
-    this._log.error([null, 'Event', eventName, 'Provided callback or checkFirst is not a function']);
+    Log.error(this._debugOptions.instanceId, [null, 'Event', eventName, 'Provided callback or checkFirst is not a function']);
   }
 };
 
@@ -88,17 +88,17 @@ Skylink.prototype._wait = function(callback, condition, intervalTime, fireAlways
   fireAlways = (typeof fireAlways === 'undefined' ? false : fireAlways);
   if (typeof callback === 'function' && typeof condition === 'function') {
     if (condition()) {
-      this._log.log([null, 'Event', null, 'Condition is met. Firing callback']);
+      Log.log(this._debugOptions.instanceId, [null, 'Event', null, 'Condition is met. Firing callback']);
       callback();
       return;
     }
-    this._log.log([null, 'Event', null, 'Condition is not met. Doing a check.']);
+    Log.log(this._debugOptions.instanceId, [null, 'Event', null, 'Condition is not met. Doing a check.']);
 
     intervalTime = (typeof intervalTime === 'number') ? intervalTime : 50;
 
     var doWait = setInterval(function () {
       if (condition()) {
-        this._log.log([null, 'Event', null, 'Condition is met after waiting. Firing callback']);
+        Log.log(this._debugOptions.instanceId, [null, 'Event', null, 'Condition is met after waiting. Firing callback']);
         if (!fireAlways){
           clearInterval(doWait);
         }
@@ -107,10 +107,10 @@ Skylink.prototype._wait = function(callback, condition, intervalTime, fireAlways
     }, intervalTime);
   } else {
     if (typeof callback !== 'function'){
-      this._log.error([null, 'Event', null, 'Provided callback is not a function']);
+      Log.error(this._debugOptions.instanceId, [null, 'Event', null, 'Provided callback is not a function']);
     }
     if (typeof condition !== 'function'){
-      this._log.error([null, 'Event', null, 'Provided condition is not a function']);
+      Log.error(this._debugOptions.instanceId, [null, 'Event', null, 'Provided condition is not a function']);
     }
   }
 };

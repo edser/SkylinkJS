@@ -26,7 +26,7 @@ Skylink.prototype.off = function(eventName, callback) {
     if (callback === undefined) {
       this._EVENTS[eventName] = [];
       this._onceEvents[eventName] = [];
-      this._log.log([null, 'Event', eventName, 'All events are unsubscribed']);
+      Log.log(this._debugOptions.instanceId, [null, 'Event', eventName, 'All events are unsubscribed']);
       return;
     }
     var arr = this._EVENTS[eventName];
@@ -35,7 +35,7 @@ Skylink.prototype.off = function(eventName, callback) {
     // unsubscribe events that is triggered always
     for (var i = 0; i < arr.length; i++) {
       if (arr[i] === callback) {
-        this._log.log([null, 'Event', eventName, 'Event is unsubscribed']);
+        Log.log(this._debugOptions.instanceId, [null, 'Event', eventName, 'Event is unsubscribed']);
         arr.splice(i, 1);
         break;
       }
@@ -44,7 +44,7 @@ Skylink.prototype.off = function(eventName, callback) {
     if(once !== undefined) {
       for (var j = 0; j < once.length; j++) {
         if (once[j][0] === callback) {
-          this._log.log([null, 'Event', eventName, 'One-time Event is unsubscribed']);
+          Log.log(this._debugOptions.instanceId, [null, 'Event', eventName, 'One-time Event is unsubscribed']);
           once.splice(j, 1);
           break;
         }

@@ -7,7 +7,10 @@
  * @param {String} TRANSFER <small>Value <code>"transfer"</code></small>
  *   The value of the Datachannel sending message error type when encountered during
  *   data transfers from <a href="#method_sendURLData"><code>sendURLData()</code> method</a> or
- *   <a href="#method_sendBlobData"><code>sendBlobData()</code> method</a>.
+ *   <a href="#method_sendBlobData"><code>sendBlobData()</code> method</a> or
+ *   <a href="#method_streamData"><code>streamData()</code> method</a> or
+ *   <a href="#method_startStreamingData"><code>startStreamingData()</code> method</a> or
+ *   <a href="#method_stopStreamingData"><code>stopStreamingData()</code> method</a>.
  * @type JSON
  * @readOnly
  * @for Skylink

@@ -85,7 +85,7 @@ Skylink.prototype.leaveRoom = function(stopMediaOptions, callback) {
 
   if (isNotInRoom) {
     var notInRoomError = 'Unable to leave room as user is not in any room';
-    self._log.error([null, 'Room', previousRoom, notInRoomError]);
+    Log.error(self._debugOptions.instanceId, [null, 'Room', previousRoom, notInRoomError]);
 
     if (typeof callback === 'function') {
       callback(new Error(notInRoomError), null);
@@ -99,7 +99,7 @@ Skylink.prototype.leaveRoom = function(stopMediaOptions, callback) {
   });
 
   self._wait(function () {
-    self._log.log([null, 'Room', previousRoom, 'User left the room']);
+    Log.log(self._debugOptions.instanceId, [null, 'Room', previousRoom, 'User left the room']);
 
     self._trigger('peerLeft', previousUserPeerId, self.getPeerInfo(), true);
 

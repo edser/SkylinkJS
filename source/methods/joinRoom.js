@@ -262,7 +262,7 @@ Skylink.prototype.joinRoom = function(room, options, callback) {
   }
 
   var resolveAsErrorFn = function (error, tryRoom, readyState) {
-    self._log.error(error);
+    Log.error(self._debugOptions.instanceId, error);
 
     if (typeof callback === 'function') {
       callback({
@@ -288,7 +288,7 @@ Skylink.prototype.joinRoom = function(room, options, callback) {
 
         self.once('peerJoined', function(peerId, peerInfo, isSelf) {
           if (typeof callback === 'function') {
-            self._log.info([null, 'Room', selectedRoom, 'Connected to Room ->'], peerInfo);
+            Log.info(self._debugOptions.instanceId, [null, 'Room', selectedRoom, 'Connected to Room ->'], peerInfo);
 
             callback(null, {
               room: self._selectedRoom,
@@ -333,7 +333,7 @@ Skylink.prototype.joinRoom = function(room, options, callback) {
     var stopStream = mediaOptions.audio === false && mediaOptions.video === false;
 
     self.leaveRoom(stopStream, function (lRError, lRSuccess) {
-      self._log.debug([null, 'Room', previousRoom, 'Leave Room callback result ->'], [lRError, lRSuccess]);
+      Log.debug(self._debugOptions.instanceId, [null, 'Room', previousRoom, 'Leave Room callback result ->'], [lRError, lRSuccess]);
       joinRoomFn();
     });
   } else {

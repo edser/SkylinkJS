@@ -16,8 +16,8 @@ Skylink.prototype.on = function(eventName, callback) {
   if ('function' === typeof callback) {
     this._EVENTS[eventName] = this._EVENTS[eventName] || [];
     this._EVENTS[eventName].push(callback);
-    this._log.log([null, 'Event', eventName, 'Event is subscribed']);
+    Log.log(this._debugOptions.instanceId, [null, 'Event', eventName, 'Event is subscribed']);
   } else {
-    this._log.error([null, 'Event', eventName, 'Provided parameter is not a function']);
+    Log.error(this._debugOptions.instanceId, [null, 'Event', eventName, 'Provided parameter is not a function']);
   }
 };

@@ -42,7 +42,7 @@
 Skylink.prototype.introducePeer = function(sendingPeerId, receivingPeerId){
 	var self = this;
 	if (!self._isPrivileged){
-		self._log.warn('Please upgrade your key to privileged to use this function');
+		Log.warn(self._debugOptions.instanceId, 'Please upgrade your key to privileged to use this function');
 		self._trigger('introduceStateChange', self.INTRODUCE_STATE.ERROR, self._user.sid, sendingPeerId, receivingPeerId, 'notPrivileged');
 		return;
 	}
@@ -52,5 +52,5 @@ Skylink.prototype.introducePeer = function(sendingPeerId, receivingPeerId){
 		receivingPeerId: receivingPeerId
 	});
 	self._trigger('introduceStateChange', self.INTRODUCE_STATE.INTRODUCING, self._user.sid, sendingPeerId, receivingPeerId, null);
-	self._log.log('Introducing',sendingPeerId,'to',receivingPeerId);
+	Log.log(self._debugOptions.instanceId, 'Introducing',sendingPeerId,'to',receivingPeerId);
 };

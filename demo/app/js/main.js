@@ -564,6 +564,7 @@ Demo.Skylink.on('peerConnectionState', function(state, peerId) {
 });
 //---------------------------------------------------
 Demo.Skylink.on('dataChannelState', function (state, peerId, error, channelName, channelType, messageType) {
+  console.info(state, peerId, error, channelName, channelType, messageType);
   if (channelType !== Demo.Skylink.DATA_CHANNEL_TYPE.MESSAGING) {
     return;
   }
@@ -823,8 +824,8 @@ Demo.Skylink.init(config, function (error, success) {
   if (success) {
     Demo.Skylink.joinRoom(window.demoAppJoinRoomConfig || {
       userData: displayName,
-      audio: { stereo: true },
-      video: true
+      //audio: { stereo: true },
+      //video: true
     });
   }
 });

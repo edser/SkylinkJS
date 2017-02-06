@@ -276,7 +276,7 @@ Skylink.prototype.init = function(options, callback) {
 
   if (!options) {
     var error = 'No API key provided';
-    self._log.error(error);
+    Log.error(self._debugOptions.instanceId, error);
     if (typeof callback === 'function'){
       callback(error,null);
     }
@@ -319,7 +319,7 @@ Skylink.prototype.init = function(options, callback) {
   var iceServer = null;
   var socketServer = null;
 
-  self._log.log('Provided init options:', options);
+  Log.log(self._debugOptions.instanceId, 'Provided init options:', options);
 
   if (typeof options === 'string') {
     // set all the default api key, default room and room
@@ -508,7 +508,7 @@ Skylink.prototype.init = function(options, callback) {
   self._turnServer = iceServer;
   self._socketServer = socketServer;
 
-  self._log.log('Init configuration:', {
+  Log.log(self._debugOptions.instanceId, 'Init configuration:', {
     serverUrl: self._path,
     readyState: self._readyState,
     appKey: self._appKey,
@@ -548,7 +548,7 @@ Skylink.prototype.init = function(options, callback) {
     var readyStateChangeFn = function (readyState, error) {
       if (!hasTriggered) {
         if (readyState === self.READY_STATE_CHANGE.COMPLETED) {
-          self._log.log([null, 'Socket', null, 'Firing callback. ' +
+          Log.log(self._debugOptions.instanceId, [null, 'Socket', null, 'Firing callback. ' +
           'Ready state change has met provided state ->'], readyState);
           hasTriggered = true;
           self.off('readyStateChange', readyStateChangeFn);
@@ -583,9 +583,9 @@ Skylink.prototype.init = function(options, callback) {
             socketServer: self._socketServer
           });
         } else if (readyState === self.READY_STATE_CHANGE.ERROR) {
-          self._log.log([null, 'Socket', null, 'Firing callback. ' +
+          Log.log(self._debugOptions.instanceId, [null, 'Socket', null, 'Firing callback. ' +
             'Ready state change has met provided state ->'], readyState);
-          self._log.debug([null, 'Socket', null, 'Ready state met failure'], error);
+          Log.debug(self._debugOptions.instanceId, [null, 'Socket', null, 'Ready state met failure'], error);
           hasTriggered = true;
           self.off('readyStateChange', readyStateChangeFn);
           callback({

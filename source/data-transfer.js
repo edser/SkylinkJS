@@ -1,17 +1,3 @@
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /**
  * Function that starts the data transfer to Peers.
  * @method _startDataTransfer
@@ -78,7 +64,7 @@ Skylink.prototype._startDataTransfer = function(data, timeout, targetPeerId, sen
 
   // Function that returns the error emitted before data transfer has started
   var emitErrorBeforeDataTransferFn = function (error) {
-    self._log.error(error);
+    Log.error(self._debugOptions.instanceId, error);
 
     if (typeof callback === 'function') {
       var transferErrors = {};
@@ -110,7 +96,7 @@ Skylink.prototype._startDataTransfer = function(data, timeout, targetPeerId, sen
 
   if (sessionType === 'blob') {
     if (self._hasMCU && sessionChunkType === 'binary') {
-      self._log.warn('Binary data chunks transfer is not yet supported with MCU environment. ' +
+      Log.error(self._debugOptions.instanceId, 'Binary data chunks transfer is not yet supported with MCU environment. ' +
         'Fallbacking to binary string data chunks transfer.');
       sessionChunkType = 'string';
     }
@@ -220,7 +206,7 @@ Skylink.prototype._startDataTransfer = function(data, timeout, targetPeerId, sen
       return;
     }
 
-    self._log.debug([peerId, 'RTCDataChannel', transferId, 'Data transfer result. Is errors present? ->'], error);
+    Log.debug(self._debugOptions.instanceId, [peerId, 'RTCDataChannel', transferId, 'Data transfer result. Is errors present? ->'], error);
 
     transferCompleted.push(peerId);
 
@@ -229,7 +215,7 @@ Skylink.prototype._startDataTransfer = function(data, timeout, targetPeerId, sen
     }
 
     if (listOfPeers.length === transferCompleted.length) {
-      self._log.log([null, 'RTCDataChannel', transferId, 'Data transfer request completed']);
+      Log.log(self._debugOptions.instanceId, [null, 'RTCDataChannel', transferId, 'Data transfer request completed']);
 
       if (typeof callback === 'function') {
         if (Object.keys(transferErrors).length > 0) {
@@ -325,7 +311,7 @@ Skylink.prototype._startDataTransferToPeer = function (transferId, peerId, callb
     var chunkType = self._dataTransfers[transferId].sessionChunkType;
 
     if (self._dataTransfers[transferId].enforceBSPeers.indexOf(peerId) > -1) {
-      self._log.warn([peerId, 'RTCDataChannel', transferId,
+      Log.error(self._debugOptions.instanceId, [peerId, 'RTCDataChannel', transferId,
         'Binary data chunks transfer is not yet supported with Peer connecting from ' +
         'Android, iOS and C++ SDK. Fallbacking to binary string data chunks transfer.']);
 
@@ -448,11 +434,6 @@ Skylink.prototype._startDataTransferToPeer = function (transferId, peerId, callb
     return;
   }
 
-  if (self._dataChannels[peerId].main.channel.readyState !== self.DATA_CHANNEL_STATE.OPEN) {
-    returnErrorBeforeTransferFn('Unable to start data transfer as Peer Datachannel connection is not opened.');
-    return;
-  }
-
   var streamId = self._dataChannels[peerId].main.streamId;
 
   if (streamId && channelProp === 'main' && self._dataStreams[streamId] &&
@@ -499,7 +480,7 @@ Skylink.prototype._startDataTransferToPeer = function (transferId, peerId, callb
 
   if (requireInterop || channelProp === 'main') {
     // When MCU Datachannel connection has a transfer in-progress
-    if (self._dataChannels[peerId].main.transferId) {
+    if (self._dataChannels[peerId].main.getInfo().custom.transferId) {
       returnErrorBeforeTransferFn('Unable to start data transfer as Peer Datachannel has a data transfer in-progress.');
       return;
     }
@@ -532,7 +513,7 @@ Skylink.prototype._startDataTransferToPeer = function (transferId, peerId, callb
     if (evtPeerId === peerId && (channelType === self.DATA_CHANNEL_TYPE.DATA ? channelName === transferId : true)) {
       if (state === self.DATA_CHANNEL_STATE.OPEN && channelType === self.DATA_CHANNEL_TYPE.DATA &&
         channelName === transferId) {
-        self._dataChannels[peerId][channelProp].transferId = transferId;
+        self._dataChannels[peerId][channelProp].setCustom('transferId', transferId);
         sendWRQFn();
         return false;
       }
@@ -546,7 +527,7 @@ Skylink.prototype._startDataTransferToPeer = function (transferId, peerId, callb
     channelProp = transferId;
     self._createDataChannel(peerId, transferId);
   } else {
-    self._dataChannels[peerId].main.transferId = transferId;
+    self._dataChannels[peerId].main.setCustom('transferId', transferId);
     sendWRQFn();
   }
 };
@@ -671,11 +652,11 @@ Skylink.prototype._handleDataTransferTimeoutForPeer = function (transferId, peer
   var self = this;
 
   if (!(self._dataTransfers[transferId] && self._dataTransfers[transferId].sessions[peerId])) {
-    self._log.debug([peerId, 'RTCDataChannel', transferId, 'Data transfer does not exists for Peer. Ignoring timeout.']);
+    Log.debug(self._debugOptions.instanceId, [peerId, 'RTCDataChannel', transferId, 'Data transfer does not exists for Peer. Ignoring timeout.']);
     return;
   }
 
-  self._log.debug([peerId, 'RTCDataChannel', transferId, 'Clearing data transfer timer for Peer.']);
+  Log.debug(self._debugOptions.instanceId, [peerId, 'RTCDataChannel', transferId, 'Clearing data transfer timer for Peer.']);
 
   if (self._dataTransfers[transferId].sessions[peerId].timer) {
     clearTimeout(self._dataTransfers[transferId].sessions[peerId].timer);
@@ -684,25 +665,27 @@ Skylink.prototype._handleDataTransferTimeoutForPeer = function (transferId, peer
   self._dataTransfers[transferId].sessions[peerId].timer = null;
 
   if (setPeerTO) {
-    self._log.debug([peerId, 'RTCDataChannel', transferId, 'Setting data transfer timer for Peer.']);
+    Log.debug(self._debugOptions.instanceId, [peerId, 'RTCDataChannel', transferId, 'Setting data transfer timer for Peer.']);
 
     self._dataTransfers[transferId].sessions[peerId].timer = setTimeout(function () {
       if (!(self._dataTransfers[transferId] && self._dataTransfers[transferId].sessions[peerId])) {
-        self._log.debug([peerId, 'RTCDataChannel', transferId, 'Data transfer already ended for Peer. Ignoring expired timeout.']);
+        Log.debug(self._debugOptions.instanceId, [peerId, 'RTCDataChannel', transferId,
+          'Data transfer already ended for Peer. Ignoring expired timeout.']);
         return;
       }
 
       if (!(self._user && self._user.sid)) {
-        self._log.debug([peerId, 'RTCDataChannel', transferId, 'User is not in Room. Ignoring expired timeout.']);
+        Log.debug(self._debugOptions.instanceId, [peerId, 'RTCDataChannel', transferId, 'User is not in Room. Ignoring expired timeout.']);
         return;
       }
 
       if (!self._dataChannels[peerId]) {
-        self._log.debug([peerId, 'RTCDataChannel', transferId, 'Datachannel connection does not exists. Ignoring expired timeout.']);
+        Log.debug(self._debugOptions.instanceId, [peerId, 'RTCDataChannel', transferId,
+          'Datachannel connection does not exists. Ignoring expired timeout.']);
         return;
       }
 
-      self._log.error([peerId, 'RTCDataChannel', transferId, 'Data transfer response has timed out.']);
+      Log.error(self._debugOptions.instanceId, [peerId, 'RTCDataChannel', transferId, 'Data transfer response has timed out.']);
 
       /**
        * Emit event for Peers function.
@@ -759,159 +742,101 @@ Skylink.prototype._handleDataTransferTimeoutForPeer = function (transferId, peer
  * @for Skylink
  * @since 0.6.16
  */
-Skylink.prototype._processDataChannelData = function(rawData, peerId, channelName, channelType) {
+Skylink.prototype._processDataChannelData = function(data, peerId, channelName, channelType, binaryType) {
   var self = this;
 
   var channelProp = channelType === self.DATA_CHANNEL_TYPE.MESSAGING ? 'main' : channelName;
-  var transferId = self._dataChannels[peerId][channelProp].transferId || null;
+  var transferId = self._dataChannels[peerId][channelProp].getInfo().custom.transferId || null;
   var streamId = self._dataChannels[peerId][channelProp].streamId || null;
   var isStreamChunk = false;
 
-  console.info(streamId, self._dataStreams, typeof rawData);
-
   if (streamId && self._dataStreams[streamId]) {
-    isStreamChunk = self._dataStreams[streamId].sessionChunkType === 'string' ? typeof rawData === 'string' :
-      typeof rawData === 'object';
+    isStreamChunk = self._dataStreams[streamId].sessionChunkType === 'string' ? binaryType === 'string' : binaryType === 'binary';
   }
 
   if (!self._peerConnections[peerId]) {
-    self._log.warn([peerId, 'RTCDataChannel', channelProp, 'Dropping data received from Peer ' +
-      'as connection is not present ->'], rawData);
+    Log.error(self._debugOptions.instanceId, [peerId, 'RTCDataChannel', channelProp, 'Dropping data received from Peer ' +
+      'as connection is not present ->'], data);
     return;
   }
 
   if (!(self._dataChannels[peerId] && self._dataChannels[peerId][channelProp])) {
-    self._log.warn([peerId, 'RTCDataChannel', channelProp, 'Dropping data received from Peer ' +
-      'as Datachannel connection is not present ->'], rawData);
+    Log.error(self._debugOptions.instanceId, [peerId, 'RTCDataChannel', channelProp, 'Dropping data received from Peer ' +
+      'as Datachannel connection is not present ->'], data);
     return;
   }
 
-  // Expect as string
-  if (typeof rawData === 'string') {
-    try {
-      var protocolData = JSON.parse(rawData);
-      isStreamChunk = false;
+  if (data.type && binaryType === 'string') {
+    Log.debug(self._debugOptions.instanceId, [peerId, 'RTCDataChannel', channelProp,
+      'Received protocol "' + data.type + '" message ->'], data);
 
-      self._log.debug([peerId, 'RTCDataChannel', channelProp, 'Received protocol "' + protocolData.type + '" message ->'], protocolData);
+    isStreamChunk = false;
 
-      // Ignore ACK, ERROR and CANCEL if there is no data transfer session in-progress
-      if ([self._DC_PROTOCOL_TYPE.ACK, self._DC_PROTOCOL_TYPE.ERROR, self._DC_PROTOCOL_TYPE.CANCEL].indexOf(protocolData.type) > -1 &&
-        !(transferId && self._dataTransfers[transferId] && self._dataTransfers[transferId].sessions[peerId])) {
-          self._log.warn([peerId, 'RTCDataChannel', channelProp, 'Discarded protocol message as data transfer session ' +
-            'is not present ->'], protocolData);
-          return;
-      }
-
-      switch (protocolData.type) {
-        case self._DC_PROTOCOL_TYPE.WRQ:
-          // Discard iOS bidirectional upload when Datachannel is in-progress for data transfers
-          if (transferId && self._dataTransfers[transferId] && self._dataTransfers[transferId].sessions[peerId]) {
-            self._log.warn([peerId, 'RTCDataChannel', channelProp, 'Rejecting bidirectional data transfer request as ' +
-              'it is currently not supported in the SDK ->'], protocolData);
-
-            self._sendMessageToDataChannel(peerId, {
-              type: self._DC_PROTOCOL_TYPE.ACK,
-              ackN: -1,
-              sender: self._user.sid
-            }, channelProp);
-            return;
-          }
-          self._WRQProtocolHandler(peerId, protocolData, channelProp);
-          break;
-        case self._DC_PROTOCOL_TYPE.ACK:
-          self._ACKProtocolHandler(peerId, protocolData, channelProp);
-          break;
-        case self._DC_PROTOCOL_TYPE.ERROR:
-          self._ERRORProtocolHandler(peerId, protocolData, channelProp);
-          break;
-        case self._DC_PROTOCOL_TYPE.CANCEL:
-          self._CANCELProtocolHandler(peerId, protocolData, channelProp);
-          break;
-        case self._DC_PROTOCOL_TYPE.MESSAGE:
-          self._MESSAGEProtocolHandler(peerId, protocolData, channelProp);
-          break;
-        default:
-          self._log.warn([peerId, 'RTCDataChannel', channelProp, 'Discarded unknown "' + protocolData.type + '" message ->'], protocolData);
-      }
-
-    } catch (error) {
-      if (rawData.indexOf('{') > -1 && rawData.indexOf('}') > 0) {
-        self._log.error([peerId, 'RTCDataChannel', channelProp, 'Failed parsing protocol step data error ->'], {
-          data: rawData,
-          error: error
-        });
-
-        self._trigger('dataChannelState', self.DATA_CHANNEL_STATE.ERROR, peerId, error, channelName, channelType, null);
-        throw error;
-      }
-
-      if (!isStreamChunk && !(transferId && self._dataTransfers[transferId] && self._dataTransfers[transferId].sessions[peerId])) {
-        self._log.warn([peerId, 'RTCDataChannel', channelProp, 'Discarded data chunk without session ->'], rawData);
+    // Ignore ACK, ERROR and CANCEL if there is no data transfer session in-progress
+    if ([self._DC_PROTOCOL_TYPE.ACK, self._DC_PROTOCOL_TYPE.ERROR, self._DC_PROTOCOL_TYPE.CANCEL].indexOf(data.type) > -1 &&
+      !(transferId && self._dataTransfers[transferId] && self._dataTransfers[transferId].sessions[peerId])) {
+        Log.error(self._debugOptions.instanceId, [peerId, 'RTCDataChannel', channelProp, 'Discarded protocol message as data transfer session ' +
+          'is not present ->'], data);
         return;
-      }
+    }
 
-      if (!isStreamChunk && transferId) {
-        if (self._dataTransfers[transferId].chunks[self._dataTransfers[transferId].sessions[peerId].ackN]) {
-          self._log.warn([peerId, 'RTCDataChannel', transferId, 'Dropping data chunk ' + (!isStreamChunk ? '@' +
-            self._dataTransfers[transferId].sessions[peerId].ackN : '') + ' as it has already been added ->'], rawData);
+    switch (data.type) {
+      case self._DC_PROTOCOL_TYPE.WRQ:
+        // Discard iOS bidirectional upload when Datachannel is in-progress for data transfers
+        if (transferId && self._dataTransfers[transferId] && self._dataTransfers[transferId].sessions[peerId]) {
+          Log.error(self._debugOptions.instanceId, [peerId, 'RTCDataChannel', channelProp, 'Rejecting bidirectional data transfer request as ' +
+            'it is currently not supported in the SDK ->'], data);
+
+          self._sendMessageToDataChannel(peerId, {
+            type: self._DC_PROTOCOL_TYPE.ACK,
+            ackN: -1,
+            sender: self._user.sid
+          }, channelProp);
           return;
         }
-      }
-
-      var chunkType = self.DATA_TRANSFER_DATA_TYPE.BINARY_STRING;
-
-      if (!isStreamChunk ? self._dataTransfers[transferId].dataType === self.DATA_TRANSFER_SESSION_TYPE.DATA_URL : true) {
-        self._log.debug([peerId, 'RTCDataChannel', channelProp, 'Received string data chunk ' + (!isStreamChunk ? '@' +
-          self._dataTransfers[transferId].sessions[peerId].ackN : '') + ' with size ->'], rawData.length || rawData.size);
-
-        self._DATAProtocolHandler(peerId, rawData, self.DATA_TRANSFER_DATA_TYPE.STRING,
-          rawData.length || rawData.size || 0, channelProp);
-
-      } else {
-        var removeSpaceData = rawData.replace(/\s|\r|\n/g, '');
-
-        self._log.debug([peerId, 'RTCDataChannel', channelProp, 'Received binary string data chunk @' +
-          self._dataTransfers[transferId].sessions[peerId].ackN + ' with size ->'],
-          removeSpaceData.length || removeSpaceData.size);
-
-        self._DATAProtocolHandler(peerId, self._base64ToBlob(removeSpaceData), self.DATA_TRANSFER_DATA_TYPE.BINARY_STRING,
-          removeSpaceData.length || removeSpaceData.size || 0, channelProp);
-      }
+        self._WRQProtocolHandler(peerId, data, channelProp);
+        break;
+      case self._DC_PROTOCOL_TYPE.ACK:
+        self._ACKProtocolHandler(peerId, data, channelProp);
+        break;
+      case self._DC_PROTOCOL_TYPE.ERROR:
+        self._ERRORProtocolHandler(peerId, data, channelProp);
+        break;
+      case self._DC_PROTOCOL_TYPE.CANCEL:
+        self._CANCELProtocolHandler(peerId, data, channelProp);
+        break;
+      case self._DC_PROTOCOL_TYPE.MESSAGE:
+        self._MESSAGEProtocolHandler(peerId, data, channelProp);
+        break;
+      default:
+        Log.error(self._debugOptions.instanceId, [peerId, 'RTCDataChannel', channelProp,
+          'Discarded unknown "' + data.type + '" message ->'], data);
     }
   } else {
     if (!isStreamChunk && !(transferId && self._dataTransfers[transferId] && self._dataTransfers[transferId].sessions[peerId])) {
-      self._log.warn([peerId, 'RTCDataChannel', channelProp, 'Discarded data chunk without session ->'], rawData);
+      Log.error(self._debugOptions.instanceId, [peerId, 'RTCDataChannel', channelProp, 'Discarded data chunk without session ->'], data);
       return;
     }
 
-    if (!isStreamChunk && transferId) {
-      if (self._dataTransfers[transferId].chunks[self._dataTransfers[transferId].sessions[peerId].ackN]) {
-        self._log.warn([peerId, 'RTCDataChannel', transferId, 'Dropping data chunk ' + (!isStreamChunk ? '@' +
-          self._dataTransfers[transferId].sessions[peerId].ackN : '') + ' as it has already been added ->'], rawData);
-        return;
-      }
-    }
+    if (!isStreamChunk ? self._dataTransfers[transferId].dataType === self.DATA_TRANSFER_SESSION_TYPE.DATA_URL : true) {
+      Log.debug(self._debugOptions.instanceId, [peerId, 'RTCDataChannel', channelProp, 'Received string data chunk ' + (!isStreamChunk ? '@' +
+        self._dataTransfers[transferId].sessions[peerId].ackN : '') + ' with size ->'], data.length || data.size);
 
-    if (rawData instanceof Blob) {
-      self._log.debug([peerId, 'RTCDataChannel', channelProp, 'Received blob data chunk ' + (isStreamChunk ? '' :
-        '@' + self._dataTransfers[transferId].sessions[peerId].ackN) + ' with size ->'], rawData.size);
+      self._DATAProtocolHandler(peerId, data, self.DATA_TRANSFER_DATA_TYPE.STRING, data.length || data.size, channelProp);
 
-      self._DATAProtocolHandler(peerId, rawData, self.DATA_TRANSFER_DATA_TYPE.BLOB, rawData.size, channelProp);
+    } else if (binaryType === 'string') {
+      var dataNS = data.replace(/\s|\r|\n/g, '');
+
+      Log.debug(self._debugOptions.instanceId, [peerId, 'RTCDataChannel', channelProp, 'Received binary string data chunk @' +
+        self._dataTransfers[transferId].sessions[peerId].ackN + ' with size ->'], dataNS.length || dataNS.size);
+      self._DATAProtocolHandler(peerId, self._base64ToBlob(dataNS),
+        self.DATA_TRANSFER_DATA_TYPE.BINARY_STRING, dataNS.length || dataNS.size, channelProp);
 
     } else {
-      var byteArray = rawData;
+      Log.debug(self._debugOptions.instanceId, [peerId, 'RTCDataChannel', channelProp, 'Received Blob data chunk ' + (isStreamChunk ? '' : '@' +
+        self._dataTransfers[transferId].sessions[peerId].ackN) + ' with size ->'], data.size);
 
-      if (rawData.constructor && rawData.constructor.name === 'Array') {
-        // Need to re-parse on some browsers
-        byteArray = new Int8Array(rawData);
-      }
-
-      var blob = new Blob([byteArray]);
-
-      self._log.debug([peerId, 'RTCDataChannel', channelProp, 'Received arraybuffer data chunk ' + (isStreamChunk ? '' : 
-        '@' + self._dataTransfers[transferId].sessions[peerId].ackN) + ' with size ->'], blob.size);
-
-      self._DATAProtocolHandler(peerId, blob, self.DATA_TRANSFER_DATA_TYPE.ARRAY_BUFFER, blob.size, channelProp);
+      self._DATAProtocolHandler(peerId, data, binaryType, data.size, channelProp);
     }
   }
 };
@@ -942,7 +867,7 @@ Skylink.prototype._WRQProtocolHandler = function(peerId, data, channelProp) {
         senderPeerId: senderPeerId,
         isUpload: false
       };
-      self._dataChannels[peerId][channelProp].streamId = transferId;
+      self._dataChannels[peerId][channelProp].setCustom('streamId', transferId);
       var hasStarted = false;
       self.once('dataChannelState', function () {}, function (state, evtPeerId, channelName, channelType, error) {
         if (!self._dataStreams[transferId]) {
@@ -1004,7 +929,7 @@ Skylink.prototype._WRQProtocolHandler = function(peerId, data, channelProp) {
           isStringStream: self._dataStreams[transferId].sessionChunkType === 'string',
           senderPeerId: senderPeerId
         }, false);
-        self._dataChannels[peerId][channelProp].streamId = null;
+        self._dataChannels[peerId][channelProp].setCustom('streamId', null);
         if (channelProp !== 'main') {
           self._closeDataChannel(peerId, channelProp);
         }
@@ -1044,7 +969,7 @@ Skylink.prototype._WRQProtocolHandler = function(peerId, data, channelProp) {
       self._dataTransfers[transferId].chunkType = self.DATA_TRANSFER_DATA_TYPE.ARRAY_BUFFER;
     }
 
-    self._dataChannels[peerId][channelProp].transferId = transferId;
+    self._dataChannels[peerId][channelProp].setCustom('transferId', transferId);
     self._dataTransfers[transferId].sessions[peerId] = {
       timer: null,
       ackN: 0,
@@ -1073,7 +998,7 @@ Skylink.prototype._ACKProtocolHandler = function(peerId, data, channelProp) {
   var senderPeerId = data.sender || peerId;
 
   if (channelProp === 'main') {
-    transferId = self._dataChannels[peerId].main.transferId;
+    transferId = self._dataChannels[peerId].main.getInfo().custom.transferId;
   }
 
   self._handleDataTransferTimeoutForPeer(transferId, peerId, false);
@@ -1084,7 +1009,7 @@ Skylink.prototype._ACKProtocolHandler = function(peerId, data, channelProp) {
   var emitEventFn = function (cb) {
     if (peerId === 'MCU') {
       if (!self._dataTransfers[transferId].peers[channelProp]) {
-        self._log.warn([peerId, 'RTCDataChannel', channelProp, 'Dropping triggering of ACK event as ' +
+        Log.error(self._debugOptions.instanceId, [peerId, 'RTCDataChannel', channelProp, 'Dropping triggering of ACK event as ' +
           'Peers list does not exists']);
         return;
       }
@@ -1119,7 +1044,7 @@ Skylink.prototype._ACKProtocolHandler = function(peerId, data, channelProp) {
       });
 
       if (self._dataChannels[peerId][channelProp]) {
-        self._dataChannels[peerId][channelProp].transferId = null;
+        self._dataChannels[peerId][channelProp].setCustom('transferId', null);
 
         if (channelProp !== 'main') {
           self._closeDataChannel(peerId, channelProp);
@@ -1129,16 +1054,16 @@ Skylink.prototype._ACKProtocolHandler = function(peerId, data, channelProp) {
     }
 
     var uploadFn = function (chunk) {
-      self._sendMessageToDataChannel(peerId, chunk, channelProp, true);
+      self._sendMessageToDataChannel(peerId, chunk, channelProp, true, function (error) {
+        if (data.ackN < self._dataTransfers[transferId].chunks.length) {
+          emitEventFn(function (evtPeerId) {
+            self._trigger('dataTransferState', self.DATA_TRANSFER_STATE.UPLOADING, transferId, evtPeerId,
+              self._getTransferInfo(transferId, peerId, true, false, false), null);
+          });
+        }
 
-      if (data.ackN < self._dataTransfers[transferId].chunks.length) {
-        emitEventFn(function (evtPeerId) {
-          self._trigger('dataTransferState', self.DATA_TRANSFER_STATE.UPLOADING, transferId, evtPeerId,
-            self._getTransferInfo(transferId, peerId, true, false, false), null);
-        });
-      }
-
-      self._handleDataTransferTimeoutForPeer(transferId, peerId, true);
+        self._handleDataTransferTimeoutForPeer(transferId, peerId, true);
+      });
     };
 
     self._dataTransfers[transferId].sessions[peerId].ackN = data.ackN;
@@ -1147,8 +1072,6 @@ Skylink.prototype._ACKProtocolHandler = function(peerId, data, channelProp) {
       self._blobToBase64(self._dataTransfers[transferId].enforceBSInfo.chunks[data.ackN], uploadFn);
     } else if (self._dataTransfers[transferId].chunkType === self.DATA_TRANSFER_DATA_TYPE.BINARY_STRING) {
       self._blobToBase64(self._dataTransfers[transferId].chunks[data.ackN], uploadFn);
-    } else if (self._dataTransfers[transferId].chunkType === self.DATA_TRANSFER_DATA_TYPE.ARRAY_BUFFER) {
-      self._blobToArrayBuffer(self._dataTransfers[transferId].chunks[data.ackN], uploadFn);
     } else {
       uploadFn(self._dataTransfers[transferId].chunks[data.ackN]);
     }
@@ -1171,7 +1094,7 @@ Skylink.prototype._ACKProtocolHandler = function(peerId, data, channelProp) {
 Skylink.prototype._MESSAGEProtocolHandler = function(peerId, data, channelProp) {
   var senderPeerId = data.sender || peerId;
 
-  self._log.log([senderPeerId, 'RTCDataChannel', channelProp, 'Received P2P message from peer:'], data);
+  Log.log(self._debugOptions.instanceId, [senderPeerId, 'RTCDataChannel', channelProp, 'Received P2P message from peer:'], data);
 
   this._trigger('incomingMessage', {
     content: data.data,
@@ -1196,7 +1119,7 @@ Skylink.prototype._ERRORProtocolHandler = function(peerId, data, channelProp) {
   var senderPeerId = data.sender || peerId;
 
   if (channelProp === 'main') {
-    transferId = self._dataChannels[peerId].main.transferId;
+    transferId = self._dataChannels[peerId].main.getInfo().custom.transferId;
   }
 
   self._handleDataTransferTimeoutForPeer(transferId, peerId, false);
@@ -1207,7 +1130,7 @@ Skylink.prototype._ERRORProtocolHandler = function(peerId, data, channelProp) {
   var emitEventFn = function (cb) {
     if (peerId === 'MCU') {
       if (!self._dataTransfers[transferId].peers[channelProp]) {
-        self._log.warn([peerId, 'RTCDataChannel', channelProp, 'Dropping triggering of ERROR event as ' +
+        Log.error(self._debugOptions.instanceId, [peerId, 'RTCDataChannel', channelProp, 'Dropping triggering of ERROR event as ' +
           'Peers list does not exists']);
         return;
       }
@@ -1222,7 +1145,7 @@ Skylink.prototype._ERRORProtocolHandler = function(peerId, data, channelProp) {
     }
   };
 
-  self._log.error([peerId, 'RTCDataChannel', channelProp, 'Received an error from peer ->'], data);
+  Log.error(self._debugOptions.instanceId, [peerId, 'RTCDataChannel', channelProp, 'Received an error from peer ->'], data);
 
   emitEventFn(function (evtPeerId) {
     self._trigger('dataTransferState', self.DATA_TRANSFER_STATE.ERROR, transferId, evtPeerId,
@@ -1245,7 +1168,7 @@ Skylink.prototype._CANCELProtocolHandler = function(peerId, data, channelProp) {
   var transferId = channelProp;
 
   if (channelProp === 'main') {
-    transferId = self._dataChannels[peerId].main.transferId;
+    transferId = self._dataChannels[peerId].main.getInfo().custom.transferId;
   }
 
   self._handleDataTransferTimeoutForPeer(transferId, peerId, false);
@@ -1256,7 +1179,7 @@ Skylink.prototype._CANCELProtocolHandler = function(peerId, data, channelProp) {
   var emitEventFn = function (cb) {
     if (peerId === 'MCU') {
       if (!self._dataTransfers[transferId].peers[channelProp]) {
-        self._log.warn([peerId, 'RTCDataChannel', channelProp, 'Dropping triggering of CANCEL event as ' +
+        Log.error(self._debugOptions.instanceId, [peerId, 'RTCDataChannel', channelProp, 'Dropping triggering of CANCEL event as ' +
           'Peers list does not exists']);
         return;
       }
@@ -1271,7 +1194,7 @@ Skylink.prototype._CANCELProtocolHandler = function(peerId, data, channelProp) {
     }
   };
 
-  self._log.error([peerId, 'RTCDataChannel', channelProp, 'Received data transfer termination from peer ->'], data);
+  Log.error(self._debugOptions.instanceId, [peerId, 'RTCDataChannel', channelProp, 'Received data transfer termination from peer ->'], data);
 
   emitEventFn(function (evtPeerId) {
     self._trigger('dataTransferState', self.DATA_TRANSFER_STATE.CANCEL, transferId, evtPeerId,
@@ -1318,12 +1241,12 @@ Skylink.prototype._DATAProtocolHandler = function(peerId, chunk, chunkType, chun
       isPrivate: self._dataStreams[streamId].sessionChunkType.isPrivate,
       isStringStream: self._dataStreams[streamId].sessionChunkType === 'string',
       senderPeerId: senderPeerId
-    }, false);    
+    }, false);
     return;
   }
 
   if (channelProp === 'main') {
-    transferId = self._dataChannels[peerId].main.transferId;
+    transferId = self._dataChannels[peerId].main.getInfo().custom.transferId;
   }
 
   if (self._dataTransfers[transferId].senderPeerId) {
@@ -1337,7 +1260,7 @@ Skylink.prototype._DATAProtocolHandler = function(peerId, chunk, chunkType, chun
   self._dataTransfers[transferId].chunks[self._dataTransfers[transferId].sessions[peerId].ackN] = chunk;
 
   if (self._dataTransfers[transferId].sessions[peerId].receivedSize >= self._dataTransfers[transferId].size) {
-    self._log.log([peerId, 'RTCDataChannel', channelProp, 'Data transfer has been completed. Computed size ->'],
+    Log.log(self._debugOptions.instanceId, [peerId, 'RTCDataChannel', channelProp, 'Data transfer has been completed. Computed size ->'],
       self._dataTransfers[transferId].sessions[peerId].receivedSize);
 
     // Send last ACK to Peer to indicate completion of data transfers

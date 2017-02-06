@@ -28,19 +28,19 @@ Skylink.prototype.acceptDataTransfer = function (peerId, transferId, accept) {
   var self = this;
 
   if (typeof transferId !== 'string' && typeof peerId !== 'string') {
-    self._log.error([peerId, 'RTCDataChannel', transferId, 'Aborting accept data transfer as ' +
+    Log.error(self._debugOptions.instanceId, [peerId, 'RTCDataChannel', transferId, 'Aborting accept data transfer as ' +
       'data transfer ID or peer ID is not provided']);
     return;
   }
 
   if (!self._dataChannels[peerId]) {
-    self._log.error([peerId, 'RTCDataChannel', transferId, 'Aborting accept data transfer as ' +
+    Log.error(self._debugOptions.instanceId, [peerId, 'RTCDataChannel', transferId, 'Aborting accept data transfer as ' +
       'Peer does not have any Datachannel connections']);
     return;
   }
 
   if (!self._dataTransfers[transferId]) {
-    self._log.error([peerId, 'RTCDataChannel', transferId, 'Aborting accept data transfer as ' +
+    Log.error(self._debugOptions.instanceId, [peerId, 'RTCDataChannel', transferId, 'Aborting accept data transfer as ' +
       'invalid transfer ID is provided']);
     return;
   }
@@ -53,10 +53,9 @@ Skylink.prototype.acceptDataTransfer = function (peerId, transferId, accept) {
   }
 
   if (accept) {
-    self._log.debug([peerId, 'RTCDataChannel', transferId, 'Accepted data transfer and starting ...']);
+    Log.debug(self._debugOptions.instanceId, [peerId, 'RTCDataChannel', transferId, 'Accepted data transfer and starting ...']);
 
     var dataChannelStateCbFn = function (state, evtPeerId, error, cN, cT) {
-      console.info(evtPeerId, error, cN, cT);
       self._trigger('dataTransferState', self.DATA_TRANSFER_STATE.ERROR, transferId, peerId,
         self._getTransferInfo(transferId, peerId, true, false, false), {
         transferType: self.DATA_TRANSFER_TYPE.DOWNLOAD,
@@ -84,7 +83,7 @@ Skylink.prototype.acceptDataTransfer = function (peerId, transferId, accept) {
 
       if (self._dataChannels[peerId]) {
         if (channelProp === 'main' && self._dataChannels[peerId].main) {
-          self._dataChannels[peerId].main.transferId = null;
+          self._dataChannels[peerId].main.setCustom('transferId', null);
         }
 
         if (channelProp === transferId) {
@@ -109,7 +108,7 @@ Skylink.prototype.acceptDataTransfer = function (peerId, transferId, accept) {
       self._getTransferInfo(transferId, peerId, true, false, false), null);
 
   } else {
-    self._log.warn([peerId, 'RTCDataChannel', transferId, 'Rejected data transfer and data transfer request has been aborted']);
+    Log.warn(self._debugOptions.instanceId, [peerId, 'RTCDataChannel', transferId, 'Rejected data transfer and data transfer request has been aborted']);
 
     // Send ACK protocol to terminate data transfer request
     // MCU sends the data transfer from the "P2P" Datachannel
@@ -121,7 +120,7 @@ Skylink.prototype.acceptDataTransfer = function (peerId, transferId, accept) {
 
     // Insanity check
     if (channelProp === 'main' && self._dataChannels[peerId].main) {
-      self._dataChannels[peerId].main.transferId = null;
+      self._dataChannels[peerId].main.setCustom('transferId', null);
     }
 
     self._trigger('dataTransferState', self.DATA_TRANSFER_STATE.USER_REJECTED, transferId, peerId,
