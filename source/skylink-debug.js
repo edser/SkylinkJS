@@ -351,6 +351,46 @@ var log = {
 };
 
 /**
+ * Function that pushes connection stats to server.
+ * @method pushStatsToServer
+ * @private
+ * @required
+ * @scoped true
+ * @for Skylink
+ * @since 0.6.18
+ */
+var pushStatsToServer = function (route, stats) {
+  var xhr = new XMLHttpRequest();
+
+  xhr.setContentType = function (contentType) {
+    xhr.setRequestHeader('Content-type', contentType);
+  };
+
+  if (['function', 'object'].indexOf(typeof window.XDomainRequest) > -1) {
+    xhr = new XDomainRequest();
+    xhr.setContentType = function (contentType) {
+      xhr.contentType = contentType;
+    };
+  }
+
+  stats.eventTimestamp = stats.eventTimestamp || (new Date ()).toISOString();
+  stats.agent = {
+    name: window.webrtcDetectedBrowser,
+    version: window.webrtcDetectedVersion.toString(),
+    os: window.navigator.platform,
+    pluginVersion: AdapterJS.WebRTCPlugin.plugin ? AdapterJS.WebRTCPlugin.plugin.VERSION : null,
+    sdkName: 'web',
+    sdkVersion: Skylink.prototype.VERSION
+  };
+
+  try {
+    xhr.open('POST', 'https://api.temasys.io/apistats' + route, true);
+    xhr.setContentType('application/json;charset=UTF-8');
+    xhr.send(JSON.stringify(stats));
+  } catch (e) {}
+};
+
+/**
  * Function that configures the level of <code>console</code> API logs to be printed in the
  * <a href="https://developer.mozilla.org/en/docs/Web/API/console">Javascript Web Console</a>.
  * @method setLogLevel

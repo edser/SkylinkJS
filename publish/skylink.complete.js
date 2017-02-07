@@ -1,4 +1,4 @@
-/*! skylinkjs - v0.6.17 - Mon Feb 06 2017 21:05:09 GMT+0800 (SGT) */
+/*! skylinkjs - v0.6.17 - Tue Feb 07 2017 19:33:17 GMT+0800 (SGT) */
 
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.io = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
 
@@ -11532,7 +11532,7 @@ if ( (navigator.mozGetUserMedia ||
   }
 })();
 
-/*! skylinkjs - v0.6.17 - Mon Feb 06 2017 21:05:09 GMT+0800 (SGT) */
+/*! skylinkjs - v0.6.17 - Tue Feb 07 2017 19:33:17 GMT+0800 (SGT) */
 
 (function(globals) {
 
@@ -12044,6 +12044,16 @@ function Skylink() {
    * @since 0.6.13
    */
   this._socketSession = {};
+
+  /**
+   * Stores the current socket connection fallback attempts.
+   * @attribute _socketFallbackAttempts
+   * @type JSON
+   * @private
+   * @for Skylink
+   * @since 0.6.18
+   */
+  this._socketFallbackAttempts = 0;
 
   /**
    * Stores the queued socket messages.
@@ -21633,6 +21643,46 @@ var log = {
 };
 
 /**
+ * Function that pushes connection stats to server.
+ * @method pushStatsToServer
+ * @private
+ * @required
+ * @scoped true
+ * @for Skylink
+ * @since 0.6.18
+ */
+var pushStatsToServer = function (route, stats) {
+  var xhr = new XMLHttpRequest();
+
+  xhr.setContentType = function (contentType) {
+    xhr.setRequestHeader('Content-type', contentType);
+  };
+
+  if (['function', 'object'].indexOf(typeof window.XDomainRequest) > -1) {
+    xhr = new XDomainRequest();
+    xhr.setContentType = function (contentType) {
+      xhr.contentType = contentType;
+    };
+  }
+
+  stats.eventTimestamp = stats.eventTimestamp || (new Date ()).toISOString();
+  stats.agent = {
+    name: window.webrtcDetectedBrowser,
+    version: window.webrtcDetectedVersion.toString(),
+    os: window.navigator.platform,
+    pluginVersion: AdapterJS.WebRTCPlugin.plugin ? AdapterJS.WebRTCPlugin.plugin.VERSION : null,
+    sdkName: 'web',
+    sdkVersion: Skylink.prototype.VERSION
+  };
+
+  try {
+    xhr.open('POST', 'https://api.temasys.io/apistats' + route, true);
+    xhr.setContentType('application/json;charset=UTF-8');
+    xhr.send(JSON.stringify(stats));
+  } catch (e) {}
+};
+
+/**
  * Function that configures the level of <code>console</code> API logs to be printed in the
  * <a href="https://developer.mozilla.org/en/docs/Web/API/console">Javascript Web Console</a>.
  * @method setLogLevel
@@ -23563,10 +23613,30 @@ Skylink.prototype._createSocket = function (type) {
 
   var url = self._signalingServerProtocol + '//' + (self._socketServer || self._signalingServer) + ':' + self._signalingServerPort;
   var retries = 0;
+  var constructTimestamp = null;
+
+  /**
+   * Function that pushes connection stats.
+   */
+  var pushStatsFn = function (event) {
+    pushStatsToServer('/socket', {
+      appKey: self._appKey,
+      roomId: self._room && self._room.id ? self._room.id : null,
+      peerId: self._user && self._user.sid ? self._user.sid : (self._socket.id || null),
+      event: event,
+      constructTimestamp: constructTimestamp, 
+      connectionUrl: url,
+      noOfAttempts: self._socketFallbackAttempts - 1,
+      noOfRetries: retries,
+      isInRoom: self._inRoom && self._user && self._user.sid,
+      transportType: self._socketSession.transportType
+    });
+  };
 
   self._socketSession.transportType = type;
   self._socketSession.socketOptions = options;
   self._socketSession.socketServer = url;
+  self._socketFallbackAttempts++;
 
   if (fallbackType === null) {
     fallbackType = self._signalingServerProtocol === 'http:' ?
@@ -23588,6 +23658,7 @@ Skylink.prototype._createSocket = function (type) {
   log.log('Opening channel with signaling server url:', clone(self._socketSession));
 
   self._socket = io.connect(url, options);
+  constructTimestamp = (new Date ()).toISOString();
 
   self._socket.on('reconnect_attempt', function (attempt) {
     retries++;
@@ -23605,8 +23676,10 @@ Skylink.prototype._createSocket = function (type) {
     }
 
     if (self._socketSession.finalAttempts < 4) {
+      pushStatsFn('reconnect_failed');
       self._createSocket(type);
     } else {
+      pushStatsFn('reconnect_aborted');
       self._trigger('socketError', self.SOCKET_ERROR.RECONNECTION_ABORTED, new Error('Reconnection aborted as ' +
         'there no more available ports, transports and final attempts left.'), fallbackType, clone(self._socketSession));
     }
@@ -23614,6 +23687,7 @@ Skylink.prototype._createSocket = function (type) {
 
   self._socket.on('connect', function () {
     if (!self._channelOpen) {
+      pushStatsFn('connect');
       log.log([null, 'Socket', null, 'Channel opened']);
       self._channelOpen = true;
       self._trigger('channelOpen', clone(self._socketSession));
@@ -23622,6 +23696,7 @@ Skylink.prototype._createSocket = function (type) {
 
   self._socket.on('reconnect', function () {
     if (!self._channelOpen) {
+      pushStatsFn('reconnect');
       log.log([null, 'Socket', null, 'Channel opened']);
       self._channelOpen = true;
       self._trigger('channelOpen', clone(self._socketSession));
@@ -23630,6 +23705,7 @@ Skylink.prototype._createSocket = function (type) {
 
   self._socket.on('error', function(error) {
     if (error ? error.message.indexOf('xhr poll error') > -1 : false) {
+      pushStatsFn('connect_poll_error');
       log.error([null, 'Socket', null, 'XHR poll connection unstable. Disconnecting.. ->'], error);
       self._closeChannel();
       return;
@@ -23640,6 +23716,7 @@ Skylink.prototype._createSocket = function (type) {
 
   self._socket.on('disconnect', function() {
     if (self._channelOpen) {
+      pushStatsFn('disconnect');
       self._channelOpen = false;
       self._trigger('channelClose', clone(self._socketSession));
       log.log([null, 'Socket', null, 'Channel closed']);
@@ -23709,6 +23786,7 @@ Skylink.prototype._openChannel = function() {
   self._socketSession.finalAttempts = 0;
   self._socketSession.attempts = 0;
   self._signalingServerPort = null;
+  self._socketFallbackAttempts = 0;
 
   // Begin with a websocket connection
   self._createSocket(socketType);

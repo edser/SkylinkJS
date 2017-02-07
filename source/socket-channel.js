@@ -314,10 +314,30 @@ Skylink.prototype._createSocket = function (type) {
 
   var url = self._signalingServerProtocol + '//' + (self._socketServer || self._signalingServer) + ':' + self._signalingServerPort;
   var retries = 0;
+  var constructTimestamp = null;
+
+  /**
+   * Function that pushes connection stats.
+   */
+  var pushStatsFn = function (event) {
+    pushStatsToServer('/socket', {
+      appKey: self._appKey,
+      roomId: self._room && self._room.id ? self._room.id : null,
+      peerId: self._user && self._user.sid ? self._user.sid : (self._socket.id || null),
+      event: event,
+      constructTimestamp: constructTimestamp, 
+      connectionUrl: url,
+      noOfAttempts: self._socketFallbackAttempts - 1,
+      noOfRetries: retries,
+      isInRoom: self._inRoom && self._user && self._user.sid,
+      transportType: self._socketSession.transportType
+    });
+  };
 
   self._socketSession.transportType = type;
   self._socketSession.socketOptions = options;
   self._socketSession.socketServer = url;
+  self._socketFallbackAttempts++;
 
   if (fallbackType === null) {
     fallbackType = self._signalingServerProtocol === 'http:' ?
@@ -339,6 +359,7 @@ Skylink.prototype._createSocket = function (type) {
   log.log('Opening channel with signaling server url:', clone(self._socketSession));
 
   self._socket = io.connect(url, options);
+  constructTimestamp = (new Date ()).toISOString();
 
   self._socket.on('reconnect_attempt', function (attempt) {
     retries++;
@@ -356,8 +377,10 @@ Skylink.prototype._createSocket = function (type) {
     }
 
     if (self._socketSession.finalAttempts < 4) {
+      pushStatsFn('reconnect_failed');
       self._createSocket(type);
     } else {
+      pushStatsFn('reconnect_aborted');
       self._trigger('socketError', self.SOCKET_ERROR.RECONNECTION_ABORTED, new Error('Reconnection aborted as ' +
         'there no more available ports, transports and final attempts left.'), fallbackType, clone(self._socketSession));
     }
@@ -365,6 +388,7 @@ Skylink.prototype._createSocket = function (type) {
 
   self._socket.on('connect', function () {
     if (!self._channelOpen) {
+      pushStatsFn('connect');
       log.log([null, 'Socket', null, 'Channel opened']);
       self._channelOpen = true;
       self._trigger('channelOpen', clone(self._socketSession));
@@ -373,6 +397,7 @@ Skylink.prototype._createSocket = function (type) {
 
   self._socket.on('reconnect', function () {
     if (!self._channelOpen) {
+      pushStatsFn('reconnect');
       log.log([null, 'Socket', null, 'Channel opened']);
       self._channelOpen = true;
       self._trigger('channelOpen', clone(self._socketSession));
@@ -381,6 +406,7 @@ Skylink.prototype._createSocket = function (type) {
 
   self._socket.on('error', function(error) {
     if (error ? error.message.indexOf('xhr poll error') > -1 : false) {
+      pushStatsFn('connect_poll_error');
       log.error([null, 'Socket', null, 'XHR poll connection unstable. Disconnecting.. ->'], error);
       self._closeChannel();
       return;
@@ -391,6 +417,7 @@ Skylink.prototype._createSocket = function (type) {
 
   self._socket.on('disconnect', function() {
     if (self._channelOpen) {
+      pushStatsFn('disconnect');
       self._channelOpen = false;
       self._trigger('channelClose', clone(self._socketSession));
       log.log([null, 'Socket', null, 'Channel closed']);
@@ -460,6 +487,7 @@ Skylink.prototype._openChannel = function() {
   self._socketSession.finalAttempts = 0;
   self._socketSession.attempts = 0;
   self._signalingServerPort = null;
+  self._socketFallbackAttempts = 0;
 
   // Begin with a websocket connection
   self._createSocket(socketType);

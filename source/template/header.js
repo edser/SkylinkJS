@@ -510,6 +510,16 @@ function Skylink() {
   this._socketSession = {};
 
   /**
+   * Stores the current socket connection fallback attempts.
+   * @attribute _socketFallbackAttempts
+   * @type JSON
+   * @private
+   * @for Skylink
+   * @since 0.6.18
+   */
+  this._socketFallbackAttempts = 0;
+
+  /**
    * Stores the queued socket messages.
    * This is to prevent too many sent over less than a second interval that might cause dropped messages
    *   or jams to the Signaling connection.
