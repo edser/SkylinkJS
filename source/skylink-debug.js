@@ -383,6 +383,8 @@ var pushStatsToServer = function (route, stats) {
     sdkVersion: Skylink.prototype.VERSION
   };
 
+  console.info('route', route, stats);
+
   try {
     xhr.open('POST', 'https://api.temasys.io/apistats' + route, true);
     xhr.setContentType('application/json;charset=UTF-8');

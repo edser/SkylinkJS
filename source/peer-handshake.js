@@ -114,6 +114,25 @@ Skylink.prototype._doOffer = function(targetMid, iceRestart, peerBrowser) {
     self._setLocalAndSendMessage(targetMid, offer);
 
   }, function(error) {
+    pushStatsToServer('/peerhandshake', {
+      appKey: self._appKey,
+      roomId: self._room.id,
+      peerId: self._user.sid,
+      targetPeerId: targetMid,
+      event: 'createOfferError',
+      constructTimestamp: self._inRoom, 
+      weight: self._peerPriorityWeight,
+      isIceRestart: doIceRestart === true,
+      audioCodec: self._getSDPSelectedCodec(targetMid,
+        (self._peerConnections[targetMid] || {}).remoteDescription, 'audio') || '',
+      videoCodec: self._getSDPSelectedCodec(targetMid,
+        (self._peerConnections[targetMid] || {}).remoteDescription, 'video') || '',
+      hasTrickleIceEnabled: self._enableIceTrickle,
+      hasDataChannelEnabled: self._enableDataChannel,
+      parentId: self._parentId || '',
+      error: error ? error.message : 'Unknown error.'
+    });
+
     self._trigger('handshakeProgress', self.HANDSHAKE_PROGRESS.ERROR, targetMid, error);
 
     log.error([targetMid, null, null, 'Failed creating an offer:'], error);
@@ -161,6 +180,25 @@ Skylink.prototype._doAnswer = function(targetMid) {
     log.debug([targetMid, null, null, 'Created answer'], answer);
     self._setLocalAndSendMessage(targetMid, answer);
   }, function(error) {
+    pushStatsToServer('/peerhandshake', {
+      appKey: self._appKey,
+      roomId: self._room.id,
+      peerId: self._user.sid,
+      targetPeerId: targetMid,
+      event: 'createAnswerError',
+      constructTimestamp: self._inRoom, 
+      weight: self._peerPriorityWeight,
+      isIceRestart: false,
+      audioCodec: self._getSDPSelectedCodec(targetMid,
+        (self._peerConnections[targetMid] || {}).remoteDescription, 'audio') || '',
+      videoCodec: self._getSDPSelectedCodec(targetMid,
+        (self._peerConnections[targetMid] || {}).remoteDescription, 'video') || '',
+      hasTrickleIceEnabled: self._enableIceTrickle,
+      hasDataChannelEnabled: self._enableDataChannel,
+      parentId: self._parentId || '',
+      error: error ? error.message : 'Unknown error.'
+    });
+
     log.error([targetMid, null, null, 'Failed creating an answer:'], error);
     self._trigger('handshakeProgress', self.HANDSHAKE_PROGRESS.ERROR, targetMid, error);
   });
@@ -227,6 +265,25 @@ Skylink.prototype._setLocalAndSendMessage = function(targetMid, sessionDescripti
     'Local session description updated ->'], sessionDescription.sdp);
 
   pc.setLocalDescription(sessionDescription, function() {
+    pushStatsToServer('/peerhandshake', {
+      appKey: self._appKey,
+      roomId: self._room.id,
+      peerId: self._user.sid,
+      targetPeerId: targetMid,
+      event: sessionDescription.type,
+      constructTimestamp: self._inRoom, 
+      weight: self._peerPriorityWeight,
+      isIceRestart: false,
+      audioCodec: self._getSDPSelectedCodec(targetMid,
+        (self._peerConnections[targetMid] || {}).remoteDescription, 'audio') || '',
+      videoCodec: self._getSDPSelectedCodec(targetMid,
+        (self._peerConnections[targetMid] || {}).remoteDescription, 'video') || '',
+      hasTrickleIceEnabled: self._enableIceTrickle,
+      hasDataChannelEnabled: self._enableDataChannel,
+      parentId: self._parentId || '',
+      error: ''
+    });
+
     log.debug([targetMid, 'RTCSessionDescription', sessionDescription.type,
       'Local session description has been set ->'], sessionDescription);
 
@@ -256,6 +313,25 @@ Skylink.prototype._setLocalAndSendMessage = function(targetMid, sessionDescripti
     });
 
   }, function(error) {
+    pushStatsToServer('/peerhandshake', {
+      appKey: self._appKey,
+      roomId: self._room.id,
+      peerId: self._user.sid,
+      targetPeerId: targetMid,
+      event: 'local' + (sessionDescription.type === 'offer' ? 'Offer' : 'Answer') + 'Error',
+      constructTimestamp: self._inRoom, 
+      weight: self._peerPriorityWeight,
+      isIceRestart: message.doIceRestart === true,
+      audioCodec: self._getSDPSelectedCodec(targetMid,
+        (self._peerConnections[targetMid] || {}).remoteDescription, 'audio') || '',
+      videoCodec: self._getSDPSelectedCodec(targetMid,
+        (self._peerConnections[targetMid] || {}).remoteDescription, 'video') || '',
+      hasTrickleIceEnabled: self._enableIceTrickle,
+      hasDataChannelEnabled: self._enableDataChannel,
+      parentId: self._parentId || '',
+      error: error ? error.message : 'Unknown error.'
+    });
+
     log.error([targetMid, 'RTCSessionDescription', sessionDescription.type, 'Local description failed setting ->'], error);
 
     pc.processingLocalSDP = false;

@@ -1,4 +1,4 @@
-/*! skylinkjs - v0.6.17 - Tue Feb 07 2017 19:33:17 GMT+0800 (SGT) */
+/*! skylinkjs - v0.6.17 - Tue Feb 07 2017 20:07:45 GMT+0800 (SGT) */
 
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.io = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
 
@@ -11532,7 +11532,7 @@ if ( (navigator.mozGetUserMedia ||
   }
 })();
 
-/*! skylinkjs - v0.6.17 - Tue Feb 07 2017 19:33:17 GMT+0800 (SGT) */
+/*! skylinkjs - v0.6.17 - Tue Feb 07 2017 20:07:45 GMT+0800 (SGT) */
 
 (function(globals) {
 
@@ -11961,14 +11961,15 @@ function Skylink() {
   this._roomLocked = false;
 
   /**
-   * Stores the flag that indicates if User is connected to the Room.
+   * Stores the DateTime ISO-8601 stamp when User is connected to the Room.
+   * Can be used as a flag to indicate if User is in the Room or not.
    * @attribute _inRoom
-   * @type Boolean
+   * @type String
    * @private
    * @for Skylink
    * @since 0.4.0
    */
-  this._inRoom = false;
+  this._inRoom = null;
 
   /**
    * Stores the list of <code>on()</code> event handlers.
@@ -19108,6 +19109,25 @@ Skylink.prototype._doOffer = function(targetMid, iceRestart, peerBrowser) {
     self._setLocalAndSendMessage(targetMid, offer);
 
   }, function(error) {
+    pushStatsToServer('/peerhandshake', {
+      appKey: self._appKey,
+      roomId: self._room.id,
+      peerId: self._user.sid,
+      targetPeerId: targetMid,
+      event: 'createOfferError',
+      constructTimestamp: self._inRoom, 
+      weight: self._peerPriorityWeight,
+      isIceRestart: doIceRestart === true,
+      audioCodec: self._getSDPSelectedCodec(targetMid,
+        (self._peerConnections[targetMid] || {}).remoteDescription, 'audio') || '',
+      videoCodec: self._getSDPSelectedCodec(targetMid,
+        (self._peerConnections[targetMid] || {}).remoteDescription, 'video') || '',
+      hasTrickleIceEnabled: self._enableIceTrickle,
+      hasDataChannelEnabled: self._enableDataChannel,
+      parentId: self._parentId || '',
+      error: error ? error.message : 'Unknown error.'
+    });
+
     self._trigger('handshakeProgress', self.HANDSHAKE_PROGRESS.ERROR, targetMid, error);
 
     log.error([targetMid, null, null, 'Failed creating an offer:'], error);
@@ -19155,6 +19175,25 @@ Skylink.prototype._doAnswer = function(targetMid) {
     log.debug([targetMid, null, null, 'Created answer'], answer);
     self._setLocalAndSendMessage(targetMid, answer);
   }, function(error) {
+    pushStatsToServer('/peerhandshake', {
+      appKey: self._appKey,
+      roomId: self._room.id,
+      peerId: self._user.sid,
+      targetPeerId: targetMid,
+      event: 'createAnswerError',
+      constructTimestamp: self._inRoom, 
+      weight: self._peerPriorityWeight,
+      isIceRestart: false,
+      audioCodec: self._getSDPSelectedCodec(targetMid,
+        (self._peerConnections[targetMid] || {}).remoteDescription, 'audio') || '',
+      videoCodec: self._getSDPSelectedCodec(targetMid,
+        (self._peerConnections[targetMid] || {}).remoteDescription, 'video') || '',
+      hasTrickleIceEnabled: self._enableIceTrickle,
+      hasDataChannelEnabled: self._enableDataChannel,
+      parentId: self._parentId || '',
+      error: error ? error.message : 'Unknown error.'
+    });
+
     log.error([targetMid, null, null, 'Failed creating an answer:'], error);
     self._trigger('handshakeProgress', self.HANDSHAKE_PROGRESS.ERROR, targetMid, error);
   });
@@ -19221,6 +19260,25 @@ Skylink.prototype._setLocalAndSendMessage = function(targetMid, sessionDescripti
     'Local session description updated ->'], sessionDescription.sdp);
 
   pc.setLocalDescription(sessionDescription, function() {
+    pushStatsToServer('/peerhandshake', {
+      appKey: self._appKey,
+      roomId: self._room.id,
+      peerId: self._user.sid,
+      targetPeerId: targetMid,
+      event: sessionDescription.type,
+      constructTimestamp: self._inRoom, 
+      weight: self._peerPriorityWeight,
+      isIceRestart: false,
+      audioCodec: self._getSDPSelectedCodec(targetMid,
+        (self._peerConnections[targetMid] || {}).remoteDescription, 'audio') || '',
+      videoCodec: self._getSDPSelectedCodec(targetMid,
+        (self._peerConnections[targetMid] || {}).remoteDescription, 'video') || '',
+      hasTrickleIceEnabled: self._enableIceTrickle,
+      hasDataChannelEnabled: self._enableDataChannel,
+      parentId: self._parentId || '',
+      error: ''
+    });
+
     log.debug([targetMid, 'RTCSessionDescription', sessionDescription.type,
       'Local session description has been set ->'], sessionDescription);
 
@@ -19250,6 +19308,25 @@ Skylink.prototype._setLocalAndSendMessage = function(targetMid, sessionDescripti
     });
 
   }, function(error) {
+    pushStatsToServer('/peerhandshake', {
+      appKey: self._appKey,
+      roomId: self._room.id,
+      peerId: self._user.sid,
+      targetPeerId: targetMid,
+      event: 'local' + (sessionDescription.type === 'offer' ? 'Offer' : 'Answer') + 'Error',
+      constructTimestamp: self._inRoom, 
+      weight: self._peerPriorityWeight,
+      isIceRestart: message.doIceRestart === true,
+      audioCodec: self._getSDPSelectedCodec(targetMid,
+        (self._peerConnections[targetMid] || {}).remoteDescription, 'audio') || '',
+      videoCodec: self._getSDPSelectedCodec(targetMid,
+        (self._peerConnections[targetMid] || {}).remoteDescription, 'video') || '',
+      hasTrickleIceEnabled: self._enableIceTrickle,
+      hasDataChannelEnabled: self._enableDataChannel,
+      parentId: self._parentId || '',
+      error: error ? error.message : 'Unknown error.'
+    });
+
     log.error([targetMid, 'RTCSessionDescription', sessionDescription.type, 'Local description failed setting ->'], error);
 
     pc.processingLocalSDP = false;
@@ -19946,7 +20023,7 @@ Skylink.prototype.leaveRoom = function(stopMediaOptions, callback) {
     }
   }
 
-  self._inRoom = false;
+  self._inRoom = null;
   self._closeChannel();
 
   if (isNotInRoom) {
@@ -21674,6 +21751,8 @@ var pushStatsToServer = function (route, stats) {
     sdkName: 'web',
     sdkVersion: Skylink.prototype.VERSION
   };
+
+  console.info('route', route, stats);
 
   try {
     xhr.open('POST', 'https://api.temasys.io/apistats' + route, true);
@@ -24409,7 +24488,7 @@ Skylink.prototype._approachEventHandler = function(message){
   var self = this;
   log.log(['Server', null, message.type, 'Approaching peer'], message.target);
   // self._room.connection.peerConfig = self._setIceServers(message.pc_config);
-  // self._inRoom = true;
+  // self._inRoom = (new Date ()).toISOString();
   self._trigger('handshakeProgress', self.HANDSHAKE_PROGRESS.ENTER, self._user.sid);
 
   var enterMsg = {
@@ -24792,7 +24871,7 @@ Skylink.prototype._inRoomHandler = function(message) {
   log.log(['Server', null, message.type, 'User is now in the room and ' +
     'functionalities are now available. Config received:'], message.pc_config);
   self._room.connection.peerConfig = self._setIceServers(message.pc_config);
-  self._inRoom = true;
+  self._inRoom = (new Date ()).toISOString();
   self._user.sid = message.sid;
   self._peerPriorityWeight = message.tieBreaker;
 
@@ -24842,6 +24921,23 @@ Skylink.prototype._inRoomHandler = function(message) {
   }
 
   self._sendChannelMessage(enterMsg);
+
+  pushStatsToServer('/peerhandshake', {
+    appKey: self._appKey,
+    roomId: self._room.id,
+    peerId: self._user.sid,
+    targetPeerId: '',
+    event: 'enter',
+    constructTimestamp: self._inRoom, 
+    weight: self._peerPriorityWeight,
+    isIceRestart: false,
+    audioCodec: '',
+    videoCodec: '',
+    hasTrickleIceEnabled: self._enableIceTrickle,
+    hasDataChannelEnabled: self._enableDataChannel,
+    parentId: self._parentId || '',
+    error: ''
+  });
 };
 
 /**
@@ -24895,6 +24991,23 @@ Skylink.prototype._enterHandler = function(message) {
     DTProtocolVersion: message.DTProtocolVersion && typeof message.DTProtocolVersion === 'string' ?
       message.DTProtocolVersion : (self._hasMCU || targetMid === 'MCU' ? '0.1.2' : '0.1.0')
   };
+
+  pushStatsToServer('/peerhandshake', {
+    appKey: self._appKey,
+    roomId: self._room.id,
+    peerId: self._user.sid,
+    targetPeerId: '',
+    event: 'enter',
+    constructTimestamp: self._inRoom, 
+    weight: self._peerPriorityWeight,
+    isIceRestart: false,
+    audioCodec: '',
+    videoCodec: '',
+    hasTrickleIceEnabled: self._enableIceTrickle,
+    hasDataChannelEnabled: self._enableDataChannel,
+    parentId: self._parentId || '',
+    error: ''
+  });
 
   log.log([targetMid, 'RTCPeerConnection', null, 'Peer "enter" received ->'], message);
 
@@ -24967,6 +25080,23 @@ Skylink.prototype._enterHandler = function(message) {
 
   self._sendChannelMessage(welcomeMsg);
 
+  pushStatsToServer('/peerhandshake', {
+    appKey: self._appKey,
+    roomId: self._room.id,
+    peerId: self._user.sid,
+    targetPeerId: targetMid,
+    event: 'welcome',
+    constructTimestamp: self._inRoom, 
+    weight: self._peerPriorityWeight,
+    isIceRestart: false,
+    audioCodec: '',
+    videoCodec: '',
+    hasTrickleIceEnabled: self._enableIceTrickle,
+    hasDataChannelEnabled: self._enableDataChannel,
+    parentId: self._parentId || '',
+    error: ''
+  });
+
   if (isNewPeer) {
     self._trigger('handshakeProgress', self.HANDSHAKE_PROGRESS.WELCOME, targetMid);
   }
@@ -25022,6 +25152,25 @@ Skylink.prototype._restartHandler = function(message){
     DTProtocolVersion: message.DTProtocolVersion && typeof message.DTProtocolVersion === 'string' ?
       message.DTProtocolVersion : (self._hasMCU || targetMid === 'MCU' ? '0.1.2' : '0.1.0')
   };
+
+  pushStatsToServer('/peerhandshake', {
+    appKey: self._appKey,
+    roomId: self._room.id,
+    peerId: self._user.sid,
+    targetPeerId: targetMid,
+    event: 'restart',
+    constructTimestamp: self._inRoom, 
+    weight: self._peerPriorityWeight,
+    isIceRestart: message.doIceRestart === true,
+    audioCodec: self._getSDPSelectedCodec(targetMid,
+      (self._peerConnections[targetMid] || {}).remoteDescription, 'audio') || '',
+    videoCodec: self._getSDPSelectedCodec(targetMid,
+      (self._peerConnections[targetMid] || {}).remoteDescription, 'video') || '',
+    hasTrickleIceEnabled: self._enableIceTrickle,
+    hasDataChannelEnabled: self._enableDataChannel,
+    parentId: self._parentId || '',
+    error: ''
+  });
 
   log.log([targetMid, 'RTCPeerConnection', null, 'Peer "restart" received ->'], message);
 
@@ -25102,6 +25251,25 @@ Skylink.prototype._restartHandler = function(message){
     }
 
     self._sendChannelMessage(restartMsg);
+
+    pushStatsToServer('/peerhandshake', {
+      appKey: self._appKey,
+      roomId: self._room.id,
+      peerId: self._user.sid,
+      targetPeerId: targetMid,
+      event: 'restart',
+      constructTimestamp: self._inRoom, 
+      weight: self._peerPriorityWeight,
+      isIceRestart: message.doIceRestart === true,
+      audioCodec: self._getSDPSelectedCodec(targetMid,
+        (self._peerConnections[targetMid] || {}).remoteDescription, 'audio') || '',
+      videoCodec: self._getSDPSelectedCodec(targetMid,
+        (self._peerConnections[targetMid] || {}).remoteDescription, 'video') || '',
+      hasTrickleIceEnabled: self._enableIceTrickle,
+      hasDataChannelEnabled: self._enableDataChannel,
+      parentId: self._parentId || '',
+      error: ''
+    });
   }
 
   self._trigger('peerRestart', targetMid, self.getPeerInfo(targetMid), false, message.doIceRestart === true);
@@ -25158,6 +25326,23 @@ Skylink.prototype._welcomeHandler = function(message) {
     DTProtocolVersion: message.DTProtocolVersion && typeof message.DTProtocolVersion === 'string' ?
       message.DTProtocolVersion : (self._hasMCU || targetMid === 'MCU' ? '0.1.2' : '0.1.0')
   };
+
+  pushStatsToServer('/peerhandshake', {
+    appKey: self._appKey,
+    roomId: self._room.id,
+    peerId: self._user.sid,
+    targetPeerId: targetMid,
+    event: 'welcome',
+    constructTimestamp: self._inRoom, 
+    weight: self._peerPriorityWeight,
+    isIceRestart: false,
+    audioCodec: '',
+    videoCodec: '',
+    hasTrickleIceEnabled: self._enableIceTrickle,
+    hasDataChannelEnabled: self._enableDataChannel,
+    parentId: self._parentId || '',
+    error: ''
+  });
 
   log.log([targetMid, 'RTCPeerConnection', null, 'Peer "welcome" received ->'], message);
 
@@ -25249,6 +25434,23 @@ Skylink.prototype._welcomeHandler = function(message) {
     }
 
     self._sendChannelMessage(welcomeMsg);
+
+    pushStatsToServer('/peerhandshake', {
+      appKey: self._appKey,
+      roomId: self._room.id,
+      peerId: self._user.sid,
+      targetPeerId: targetMid,
+      event: 'welcome',
+      constructTimestamp: self._inRoom, 
+      weight: self._peerPriorityWeight,
+      isIceRestart: false,
+      audioCodec: '',
+      videoCodec: '',
+      hasTrickleIceEnabled: self._enableIceTrickle,
+      hasDataChannelEnabled: self._enableDataChannel,
+      parentId: self._parentId || '',
+      error: ''
+    });
   }
 };
 
@@ -25333,6 +25535,25 @@ Skylink.prototype._offerHandler = function(message) {
   }
 
   pc.setRemoteDescription(offer, function() {
+    pushStatsToServer('/peerhandshake', {
+      appKey: self._appKey,
+      roomId: self._room.id,
+      peerId: self._user.sid,
+      targetPeerId: targetMid,
+      event: 'offer',
+      constructTimestamp: self._inRoom, 
+      weight: self._peerPriorityWeight,
+      isIceRestart: message.doIceRestart === true,
+      audioCodec: self._getSDPSelectedCodec(targetMid,
+        (self._peerConnections[targetMid] || {}).remoteDescription, 'audio') || '',
+      videoCodec: self._getSDPSelectedCodec(targetMid,
+        (self._peerConnections[targetMid] || {}).remoteDescription, 'video') || '',
+      hasTrickleIceEnabled: self._enableIceTrickle,
+      hasDataChannelEnabled: self._enableDataChannel,
+      parentId: self._parentId || '',
+      error: ''
+    });
+
     log.debug([targetMid, 'RTCSessionDescription', message.type, 'Remote description set']);
     pc.setOffer = 'remote';
     pc.processingRemoteSDP = false;
@@ -25340,6 +25561,25 @@ Skylink.prototype._offerHandler = function(message) {
     self._addIceCandidateFromQueue(targetMid);
     self._doAnswer(targetMid);
   }, function(error) {
+    pushStatsToServer('/peerhandshake', {
+      appKey: self._appKey,
+      roomId: self._room.id,
+      peerId: self._user.sid,
+      targetPeerId: targetMid,
+      event: 'remoteOfferError',
+      constructTimestamp: self._inRoom, 
+      weight: self._peerPriorityWeight,
+      isIceRestart: message.doIceRestart === true,
+      audioCodec: self._getSDPSelectedCodec(targetMid,
+        (self._peerConnections[targetMid] || {}).remoteDescription, 'audio') || '',
+      videoCodec: self._getSDPSelectedCodec(targetMid,
+        (self._peerConnections[targetMid] || {}).remoteDescription, 'video') || '',
+      hasTrickleIceEnabled: self._enableIceTrickle,
+      hasDataChannelEnabled: self._enableDataChannel,
+      parentId: self._parentId || '',
+      error: error ? error.message : 'Unknown error.'
+    });
+
     self._trigger('handshakeProgress', self.HANDSHAKE_PROGRESS.ERROR, targetMid, error);
 
     pc.processingRemoteSDP = false;
@@ -25533,6 +25773,25 @@ Skylink.prototype._answerHandler = function(message) {
   pc.processingRemoteSDP = true;
 
   pc.setRemoteDescription(answer, function() {
+    pushStatsToServer('/peerhandshake', {
+      appKey: self._appKey,
+      roomId: self._room.id,
+      peerId: self._user.sid,
+      targetPeerId: targetMid,
+      event: 'answer',
+      constructTimestamp: self._inRoom, 
+      weight: self._peerPriorityWeight,
+      isIceRestart: message.doIceRestart === true,
+      audioCodec: self._getSDPSelectedCodec(targetMid,
+        (self._peerConnections[targetMid] || {}).remoteDescription, 'audio') || '',
+      videoCodec: self._getSDPSelectedCodec(targetMid,
+        (self._peerConnections[targetMid] || {}).remoteDescription, 'video') || '',
+      hasTrickleIceEnabled: self._enableIceTrickle,
+      hasDataChannelEnabled: self._enableDataChannel,
+      parentId: self._parentId || '',
+      error: ''
+    });
+
     log.debug([targetMid, null, message.type, 'Remote description set']);
     pc.setAnswer = 'remote';
     pc.processingRemoteSDP = false;
@@ -25550,6 +25809,25 @@ Skylink.prototype._answerHandler = function(message) {
     }
 
   }, function(error) {
+    pushStatsToServer('/peerhandshake', {
+      appKey: self._appKey,
+      roomId: self._room.id,
+      peerId: self._user.sid,
+      targetPeerId: targetMid,
+      event: 'remoteAnswerError',
+      constructTimestamp: self._inRoom, 
+      weight: self._peerPriorityWeight,
+      isIceRestart: message.doIceRestart === true,
+      audioCodec: self._getSDPSelectedCodec(targetMid,
+        (self._peerConnections[targetMid] || {}).remoteDescription, 'audio') || '',
+      videoCodec: self._getSDPSelectedCodec(targetMid,
+        (self._peerConnections[targetMid] || {}).remoteDescription, 'video') || '',
+      hasTrickleIceEnabled: self._enableIceTrickle,
+      hasDataChannelEnabled: self._enableDataChannel,
+      parentId: self._parentId || '',
+      error: error ? error.message : 'Unknown error.'
+    });
+
     self._trigger('handshakeProgress', self.HANDSHAKE_PROGRESS.ERROR, targetMid, error);
 
     pc.processingRemoteSDP = false;

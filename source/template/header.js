@@ -425,14 +425,15 @@ function Skylink() {
   this._roomLocked = false;
 
   /**
-   * Stores the flag that indicates if User is connected to the Room.
+   * Stores the DateTime ISO-8601 stamp when User is connected to the Room.
+   * Can be used as a flag to indicate if User is in the Room or not.
    * @attribute _inRoom
-   * @type Boolean
+   * @type String
    * @private
    * @for Skylink
    * @since 0.4.0
    */
-  this._inRoom = false;
+  this._inRoom = null;
 
   /**
    * Stores the list of <code>on()</code> event handlers.

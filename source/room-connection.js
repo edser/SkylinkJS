@@ -516,7 +516,7 @@ Skylink.prototype.leaveRoom = function(stopMediaOptions, callback) {
     }
   }
 
-  self._inRoom = false;
+  self._inRoom = null;
   self._closeChannel();
 
   if (isNotInRoom) {
