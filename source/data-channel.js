@@ -172,8 +172,6 @@ Skylink.prototype._createDataChannel = function(peerId, dataChannel, bufferThres
     self._processDataChannelData(data, peerId, channelName, channelType);
   });
 
-  channel.init();
-
   if (channelType === self.DATA_CHANNEL_TYPE.MESSAGING) {
     self._dataChannels[peerId].main = {
       channelName: channelName,

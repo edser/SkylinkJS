@@ -1,4 +1,4 @@
-/*! skylinkjs - v0.6.19 - Tue Mar 07 2017 15:27:46 GMT+0800 (SGT) */
+/*! skylinkjs - v0.6.19 - Tue Mar 07 2017 15:45:19 GMT+0800 (SGT) */
 
 (function(globals) {
 
@@ -1309,8 +1309,6 @@ Skylink.prototype._createDataChannel = function(peerId, dataChannel, bufferThres
   channel.on('data', function (data) {
     self._processDataChannelData(data, peerId, channelName, channelType);
   });
-
-  channel.init();
 
   if (channelType === self.DATA_CHANNEL_TYPE.MESSAGING) {
     self._dataChannels[peerId].main = {
@@ -3143,9 +3141,6 @@ Skylink.prototype.streamData = function(transferId, dataChunk) {
       var updatedSessionInfo = clone(sessionInfo);
       delete updatedSessionInfo.chunk;
 
-      var updatedSessionInfo = clone(sessionInfo);
-      delete updatedSessionInfo.chunk;
-
       if (targetPeers) {
         for (var i = 0; i < targetPeers.length; i++) {
           self._trigger('dataStreamState', self.DATA_STREAM_STATE.SENT, transferId, targetPeers[i], sessionInfo, null);
@@ -4712,31 +4707,26 @@ Skylink.prototype._DATAProtocolHandler = function(peerId, chunk, chunkType, chun
 };
 
 function Datachannel (channel, peerId, propertyId) {
+  var self = this;
+
   // Inherit events functionalities
-  EventMixin(this);
+  EventMixin(self);
   // Public properties
-  this.name = channel.label;
-  this.peerId = peerId;
-  this.propertyId = propertyId;
+  self.name = channel.label;
+  self.peerId = peerId;
+  self.propertyId = propertyId;
   // Private properties
-  this._connection = channel;
-  this._bufferControl = {
-    usePolling: typeof this._connection.bufferedAmountLowThreshold !== 'number',
+  self._connection = channel;
+  self._bufferControl = {
+    usePolling: typeof self._connection.bufferedAmountLowThreshold !== 'number',
     bufferEvent: { block: 0.5 },
     polling: { blocks: 8, interval: 250 },
     messages: { timestamp: 0, flushTimeout: 100, finalFlushTimeout: 2000 }
   };
-  this._stats = {
+  self._stats = {
     messages: { sent: 0, recv: 0 },
     bytes: { sent: 0, recv: 0 }
   };
-}
-
-/**
- * Function to start initializing events.
- */
-Datachannel.prototype.init = function () {
-  var self = this;
 
   // Handle RTCDataChannel.onopen event
   var onOpenFn = function () {
@@ -4801,7 +4791,7 @@ Datachannel.prototype.init = function () {
   self._connection.onerror = function (evt) {
     self._emit('error', evt.error || new Error('Datachannel error occurred.'));
   };
-};
+}
 
 /**
  * Function to send data.

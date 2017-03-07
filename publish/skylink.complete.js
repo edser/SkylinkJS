@@ -1,4 +1,4 @@
-/*! skylinkjs - v0.6.19 - Tue Mar 07 2017 15:27:46 GMT+0800 (SGT) */
+/*! skylinkjs - v0.6.19 - Tue Mar 07 2017 15:45:19 GMT+0800 (SGT) */
 
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.io = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
 
@@ -11592,7 +11592,7 @@ if (typeof window.require !== 'function') {
   AdapterJS.defineMediaSourcePolyfill();
 }
 
-/*! skylinkjs - v0.6.19 - Tue Mar 07 2017 15:27:46 GMT+0800 (SGT) */
+/*! skylinkjs - v0.6.19 - Tue Mar 07 2017 15:45:19 GMT+0800 (SGT) */
 
 (function(globals) {
 
@@ -12903,8 +12903,6 @@ Skylink.prototype._createDataChannel = function(peerId, dataChannel, bufferThres
   channel.on('data', function (data) {
     self._processDataChannelData(data, peerId, channelName, channelType);
   });
-
-  channel.init();
 
   if (channelType === self.DATA_CHANNEL_TYPE.MESSAGING) {
     self._dataChannels[peerId].main = {
@@ -14737,9 +14735,6 @@ Skylink.prototype.streamData = function(transferId, dataChunk) {
       var updatedSessionInfo = clone(sessionInfo);
       delete updatedSessionInfo.chunk;
 
-      var updatedSessionInfo = clone(sessionInfo);
-      delete updatedSessionInfo.chunk;
-
       if (targetPeers) {
         for (var i = 0; i < targetPeers.length; i++) {
           self._trigger('dataStreamState', self.DATA_STREAM_STATE.SENT, transferId, targetPeers[i], sessionInfo, null);
@@ -16306,31 +16301,26 @@ Skylink.prototype._DATAProtocolHandler = function(peerId, chunk, chunkType, chun
 };
 
 function Datachannel (channel, peerId, propertyId) {
+  var self = this;
+
   // Inherit events functionalities
-  EventMixin(this);
+  EventMixin(self);
   // Public properties
-  this.name = channel.label;
-  this.peerId = peerId;
-  this.propertyId = propertyId;
+  self.name = channel.label;
+  self.peerId = peerId;
+  self.propertyId = propertyId;
   // Private properties
-  this._connection = channel;
-  this._bufferControl = {
-    usePolling: typeof this._connection.bufferedAmountLowThreshold !== 'number',
+  self._connection = channel;
+  self._bufferControl = {
+    usePolling: typeof self._connection.bufferedAmountLowThreshold !== 'number',
     bufferEvent: { block: 0.5 },
     polling: { blocks: 8, interval: 250 },
     messages: { timestamp: 0, flushTimeout: 100, finalFlushTimeout: 2000 }
   };
-  this._stats = {
+  self._stats = {
     messages: { sent: 0, recv: 0 },
     bytes: { sent: 0, recv: 0 }
   };
-}
-
-/**
- * Function to start initializing events.
- */
-Datachannel.prototype.init = function () {
-  var self = this;
 
   // Handle RTCDataChannel.onopen event
   var onOpenFn = function () {
@@ -16395,7 +16385,7 @@ Datachannel.prototype.init = function () {
   self._connection.onerror = function (evt) {
     self._emit('error', evt.error || new Error('Datachannel error occurred.'));
   };
-};
+}
 
 /**
  * Function to send data.
