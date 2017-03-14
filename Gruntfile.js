@@ -9,18 +9,29 @@ module.exports = function(grunt) {
       publish: ['release/*', 'doc/*']
     },
     concat: {
-      dev: {
+      dev_pre: {
         options: {
           separator: '\n',
           stripBanners: true,
           banner: '/*! ' + pkg.name + ' - v' + pkg.version + ' - ' + (new Date()).toString() + ' */\n\n' +
             '(function (globals) {\n\n',
-          footer: 'if(typeof exports !== \'undefined\') { module.exports = { Skylink: Skylink, SkylinkLogs: SkylinkLogs };' +
-            '} else if (globals) { globals.Skylink = Skylink; globals.SkylinkLogs = SkylinkLogs; ' +
-            '} else if (window) { window.Skylink = Skylink; window.SkylinkLogs = SkylinkLogs; } })(this);'
+          footer: 'if(typeof exports !== \'undefined\') {' +
+            //'module.exports = { Skylink: Skylink, SkylinkLogs: SkylinkLogs };' +
+            //'} else if (globals) { globals.Skylink = Skylink; globals.SkylinkLogs = SkylinkLogs; ' +
+            //'} else if (window) { window.Skylink = Skylink; window.SkylinkLogs = SkylinkLogs;' +
+            '} })(this);'
         },
         files: {
-          'publish/skylink.debug.js': ['source/*.js'],
+          'publish/skylink.debug.js': ['source/*.js']
+        }
+      },
+      dev: {
+        options: {
+          separator: '\n',
+          stripBanners: true,
+          banner: '/*! ' + pkg.name + ' - v' + pkg.version + ' - ' + (new Date()).toString() + ' */\n\n'
+        },
+        files: {
           'publish/skylink.complete.js': [
             'node_modules/socket.io-client/socket.io.js',
             'node_modules/adapterjs/publish/adapter.screenshare.js',
@@ -80,8 +91,7 @@ module.exports = function(grunt) {
         url: pkg.homepage,
         options: {
           paths: 'source/',
-          outdir: 'doc/',
-          themedir: 'doc-style'
+          outdir: 'doc/'
         }
       }
     },
@@ -112,7 +122,7 @@ module.exports = function(grunt) {
    * Task for development purposes.
    * - Compiles source/ files to publish/ folder for testing.
    */
-  grunt.registerTask('dev', ['jshint:dev', 'clean:dev', 'concat:dev', 'replace:dev']);
+  grunt.registerTask('dev', ['jshint:dev', 'clean:dev', 'concat:dev_pre', 'concat:dev', 'replace:dev']);
   /**
    * Task for release purposes. Use release/ folder for CDN publish.
    * - Compiles minified production ready source/ files to publish/ folder.
