@@ -3,35 +3,23 @@ module.exports = function(grunt) {
 
   var pkg = grunt.file.readJSON('package.json');
 
+  //grunt.file.defaultEncoding = 'utf8';
+  //grunt.file.preserveBOM = false;
+
   grunt.initConfig({
     clean: {
       dev: ['publish/*'],
       publish: ['release/*', 'doc/*']
     },
     concat: {
-      dev_pre: {
-        options: {
-          separator: '\n',
-          stripBanners: true,
-          banner: '/*! ' + pkg.name + ' - v' + pkg.version + ' - ' + (new Date()).toString() + ' */\n\n' +
-            '(function (globals) {\n\n',
-          footer: 'if(typeof exports !== \'undefined\') {' +
-            //'module.exports = { Skylink: Skylink, SkylinkLogs: SkylinkLogs };' +
-            //'} else if (globals) { globals.Skylink = Skylink; globals.SkylinkLogs = SkylinkLogs; ' +
-            //'} else if (window) { window.Skylink = Skylink; window.SkylinkLogs = SkylinkLogs;' +
-            '} })(this);'
-        },
-        files: {
-          'publish/skylink.debug.js': ['source/*.js']
-        }
-      },
       dev: {
         options: {
           separator: '\n',
           stripBanners: true,
-          banner: '/*! ' + pkg.name + ' - v' + pkg.version + ' - ' + (new Date()).toString() + ' */\n\n'
+          banner: '/*! ' + pkg.name + ' - v' + pkg.version + ' - ' + (new Date()).toString() + ' */\n'
         },
         files: {
+          'publish/skylink.debug.js': ['source/exports.js'],
           'publish/skylink.complete.js': [
             'node_modules/socket.io-client/socket.io.js',
             'node_modules/adapterjs/publish/adapter.screenshare.js',
@@ -63,24 +51,21 @@ module.exports = function(grunt) {
         src: [
           //'package.json',
           'Gruntfile.js',
-          'source/*.js'
+          'source/components/*.js',
+          'source/skylink.js',
+          'source/skylinklogs.js'
         ]
       }
     },
-    replace: {
+    includereplace: {
       dev: {
         options: {
-          variables: {
+          globals: {
             version: pkg.version
-          },
-          prefix: '@@'
+          }
         },
-        files: [{
-          expand: true,
-          flatten: true,
-          src: ['publish/**/*.js'],
-          dest: 'publish/'
-        }]
+        src: ['publish/*.js'],
+        dest: './'
       }
     },
     yuidoc: {
@@ -122,7 +107,7 @@ module.exports = function(grunt) {
    * Task for development purposes.
    * - Compiles source/ files to publish/ folder for testing.
    */
-  grunt.registerTask('dev', ['jshint:dev', 'clean:dev', 'concat:dev_pre', 'concat:dev', 'replace:dev']);
+  grunt.registerTask('dev', ['jshint:dev', 'clean:dev', 'concat:dev', 'includereplace:dev']);
   /**
    * Task for release purposes. Use release/ folder for CDN publish.
    * - Compiles minified production ready source/ files to publish/ folder.

@@ -1,0 +1,257 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Source Sans Pro', sans-serif, helvetica;
+}
+
+strong, b {
+  font-weight: 600;
+}
+
+/**
+ * <span class="label">
+ */
+span.label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  background: #777;
+  color: #fff;
+  padding: 2px 5px;
+  border-radius: 3px;
+  margin-left: 10px;
+}
+
+span.label.primary {
+  background: #337ab7;
+}
+
+span.label.success {
+  background: #5cb85c;
+}
+
+span.label.info {
+  background: #5bc0de;
+}
+
+span.label.warning {
+  background: #f0ad4e;
+}
+
+span.label.danger {
+  background: #d9534f;
+}
+
+/**
+ * <h1-h6>
+ */
+h1, h2, h3, h4, h5, h6 {
+  margin-top: 0;
+}
+
+h1 {
+  font-weight: 300;
+  font-size: 35px;
+  color: #008CBA;
+  border-bottom: solid 2px rgba(0, 140, 186, 0.35);
+}
+
+h2 {
+  font-weight: 500;
+}
+
+/**
+ * <navbar class="top">
+ */
+navbar.top {
+  display: block;
+  background: #2c3840;
+  max-height: 45px;
+}
+
+navbar.top a {
+  padding: 12px 15px 10px;
+  color: #f5f5f5;
+  text-decoration: none;
+  font-size: 14px;
+  display: block;
+}
+
+navbar.top a.main {
+  padding: 10px 12px 12px;
+  display: inline-block;
+  vertical-align: middle;
+  opacity: .75;
+  transition: all .25s ease-in-out;
+  -moz-transition: all .25s ease-in-out;
+  -webkit-transition: all .25s ease-in-out;
+  -o-transition: all .25s ease-in-out;
+}
+
+navbar.top a.main:hover {
+  opacity: 1;
+}
+
+navbar.top a.main strong {
+  font-size: 18px;
+  border-right: solid 1px #888;
+  margin-right: 5px;
+  padding-right: 10px;
+}
+
+navbar.top ul.menu {
+  float: right;
+  margin: 0;
+  padding: 0;
+  border-left: solid 1px #3B4951;
+  list-style-type: none;
+  list-style-position: inside;
+}
+
+navbar.top ul.menu li {
+  border-right: solid 1px #3B4951;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+navbar.top ul.menu li a {
+}
+
+navbar.top ul.menu li a:hover {
+  background: #41525e;
+}
+
+/**
+ * <section class="container">
+ */
+.container {
+  position: absolute;
+  bottom: 0;
+  top: 45px;
+  display: block;
+}
+
+.container .container-wrapper {
+  display: table;
+  height: 100%;
+}
+
+navbar.side,
+.container .container-wrapper .body {
+  display: table-cell;
+  vertical-align: top;
+  height: 100%;
+  max-height: 100%;
+  overflow-y: auto;
+}
+
+/**
+ * <navbar class="side">
+ */
+navbar.side {
+  background: #f8f8f8;
+  width: 260px;
+  min-width: 260px;
+  border-right: solid 1px #e8e8e8;
+}
+
+navbar.side span.header {
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  display: block;
+  margin: 15px 15px 5px;
+  color: #aaa;
+}
+
+navbar.side ul {
+  list-style-type: none;
+  list-style-position: inside;
+  padding: 0;
+  margin: 0;
+}
+
+navbar.side ul li {
+  display: block;
+}
+
+navbar.side ul li a {
+  display: block;
+  text-decoration: none;
+  padding: 12px 15px 10px;
+  border-bottom: solid 1px #eee;
+  color: #008CBA;
+  font-size: 15px;
+  transition: all .05s ease-in-out;
+  -moz-transition: all .05s ease-in-out;
+  -webkit-transition: all .05s ease-in-out;
+  -o-transition: all .05s ease-in-out;
+}
+
+navbar.side ul li a .fa {
+  float: right;
+}
+
+navbar.side ul li a small {
+  margin-left: 2px;
+  opacity: .75;
+}
+
+navbar.side ul li a .label {
+  float: right;
+  opacity: .65;
+  transition: all .25s ease-in-out;
+  -moz-transition: all .25s ease-in-out;
+  -webkit-transition: all .25s ease-in-out;
+  -o-transition: all .25s ease-in-out;
+}
+
+navbar.side ul li a.active,
+navbar.side ul li a:hover {
+  font-weight: 600;
+}
+
+navbar.side ul li a.active .label,
+navbar.side ul li a:hover .label {
+  opacity: 1;
+}
+
+navbar.side ul li a.active {
+  color: #016586;
+}
+
+navbar.side ul li ul {
+  background: #e8e8e8;
+  padding: 2px 0 7px;
+  display: none;
+}
+
+navbar.side ul li ul li a {
+  color: #767676;
+  padding: 7px 15px 5px 17px;
+  border: 0;
+  border-left: solid 3px transparent;
+}
+
+navbar.side ul li ul li a:hover {
+  color: #444;
+  border-color: #ccc;
+}
+
+navbar.side ul li ul li a.active {
+  color: #565656;
+  border-color: #008CBA;
+}
+
+/**
+ * <div class="body">
+ */
+.container .container-wrapper .body {
+  padding: 0;
+  margin: 0;
+  width: 100%;
+}
+
+.container .container-wrapper .body .body-wrapper {
+  padding: 25px;
+}

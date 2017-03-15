@@ -1,12 +1,12 @@
 /**
- * Handles the User's Room connection session.
+ * Handles the Room connection session.
  * @class Room
  * @param {JSON} options The options.
- * @param {String} options.appKey The App Key to connect to the App space to.
+ * @param {String} options.appKey The App Key ID to connect to the App space to.
  * @param {String} [options.name] The Room name to connect to.
- *   The default is the App Key value.
+ *   The default is the App Key ID value.
  * @param {Boolean} [options.autoInit=true] The flag if {{#crossLink "Room/init:method"}}{{/crossLink}}
- *   should be automatically called the moment Room class object is constructed.
+ *   should be automatically called the moment the Room class object is constructed.
  * @param {Boolean} [options.requireWebRTC=true] The flag if WebRTC functionalities are required mandatorily.
  *   If the browser or device does not support WebRTC functionalities, a normal Signaling server connection commences.
  * @constructor
@@ -98,43 +98,6 @@ function Room (options) {
   this.hash = null;
 
   /**
-   * The Room session User information.
-   * @attribute user
-   * @param {String} id The User's Peer ID.
-   * @param {String} parentId The User's parent Peer ID that it is linked to.
-   * @param {Number} priorityWeight The User's priority weight.
-   * @param {Number} priorityWeight
-   * @param {Any} data The User's custom data.
-   * @param {}
-   * @param {Boolean} isPrivileged The flag if User is a privileged Peer.
-   * @param {String} parentId The User's parent Peer ID.
-   * @type JSON
-   * @readOnly
-   * @for Room
-   * @since 0.7.0
-   */
-  this.user = {
-    id: null,
-    data: null,
-    parentId: null,
-    priorityWeight: null,
-    isPrivileged: false,
-    agent: {
-      name: window.webrtcDetectedBrowser,
-      version: window.webrtcDetectedVersion,
-      os: window.navigator.platform,
-      pluginVersion: globals.AdapterJS && globals.AdapterJS.WebRTCPlugin &&
-        globals.AdapterJS.WebRTCPlugin.plugin && globals.AdapterJS.WebRTCPlugin.plugin.VERSION
-    },
-    config: {
-      enableDataChannel: true,
-      enableIceRestart: !(window.webrtcDetectedBrowser === 'firefox' && 48 < window.webrtcDetectedVersion),
-      enableIceTrickle: true,
-      publishOnly: false
-    }
-  };
-
-  /**
    * The flag if Room session has auto-introduce enabled.
    * @attribute autoIntroduce
    * @type Boolean
@@ -143,6 +106,40 @@ function Room (options) {
    * @since 0.7.0
    */
   this.autoIntroduce = true;
+
+  /**
+   * The Room session self Peer information.
+   * @attribute peer
+   * @param {String} id The session Peer ID.
+   * @param {String} parentId The session parent Peer ID its linked to.
+   * @param {Any} data The session custom data.
+   * @param {Number} priorityWeight The session Peer priority weight.
+   * @param {Boolean} isPrivileged The flag if session Peer has privileged access.
+   * @param {JSON} agent The session Peer agent information.
+   * @param {String} agent.name The session Peer agent name.
+   * @param {String} agent.version The session Peer agent version.
+   * @param {String} agent.os The session Peer agent platform.
+   * @param {String} [agent.pluginVersion] The session Peer agent Temasys WebRTC version.
+   * @param
+   * @type JSON
+   * @readOnly
+   * @for Room
+   * @since 0.7.0
+   */
+  this.peer = {
+    id: null,
+    peerId: null,
+    data: null,
+    priorityWeight: null,
+    isPrivileged: false,
+    agent: {
+      name: window.webrtcDetectedBrowser,
+      version: (window.webrtcDetectedVersion || 0).toString(),
+      os: window.navigator.platform,
+      pluginVersion: globals.AdapterJS && globals.AdapterJS.WebRTCPlugin &&
+        globals.AdapterJS.WebRTCPlugin.plugin && globals.AdapterJS.WebRTCPlugin.plugin.VERSION
+    }
+  };
 
   /**
    * The WebRTC supports of the browser or device.
@@ -168,12 +165,13 @@ function Room (options) {
     audioCodecs: {},
     videoCodecs: {},
     dataChannel: false,
-    dataChannelBinaryType: null
+    dataChannelBinaryType: null,
+    iceRestart: !(window.webrtcDetectedBrowser === 'firefox' && window.webrtcDetectedVersion < 48)
   };
 
   /**
    * The current Room session connection status.
-   * @attribute $current
+   * @attribute current
    * @param {String} peerId The User Peer session ID.
    * @param {String} authState The Room authentication state.
    * @param {Boolean} connected The flag if User is connected to the Room.
@@ -184,7 +182,7 @@ function Room (options) {
    * @for Room
    * @since 0.7.0
    */
-  this.$current = {
+  this.current = {
     initState: null,
     authState: null,
     sessionState: null,
@@ -196,12 +194,20 @@ function Room (options) {
   // Private variables
   this._session = null;
   this._peers = {};
-  this._stream = null;
   this._socket = null;
+  this._defaultStream = null;
   this._config = {
     iceServers: [],
     requireWebRTC: options.requireWebRTC !== false,
-    autoInit: options.autoInit !== false
+    autoInit: options.autoInit !== false,
+    priorityWeightScheme: null,
+    defaultSettings: {
+      enableIceTrickle: true,
+      enableDataChannel: true,
+      connection: {
+
+      }
+    }
   };
 
 
@@ -501,6 +507,17 @@ Room.prototype.SESSION_ERROR_ENUM = {
 };
 
 /**
+ * Function to get and check the connection availability.
+ * @method getConnectionAvailability
+ * @param {Function} callback 
+ */
+Room.prototype.getConnectionAvailability = function () {
+  var ref = this;
+
+  
+};
+
+/**
  * Function to start initialising Room dependencies.
  * @method init
  * @param {Function} callback The callback function for async code execution.
@@ -528,7 +545,7 @@ Room.prototype.init = function (fn) {
   }
 
   var fnUpdate = function (state, error) {
-    ref.$current.initState = state;
+    ref.current.initState = state;
     ref._event.emit('initState', state, error);
   };
 
@@ -637,7 +654,7 @@ Room.prototype.init = function (fn) {
  * @for Room
  * @since 0.7.0
  */
-Room.prototype.connect = function (options, fn) {
+Room.prototype.connect = function (stream, options, fn) {
   var ref = this;
 
   if (typeof options === 'function') {
@@ -665,7 +682,7 @@ Room.prototype.connect = function (options, fn) {
    */
   var isFnTriggered = false;
   var fnUpdate = function (eventName, state, error) {
-    ref.$current[eventName] = state;
+    ref.current[eventName] = state;
     ref._event.emit(eventName, state, error);
     // Trigger the callback
     if (typeof fn === 'function' && !isFnTriggered && ((eventName === 'sessionState' &&
@@ -679,7 +696,7 @@ Room.prototype.connect = function (options, fn) {
     }
   };
 
-  if (!ref.$current.initState) {
+  if (!ref.current.initState) {
     return fnUpdate('authState', ref.AUTH_STATE_ENUM.ERROR, {
       error: new Error('.init() must be called first before .connect()'),
       code: ref.AUTH_ERROR_CODE_ENUM.NOT_INIT
@@ -762,6 +779,11 @@ Room.prototype.connect = function (options, fn) {
     '/' + ref.start + '/' + ref.duration + '?&cred=' + ref.hash + '&rand=' + Date.now() : '?&rand=' + Date.now()), true);
   xhr.send();
 };
+
+/**
+ * Function to update the default stream or self Peer data.
+ * @method update
+ * @param 
 
 /**
  * Function to parse and retrieve codecs support.
@@ -858,13 +880,13 @@ Room.prototype._constructProtocolMessage = function (params, fn) {
 };
 
 /**
- * Function to handle SM protocol for receiving direction. 
+ * Function to handle SM protocol for receiving direction.
  */
 Room.prototype._processProtocolMessage = function (message) {
 
 };
 
-  
+
 
   /**
    * SM protocol: "joinRoom"
@@ -872,14 +894,14 @@ Room.prototype._processProtocolMessage = function (message) {
   if (params.type === 'joinRoom') {
     fnSend({
       type: 'joinRoom',
-      
+
     });
   /**
    * SM protocol: "inRoom"
    */
   } else if (params.type === 'inRoom') {
-    ref.$current.peerId = params.sid;
-    ref.$current.peerPriorityWeight = 
+    ref.current.peerId = params.sid;
+    ref.current.peerPriorityWeight =
     ref._config.iceServers = params.pc_config.iceServers;
     // Broadcast "enter" if auto-introduce is enabled
     if (ref.autoIntroduce) {

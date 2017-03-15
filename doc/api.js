@@ -1,9 +1,14 @@
 YUI.add("yuidoc-meta", function(Y) {
    Y.YUIDoc = { meta: {
     "classes": [
-        "Skylink"
+        "Peer",
+        "Room",
+        "Skylink",
+        "Socket",
+        "Utils"
     ],
     "modules": [],
-    "allModules": []
+    "allModules": [],
+    "elements": []
 } };
 });

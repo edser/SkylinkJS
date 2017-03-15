@@ -97,7 +97,7 @@ function Socket (options, defaultOptions) {
 
   /**
    * The current socket connection status.
-   * @attribute $current
+   * @attribute current
    * @type JSON
    * @param {String} state The current socket connection state.
    *   References the `STATES` enum attribute.
@@ -113,7 +113,7 @@ function Socket (options, defaultOptions) {
    * @for Socket
    * @since 0.7.0
    */
-  this.$current = {
+  this.current = {
     state: null,
     connected: false,
     reconnectionAttempts: 0,
@@ -326,7 +326,7 @@ Socket.prototype._connect = function (fn) {
       eventAttempts++;
     }
 
-    ref.$current.state = state;
+    ref.current.state = state;
 
     ref._event.emit('state', state, error || null, {
       reconnectionAttempts: eventAttempts,
@@ -335,14 +335,14 @@ Socket.prototype._connect = function (fn) {
     });
 
     // Check state to fallback next available port or transport
-    if ((state === ref.STATE_ENUM.CONNECT_TIMEOUT && !ref.$current.options.reconnection) ||
+    if ((state === ref.STATE_ENUM.CONNECT_TIMEOUT && !ref.current.options.reconnection) ||
       state === ref.STATE_ENUM.RECONNECT_FAILED) {
       ref._disconnect();
       ref._connect(fn);
 
     // Res callback as it is successful
-    } else if ([ref.STATE_ENUM.RECONNECT, ref.STATE_ENUM.CONNECT].indexOf(state) > -1 && !ref.$current.connected) {
-      ref.$current.connected = true;
+    } else if ([ref.STATE_ENUM.RECONNECT, ref.STATE_ENUM.CONNECT].indexOf(state) > -1 && !ref.current.connected) {
+      ref.current.connected = true;
       if (!isFnTriggered) {
         isFnTriggered = true;
         fn(null);
@@ -350,10 +350,10 @@ Socket.prototype._connect = function (fn) {
 
     // Res that disconnect has been made
     } else if (state === ref.STATE_ENUM.DISCONNECT) {
-      if (!ref.$current.connected) {
+      if (!ref.current.connected) {
         return;
       }
-      ref.$current.connected = true;
+      ref.current.connected = true;
 
     // Res callback has failed
     } else if ([ref.STATE_ENUM.ABORT, ref.STATE_ENUM.CONSTRUCT_ERROR].indexOf(state) > -1 && !isFnTriggered) {
@@ -363,37 +363,37 @@ Socket.prototype._connect = function (fn) {
   };
 
   // Initial connection
-  if (ref.$current.port === null) {
-    ref.$current.port = usePorts[0];
-    ref.$current.transport = useTransports[0];
-    ref.$current.fallbackAttempts = 0;
+  if (ref.current.port === null) {
+    ref.current.port = usePorts[0];
+    ref.current.transport = useTransports[0];
+    ref.current.fallbackAttempts = 0;
 
   // Fallback to next available transport
-  } else if (ref.$current.port === usePorts[usePorts.length - 1]) {
+  } else if (ref.current.port === usePorts[usePorts.length - 1]) {
     // Last available transport, aborted
-    if (ref.$current.transport === useTransports[useTransports.length - 1]) {
+    if (ref.current.transport === useTransports[useTransports.length - 1]) {
       return fnUpdate(ref.STATE_ENUM.ABORT);
     }
 
-    ref.$current.transport = useTransports[useTransports.indexOf(ref.$current.transport) + 1];
-    ref.$current.port = usePorts[0];
-    ref.$current.fallbackAttempts++;
+    ref.current.transport = useTransports[useTransports.indexOf(ref.current.transport) + 1];
+    ref.current.port = usePorts[0];
+    ref.current.fallbackAttempts++;
 
   // Fallback to next available port
   } else {
-    ref.$current.port = usePorts[usePorts.indexOf(ref.$current.port) + 1];
-    ref.$current.fallbackAttempts++;
+    ref.current.port = usePorts[usePorts.indexOf(ref.current.port) + 1];
+    ref.current.fallbackAttempts++;
   }
 
   // Configure the socket.io-client options
-  var useOptions = ref._config.options[ref.$current.transport];
+  var useOptions = ref._config.options[ref.current.transport];
 
   useOptions = useOptions && typeof useOptions === 'object' ? useOptions : {};
-  eventPort = ref.$current.port;
-  eventTransport = ref.$current.transport;
+  eventPort = ref.current.port;
+  eventTransport = ref.current.transport;
 
-  ref.$current.attempts = 0;
-  ref.$current.options = {
+  ref.current.attempts = 0;
+  ref.current.options = {
     // Configure socket.io-client /path
     path: ref.path,
     // Configure socket.io-client reconnection option
@@ -401,13 +401,13 @@ Socket.prototype._connect = function (fn) {
     // Configure socket.io-client reconnection attempts. Must be less or equals to 5
     reconnectionAttempts: typeof useOptions.reconnectionAttempts === 'number' &&
       useOptions.reconnectionAttempts <= 5 ? useOptions.reconnectionAttempts :
-      (ref.$current.transport === 'websocket' ? 2 : 4),
+      (ref.current.transport === 'websocket' ? 2 : 4),
     // Configure socket.io-client reconnection delay
     reconnectionDelay: typeof useOptions.reconnectionDelay === 'number' ? useOptions.reconnectionDelay :
-      (ref.$current.transport === 'websocket' ? 5000 : 2000),
+      (ref.current.transport === 'websocket' ? 5000 : 2000),
     // Configure socket.io-client reconnection delay max
     reconnectionDelayMax: typeof useOptions.reconnectionDelayMax === 'number' ? useOptions.reconnectionDelayMax :
-      (ref.$current.transport === 'websocket' ? 2000 : 1000),
+      (ref.current.transport === 'websocket' ? 2000 : 1000),
     // Configure socket.io-client randomization factor
     randomizationFactor: typeof useOptions.randomizationFactor === 'number' &&
       useOptions.randomizationFactor >= 0 && useOptions.randomizationFactor <= 1 ?
@@ -415,7 +415,7 @@ Socket.prototype._connect = function (fn) {
     // Configure socket.io-client timeout first to consider failure
     timeout: typeof useOptions.timeout === 'number' ? useOptions.timeout : 20000,
     // Configure socket.io-client transports
-    transports: [ref.$current.transport],
+    transports: [ref.current.transport],
     // Let us call `.open()` manually later
     autoConnect: false,
     // Deprecated socket.io-client 1.4.x
@@ -427,7 +427,7 @@ Socket.prototype._connect = function (fn) {
   // Catch any "http:" accessing errors on "https:" sites errors
   // Deprecated socket.io-client 1.4.x
   try {
-    socket = io.connect(ref.protocol + '//' + ref.server + ':' + ref.$current.port, ref.$current.options);
+    socket = io.connect(ref.protocol + '//' + ref.server + ':' + ref.current.port, ref.current.options);
   } catch (error) {
     return fnUpdate(ref.STATE_ENUM.CONSTRUCT_ERROR, error);
   }
@@ -552,7 +552,7 @@ Socket.prototype._disconnect = function () {
   var ref = this;
 
   if (ref._connection) {
-    if (ref.$current.connected) {
+    if (ref.current.connected) {
       ref._connection.disconnect();
     }
     ref._connection = null;
@@ -622,7 +622,7 @@ Socket.prototype._send = function (message, fn) {
    * Internal function to send message.
    */
   var fnSend = function (item) {
-    if (!(ref._connection && ref.$current.connected)) {
+    if (!(ref._connection && ref.current.connected)) {
       var notOpenError = new Error('Failed to send message as socket is not connected');
       ref._event.emit('message', item[0], notOpenError, true);
       return item[1](notOpenError);
