@@ -155,15 +155,6 @@ navbar.side {
   border-right: solid 1px #e8e8e8;
 }
 
-navbar.side span.header {
-  font-size: 13px;
-  font-weight: 600;
-  text-transform: uppercase;
-  display: block;
-  margin: 15px 15px 5px;
-  color: #aaa;
-}
-
 navbar.side ul {
   list-style-type: none;
   list-style-position: inside;
@@ -171,11 +162,28 @@ navbar.side ul {
   margin: 0;
 }
 
-navbar.side ul li {
+navbar.side ul .section {
+  margin-top: 15px;
+}
+
+navbar.side ul .section:first-child {
+  margin-top: 19px;
+}
+
+navbar.side ul .section span.header {
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  display: block;
+  margin: 0 15px 5px;
+  color: #aaa;
+}
+
+navbar.side ul .section li {
   display: block;
 }
 
-navbar.side ul li a {
+navbar.side ul .section li a {
   display: block;
   text-decoration: none;
   padding: 12px 15px 10px;
@@ -188,16 +196,16 @@ navbar.side ul li a {
   -o-transition: all .05s ease-in-out;
 }
 
-navbar.side ul li a .fa {
+navbar.side ul .section li a .fa {
   float: right;
 }
 
-navbar.side ul li a small {
+navbar.side ul .section li a small {
   margin-left: 2px;
   opacity: .75;
 }
 
-navbar.side ul li a .label {
+navbar.side ul .section li a .label {
   float: right;
   opacity: .65;
   transition: all .25s ease-in-out;
@@ -206,41 +214,56 @@ navbar.side ul li a .label {
   -o-transition: all .25s ease-in-out;
 }
 
-navbar.side ul li a.active,
-navbar.side ul li a:hover {
+navbar.side ul .section li a.active,
+navbar.side ul .section li a:hover {
   font-weight: 600;
 }
 
-navbar.side ul li a.active .label,
-navbar.side ul li a:hover .label {
+navbar.side ul .section li a.active .label,
+navbar.side ul .section li a:hover .label {
   opacity: 1;
 }
 
-navbar.side ul li a.active {
+navbar.side ul .section li a.active {
   color: #016586;
 }
 
-navbar.side ul li ul {
+navbar.side ul .section li a.nodropdown:hover {
+  border-left: solid 3px #ccc;
+  padding-left: 12px;
+}
+
+navbar.side ul .section li a.active.nodropdown {
+  border-left: solid 3px #008CBA;
+  padding-left: 12px;
+}
+
+navbar.side ul .section li ul {
   background: #e8e8e8;
   padding: 2px 0 7px;
   display: none;
 }
 
-navbar.side ul li ul li a {
+navbar.side ul .section li ul li a {
   color: #767676;
-  padding: 7px 15px 5px 17px;
+  padding: 7px 15px 5px 20px;
   border: 0;
-  border-left: solid 3px transparent;
 }
 
-navbar.side ul li ul li a:hover {
+navbar.side ul .section li ul li a:hover {
   color: #444;
-  border-color: #ccc;
+  padding-left: 17px;
+  border-left: solid 3px #ccc;
 }
 
-navbar.side ul li ul li a.active {
+navbar.side ul .section li ul li a.active {
   color: #565656;
-  border-color: #008CBA;
+  padding-left: 17px;
+  border-left: solid 3px #008CBA;
+}
+
+navbar.side ul .section li:last-child a {
+  border-bottom: 0;
 }
 
 /**
