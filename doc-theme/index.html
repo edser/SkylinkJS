@@ -3,9 +3,12 @@
 <head>
   <title>Temasys Web SDK Documentation</title>
   <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Ubuntu+Mono" rel="stylesheet">
   <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css" rel="stylesheet" type="text/css">
   <link href="styles/main.css" rel="stylesheet" type="text/css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.0/jquery.min.js" type="text/javascript"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.js" type="text/javascript"></script>
   <script src="scripts/main.js" type="text/javascript"></script>
 </head>
 
@@ -22,43 +25,39 @@
   <!-- Body -->
   <section class="container"><div class="container-wrapper">
     <!-- Side Navigation -->
-    <navbar id="side-menu" class="side">
-      <ul class="menu">
-        <div class="section">
-          <span class="header">Getting Started</span>    
-          <li><a href="#" class="nodropdown active">Setting it up</a></li>
-          <li><a href="#" class="nodropdown">Demos</a></li>
-          <li><a href="#">App Key Features <i class="fa fa-caret-down"></i></a></li>
-          <li><a href="#" class="nodropdown">Screensharing Extensions &<br>WebRTC Plugin</a></li>
-          <li><a href="#" class="nodropdown">REST API</a></li>
-        </div>
-        <div class="section">
-          <span class="header">API Documentation</span>
-          <li>
-            <a href="#" target-menu="menu-temasys">Temasys <small>module</small> <i class="fa fa-caret-down"></i></a>
-            <ul id="menu-temasys">
-              <li><a href="#" class="active">.Room <small>class</small></a></li>
-              <li><a href="#">.Peer <small>class</small></a></li>
-              <li><a href="#">.Stream <small>class</small></a></li>
-              <li><a href="#">.Socket <small>class</small></a></li>
-              <li><a href="#">.Datachannel <small>class</small></a></li>
-              <li><a href="#">.Datatransfer <small>class</small></a></li>
-              <li><a href="#">.Utils <small>module</small></a></li>
-            </ul>
-          </li>
-          <li><a href="#" class="active nodropdown">Skylink <small>class</small> <span class="label">deprecated</span></a></li>
-          <li><a href="#" class="nodropdown">SkylinkLogs <small>module</small> <span class="label">deprecated</span></a></li>
-        </div>
-      </ul>
+    <navbar class="side">
+      <div id="side-menu" class="navbar-wrapper">
+        <ul class="menu">
+          <div class="section">
+            <span class="header">Getting Started</span>    
+            <li><a href="#" class="nodropdown active" template="overview.html">1. Overview</a></li>
+            <li><a href="#" class="nodropdown" template="integrate.html">2. Integrating to Your Site</a></li>
+            <li><a href="#" class="nodropdown" template="demos.html">3. Demos</a></li>
+          </div>
+          <div class="section">
+            <span class="header">API Documentation</span>
+            <li>
+              <a href="#" target-menu="menu-temasys">Temasys <small>module</small> <i class="fa fa-caret-down"></i></a>
+              <ul id="menu-temasys">
+                <li><a href="#" template="temasys/room.html">.Room <small>class</small></a></li>
+                <li><a href="#" template="temasys/peer.html">.Peer <small>class</small></a></li>
+                <li><a href="#" template="temasys/stream.html">.Stream <small>class</small></a></li>
+                <li><a href="#" template="temasys/socket.html">.Socket <small>class</small></a></li>
+                <li><a href="#" template="temasys/datachannel.html">.Datachannel <small>class</small></a></li>
+                <li><a href="#" template="temasys/datatransfer.html">.Datatransfer <small>class</small></a></li>
+                <li><a href="#" template="temasys/utils.html">.Utils <small>module</small></a></li>
+                <li><a href="#" template="temasys/api.html">.API <small>module</small></a></li>
+              </ul>
+            </li>
+            <li><a href="#" class="nodropdown">Skylink <small>class</small> <span class="label">deprecated</span></a></li>
+            <li><a href="#" class="nodropdown">SkylinkLogs <small>module</small> <span class="label">deprecated</span></a></li>
+          </div>
+        </ul>
+      </div>
     </navbar>
     <!-- Content -->
-    <div class="body"><div class="body-wrapper">
-        <h1>Setting it Up</h1>
-        <h2>Integrating the SDK into your Website</h2>
-        <p>You may link the SDK to your website using the CDN:</p>
-    </div></div>
+    <div class="body"><div id="load-template" class="body-wrapper"></div></div>
   </div></section>
-
 </body>
 
 </html>

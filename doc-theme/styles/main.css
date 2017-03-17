@@ -2,10 +2,15 @@ html, body {
   margin: 0;
   padding: 0;
   font-family: 'Source Sans Pro', sans-serif, helvetica;
+  font-size: 15px;
 }
 
 strong, b {
   font-weight: 600;
+}
+
+b {
+  color: #008CBA;
 }
 
 /**
@@ -53,11 +58,65 @@ h1 {
   font-weight: 300;
   font-size: 35px;
   color: #008CBA;
-  border-bottom: solid 2px rgba(0, 140, 186, 0.35);
+  border-bottom: solid 2px #a6d7e7;
 }
 
-h2 {
-  font-weight: 500;
+h2, h3 {
+  font-weight: 600;
+  color: #008CBA;
+}
+
+h3 {
+  font-size: 20px;
+  border-left: solid 2px #d2ebf3;
+  padding-left: 15px;
+  font-weight: 600;
+}
+
+h4 {
+  font-size: 16px;
+  margin: 30px 0 12px;
+  color: #026d90;
+}
+
+h4 .no {
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  padding: 1px 2px 3px;
+  border: solid 1px #888;
+  display: inline-block;
+  vertical-align: middle;
+  text-align: center;
+  margin-right: 5px;
+  margin-top: -3px;
+  font-weight: 400;
+  color: #008CBA;
+  font-weight: 600;
+}
+
+h5 {
+  text-transform: uppercase;
+  font-size: 14px;
+  color: #787878;
+  margin: 25px 0 7px;
+}
+
+code, pre {
+  font-family: 'Ubuntu Mono', monospace, consolas;
+}
+
+code {
+  color: #c7254e;
+  background-color: #f9f2f4;
+  border-radius: 4px;
+  margin: 0 2px;
+}
+
+code.route {
+  color: #565656;
+  background: none;
+  border-radius: 0;
 }
 
 /**
@@ -129,6 +188,7 @@ navbar.top ul.menu li a:hover {
   bottom: 0;
   top: 45px;
   display: block;
+  overflow: hidden;
 }
 
 .container .container-wrapper {
@@ -141,6 +201,10 @@ navbar.side,
   display: table-cell;
   vertical-align: top;
   height: 100%;
+}
+
+navbar.side .navbar-wrapper,
+.container .container-wrapper .body .body-wrapper {
   max-height: 100%;
   overflow-y: auto;
 }
@@ -186,7 +250,7 @@ navbar.side ul .section li {
 navbar.side ul .section li a {
   display: block;
   text-decoration: none;
-  padding: 12px 15px 10px;
+  padding: 12px 15px 10px 12px;
   border-bottom: solid 1px #eee;
   color: #008CBA;
   font-size: 15px;
@@ -194,6 +258,7 @@ navbar.side ul .section li a {
   -moz-transition: all .05s ease-in-out;
   -webkit-transition: all .05s ease-in-out;
   -o-transition: all .05s ease-in-out;
+  border-left: solid 3px transparent;
 }
 
 navbar.side ul .section li a .fa {
@@ -229,13 +294,11 @@ navbar.side ul .section li a.active {
 }
 
 navbar.side ul .section li a.nodropdown:hover {
-  border-left: solid 3px #ccc;
-  padding-left: 12px;
+  border-left-color: #ccc;
 }
 
 navbar.side ul .section li a.active.nodropdown {
-  border-left: solid 3px #008CBA;
-  padding-left: 12px;
+  border-left-color: #008CBA;
 }
 
 navbar.side ul .section li ul {
@@ -246,20 +309,18 @@ navbar.side ul .section li ul {
 
 navbar.side ul .section li ul li a {
   color: #767676;
-  padding: 7px 15px 5px 20px;
+  padding: 7px 15px 5px 17px;
   border: 0;
 }
 
 navbar.side ul .section li ul li a:hover {
   color: #444;
-  padding-left: 17px;
-  border-left: solid 3px #ccc;
+  border-left-color: #ccc;
 }
 
 navbar.side ul .section li ul li a.active {
   color: #565656;
-  padding-left: 17px;
-  border-left: solid 3px #008CBA;
+  border-left-color: #008CBA;
 }
 
 navbar.side ul .section li:last-child a {
@@ -278,3 +339,57 @@ navbar.side ul .section li:last-child a {
 .container .container-wrapper .body .body-wrapper {
   padding: 25px;
 }
+
+.container .container-wrapper .body .body-wrapper p,
+.container .container-wrapper .body .body-wrapper article {
+  font-weight: 400;
+}
+
+.container .container-wrapper .body .body-wrapper img {
+  max-width: 100%;
+  margin-bottom: 15px;
+}
+
+.container .container-wrapper .body .body-wrapper article {
+  display: block;
+  padding: 35px 0 25px;
+  border-top: solid 1px #eee;
+}
+
+.container .container-wrapper .body .body-wrapper article._first {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.container .container-wrapper .body .body-wrapper article ul,
+.container .container-wrapper .body .body-wrapper article ol {
+  padding-left: 15px;
+  margin-bottom: 15px;
+  font-weight: 600;
+}
+
+.container .container-wrapper .body .body-wrapper article ul {
+  padding-left: 25px;
+  list-style-type: disc;
+  font-weight: normal;
+}
+
+.container .container-wrapper .body .body-wrapper article ul li, 
+.container .container-wrapper .body .body-wrapper article ol li {
+  color: #008CBA;
+  margin-bottom: 10px;
+}
+
+.container .container-wrapper .body .body-wrapper article ul li span,
+.container .container-wrapper .body .body-wrapper article ol li span {
+  color: #444;
+  font-weight: normal;
+}
+
+.container .container-wrapper .body .body-wrapper article a {
+  color: #026d90;
+  text-transform: underline;
+  margin: 0 1px;
+  font-weight: 600;
+}
+
