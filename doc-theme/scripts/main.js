@@ -5,7 +5,7 @@ $(document).ready(function () {
       if ($(this).attr('template')) {
         $('[template].active').removeClass('active');
         $(this).toggleClass('active');
-        $('#load-template').load('templates/' + $(this).attr('template'));
+        onLoadTemplate($(this).attr('template'));
       }
       return;
     }
@@ -14,16 +14,19 @@ $(document).ready(function () {
     $('#' + $(this).attr('target-menu')).slideToggle();
   });
 
-  $('#load-template').load('templates/overview.html');
-
   // HOTFIX: :(
   function onResize () {
     $('.container navbar.side, .container .body').height($(window).height() - $('navbar.top').outerHeight());
     //$('.container, .container-wrapper').outerHeight($(window).height() - $('navbar.top').outerHeight());
   }
 
+  function onLoadTemplate (url) {
+    $('#load-template').load('templates/' + url, function () {
+      prettyPrint();
+    });
+  }
+
   $(window).resize(onResize);
   onResize();
-  
-  $(document).prettyPrint();
+  onLoadTemplate('temasys/room.html');
 });

@@ -1,3 +1,179 @@
-<h1>2. Integrating to Your Site</h1>
-<article class="_first"></article>
-<article></article>
+<h1><span class="no">2.</span>Integrating to Your Site</h1>
+<article class="_first">
+  <h4><span class="no">1</span>Using Temasys CDN</h4>
+  <h5>For production-ready usage:</h5>
+  <p>The following scripts are for referencing to your live website. Note that <code>console</code> logs are dropped and
+  will not be printed to the Web Console in this case.</p>
+  <p>For the bundled version with required <b>socket.io-client</b> and <b>AdapterJS</b> dependencies together with the SDK:</p>
+  <pre class="prettyprint">
+  &lt;script src="https://cdn.temasys.io/skylink/skylinkjs/0.7.x/skylink.complete.min.js" type="text/javascript"&gt;&lt;/script&gt;
+  </pre>
+  <p>For just the SDK only if you want to manually reference the required <b>socket.io-client</b> and <b>AdapterJS</b> dependencies:</p>
+  <pre class="prettyprint">
+  &lt;script src="https://cdn.temasys.io/skylink/skylinkjs/0.7.x/skylink.min.js" type="text/javascript"&gt;&lt;/script&gt;
+  </pre>
+  <h5>For debugging usage:</h5>
+  <p>The following scripts are useful for referencing when debugging any Temasys Web SDK related issues. <code>console</code>
+  logs are printed and not dropped in this case which is useful for debugging purposes.</p>
+  <p>For the bundled version with required <b>socket.io-client</b> and <b>AdapterJS</b> dependencies together with the SDK:</p>
+  <pre class="prettyprint">
+  &lt;script src="https://cdn.temasys.io/skylink/skylinkjs/0.7.x/skylink.complete.js" type="text/javascript"&gt;&lt;/script&gt;
+  </pre>
+  <p>For just the SDK only if you want to manually reference the required <b>socket.io-client</b> and <b>AdapterJS</b> dependencies:</p>
+  <pre class="prettyprint">
+  &lt;script src="https://cdn.temasys.io/skylink/skylinkjs/0.7.x/skylink.debug.js" type="text/javascript"&gt;&lt;/script&gt;
+  </pre>
+  <h5>Referencing required dependencies manually from CDN:</h5>
+  <p>You can also reference the rest of the required dependencies. It is advisable to use the right version based on the current release it requires to bundle with.:</p>
+  <pre class="prettyprint">
+  &lt;script src="https://cdn.socket.io/socket.io-1.7.3.js" type="text/javascript"&gt;&lt;/script&gt;
+  &lt;script src="https://cdn.temasys.io/adapterjs/0.14.x/adapter.screenshare.js" type="text/javascript"&gt;&lt;/script&gt;
+  </pre>
+  <h4><span class="no">2</span>Using NPM / Bower</h4>
+  <p>You can also reference it via NPM:</p>
+  <pre class="prettyprint">
+  npm install skylinkjs
+  </pre>
+  <p>Or via Bower:</p>
+  <pre class="prettyprint">
+  bower install skylinkjs
+  </pre>
+  <h5>Using <code>require()</code>:</h5>
+  <pre class="prettyprint">
+  var io = require("socket.io-client");
+  var AdapterJS = require("adapterjs");
+  var temasys = require("skylinkjs");
+
+  // Start the Temasys Web SDK usage!
+  var skylink = temasys.Skylink();
+  </pre>
+  <h5>Using <code>&lt;script&gt;</code> tag:</h5>
+  <pre class="prettyprint">
+  &lt;script src="node_modules/skylinkjs/skylink.complete.js" type="text/javascript"&gt;&lt;/script&gt;
+  </pre>
+</article>
+<article>
+  <h3>Setting up some code examples</h3>
+  <h4><span class="no">1</span>Starting a Video Call</h4>
+  <h5>Using <code>Temasys</code> module:</h5>
+  <pre class="prettyprint"></pre>
+  <h5>Using <code>Skylink</code> (deprecated) class:</h5>
+  <pre class="prettyprint">
+  var skylink = new Skylink();
+
+  skylink.on("incomingStream", function (peerId, stream, isSelf) {
+    var videoDOM = document.getElementById(peerId);
+    if (!videoDOM) {
+      videoDOM = document.createElement("video");
+      videoDOM.id = peerId;
+      videoDOM.autoplay = true;
+      videoDOM.muted = isSelf;
+      document.getElementById("videolist").append(videoDOM);
+    }
+    attachMediaStream(stream, videoDOM);
+  });
+
+  skylink.init({
+    appKey: appKey,
+    defaultRoom: roomName,
+    audioFallback: audioFallback,
+    credentials: { // If hash authentication
+      credentials: hash,
+      startDateTime: startDateTimeStamp,
+      duration: duration
+    }
+  }, function (err) {
+    if (err) return;
+    skylink.joinRoom({ audio: true, video: true });
+  });
+  </pre>
+  <h4><span class="no">2</span>Adding chat functionality</h4>
+  <h5>Using <code>Temasys</code> module:</h5>
+  <pre class="prettyprint"></pre>
+  <h5>Using <code>Skylink</code> (deprecated) class:</h5>
+  <pre class="prettyprint">
+  skylink.on("incomingMessage", function (message, peerId, isSelf) {
+    document.getElementById("chatmessage").innerHTML += (isSelf ? "Me" : peerId) + ": " + message.content;
+  });
+
+  function chatMessage (message) {
+    skylink.sendMessage(message);
+  }
+  </pre>
+  <h4><span class="no">3</span>Adding file transfer functionality</h4>
+  <h5>Using <code>Temasys</code> module:</h5>
+  <pre class="prettyprint"></pre>
+  <h5>Using <code>Skylink</code> (deprecated) class:</h5>
+  <pre class="prettyprint">
+  document.getElementById("filetransfers").innerHTML = "";
+
+  skylink.on("incomingData", function (data, transferId, transferInfo, isSelf) {
+    if (isSelf) return;
+    document.getElementById("filetransfers").innerHTML += "&lt;a href='" + URL.createObjectURL(data) +
+      "' download='" + transferInfo.name + "'&gt;Download&lt;/a&gt;";
+  });
+
+  function sendFile (file) {
+    skylink.sendBlob(file);
+  }
+  </pre>
+  <h4><span class="no">4</span>Adding screensharing functionality</h4>
+  <h5>Using <code>Temasys</code> module:</h5>
+  <pre class="prettyprint"></pre>
+  <h5>Using <code>Skylink</code> (deprecated) class:</h5>
+  <pre class="prettyprint">
+  var isScreensharing = false;
+  var inProgress = false;
+  function shareScreen () {
+    if (inProgress) return;
+    inProgress = true;
+    if (!isScreensharing) {
+      skylink.shareScreen(true, function (err) {
+        if (err) return;
+        inProgress = false;
+        isScreensharing = true;
+      });
+    } else {
+      skylink.stopScreen();
+      inProgress = false;
+      isScreensharing = false;
+    }
+  }
+  </pre>
+</article>
+<article>
+<h3>Customising Screensharing extensions and Temasys WebRTC plugin</h3>
+<p>To integrate your custom screensharing functionalities or adding your own custom Temasys WebRTC plugin, you may have to
+modify the <b>AdapterJS</b> dependency. Before integrating the extensions and your WebRTC plugin, ensure you have downloaded
+the <b>AdapterJS</b> dependency which can be done by <a href="https://cdn.temasys.io/adapterjs/0.14.x/adapter.screenshare.js" target="_blank">here</a>.</p>
+<h4><span class="no">1</span> Integrating your Firefox extension</h4>
+<h5>Making your custom Firefox extension:</h5>
+<p></p>
+<h5>Integrating it in <b>AdapterJS</b> dependency:</h5>
+<p>Following the lines in the <b>AdapterJS</b> dependency, modify the segement of the line
+<code>"https://addons.mozilla.org/en-US/firefox/addon/skylink-webrtc-tools/"</code> and replace with your Firefox screensharing
+add-on link:</p>
+<pre class="prettyprint">
+  AdapterJS.renderNotificationBar(AdapterJS.TEXT.EXTENSION.REQUIRE_INSTALLATION_FF,
+    AdapterJS.TEXT.EXTENSION.BUTTON_FF, function (e) {
+    window.open("https://addons.mozilla.org/en-US/firefox/addon/skylink-webrtc-tools/", "_blank");
+    if (e.target && e.target.parentElement && e.target.nextElementSibling &&
+      e.target.nextElementSibling.click) {
+      e.target.nextElementSibling.click();
+    }
+</pre>
+<p>Note that the Firefox add-on extension detection works by detection if screensharing is enabled for the site domain.</p>
+<h4><span class="no">1</span> Integrating your Firefox extension</h4>
+<p>Following the lines in the <b>AdapterJS</b> dependency, modify the segement of the line
+<code>"https://addons.mozilla.org/en-US/firefox/addon/skylink-webrtc-tools/"</code> and replace with your Firefox screensharing
+add-on link:</p>
+<pre class="prettyprint">
+  AdapterJS.renderNotificationBar(AdapterJS.TEXT.EXTENSION.REQUIRE_INSTALLATION_FF,
+    AdapterJS.TEXT.EXTENSION.BUTTON_FF, function (e) {
+    window.open("https://addons.mozilla.org/en-US/firefox/addon/skylink-webrtc-tools/", "_blank");
+    if (e.target && e.target.parentElement && e.target.nextElementSibling &&
+      e.target.nextElementSibling.click) {
+      e.target.nextElementSibling.click();
+    }
+</pre>
+</article>
