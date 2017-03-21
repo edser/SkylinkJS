@@ -574,3 +574,63 @@ navbar.side ul .section li:last-child a {
   color: #fff;
   margin: 0 0 0 5px;
 }
+
+.container .container-wrapper .body .body-wrapper .demos {}
+
+.container .container-wrapper .body .body-wrapper .demos .demos-item {
+  display: inline-block;
+  vertical-align: top;
+  width: 33%;
+  max-width: 29%;
+  padding: 12px;
+  margin-top: 15px;
+}
+
+.container .container-wrapper .body .body-wrapper .demos .demos-item p {
+  margin: 0;
+}
+.container .container-wrapper .body .body-wrapper .demos .demos-item p strong {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.container .container-wrapper .body .body-wrapper .demos .demos-item p.buttons {
+  margin-top: 15px;
+}
+
+.container .container-wrapper .body .body-wrapper .demos .demos-item p.buttons .button {
+  background: #008CBA;
+  color: #fff;
+  text-decoration: none;
+  padding: 5px 12px;
+  display: inline-block;
+  vertical-align: top;
+  border: solid 1px #008CBA;
+  font-size: 13px;
+  margin-right: -5px;
+  text-transform: uppercase;
+  transition: all .1s ease-in-out;
+}
+
+.container .container-wrapper .body .body-wrapper .demos .demos-item p.buttons .button:hover {
+  background: #026d90;
+}
+
+.container .container-wrapper .body .body-wrapper .demos .demos-item p.buttons .button.sub {
+  background: #fff;
+  color: #008CBA;
+}
+
+.container .container-wrapper .body .body-wrapper .demos .demos-item p.buttons .button.sub:hover {
+  background: #eee;
+}
+
+.container .container-wrapper .body .body-wrapper .demos .demos-item p.buttons .button.left {
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+}
+
+.container .container-wrapper .body .body-wrapper .demos .demos-item p.buttons .button.right {
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
+}
