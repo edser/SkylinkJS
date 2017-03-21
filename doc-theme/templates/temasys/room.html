@@ -1,0 +1,153 @@
+<section class="doc">
+<h1><var>Temasys.Room</var> class</h1>
+<article class="_first">
+  <p>The class that allows connection to connect to a <b>Room</b> in the <b>App</b> space.</p>
+  <h5>Properties</h5>
+  <table>
+    <thead>
+      <tr><th>Name</th><th>Type</th><th>Description</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><a href="#attr_id"><code>.id</code></a></td><td><var>String</var></td><td>The Room ID</td></tr>
+      <tr><td><a href="#attr_name"><code>.name</code></a></td><td><var>String</var></td><td>The Room name</td></tr>
+      <tr><td><a href="#attr_appKey"><code>.appKey</code></a></td><td><var>String</var></td><td>The Room App Key</td></tr>
+      <tr><td><a href="#attr_hash"><code>.hash</code></a></td><td><var>String</var></td><td>The Room App App Key authentication hash</td></tr>
+      <tr><td><a href="#attr_start"><code>.start</code></a></td><td><var>String</var></td><td>The Room session starting datetime stamp in ISO 8601</td></tr>
+      <tr><td><a href="#attr_duration"><code>.duration</code></a></td><td><var>Number</var></td><td>The Room session duration in hours</td></tr>
+      <tr><td><a href="#attr_autoIntroduce"><code>.autoIntroduce</code></a></td><td><var>Boolean</var></td><td>The flag if Room has Auto-Introduce enabled</td></tr>
+      <tr><td><a href="#attr_user"><code>.user</code></a></td><td><var>JSON</var></td><td>The Room user (Peer) session information</td></tr>
+      <tr><td><a href="#attr_$current"><code>.$current</code></a></td><td><var>JSON</var></td><td>The Room connection session states</td></tr>
+    </tbody>
+  </table>
+  <h5>Constants / Enums</h5>
+  <table>
+    <thead>
+      <tr><th>Name</th><th>Description</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><a href="#attr_STATES"><code>.STATES</code></a></td><td>The enum of Room connection session states.</td></tr>
+    </tbody>
+  </table>
+  <h5>Methods</h5>
+  <table>
+    <thead>
+      <tr><th>Method</th><th>Returns</th><th>Description</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><a href="#method_connect"><code>.connect(config)</code></a></td><td><var>Promise</var></td><td>Start Room connection session</td></tr>
+      <tr><td><a href="#method_stream"><code>.stream(stream, targets)</code></a></td><td><var>Promise</var></td><td>Broadcast a <a href="#">Stream</a> to Peers.</td></tr>
+      <tr><td><a href="#method_message"><code>.message(message, targets)</code></a></td><td><var>Promise</var></td><td>Broadcast a message to Peers.</td></tr>
+      <tr><td><a href="#method_disconnect"><code>.disconnect()</code></a></td><td><var>Promise</var></td><td>Stop Room connection session</td></tr>
+      <tr><td><a href="#method_getPeers"><code>.getPeers()</code></a></td><td><var>JSON</var></td><td>Gets the list of current Peers in the Room</td></tr>
+      <tr><td><a href="#method_getPeersIDInAppSpace"><code>.getPeersIDInAppSpace()</code></a></td><td><var>Promise</var></td><td>Gets the list of current Peer IDs in the App space</td></tr>
+    </tbody>
+  </table>
+  <h5>Events</h5>
+  <table>
+    <thead>
+      <tr><th>Event</th><th>Description</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><a href="#event_state"><code>"state"</code></a></td><td>Event triggered when Room connection session state has changed</td></tr>
+      <tr><td><a href="#event_peer"><code>"peer"</code></a></td><td>Event triggered when Peer joins the Room</td></tr>
+      <tr><td><a href="#event_message"><code>"message"</code></a></td><td>Event triggered when messa</td></tr>
+      <tr><td><a href="#event_stream"><code>"stream"</code></a></td><td>Event triggered when Peer joins the Room</td></tr>
+      <tr><td><a href="#event_socket"><code>"socket"</code></a></td><td>Event triggered when Socket connection start to Signaling server</td></tr>
+    </tbody>
+  </table>
+</article>
+<article>
+  <div class="doc-type">
+    <div class="doc-type-wrapper">
+      <span class="label primary"><i class="fa fa-exchange"></i> async</span>
+      <span class="label danger"><i class="fa fa-exclamation-triangle"></i> deprecated</span>
+      <span class="label info"><i class="fa fa-flask"></i> beta</span>
+      <span class="label default"><i class="fa fa-puzzle-piece"></i> optional</span>
+      <span class="label warning"><i class="fa fa-gavel"></i> final</span>
+      <span class="version">Since 0.7.0</span>
+      <span class="type">Property</span>
+      <span class="definedat">Defined at: <a href="#"><var>source/components/room.js:89</var></a></span>
+    </div>
+  </div>
+  <h3><var>.id</var> <small>- string</small></h3>
+  <p class="doc-supports">
+    <span class="when">When <var>"type"</var> is <code>true</code>.</span>
+    <span class="supports">
+      <em class="title">Supports:</em>
+      <em><i class="fa fa-chrome"></i> 55</em>
+      <em><i class="fa fa-firefox"></i> 48</em>
+      <em><i class="fa fa-opera"></i> 37</em>
+      <em><i class="fa fa-safari"></i> 7 (0.8.870)</em>
+      <em><i class="fa fa-internet-explorer"></i> 11 (0.8.870)</em>
+      <em><i class="fa fa-edge"></i> 13.457</em>
+      <em><i class="fa fa-android"></i> 8</em>
+      <em><i class="fa fa-globe"></i> 0.6.1</em>
+    </span>
+  </p>
+  <p>The Room ID</p>
+</article>
+<article>
+  <div class="doc-type">
+    <div class="doc-type-wrapper">
+      <span class="label primary"><i class="fa fa-exchange"></i> async</span>
+      <span class="label danger"><i class="fa fa-exclamation-triangle"></i> deprecated</span>
+      <span class="label info"><i class="fa fa-flask"></i> beta</span>
+      <span class="label default"><i class="fa fa-puzzle-piece"></i> optional</span>
+      <span class="label warning"><i class="fa fa-gavel"></i> final</span>
+      <span class="version">Since 0.7.0 &#8594; 0.8.0</span>
+      <span class="type">Property</span>
+      <span class="definedat">Defined at: <a href="#"><var>source/components/room.js:89</var></a></span>
+    </div>
+  </div>
+  <h3><var>.$current</var> <small>- JSON</small></h3>
+  <p class="doc-supports">
+    <span class="when">When <var>"type"</var> is <code>true</code>.</span>
+    <span class="supports">
+      <em class="title">Supports:</em>
+      <em><i class="fa fa-chrome"></i> 55</em>
+      <em><i class="fa fa-firefox"></i> 48</em>
+      <em><i class="fa fa-opera"></i> 37</em>
+      <em><i class="fa fa-safari"></i> 7 (0.8.870)</em>
+      <em><i class="fa fa-internet-explorer"></i> 11 (0.8.870)</em>
+      <em><i class="fa fa-edge"></i> 13.457</em>
+      <em><i class="fa fa-android"></i> 8</em>
+      <em><i class="fa fa-globe"></i> 0.6.1</em>
+    </span>
+  </p>
+  <p>The Room connection session states.</p>
+  <h5>Sub-properties:</h5>
+  <ul class="doc-params">
+    <li>
+      <p class="name"><var><b>.state</b> - string</var></p>
+      <p class="desc">The current Room connection session state.</p>
+      <ul>
+        <li>
+          <p class="name">
+            <var><b>.state</b> - string</var>
+            <span class="name-default">Default: <code>"test"</code></span>
+            <span class="label primary"><i class="fa fa-exchange"></i> async</span>
+            <span class="label danger"><i class="fa fa-exclamation-triangle"></i> deprecated</span>
+            <span class="label info"><i class="fa fa-flask"></i> beta</span>
+            <span class="label default"><i class="fa fa-puzzle-piece"></i> optional</span>
+            <span class="label warning"><i class="fa fa-gavel"></i> final</span>
+          </p>
+          <p class="desc">The current Room connection session state.</p>
+          <ul>
+            <li>
+              <p class="name"><var><b>.state</b> - string</var></p>
+              <p class="desc">The current Room connection session state.</p>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+  <h5>Returns:</h5>
+  <div class="doc-returns"></div>
+  <h5>Example:</h5>
+  <pre class="prettyprint">
+    var test = function () {};
+  </pre>
+
+</article>
+</section>
