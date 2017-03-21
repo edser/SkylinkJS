@@ -1,6 +1,6 @@
 /**
  * Handles the Room connection session.
- * @class Room
+ * @class Temasys.Room
  * @param {JSON} options The options.
  * @param {String} options.appKey The App Key ID to connect to the App space to.
  * @param {String} [options.name] The Room name to connect to.
@@ -10,7 +10,6 @@
  * @param {Boolean} [options.requireWebRTC=true] The flag if WebRTC functionalities are required mandatorily.
  *   If the browser or device does not support WebRTC functionalities, a normal Signaling server connection commences.
  * @constructor
- * @for Skylink
  * @since 0.7.0
  */
 function Room (options) {

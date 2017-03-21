@@ -1,7 +1,7 @@
 /**
  * Handles the socket connection to the Signaling server.
  * This class is only to be initialised from {{#crossLink "Room"}}{{/crossLink}} class.
- * @class Socket
+ * @class Temasys.Socket
  * @param {JSON} [options] The options.
  * @param {String} [options.server] The Signaling server domain to connect to.
  *   The default is based on the server domain provided by the Auth (API) server.
@@ -46,7 +46,6 @@
  *   that the connection timed out.
  *   The defaults are `20000` for both Websocket and Polling.
  * @constructor
- * @for Skylink
  * @since 0.7.0
  */
 function Socket (options, defaultOptions) {
@@ -57,7 +56,7 @@ function Socket (options, defaultOptions) {
    * @attribute server
    * @type String
    * @readOnly
-   * @for Socket
+   * @for Temasys.Socket
    * @since 0.7.0
    */
   this.server = options.server && typeof options.server === 'string' ? options.server :
@@ -69,7 +68,7 @@ function Socket (options, defaultOptions) {
    * @attribute path
    * @type String
    * @readOnly
-   * @for Socket
+   * @for Temasys.Socket
    * @since 0.7.0
    */
   this.path = options.path && typeof options.path === 'string' ? options.path : '/socket.io';

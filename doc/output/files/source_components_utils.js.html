@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Temasys Web SDK Documentation (0.6.19)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="name" content="skylinkjs">
+  <meta name="version" content="0.6.19">
+  <!-- Favicon -->
+  <link href="../assets/img/favicon.ico" rel="shortcut icon" type="image/x-icon">
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Ubuntu+Mono" rel="stylesheet">
+  <link href="../assets/vendor/font-awesome.min.css" rel="stylesheet" type="text/css">
+  <!-- Styles -->
+  <link href="../assets/vendor/prettify.min.css" rel="stylesheet" type="text/css">
+  <link href="../assets/css/main.css" rel="stylesheet" type="text/css">
+  <script src="../assets/vendor/jquery.min.js" type="text/javascript"></script>
+  <script src="../assets/vendor/prettify.min.js" type="text/javascript"></script>
+  <script src="../assets/js/main.js" type="text/javascript"></script>
+</head>
+<body>
+  <!-- Navigation Header -->
+  <navbar class="top">
+    <a class="main" href="/">
+      <img src="../assets/img/favicon.ico">
+      <strong>Temasys</strong> Web SDK
+    </a>
+    <ul class="menu">
+      <li><a href="https://github.com/Temasys/SkylinkJS" target="_blank">SkylinkJS Github</a></li>
+      <li><a href="https://console.temasys.io/" target="_blank">Developer Console</a></li>
+    </ul>
+  </navbar>
+
+  <!-- Body -->
+  <section class="container">
+    <div class="container-wrapper">
+      <!-- Side Navigation -->
+      <navbar class="side">
+        <div id="side-menu" class="navbar-wrapper">
+          <ul class="menu">
+            <div class="section">
+              <span class="header">Getting Started</span>    
+              <li>
+              <a href="#">1. Overview <i class="fa fa-caret-down"></i></a>
+              <ul>
+                  <li><a href="#">a. Architecture</a></li>
+                  <li><a href="#">b. Authentication Methods</a></li>
+                  <li><a href="#">c. Persistent Rooms</a></li>
+                  <li><a href="#">d. Auto-Introduce & Privileged</a></li>
+              </ul>
+              </li>
+              <li>
+              <a href="#">2. Integrating to Your Site <i class="fa fa-caret-down"></i></a>
+              <ul>
+                  <li><a href="#">a. Referencing the SDK</a></li>
+                  <li><a href="#">b. Code Samples</a></li>
+                  <li><a href="#">c. Integrating your extensions & WebRTC plugin</a></li>
+              </ul>
+              </li>
+              <li><a href="#" class="nodropdown">3. Demos</a></li>
+            </div>
+            <div class="section">
+              <span class="header">API Documentation</span>
+              <li>
+                <a href="#">Temasys <small>module</small><i class="fa fa-caret-down"></i></a>
+                <ul>
+                </ul>
+              </li>
+                  ([&quot;Room&quot;,&quot;test&quot;])
+                  <li>
+                    <a href="classes/Room.html" class="nodropdown">
+                      Room <small>class</small>
+                    </a>
+                  </li>
+                  ([&quot;Skylink&quot;,&quot;test&quot;])
+                  <li>
+                    <a href="classes/Skylink.html" class="nodropdown">
+                      Skylink <small>class</small>
+                    </a>
+                  </li>
+                  ([&quot;Socket&quot;,&quot;test&quot;])
+                  <li>
+                    <a href="classes/Socket.html" class="nodropdown">
+                      Socket <small>class</small>
+                    </a>
+                  </li>
+                  ([&quot;Temasys.Peer&quot;,&quot;test&quot;])
+                  <li>
+                    <a href="classes/Temasys.Peer.html" class="nodropdown">
+                      Temasys.Peer <small>class</small>
+                    </a>
+                  </li>
+                  ([&quot;Temasys.Room&quot;,&quot;test&quot;])
+                  <li>
+                    <a href="classes/Temasys.Room.html" class="nodropdown">
+                      Temasys.Room <small>class</small>
+                    </a>
+                  </li>
+                  ([&quot;Temasys.Socket&quot;,&quot;test&quot;])
+                  <li>
+                    <a href="classes/Temasys.Socket.html" class="nodropdown">
+                      Temasys.Socket <small>class</small>
+                    </a>
+                  </li>
+                  ([&quot;Temasys.Utils&quot;,&quot;test&quot;])
+                  <li>
+                    <a href="classes/Temasys.Utils.html" class="nodropdown">
+                      Temasys.Utils <small>class</small>
+                    </a>
+                  </li>
+                  ([&quot;Utils&quot;,&quot;test&quot;])
+                  <li>
+                    <a href="classes/Utils.html" class="nodropdown">
+                      Utils <small>class</small>
+                    </a>
+                  </li>
+            </div>
+          </ul>
+        </div>
+      </navbar>      <!-- Content -->
+      <h1 class="file-heading">File: source/components/utils.js</h1>
+      
+      <div class="file">
+          <pre class="code prettyprint linenums">
+      /**
+       * Module that handles utility functionalities.
+       * @class Temasys.Utils
+       * @since 0.7.0
+       */
+      var Utils = {
+        /**
+         * Function that loops through an Array or JSON object.
+         * @method forEach
+         * @param {Array|JSON} object The object.
+         * @param {Function} The callback function.
+         * @for Utils
+         * @since 0.7.0
+         */
+        forEach: function (obj, fn) {
+          if (Array.isArray(obj)) {
+            var index = 0;
+            while (index &lt; obj.length) {
+              var res = fn(obj[index]);
+              if (res === true) {
+                break;
+              } else if (typeof res === &#x27;number&#x27;) {
+                index += res;
+              }
+              index++;
+            }
+          } else if (obj &amp;&amp; typeof obj === &#x27;object&#x27;) {
+            for (var key in obj) {
+              if (obj.hasOwnProperty(key)) {
+                var res = fn(obj[index]);
+                if (res === true) {
+                  break;
+                }
+              }
+            }
+          }
+        },
+      
+        /**
+         * Function that creates an event emitter manager to handle event triggers and subscription.
+         * @method createEventManager
+         * @return {JSON} Returns a list of event tools.
+         * @for Utils
+         * @since 0.7.0
+         */
+        createEventManager: function () {
+          var listeners = {
+            once: [],
+            on: []
+          };
+          var catcher = {
+            fn: null,
+            fnHandle: function (error) {
+              if (typeof catcher.fn === &#x27;function&#x27;) {
+                return catcher.fn(error);
+              }
+              throw error;
+            }
+          };
+      
+          return {
+            /**
+             * Function to subscribe to an event.
+             * @method createEventManager.on
+             * @param {String} event The event to subscribe to.
+             * @param {Function} callback The callback listener function.
+             * @for Utils
+             * @since 0.7.0
+             */
+            on: function (eventName, fn) {
+              if (typeof fn !== &#x27;function&#x27;) {
+                return catcher.fnHandle(new Error(&#x27;Please provide a valid callback&#x27;));
+              }
+      
+              if (!Array.isArray(listeners.on[eventName])) {
+                listeners.on[eventName] = [];
+              }
+      
+              listeners.on[eventName].push(fn);
+            },
+      
+            /**
+             * Function to subscribe to an event once.
+             * @method createEventManager.once
+             * @param {String} event The event to subscribe to once.
+             * @param {Function} callback The callback listener function.
+             * @param {Function} [condition] The condition function that is called when
+             *   event is triggered. If condition is met (when function returns &#x60;true&#x60;), the
+             *   callback listener function is triggered.
+             *   The defaults is &#x60;function () { return true; }&#x60;.
+             * @param {Boolean} [fireAlways] The flag if callback listener function should always
+             *   be triggered regardless as long as condition function is met.
+             *   The defaults is &#x60;false&#x60;.
+             * @for Utils
+             * @since 0.7.0
+             */
+            once: function (eventName, fn, conditionFn, fireAlways) {
+              if (typeof fn !== &#x27;function&#x27;) {
+                return catcher.fnHandle(new Error(&#x27;Please provide a valid callback&#x27;));
+              }
+      
+              if (!Array.isArray(listeners.once[eventName])) {
+                listeners.once[eventName] = [];
+              }
+      
+              listeners.once[eventName].push([fn, typeof conditionFn === &#x27;function&#x27; ?
+                conditionFn : function () { return true; }, fireAlways === true]);
+            },
+      
+            /**
+             * Function to unsubscribe to an event.
+             * @method createEventManager.off
+             * @param {String} [event] The event to unsubscribe.
+             *   When not provided, it will unsubscribe all event callback listener functions.
+             * @param {Function} [callback] The callback listener function to unsubscribe only.
+             *   When not provided, it will unsubscribe all callback listener functions subscribed to the event.
+             * @for Utils
+             * @since 0.7.0
+             */
+            off: function (eventName, fn) {
+              if (typeof eventName === &#x27;string&#x27;) {
+                if (typeof fn === &#x27;function&#x27;) {
+                  // Unsubscribe &#x60;on()&#x60; event handlers
+                  if (Array.isArray(listeners.on[eventName])) {
+                    Utils.forEach(listeners.on[eventName], function (fnItem, i) {
+                      if (fnItem === fn) {
+                        listeners.on[eventName].splice(i, 1);
+                        return -1;
+                      }
+                    });
+                  }
+                  // Unsubscribe &#x60;once()&#x60; event handlers
+                  if (Array.isArray(listeners.once[eventName])) {
+                    Utils.forEach(listeners.once[eventName], function (fnItem, i) {
+                      if (fnItem[0] === fn) {
+                        listeners.once[eventName].splice(i, 1);
+                        return -1;
+                      }
+                    });
+                  }
+                } else {
+                  listeners.on[eventName] = [];
+                  listeners.once[eventName] = [];
+                }
+              } else {
+                listeners.on = {};
+                listeners.once = {};
+              }
+            },
+      
+            /**
+             * Function that when provided catches errors instead of throwing them during event subscription or triggers.
+             * @method createEventManager.catch
+             * @param {Function} fn The listener to errors during trigger.
+             * @param {Error} fn.error The error object caught.
+             * @for Utils
+             * @since 0.7.0
+             */
+            catch: function (fn) {
+              catcher.fn = typeof fn === &#x27;function&#x27; ? fn : null;
+            },
+      
+            /**
+             * Function to trigger an event.
+             * @method createEventManager.emit
+             * @param {String} event The event to trigger.
+             *   The subsequent parameters are the event payload parameters.
+             * @for Utils
+             * @since 0.7.0
+             */
+            emit: function (eventName) {
+              try {
+                var params = Array.prototype.slice.call(arguments);
+                params.shift();
+      
+                // Trigger &#x60;on()&#x60; event handler
+                if (Array.isArray(listeners.on[eventName])) {
+                  Utils.forEach(listeners.on[eventName], function (fnItem) {
+                    fnItem.apply(this, params);
+                  });
+                }
+                // Trigger &#x60;once()&#x60; event handler
+                if (Array.isArray(listeners.once[eventName])) {
+                  Utils.forEach(listeners.once[eventName], function (fnItem, i) {
+                    if (fnItem[1].apply(this, params)) {
+                      fnItem[0].apply(this, params);
+                      // Check if &#x60;fireAlways&#x60;
+                      if (fnItem[2] !== true) {
+                        listeners.once[eventName].splice(i, 1);
+                        return -1;
+                      }
+                    }
+                  });
+                }
+              } catch (error) {
+                catcher.fnHandle(error);
+              }
+            }
+          };
+        },
+      
+        /**
+         * Function that gets byte length of string.
+         */
+        getStringByteLength: function (str) {
+          // Follow RFC3629 (where UTF-8 characters are at most 4-bytes long)
+          var s = str.length;
+          for (var i = str.length - 1; i &gt;= 0; i--) {
+            var code = str.charCodeAt(i);
+            if (code &gt; 0x7f &amp;&amp; code &lt;= 0x7ff) {
+              s++;
+            } else if (code &gt; 0x7ff &amp;&amp; code &lt;= 0xffff) {
+              s+=2;
+            }
+            if (code &gt;= 0xDC00 &amp;&amp; code &lt;= 0xDFFF) {
+              i--;
+            }
+          }
+          return s;
+        },
+      
+      
+      };
+          </pre>
+      </div>
+    </div>
+   </section>
+</body>
+</html>

@@ -1,0 +1,64 @@
+<!doctype html>
+<html>
+<head>
+  <title>Temasys Web SDK Documentation</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Ubuntu+Mono" rel="stylesheet">
+  <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+  <link href="https://jmblog.github.io/color-themes-for-google-code-prettify/themes/atelier-heath-light.min.css" rel="stylesheet" type="text/css">
+  <link href="styles/main.css" rel="stylesheet" type="text/css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.0/jquery.min.js" type="text/javascript"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.js" type="text/javascript"></script>
+  <script src="scripts/main.js" type="text/javascript"></script>
+</head>
+
+<body>
+  <!-- Navigation Header -->
+  <navbar class="top">
+    <a class="main" href="/"><strong>Temasys</strong> Web SDK</a>
+    <ul class="menu">
+      <li><a href="#">Test 1</a></li>
+      <li><a href="#">Test 2</a></li>
+    </ul>
+  </navbar>
+
+  <!-- Body -->
+  <section class="container"><div class="container-wrapper">
+    <!-- Side Navigation -->
+    <navbar class="side">
+      <div id="side-menu" class="navbar-wrapper">
+        <ul class="menu">
+          <div class="section">
+            <span class="header">Getting Started</span>    
+            <li><a href="#" class="nodropdown" template="overview.html">1. Overview</a></li>
+            <li><a href="#" class="nodropdown" template="integrate.html">2. Integrating to Your Site</a></li>
+            <li><a href="#" class="nodropdown" template="demos.html">3. Demos</a></li>
+          </div>
+          <div class="section">
+            <span class="header">API Documentation</span>
+            <li>
+              <a href="#" class="active" target-menu="menu-temasys">Temasys <small>module</small> <i class="fa fa-caret-down"></i></a>
+              <ul id="menu-temasys" style="display:block;">
+                <li><a href="#" class="active" template="temasys/room.html">.Room <small>class</small></a></li>
+                <li><a href="#" template="temasys/peer.html">.Peer <small>class</small></a></li>
+                <li><a href="#" template="temasys/stream.html">.Stream <small>class</small></a></li>
+                <li><a href="#" template="temasys/socket.html">.Socket <small>class</small></a></li>
+                <li><a href="#" template="temasys/datachannel.html">.Datachannel <small>class</small></a></li>
+                <li><a href="#" template="temasys/datatransfer.html">.Datatransfer <small>class</small></a></li>
+                <li><a href="#" template="temasys/utils.html">.Utils <small>module</small></a></li>
+                <li><a href="#" template="temasys/api.html">.API <small>module</small></a></li>
+              </ul>
+            </li>
+            <li><a href="#" class="nodropdown">Skylink <small>class</small> <span class="label">deprecated</span></a></li>
+            <li><a href="#" class="nodropdown">SkylinkLogs <small>module</small> <span class="label">deprecated</span></a></li>
+          </div>
+        </ul>
+      </div>
+    </navbar>
+    <!-- Content -->
+    <div class="body"><div id="load-template" class="body-wrapper"></div></div>
+  </div></section>
+</body>
+
+</html>

@@ -9,7 +9,7 @@ module.exports = function(grunt) {
   grunt.initConfig({
     clean: {
       dev: ['publish/*'],
-      publish: ['release/*', 'doc/*']
+      publish: ['release/*', 'doc/output/*']
     },
     concat: {
       dev: {
@@ -75,8 +75,10 @@ module.exports = function(grunt) {
         version: pkg.version,
         url: pkg.homepage,
         options: {
-          paths: 'source/',
-          outdir: 'doc/'
+          paths: ['source/'],
+          outdir: 'doc/output/',
+          themedir: 'doc/theme',
+          helpers: ['doc/theme/helpers/helpers.js']
         }
       }
     },
@@ -95,7 +97,7 @@ module.exports = function(grunt) {
       publish: {
         files: [{
           expand: true,
-          cwd: 'doc/',
+          cwd: 'doc/output/',
           src: ['**'],
           dest: 'release/doc/'
         }]

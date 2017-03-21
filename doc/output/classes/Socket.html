@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Temasys Web SDK Documentation (0.6.19)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="name" content="skylinkjs">
+  <meta name="version" content="0.6.19">
+  <!-- Favicon -->
+  <link href="../assets/img/favicon.ico" rel="shortcut icon" type="image/x-icon">
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Ubuntu+Mono" rel="stylesheet">
+  <link href="../assets/vendor/font-awesome.min.css" rel="stylesheet" type="text/css">
+  <!-- Styles -->
+  <link href="../assets/vendor/prettify.min.css" rel="stylesheet" type="text/css">
+  <link href="../assets/css/main.css" rel="stylesheet" type="text/css">
+  <script src="../assets/vendor/jquery.min.js" type="text/javascript"></script>
+  <script src="../assets/vendor/prettify.min.js" type="text/javascript"></script>
+  <script src="../assets/js/main.js" type="text/javascript"></script>
+</head>
+<body>
+  <!-- Navigation Header -->
+  <navbar class="top">
+    <a class="main" href="/">
+      <img src="../assets/img/favicon.ico">
+      <strong>Temasys</strong> Web SDK
+    </a>
+    <ul class="menu">
+      <li><a href="https://github.com/Temasys/SkylinkJS" target="_blank">SkylinkJS Github</a></li>
+      <li><a href="https://console.temasys.io/" target="_blank">Developer Console</a></li>
+    </ul>
+  </navbar>
+
+  <!-- Body -->
+  <section class="container">
+    <div class="container-wrapper">
+      <!-- Side Navigation -->
+      <navbar class="side">
+        <div id="side-menu" class="navbar-wrapper">
+          <ul class="menu">
+            <div class="section">
+              <span class="header">Getting Started</span>    
+              <li>
+              <a href="#">1. Overview <i class="fa fa-caret-down"></i></a>
+              <ul>
+                  <li><a href="#">a. Architecture</a></li>
+                  <li><a href="#">b. Authentication Methods</a></li>
+                  <li><a href="#">c. Persistent Rooms</a></li>
+                  <li><a href="#">d. Auto-Introduce & Privileged</a></li>
+              </ul>
+              </li>
+              <li>
+              <a href="#">2. Integrating to Your Site <i class="fa fa-caret-down"></i></a>
+              <ul>
+                  <li><a href="#">a. Referencing the SDK</a></li>
+                  <li><a href="#">b. Code Samples</a></li>
+                  <li><a href="#">c. Integrating your extensions & WebRTC plugin</a></li>
+              </ul>
+              </li>
+              <li><a href="#" class="nodropdown">3. Demos</a></li>
+            </div>
+            <div class="section">
+              <span class="header">API Documentation</span>
+              <li>
+                <a href="#">Temasys <small>module</small><i class="fa fa-caret-down"></i></a>
+                <ul>
+                </ul>
+              </li>
+                  ([&quot;Room&quot;,&quot;test&quot;])
+                  <li>
+                    <a href="classes/Room.html" class="nodropdown">
+                      Room <small>class</small>
+                    </a>
+                  </li>
+                  ([&quot;Skylink&quot;,&quot;test&quot;])
+                  <li>
+                    <a href="classes/Skylink.html" class="nodropdown">
+                      Skylink <small>class</small>
+                    </a>
+                  </li>
+                  ([&quot;Socket&quot;,&quot;test&quot;])
+                  <li>
+                    <a href="classes/Socket.html" class="nodropdown">
+                      Socket <small>class</small>
+                    </a>
+                  </li>
+                  ([&quot;Temasys.Peer&quot;,&quot;test&quot;])
+                  <li>
+                    <a href="classes/Temasys.Peer.html" class="nodropdown">
+                      Temasys.Peer <small>class</small>
+                    </a>
+                  </li>
+                  ([&quot;Temasys.Room&quot;,&quot;test&quot;])
+                  <li>
+                    <a href="classes/Temasys.Room.html" class="nodropdown">
+                      Temasys.Room <small>class</small>
+                    </a>
+                  </li>
+                  ([&quot;Temasys.Socket&quot;,&quot;test&quot;])
+                  <li>
+                    <a href="classes/Temasys.Socket.html" class="nodropdown">
+                      Temasys.Socket <small>class</small>
+                    </a>
+                  </li>
+                  ([&quot;Temasys.Utils&quot;,&quot;test&quot;])
+                  <li>
+                    <a href="classes/Temasys.Utils.html" class="nodropdown">
+                      Temasys.Utils <small>class</small>
+                    </a>
+                  </li>
+                  ([&quot;Utils&quot;,&quot;test&quot;])
+                  <li>
+                    <a href="classes/Utils.html" class="nodropdown">
+                      Utils <small>class</small>
+                    </a>
+                  </li>
+            </div>
+          </ul>
+        </div>
+      </navbar>      <!-- Content -->
+      <h1>Socket Class</h1>
+      <div class="box meta">
+      
+      
+      
+      
+      </div>
+      
+      
+      <div class="box intro">
+          
+      </div>
+      
+      
+      <div id="classdocs" class="tabview">
+          <ul class="api-class-tabs">
+              <li class="api-class-tab index"><a href="#index">Index</a></li>
+      
+                  <li class="api-class-tab methods"><a href="#methods">Methods</a></li>
+                  <li class="api-class-tab attrs"><a href="#attrs">Attributes</a></li>
+                  <li class="api-class-tab events"><a href="#events">Events</a></li>
+          </ul>
+      
+          <div>
+              <div id="index" class="api-class-tabpanel index">
+                  <h2 class="off-left">Item Index</h2>
+      
+                      <div class="index-section methods">
+                          <h3>Methods</h3>
+      
+                          <ul class="index-list methods">
+                                  <li class="index-item method">
+                                      <a href="#method_off">off</a>
+      
+                                  </li>
+                                  <li class="index-item method">
+                                      <a href="#method_on">on</a>
+      
+                                  </li>
+                                  <li class="index-item method">
+                                      <a href="#method_once">once</a>
+      
+                                  </li>
+                          </ul>
+                      </div>
+      
+      
+                      <div class="index-section attrs">
+                          <h3>Attributes</h3>
+      
+                          <ul class="index-list attrs">
+                                  <li class="index-item attr">
+                                      <a href="#attr_compressed">compressed</a>
+                                  </li>
+                                  <li class="index-item attr">
+                                      <a href="#attr_current">current</a>
+                                  </li>
+                                  <li class="index-item attr">
+                                      <a href="#attr_path">path</a>
+                                  </li>
+                                  <li class="index-item attr">
+                                      <a href="#attr_protocol">protocol</a>
+                                  </li>
+                                  <li class="index-item attr">
+                                      <a href="#attr_RESPONSE_ENUM">RESPONSE_ENUM</a>
+                                  </li>
+                                  <li class="index-item attr">
+                                      <a href="#attr_server">server</a>
+                                  </li>
+                                  <li class="index-item attr">
+                                      <a href="#attr_STATE_ENUM">STATE_ENUM</a>
+                                  </li>
+                          </ul>
+                      </div>
+      
+                      <div class="index-section events">
+                          <h3>Events</h3>
+      
+                          <ul class="index-list events">
+                                  <li class="index-item event">
+                                      <a href="#event_domError">domError</a>
+      
+                                  </li>
+                                  <li class="index-item event">
+                                      <a href="#event_domError">domError</a>
+      
+                                  </li>
+                                  <li class="index-item event">
+                                      <a href="#event_message">message</a>
+      
+                                  </li>
+                                  <li class="index-item event">
+                                      <a href="#event_response">response</a>
+      
+                                  </li>
+                                  <li class="index-item event">
+                                      <a href="#event_state">state</a>
+      
+                                  </li>
+                          </ul>
+                      </div>
+              </div>
+      
+                  <div id="methods" class="api-class-tabpanel">
+                      <h2 class="off-left">Methods</h2>
+      
+      <div id="method_off" class="method item">
+          <h3 class="name"><code>off</code></h3>
+      
+              <div class="args">
+                  <span class="paren">(</span><ul class="args-list inline commas">
+                      <li class="arg">
+                              <code class="optional">[event]</code>
+                      </li>
+                      <li class="arg">
+                              <code class="optional">[callback]</code>
+                      </li>
+                  </ul><span class="paren">)</span>
+              </div>
+      
+      
+      
+      
+      
+      
+      
+      
+          <div class="meta">
+                      <p>
+                      Defined in
+              <a href="../files/source_components_socket.js.html#l237"><code>source&#x2F;components&#x2F;socket.js:237</code></a>
+              </p>
+      
+      
+      
+                  <p>Available since 0.7.0</p>
+          </div>
+      
+          <div class="description">
+              <p>Function to unsubscribe to events.</p>
+      
+          </div>
+      
+              <div class="params">
+                  <h4>Parameters:</h4>
+      
+                  <ul class="params-list">
+                      <li class="param">
+                              <code class="param-name optional">[event]</code>
+                              <span class="type">String</span>
+                              <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+      
+                          <div class="param-description">
+                              <p>The specified event to unsubscribe.
+      When not provided, it will unsubscribe all event callback listener functions.</p>
+      
+                          </div>
+      
+                      </li>
+                      <li class="param">
+                              <code class="param-name optional">[callback]</code>
+                              <span class="type">Function</span>
+                              <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+      
+                          <div class="param-description">
+                              <p>The specified callback listener function based on
+      the provided event to unsubscribe only.
+      When not provided, it will unsubscribe all callback listener functions subscribed to the event.</p>
+      
+                          </div>
+      
+                      </li>
+                  </ul>
+              </div>
+      
+      
+      
+      </div>
+      <div id="method_on" class="method item">
+          <h3 class="name"><code>on</code></h3>
+      
+              <div class="args">
+                  <span class="paren">(</span><ul class="args-list inline commas">
+                      <li class="arg">
+                              <code>event</code>
+                      </li>
+                      <li class="arg">
+                              <code>callback</code>
+                      </li>
+                  </ul><span class="paren">)</span>
+              </div>
+      
+      
+      
+      
+      
+      
+      
+      
+          <div class="meta">
+                      <p>
+                      Defined in
+              <a href="../files/source_components_socket.js.html#l210"><code>source&#x2F;components&#x2F;socket.js:210</code></a>
+              </p>
+      
+      
+      
+                  <p>Available since 0.7.0</p>
+          </div>
+      
+          <div class="description">
+              <p>Function to subscribe to an event.</p>
+      
+          </div>
+      
+              <div class="params">
+                  <h4>Parameters:</h4>
+      
+                  <ul class="params-list">
+                      <li class="param">
+                              <code class="param-name">event</code>
+                              <span class="type">String</span>
+      
+      
+                          <div class="param-description">
+                              <p>The event to subscribe to once.</p>
+      
+                          </div>
+      
+                      </li>
+                      <li class="param">
+                              <code class="param-name">callback</code>
+                              <span class="type">Function</span>
+      
+      
+                          <div class="param-description">
+                              <p>The callback listener function.</p>
+      
+                          </div>
+      
+                      </li>
+                  </ul>
+              </div>
+      
+      
+      
+      </div>
+      <div id="method_once" class="method item">
+          <h3 class="name"><code>once</code></h3>
+      
+              <div class="args">
+                  <span class="paren">(</span><ul class="args-list inline commas">
+                      <li class="arg">
+                              <code>event</code>
+                      </li>
+                      <li class="arg">
+                              <code>callback</code>
+                      </li>
+                      <li class="arg">
+                              <code class="optional">[condition]</code>
+                      </li>
+                      <li class="arg">
+                              <code class="optional">[fireAlways]</code>
+                      </li>
+                  </ul><span class="paren">)</span>
+              </div>
+      
+      
+      
+      
+      
+      
+      
+      
+          <div class="meta">
+                      <p>
+                      Defined in
+              <a href="../files/source_components_socket.js.html#l220"><code>source&#x2F;components&#x2F;socket.js:220</code></a>
+              </p>
+      
+      
+      
+                  <p>Available since 0.7.0</p>
+          </div>
+      
+          <div class="description">
+              <p>Function to subscribe to an event once.</p>
+      
+          </div>
+      
+              <div class="params">
+                  <h4>Parameters:</h4>
+      
+                  <ul class="params-list">
+                      <li class="param">
+                              <code class="param-name">event</code>
+                              <span class="type">String</span>
+      
+      
+                          <div class="param-description">
+                              <p>The event to subscribe to once.</p>
+      
+                          </div>
+      
+                      </li>
+                      <li class="param">
+                              <code class="param-name">callback</code>
+                              <span class="type">Function</span>
+      
+      
+                          <div class="param-description">
+                              <p>The callback listener function.</p>
+      
+                          </div>
+      
+                      </li>
+                      <li class="param">
+                              <code class="param-name optional">[condition]</code>
+                              <span class="type">Function</span>
+                              <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+      
+                          <div class="param-description">
+                              <p>The condition function that is called when
+      event is triggered. If condition is met (when function returns <code>true</code>), the
+      callback listener function is triggered.
+      The default is <code>function () { return true; }</code>.</p>
+      
+                          </div>
+      
+                      </li>
+                      <li class="param">
+                              <code class="param-name optional">[fireAlways]</code>
+                              <span class="type">Boolean</span>
+                              <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+      
+                          <div class="param-description">
+                              <p>The flag if callback listener function should always
+      be triggered regardless as long as condition function is met.
+      The default is <code>false</code>.</p>
+      
+                          </div>
+      
+                      </li>
+                  </ul>
+              </div>
+      
+      
+      
+      </div>
+                  </div>
+      
+      
+                  <div id="attrs" class="api-class-tabpanel">
+                      <h2 class="off-left">Attributes</h2>
+      
+                          <div id="attr_compressed" class="attr item">
+                              <a name="config_compressed"></a> 
+                              <h3 class="name"><code>compressed</code></h3>
+                              <span class="type">Boolean</span>
+                          
+                          
+                          
+                          
+                          
+                          
+                          
+                                  <span class="flag readonly">readonly</span>
+                          
+                              <div class="meta">
+                                          <p>
+                                          Defined in
+                                  <a href="../files/source_components_socket.js.html#l87"><code>source&#x2F;components&#x2F;socket.js:87</code></a>
+                                  </p>
+                          
+                          
+                                      <p>Available since 0.7.0</p>
+                              </div>
+                          
+                              <div class="description">
+                                  <p>The flag if messages sent to the Signaling server are compressed.</p>
+                          
+                              </div>
+                          
+                          
+                          
+                          </div>
+                          <div id="attr_current" class="attr item">
+                              <a name="config_current"></a> 
+                              <h3 class="name"><code>current</code></h3>
+                              <span class="type">JSON</span>
+                          
+                          
+                          
+                          
+                          
+                          
+                          
+                                  <span class="flag readonly">readonly</span>
+                          
+                              <div class="meta">
+                                          <p>
+                                          Defined in
+                                  <a href="../files/source_components_socket.js.html#l97"><code>source&#x2F;components&#x2F;socket.js:97</code></a>
+                                  </p>
+                          
+                          
+                                      <p>Available since 0.7.0</p>
+                              </div>
+                          
+                              <div class="description">
+                                  <p>The current socket connection status.</p>
+                          
+                              </div>
+                          
+                          
+                          
+                          </div>
+                          <div id="attr_path" class="attr item">
+                              <a name="config_path"></a> 
+                              <h3 class="name"><code>path</code></h3>
+                              <span class="type">String</span>
+                          
+                          
+                          
+                          
+                          
+                          
+                          
+                                  <span class="flag readonly">readonly</span>
+                          
+                              <div class="meta">
+                                          <p>
+                                          Defined in
+                                  <a href="../files/source_components_socket.js.html#l66"><code>source&#x2F;components&#x2F;socket.js:66</code></a>
+                                  </p>
+                          
+                          
+                                      <p>Available since 0.7.0</p>
+                              </div>
+                          
+                              <div class="description">
+                                  <p>The Signaling server path.</p>
+                          
+                              </div>
+                          
+                          
+                          
+                          </div>
+                          <div id="attr_protocol" class="attr item">
+                              <a name="config_protocol"></a> 
+                              <h3 class="name"><code>protocol</code></h3>
+                              <span class="type">String</span>
+                          
+                          
+                          
+                          
+                          
+                          
+                          
+                                  <span class="flag readonly">readonly</span>
+                          
+                              <div class="meta">
+                                          <p>
+                                          Defined in
+                                  <a href="../files/source_components_socket.js.html#l76"><code>source&#x2F;components&#x2F;socket.js:76</code></a>
+                                  </p>
+                          
+                          
+                                      <p>Available since 0.7.0</p>
+                              </div>
+                          
+                              <div class="description">
+                                  <p>The Signaling server protocol.</p>
+                          
+                              </div>
+                          
+                          
+                          
+                          </div>
+                          <div id="attr_RESPONSE_ENUM" class="attr item">
+                              <a name="config_RESPONSE_ENUM"></a> 
+                              <h3 class="name"><code>RESPONSE_ENUM</code></h3>
+                              <span class="type">JSON</span>
+                          
+                          
+                          
+                          
+                          
+                          
+                          
+                          
+                              <div class="meta">
+                                          <p>
+                                          Defined in
+                                  <a href="../files/source_components_socket.js.html#l295"><code>source&#x2F;components&#x2F;socket.js:295</code></a>
+                                  </p>
+                          
+                          
+                                      <p>Available since 0.7.0</p>
+                              </div>
+                          
+                              <div class="description">
+                                  <p>The enum of socket response states.</p>
+                          
+                              </div>
+                          
+                          
+                          
+                          </div>
+                          <div id="attr_server" class="attr item">
+                              <a name="config_server"></a> 
+                              <h3 class="name"><code>server</code></h3>
+                              <span class="type">String</span>
+                          
+                          
+                          
+                          
+                          
+                          
+                          
+                                  <span class="flag readonly">readonly</span>
+                          
+                              <div class="meta">
+                                          <p>
+                                          Defined in
+                                  <a href="../files/source_components_socket.js.html#l54"><code>source&#x2F;components&#x2F;socket.js:54</code></a>
+                                  </p>
+                          
+                          
+                                      <p>Available since 0.7.0</p>
+                              </div>
+                          
+                              <div class="description">
+                                  <p>The Signaling server domain.</p>
+                          
+                              </div>
+                          
+                          
+                          
+                          </div>
+                          <div id="attr_STATE_ENUM" class="attr item">
+                              <a name="config_STATE_ENUM"></a> 
+                              <h3 class="name"><code>STATE_ENUM</code></h3>
+                              <span class="type">JSON</span>
+                          
+                          
+                          
+                          
+                          
+                          
+                          
+                          
+                              <div class="meta">
+                                          <p>
+                                          Defined in
+                                  <a href="../files/source_components_socket.js.html#l257"><code>source&#x2F;components&#x2F;socket.js:257</code></a>
+                                  </p>
+                          
+                          
+                                      <p>Available since 0.7.0</p>
+                              </div>
+                          
+                              <div class="description">
+                                  <p>The enum of socket connection states.</p>
+                          
+                              </div>
+                          
+                          
+                          
+                          </div>
+                  </div>
+      
+                  <div id="events" class="api-class-tabpanel">
+                      <h2 class="off-left">Events</h2>
+      
+                          <div id="event_domError" class="events item">
+                              <h3 class="name"><code>domError</code></h3>
+                              <span class="type"></span>
+                          
+                          
+                          
+                          
+                          
+                              <div class="meta">
+                                          <p>
+                                          Defined in
+                                  <a href="../files/source_components_room.js.html#l252"><code>source&#x2F;components&#x2F;room.js:252</code></a>
+                                  </p>
+                          
+                          
+                                      <p>Available since 0.7.0</p>
+                              </div>
+                          
+                              <div class="description">
+                                  <p>Event triggered when there are exceptions thrown in this event handlers.</p>
+                          
+                              </div>
+                          
+                                  <div class="params">
+                                      <h4>Event Payload:</h4>
+                          
+                                      <ul class="params-list">
+                                          <li class="param">
+                                                  <code class="param-name">error</code>
+                                                  <span class="type">Error</span>
+                          
+                          
+                                              <div class="param-description">
+                                                  <p>The error object.</p>
+                          
+                                              </div>
+                          
+                                          </li>
+                                      </ul>
+                                  </div>
+                          
+                          
+                          </div>
+                          <div id="event_domError" class="events item">
+                              <h3 class="name"><code>domError</code></h3>
+                              <span class="type"></span>
+                          
+                          
+                          
+                          
+                          
+                              <div class="meta">
+                                          <p>
+                                          Defined in
+                                  <a href="../files/source_components_socket.js.html#l191"><code>source&#x2F;components&#x2F;socket.js:191</code></a>
+                                  </p>
+                          
+                          
+                                      <p>Available since 0.7.0</p>
+                              </div>
+                          
+                              <div class="description">
+                                  <p>Event triggered when there are exceptions thrown in this event handlers.</p>
+                          
+                              </div>
+                          
+                                  <div class="params">
+                                      <h4>Event Payload:</h4>
+                          
+                                      <ul class="params-list">
+                                          <li class="param">
+                                                  <code class="param-name">error</code>
+                                                  <span class="type">Error</span>
+                          
+                          
+                                              <div class="param-description">
+                                                  <p>The error object.</p>
+                          
+                                              </div>
+                          
+                                          </li>
+                                      </ul>
+                                  </div>
+                          
+                          
+                          </div>
+                          <div id="event_message" class="events item">
+                              <h3 class="name"><code>message</code></h3>
+                              <span class="type"></span>
+                          
+                          
+                          
+                          
+                          
+                              <div class="meta">
+                                          <p>
+                                          Defined in
+                                  <a href="../files/source_components_socket.js.html#l181"><code>source&#x2F;components&#x2F;socket.js:181</code></a>
+                                  </p>
+                          
+                          
+                                      <p>Available since 0.7.0</p>
+                              </div>
+                          
+                              <div class="description">
+                                  <p>Event triggered when socket connection sends or receives a message.</p>
+                          
+                              </div>
+                          
+                                  <div class="params">
+                                      <h4>Event Payload:</h4>
+                          
+                                      <ul class="params-list">
+                                          <li class="param">
+                                                  <code class="param-name">message</code>
+                                                  <span class="type">JSON</span>
+                          
+                          
+                                              <div class="param-description">
+                                                  <p>The socket message received or sent.</p>
+                          
+                                              </div>
+                          
+                                          </li>
+                                          <li class="param">
+                                                  <code class="param-name optional">[error]</code>
+                                                  <span class="type">Error</span>
+                                                  <span class="flag optional" title="This parameter is optional.">optional</span>
+                          
+                          
+                                              <div class="param-description">
+                                                  <p>The error object.
+                          This is defined when message failed to send or parse when received.</p>
+                          
+                                              </div>
+                          
+                                          </li>
+                                          <li class="param">
+                                                  <code class="param-name">isSelf</code>
+                                                  <span class="type">Boolean</span>
+                          
+                          
+                                              <div class="param-description">
+                                                  <p>The flag if message is sent from self or not.</p>
+                          
+                                              </div>
+                          
+                                          </li>
+                                      </ul>
+                                  </div>
+                          
+                          
+                          </div>
+                          <div id="event_response" class="events item">
+                              <h3 class="name"><code>response</code></h3>
+                              <span class="type"></span>
+                          
+                          
+                          
+                          
+                          
+                              <div class="meta">
+                                          <p>
+                                          Defined in
+                                  <a href="../files/source_components_socket.js.html#l198"><code>source&#x2F;components&#x2F;socket.js:198</code></a>
+                                  </p>
+                          
+                          
+                                      <p>Available since 0.7.0</p>
+                              </div>
+                          
+                              <div class="description">
+                                  <p>Event triggered when socket connection receives and sends responses to Signaling server for keep-alive.</p>
+                          
+                              </div>
+                          
+                                  <div class="params">
+                                      <h4>Event Payload:</h4>
+                          
+                                      <ul class="params-list">
+                                          <li class="param">
+                                                  <code class="param-name">state</code>
+                                                  <span class="type">String</span>
+                          
+                          
+                                              <div class="param-description">
+                                                  <p>The current socket connection response state.
+                          References the <a href="../classes/Socket.html#attr_RESPONSE_ENUM" class="crosslink">RESPONSE_ENUM</a> enum attribute.</p>
+                          
+                                              </div>
+                          
+                                          </li>
+                                          <li class="param">
+                                                  <code class="param-name">timestamp</code>
+                                                  <span class="type">Number</span>
+                          
+                          
+                                              <div class="param-description">
+                                                  <p>The current timestamp in miliseconds.</p>
+                          
+                                              </div>
+                          
+                                          </li>
+                                          <li class="param">
+                                                  <code class="param-name optional">[latency]</code>
+                                                  <span class="type">Number</span>
+                                                  <span class="flag optional" title="This parameter is optional.">optional</span>
+                          
+                          
+                                              <div class="param-description">
+                                                  <p>The current latency in miliseconds from receiving
+                          the <code>RESPONSE.PONG</code> after sending out a <code>RESPONSE_ENUM.PING</code>.</p>
+                          
+                                              </div>
+                          
+                                          </li>
+                                      </ul>
+                                  </div>
+                          
+                          
+                          </div>
+                          <div id="event_state" class="events item">
+                              <h3 class="name"><code>state</code></h3>
+                              <span class="type"></span>
+                          
+                          
+                          
+                          
+                          
+                              <div class="meta">
+                                          <p>
+                                          Defined in
+                                  <a href="../files/source_components_socket.js.html#l166"><code>source&#x2F;components&#x2F;socket.js:166</code></a>
+                                  </p>
+                          
+                          
+                                      <p>Available since 0.7.0</p>
+                              </div>
+                          
+                              <div class="description">
+                                  <p>Event triggered when socket connection state has changed.</p>
+                          
+                              </div>
+                          
+                                  <div class="params">
+                                      <h4>Event Payload:</h4>
+                          
+                                      <ul class="params-list">
+                                          <li class="param">
+                                                  <code class="param-name">state</code>
+                                                  <span class="type">String</span>
+                          
+                          
+                                              <div class="param-description">
+                                                  <p>The current socket connection state.
+                          References the <a href="../classes/Socket.html#attr_STATE_ENUM" class="crosslink">STATE_ENUM</a> enum attribute.</p>
+                          
+                                              </div>
+                          
+                                          </li>
+                                          <li class="param">
+                                                  <code class="param-name">error</code>
+                                                  <span class="type">Error</span>
+                          
+                          
+                                              <div class="param-description">
+                                                  <p>The error object.
+                          This is defined when <code>state</code> value is <code>STATE_ENUM.RECONNECT_FAILED</code>,
+                          <code>STATE_ENUM.CONNECT_ERROR</code> and <code>STATE_ENUM.CONNECT_TIMEOUT</code>.</p>
+                          
+                                              </div>
+                          
+                                          </li>
+                                          <li class="param">
+                                                  <code class="param-name">current</code>
+                                                  <span class="type">JSON</span>
+                          
+                          
+                                              <div class="param-description">
+                                                  <p>The current socket connection status.</p>
+                          
+                                              </div>
+                          
+                                                  <ul class="params-list">
+                                                      <li class="param">
+                                                              <code class="param-name">reconnectionAttempts</code>
+                                                              <span class="type">Number</span>
+                          
+                                                          <div class="param-description">
+                                                              <p>The current reconnection attempts for the current port and transport used.</p>
+                          
+                                                          </div>
+                          
+                                                      </li>
+                                                      <li class="param">
+                                                              <code class="param-name">port</code>
+                                                              <span class="type">Number</span>
+                          
+                                                          <div class="param-description">
+                                                              <p>The current port used.</p>
+                          
+                                                          </div>
+                          
+                                                      </li>
+                                                      <li class="param">
+                                                              <code class="param-name">transport</code>
+                                                              <span class="type">String</span>
+                          
+                                                          <div class="param-description">
+                                                              <p>The current transport used.</p>
+                          
+                                                          </div>
+                          
+                                                      </li>
+                                                  </ul>
+                                          </li>
+                                      </ul>
+                                  </div>
+                          
+                          
+                          </div>
+                  </div>
+          </div>
+      </div>
+    </div>
+   </section>
+</body>
+</html>

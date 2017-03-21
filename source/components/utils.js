@@ -1,7 +1,6 @@
 /**
  * Module that handles utility functionalities.
- * @class Utils
- * @for Skylink
+ * @class Temasys.Utils
  * @since 0.7.0
  */
 var Utils = {
@@ -10,7 +9,7 @@ var Utils = {
    * @method forEach
    * @param {Array|JSON} object The object.
    * @param {Function} The callback function.
-   * @for Utils
+   * @for Temasys.Utils
    * @since 0.7.0
    */
   forEach: function (obj, fn) {
@@ -41,7 +40,7 @@ var Utils = {
    * Function that creates an event emitter manager to handle event triggers and subscription.
    * @method createEventManager
    * @return {JSON} Returns a list of event tools.
-   * @for Utils
+   * @for Temasys.Utils
    * @since 0.7.0
    */
   createEventManager: function () {
@@ -65,7 +64,7 @@ var Utils = {
        * @method createEventManager.on
        * @param {String} event The event to subscribe to.
        * @param {Function} callback The callback listener function.
-       * @for Utils
+       * @for Temasys.Utils
        * @since 0.7.0
        */
       on: function (eventName, fn) {
@@ -92,7 +91,7 @@ var Utils = {
        * @param {Boolean} [fireAlways] The flag if callback listener function should always
        *   be triggered regardless as long as condition function is met.
        *   The defaults is `false`.
-       * @for Utils
+       * @for Temasys.Utils
        * @since 0.7.0
        */
       once: function (eventName, fn, conditionFn, fireAlways) {
@@ -115,7 +114,7 @@ var Utils = {
        *   When not provided, it will unsubscribe all event callback listener functions.
        * @param {Function} [callback] The callback listener function to unsubscribe only.
        *   When not provided, it will unsubscribe all callback listener functions subscribed to the event.
-       * @for Utils
+       * @for Temasys.Utils
        * @since 0.7.0
        */
       off: function (eventName, fn) {
@@ -154,7 +153,7 @@ var Utils = {
        * @method createEventManager.catch
        * @param {Function} fn The listener to errors during trigger.
        * @param {Error} fn.error The error object caught.
-       * @for Utils
+       * @for Temasys.Utils
        * @since 0.7.0
        */
       catch: function (fn) {
@@ -166,7 +165,7 @@ var Utils = {
        * @method createEventManager.emit
        * @param {String} event The event to trigger.
        *   The subsequent parameters are the event payload parameters.
-       * @for Utils
+       * @for Temasys.Utils
        * @since 0.7.0
        */
       emit: function (eventName) {

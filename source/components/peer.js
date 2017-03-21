@@ -1,10 +1,9 @@
 /**
  * Handles the Peer connection.
- * @class Peer
+ * @class Temasys.Peer
  * @param {JSON} options The options.
  * @param {}
  * @constructor
- * @for Skylink
  * @since 0.7.0
  */
 function Peer (options, defaultOptions) {

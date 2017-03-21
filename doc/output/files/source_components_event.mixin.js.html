@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Temasys Web SDK Documentation (0.6.19)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="name" content="skylinkjs">
+  <meta name="version" content="0.6.19">
+  <!-- Favicon -->
+  <link href="../assets/img/favicon.ico" rel="shortcut icon" type="image/x-icon">
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Ubuntu+Mono" rel="stylesheet">
+  <link href="../assets/vendor/font-awesome.min.css" rel="stylesheet" type="text/css">
+  <!-- Styles -->
+  <link href="../assets/vendor/prettify.min.css" rel="stylesheet" type="text/css">
+  <link href="../assets/css/main.css" rel="stylesheet" type="text/css">
+  <script src="../assets/vendor/jquery.min.js" type="text/javascript"></script>
+  <script src="../assets/vendor/prettify.min.js" type="text/javascript"></script>
+  <script src="../assets/js/main.js" type="text/javascript"></script>
+</head>
+<body>
+  <!-- Navigation Header -->
+  <navbar class="top">
+    <a class="main" href="/">
+      <img src="../assets/img/favicon.ico">
+      <strong>Temasys</strong> Web SDK
+    </a>
+    <ul class="menu">
+      <li><a href="https://github.com/Temasys/SkylinkJS" target="_blank">SkylinkJS Github</a></li>
+      <li><a href="https://console.temasys.io/" target="_blank">Developer Console</a></li>
+    </ul>
+  </navbar>
+
+  <!-- Body -->
+  <section class="container">
+    <div class="container-wrapper">
+      <!-- Side Navigation -->
+      <navbar class="side">
+        <div id="side-menu" class="navbar-wrapper">
+          <ul class="menu">
+            <div class="section">
+              <span class="header">Getting Started</span>    
+              <li>
+              <a href="#">1. Overview <i class="fa fa-caret-down"></i></a>
+              <ul>
+                  <li><a href="#">a. Architecture</a></li>
+                  <li><a href="#">b. Authentication Methods</a></li>
+                  <li><a href="#">c. Persistent Rooms</a></li>
+                  <li><a href="#">d. Auto-Introduce & Privileged</a></li>
+              </ul>
+              </li>
+              <li>
+              <a href="#">2. Integrating to Your Site <i class="fa fa-caret-down"></i></a>
+              <ul>
+                  <li><a href="#">a. Referencing the SDK</a></li>
+                  <li><a href="#">b. Code Samples</a></li>
+                  <li><a href="#">c. Integrating your extensions & WebRTC plugin</a></li>
+              </ul>
+              </li>
+              <li><a href="#" class="nodropdown">3. Demos</a></li>
+            </div>
+            <div class="section">
+              <span class="header">API Documentation</span>
+              <li>
+                <a href="#">Temasys <small>module</small><i class="fa fa-caret-down"></i></a>
+                <ul>
+                </ul>
+              </li>
+                  ([&quot;Room&quot;,&quot;test&quot;])
+                  <li>
+                    <a href="classes/Room.html" class="nodropdown">
+                      Room <small>class</small>
+                    </a>
+                  </li>
+                  ([&quot;Skylink&quot;,&quot;test&quot;])
+                  <li>
+                    <a href="classes/Skylink.html" class="nodropdown">
+                      Skylink <small>class</small>
+                    </a>
+                  </li>
+                  ([&quot;Socket&quot;,&quot;test&quot;])
+                  <li>
+                    <a href="classes/Socket.html" class="nodropdown">
+                      Socket <small>class</small>
+                    </a>
+                  </li>
+                  ([&quot;Temasys.Peer&quot;,&quot;test&quot;])
+                  <li>
+                    <a href="classes/Temasys.Peer.html" class="nodropdown">
+                      Temasys.Peer <small>class</small>
+                    </a>
+                  </li>
+                  ([&quot;Temasys.Room&quot;,&quot;test&quot;])
+                  <li>
+                    <a href="classes/Temasys.Room.html" class="nodropdown">
+                      Temasys.Room <small>class</small>
+                    </a>
+                  </li>
+                  ([&quot;Temasys.Socket&quot;,&quot;test&quot;])
+                  <li>
+                    <a href="classes/Temasys.Socket.html" class="nodropdown">
+                      Temasys.Socket <small>class</small>
+                    </a>
+                  </li>
+                  ([&quot;Temasys.Utils&quot;,&quot;test&quot;])
+                  <li>
+                    <a href="classes/Temasys.Utils.html" class="nodropdown">
+                      Temasys.Utils <small>class</small>
+                    </a>
+                  </li>
+                  ([&quot;Utils&quot;,&quot;test&quot;])
+                  <li>
+                    <a href="classes/Utils.html" class="nodropdown">
+                      Utils <small>class</small>
+                    </a>
+                  </li>
+            </div>
+          </ul>
+        </div>
+      </navbar>      <!-- Content -->
+      <h1 class="file-heading">File: source/components/event.mixin.js</h1>
+      
+      <div class="file">
+          <pre class="code prettyprint linenums">
+      /**
+       * Mixin that handles event listeners and subscription.
+       */
+      function EventMixin (obj) {
+        // Private properties
+        obj._listeners = {
+          once: [],
+          on: []
+        };
+      
+        /**
+         * Function to subscribe to an event.
+         */
+        obj.on = function (eventName, fn) {
+          if (!Array.isArray(obj._listeners.on[eventName])) {
+            obj._listeners.on[eventName] = [];
+          }
+      
+          obj._listeners.on[eventName].push(fn);
+        };
+      
+        /**
+         * Function to subscribe to an event once.
+         */
+        obj.once = function (eventName, fn, conditionFn, fireAlways) {
+          if (!Array.isArray(obj._listeners.once[eventName])) {
+            obj._listeners.once[eventName] = [];
+          }
+      
+          obj._listeners.once[eventName].push([fn, conditionFn || function () { return true; }, fireAlways]);
+        };
+      
+        /**
+         * Function to subscribe to an event once.
+         */
+        obj.off = function (eventName, fn) {
+          if (typeof eventName === &#x27;string&#x27;) {
+            if (typeof fn === &#x27;function&#x27;) {
+              // Unsubscribe .on() events
+              if (Array.isArray(obj._listeners.on[eventName])) {
+                var onIndex = 0;
+                while (onIndex &lt; obj._listeners.on[eventName].length) {
+                  if (obj._listeners.on[eventName][onIndex] === fn) {
+                    obj._listeners.on[eventName].splice(onIndex, 1);
+                    onIndex--;
+                  }
+                  onIndex++;
+                }
+              }
+              // Unsubscribe .once() events
+              if (Array.isArray(obj._listeners.once[eventName])) {
+                var onceIndex = 0;
+                while (onceIndex &lt; obj._listeners.once[eventName].length) {
+                  if (obj._listeners.once[eventName][onceIndex][0] === fn) {
+                    obj._listeners.once[eventName].splice(onceIndex, 1);
+                    onceIndex--;
+                  }
+                  onceIndex++;
+                }
+              }
+            } else {
+              obj._listeners.on[eventName] = [];
+              obj._listeners.once[eventName] = [];
+            }
+          } else {
+            obj._listeners.on = {};
+            obj._listeners.once = {};
+          }
+        };
+      
+        /**
+         * Function to emit events.
+         */
+        obj._emit = function (eventName) {
+          var params = Array.prototype.slice.call(arguments);
+          // Remove the eventName parameter
+          params.shift();
+      
+          // Trigger .on() event listeners
+          if (Array.isArray(obj._listeners.on[eventName])) {
+            var onIndex = 0;
+            while (onIndex &lt; obj._listeners.on[eventName].length) {
+              obj._listeners.on[eventName][onIndex].apply(obj, params);
+              onIndex++;
+            }
+          }
+      
+          // Trigger .once() event listeners
+          if (Array.isArray(obj._listeners.once[eventName])) {
+            var onceIndex = 0;
+            while (onceIndex &lt; obj._listeners.once[eventName].length) {
+              if (obj._listeners.once[eventName][onceIndex][1].apply(obj, params)) {
+                obj._listeners.once[eventName][onceIndex][0].apply(obj, params);
+                // Remove event listener if met condition and not &quot;fire always&quot;
+                if (obj._listeners.once[eventName][onceIndex][0][2] !== true) {
+                  obj._listeners.once[eventName].splice(onceIndex, 1);
+                  onceIndex--;
+                }
+              }
+              onceIndex++;
+            }
+          }
+        };
+      }
+          </pre>
+      </div>
+    </div>
+   </section>
+</body>
+</html>

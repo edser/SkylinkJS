@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Temasys Web SDK Documentation (0.6.19)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="name" content="skylinkjs">
+  <meta name="version" content="0.6.19">
+  <!-- Favicon -->
+  <link href="../assets/img/favicon.ico" rel="shortcut icon" type="image/x-icon">
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Ubuntu+Mono" rel="stylesheet">
+  <link href="../assets/vendor/font-awesome.min.css" rel="stylesheet" type="text/css">
+  <!-- Styles -->
+  <link href="../assets/vendor/prettify.min.css" rel="stylesheet" type="text/css">
+  <link href="../assets/css/main.css" rel="stylesheet" type="text/css">
+  <script src="../assets/vendor/jquery.min.js" type="text/javascript"></script>
+  <script src="../assets/vendor/prettify.min.js" type="text/javascript"></script>
+  <script src="../assets/js/main.js" type="text/javascript"></script>
+</head>
+<body>
+  <!-- Navigation Header -->
+  <navbar class="top">
+    <a class="main" href="/">
+      <img src="../assets/img/favicon.ico">
+      <strong>Temasys</strong> Web SDK
+    </a>
+    <ul class="menu">
+      <li><a href="https://github.com/Temasys/SkylinkJS" target="_blank">SkylinkJS Github</a></li>
+      <li><a href="https://console.temasys.io/" target="_blank">Developer Console</a></li>
+    </ul>
+  </navbar>
+
+  <!-- Body -->
+  <section class="container">
+    <div class="container-wrapper">
+      <!-- Side Navigation -->
+      <navbar class="side">
+        <div id="side-menu" class="navbar-wrapper">
+          <ul class="menu">
+            <div class="section">
+              <span class="header">Getting Started</span>    
+              <li>
+              <a href="#">1. Overview <i class="fa fa-caret-down"></i></a>
+              <ul>
+                  <li><a href="#">a. Architecture</a></li>
+                  <li><a href="#">b. Authentication Methods</a></li>
+                  <li><a href="#">c. Persistent Rooms</a></li>
+                  <li><a href="#">d. Auto-Introduce & Privileged</a></li>
+              </ul>
+              </li>
+              <li>
+              <a href="#">2. Integrating to Your Site <i class="fa fa-caret-down"></i></a>
+              <ul>
+                  <li><a href="#">a. Referencing the SDK</a></li>
+                  <li><a href="#">b. Code Samples</a></li>
+                  <li><a href="#">c. Integrating your extensions & WebRTC plugin</a></li>
+              </ul>
+              </li>
+              <li><a href="#" class="nodropdown">3. Demos</a></li>
+            </div>
+            <div class="section">
+              <span class="header">API Documentation</span>
+              <li>
+                <a href="#">Temasys <small>module</small><i class="fa fa-caret-down"></i></a>
+                <ul>
+                </ul>
+              </li>
+                  ([&quot;Room&quot;,&quot;test&quot;])
+                  <li>
+                    <a href="classes/Room.html" class="nodropdown">
+                      Room <small>class</small>
+                    </a>
+                  </li>
+                  ([&quot;Skylink&quot;,&quot;test&quot;])
+                  <li>
+                    <a href="classes/Skylink.html" class="nodropdown">
+                      Skylink <small>class</small>
+                    </a>
+                  </li>
+                  ([&quot;Socket&quot;,&quot;test&quot;])
+                  <li>
+                    <a href="classes/Socket.html" class="nodropdown">
+                      Socket <small>class</small>
+                    </a>
+                  </li>
+                  ([&quot;Temasys.Peer&quot;,&quot;test&quot;])
+                  <li>
+                    <a href="classes/Temasys.Peer.html" class="nodropdown">
+                      Temasys.Peer <small>class</small>
+                    </a>
+                  </li>
+                  ([&quot;Temasys.Room&quot;,&quot;test&quot;])
+                  <li>
+                    <a href="classes/Temasys.Room.html" class="nodropdown">
+                      Temasys.Room <small>class</small>
+                    </a>
+                  </li>
+                  ([&quot;Temasys.Socket&quot;,&quot;test&quot;])
+                  <li>
+                    <a href="classes/Temasys.Socket.html" class="nodropdown">
+                      Temasys.Socket <small>class</small>
+                    </a>
+                  </li>
+                  ([&quot;Temasys.Utils&quot;,&quot;test&quot;])
+                  <li>
+                    <a href="classes/Temasys.Utils.html" class="nodropdown">
+                      Temasys.Utils <small>class</small>
+                    </a>
+                  </li>
+                  ([&quot;Utils&quot;,&quot;test&quot;])
+                  <li>
+                    <a href="classes/Utils.html" class="nodropdown">
+                      Utils <small>class</small>
+                    </a>
+                  </li>
+            </div>
+          </ul>
+        </div>
+      </navbar>      <!-- Content -->
+      <h1>Temasys.Socket Class</h1>
+      <div class="box meta">
+      
+      
+              <div class="foundat">
+                  Defined in: <a href="../files/source_components_socket.js.html#l1"><code>source&#x2F;components&#x2F;socket.js:1</code></a>
+              </div>
+      
+      
+              <p>Available since 0.7.0</p>
+      </div>
+      
+      
+      <div class="box intro">
+          <p>Handles the socket connection to the Signaling server.
+      This class is only to be initialised from <a href="../classes/Room.html" class="crosslink">Room</a> class.</p>
+      
+      </div>
+      
+          <div class="constructor">
+              <h2>Constructor</h2>
+      <div id="method_Temasys.Socket" class="method item">
+          <h3 class="name"><code>Temasys.Socket</code></h3>
+      
+              <div class="args">
+                  <span class="paren">(</span><ul class="args-list inline commas">
+                      <li class="arg">
+                              <code class="optional">[options]</code>
+                      </li>
+                  </ul><span class="paren">)</span>
+              </div>
+      
+      
+      
+      
+      
+      
+      
+      
+          <div class="meta">
+                      <p>
+                      Defined in
+              <a href="../files/source_components_socket.js.html#l1"><code>source&#x2F;components&#x2F;socket.js:1</code></a>
+              </p>
+      
+      
+      
+                  <p>Available since 0.7.0</p>
+          </div>
+      
+          <div class="description">
+              
+          </div>
+      
+              <div class="params">
+                  <h4>Parameters:</h4>
+      
+                  <ul class="params-list">
+                      <li class="param">
+                              <code class="param-name optional">[options]</code>
+                              <span class="type">JSON</span>
+                              <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+      
+                          <div class="param-description">
+                              <p>The options.</p>
+      
+                          </div>
+      
+                              <ul class="params-list">
+                                  <li class="param">
+                                          <code class="param-name optional">[server]</code>
+                                          <span class="type">String</span>
+                                          <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                      <div class="param-description">
+                                          <p>The Signaling server domain to connect to.
+      The default is based on the server domain provided by the Auth (API) server.</p>
+      
+                                      </div>
+      
+                                  </li>
+                                  <li class="param">
+                                          <code class="param-name optional">[ports]</code>
+                                          <span class="type">Array</span>
+                                          <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                      <div class="param-description">
+                                          <p>The list of Signaling server ports to connect to.
+      Priority of port to use are based on first index order starting from <code>0</code>.
+      The default is based on the list of ports provided by the Auth (API) server.</p>
+      
+                                      </div>
+      
+                                          <ul class="params-list">
+                                              <li class="param">
+                                                      <code class="param-name">#index</code>
+                                                      <span class="type">Number</span>
+      
+                                                  <div class="param-description">
+                                                      The port number to use.
+                                                  </div>
+                                              </li>
+                                          </ul>
+                                  </li>
+                                  <li class="param">
+                                          <code class="param-name optional">[path]</code>
+                                          <span class="type">String</span>
+                                          <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                      <div class="param-description">
+                                          <p>The Signaling server path to connect to.
+      The default is <code>/socket.io</code>.</p>
+      
+                                      </div>
+      
+                                  </li>
+                                  <li class="param">
+                                          <code class="param-name optional">[protocol]</code>
+                                          <span class="type">String</span>
+                                          <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                      <div class="param-description">
+                                          <p>The Signaling server protocol to connect to.
+      The default is the value of the current accessing <code>window.location.protocol</code>.</p>
+      
+                                      </div>
+      
+                                  </li>
+                                  <li class="param">
+                                          <code class="param-name optional">[transports]</code>
+                                          <span class="type">Array</span>
+                                          <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                      <div class="param-description">
+                                          <p>The list of socket transports to use.
+      Priority of transport to use are based on first index order starting from <code>0</code>.
+      The default is <code>("websocket", "polling")</code>, or <code>("polling")</code> only if Websocket transport is not supported.</p>
+      
+                                      </div>
+      
+                                          <ul class="params-list">
+                                              <li class="param">
+                                                      <code class="param-name">#index</code>
+                                                      <span class="type">String</span>
+      
+                                                  <div class="param-description">
+                                                      The transport item to use.
+        Available options are: <code>&quot;websocket&quot;</code> (Websocket) and <code>&quot;polling&quot;</code> (Polling).
+                                                  </div>
+                                              </li>
+                                          </ul>
+                                  </li>
+                                  <li class="param">
+                                          <code class="param-name optional">[compressData]</code>
+                                          <span class="type">Boolean</span>
+                                          <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                      <div class="param-description">
+                                          <p>The flag if data sent to Signaling server should be compressed.
+      The default is <code>false</code>.</p>
+      
+                                      </div>
+      
+                                  </li>
+                                  <li class="param">
+                                          <code class="param-name">options</code>
+                                          <span class="type">JSON</span>
+      
+                                      <div class="param-description">
+                                          <p>The socket options for each transport type.</p>
+      
+                                      </div>
+      
+                                          <ul class="params-list">
+                                              <li class="param">
+                                                      <code class="param-name">#transport</code>
+                                                      <span class="type">JSON</span>
+      
+                                                  <div class="param-description">
+                                                      The socket options for transport type.
+        The <code>#transport</code> key is either <code>&quot;websocket&quot;</code> (Websocket) or <code>&quot;polling&quot;</code> (Polling).
+                                                  </div>
+                                              </li>
+                                              <li class="param">
+                                                      <code class="param-name optional">[#transport.reconnection]</code>
+                                                      <span class="type">Boolean</span>
+                                                      <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                                  <div class="param-description">
+                                                      The flag if socket should attempt
+        reconnection for each port and transport type.
+        The default is <code>true</code>.
+                                                  </div>
+                                              </li>
+                                              <li class="param">
+                                                      <code class="param-name optional">[#transport.reconnection]</code>
+                                                      <span class="type">Number</span>
+                                                      <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                                  <div class="param-description">
+                                                      The flag if socket should attempt at least several
+        reconnections for current port and transport type before switching to the next available port or transport.
+        The defaults are <code>true</code> for both Websocket and Polling.
+                                                  </div>
+                                              </li>
+                                              <li class="param">
+                                                      <code class="param-name optional">[#transport.reconnectionAttempts]</code>
+                                                      <span class="type">Number</span>
+                                                      <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                                  <div class="param-description">
+                                                      The reconnection attempts to
+        take if reconnection is enabled for each port and transport type.
+        The defaults are <code>2</code> for Websocket and <code>4</code> for Polling. The maximum is <code>5</code>.
+                                                  </div>
+                                              </li>
+                                              <li class="param">
+                                                      <code class="param-name optional">[#transport.reconnectionDelay]</code>
+                                                      <span class="type">Number</span>
+                                                      <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                                  <div class="param-description">
+                                                      The number of miliseconds to initially
+        wait before attempting a new reconnection. This is affected by the randomization factor range.
+        The defaults are <code>5000</code> for Websocket and <code>2000</code> for Polling.
+                                                  </div>
+                                              </li>
+                                              <li class="param">
+                                                      <code class="param-name optional">[#transport.reconnectionDelayMax]</code>
+                                                      <span class="type">Number</span>
+                                                      <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                                  <div class="param-description">
+                                                      The maximum number of miliseconds to
+        wait between reconnections. This increases the reconnection delay for randomization factor range
+        before waiting to start a reconnection.
+        The defaults are <code>2000</code> for Websocket and <code>1000</code> for Polling.
+                                                  </div>
+                                              </li>
+                                              <li class="param">
+                                                      <code class="param-name optional">[#transport.randomizationFactor]</code>
+                                                      <span class="type">Number</span>
+                                                      <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                                  <div class="param-description">
+                                                      The randomization
+        factor range from <code>0</code> to <code>1</code>.
+        The defaults are <code>0.5</code> for both Websocket and Polling.
+                                                  </div>
+                                              </li>
+                                              <li class="param">
+                                                      <code class="param-name optional">[#transport.timeout]</code>
+                                                      <span class="type">Number</span>
+                                                      <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                                  <div class="param-description">
+                                                      The timeout in miliseconds to consider
+        that the connection timed out.
+        The defaults are <code>20000</code> for both Websocket and Polling.
+                                                  </div>
+                                              </li>
+                                          </ul>
+                                  </li>
+                              </ul>
+                      </li>
+                  </ul>
+              </div>
+      
+      
+      
+      </div>
+          </div>
+      
+      <div id="classdocs" class="tabview">
+          <ul class="api-class-tabs">
+              <li class="api-class-tab index"><a href="#index">Index</a></li>
+      
+          </ul>
+      
+          <div>
+              <div id="index" class="api-class-tabpanel index">
+                  <h2 class="off-left">Item Index</h2>
+      
+      
+      
+      
+              </div>
+      
+      
+      
+      
+          </div>
+      </div>
+    </div>
+   </section>
+</body>
+</html>
