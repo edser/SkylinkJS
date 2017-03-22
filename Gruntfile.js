@@ -78,7 +78,8 @@ module.exports = function(grunt) {
           paths: ['source/'],
           outdir: 'doc/output/',
           themedir: 'doc/theme',
-          helpers: ['doc/theme/helpers/helpers.js']
+          helpers: ['doc/theme/helpers/helpers.js'],
+          linkNatives: true
         }
       }
     },

@@ -1,51 +1,43 @@
 /**
- * Handles the socket connection to the Signaling server.
- * This class is only to be initialised from {{#crossLink "Room"}}{{/crossLink}} class.
+ * Handles the Signaling server socket connection.
  * @class Temasys.Socket
  * @param {JSON} [options] The options.
- * @param {String} [options.server] The Signaling server domain to connect to.
- *   The default is based on the server domain provided by the Auth (API) server.
- * @param {Array} [options.ports] The list of Signaling server ports to connect to.
- *   Priority of port to use are based on first index order starting from `0`.
- *   The default is based on the list of ports provided by the Auth (API) server.
- * @param {Number} options.ports.#index The port number to use.
- * @param {String} [options.path] The Signaling server path to connect to.
- *   The default is `/socket.io`.
- * @param {String} [options.protocol] The Signaling server protocol to connect to.
- *   The default is the value of the current accessing `window.location.protocol`.
- * @param {Array} [options.transports] The list of socket transports to use.
- *   Priority of transport to use are based on first index order starting from `0`.
- *   The default is `("websocket", "polling")`, or `("polling")` only if Websocket transport is not supported.
- * @param {String} options.transports.#index The transport item to use.
- *   Available options are: `"websocket"` (Websocket) and `"polling"` (Polling).
- * @param {Boolean} [options.compressData] The flag if data sent to Signaling server should be compressed.
- *   The default is `false`.
- * @param {JSON} options.options The socket options for each transport type.
- * @param {JSON} options.options.#transport The socket options for transport type.
- *   The `#transport` key is either `"websocket"` (Websocket) or `"polling"` (Polling).
- * @param {Boolean} [options.options.#transport.reconnection] The flag if socket should attempt
- *   reconnection for each port and transport type.
- *   The default is `true`.
- * @param {Number} [options.options.#transport.reconnection] The flag if socket should attempt at least several
- *   reconnections for current port and transport type before switching to the next available port or transport.
- *   The defaults are `true` for both Websocket and Polling.
- * @param {Number} [options.options.#transport.reconnectionAttempts] The reconnection attempts to
- *   take if reconnection is enabled for each port and transport type.
- *   The defaults are `2` for Websocket and `4` for Polling. The maximum is `5`.
- * @param {Number} [options.options.#transport.reconnectionDelay] The number of miliseconds to initially
- *   wait before attempting a new reconnection. This is affected by the randomization factor range.
- *   The defaults are `5000` for Websocket and `2000` for Polling.
- * @param {Number} [options.options.#transport.reconnectionDelayMax] The maximum number of miliseconds to
- *   wait between reconnections. This increases the reconnection delay for randomization factor range
- *   before waiting to start a reconnection.
- *   The defaults are `2000` for Websocket and `1000` for Polling.
- * @param {Number} [options.options.#transport.randomizationFactor] The randomization
- *   factor range from `0` to `1`.
- *   The defaults are `0.5` for both Websocket and Polling.
- * @param {Number} [options.options.#transport.timeout] The timeout in miliseconds to consider
- *   that the connection timed out.
- *   The defaults are `20000` for both Websocket and Polling.
+ * @param {String} [options.server] @[exp] The custom Signaling server domain to use.
+ * @param {Array} [options.ports] @[exp] The custom list of Signaling server ports (`Number`) to use.
+ * - The priority of port used is based on first index order starting from `0`.
+ * @param {String} [options.path] @[exp] The custom Signaling server path to use.
+ * @param {String} [options.protocol] The protocol to use to connect to the Signaling server.
+ * - When not provided, the current accessing `window.location.protocol` will be used.
+ * @param {Array} [options.transports] The list of socket.io-client transports to use.
+ * - Available transports are: `"websocket"` (Websocket) and `"polling"` (Polling).
+ * - The priority of transport to use are based on first index order starting from `0`.
+ * - When not provided, `("websocket", "polling")` will be used.
+ * - If the browser does not support `WebSocket` API, `"websocket"` transports will be ignored.
+ * @param {Boolean} [options.compressData=false] The flag if data sent should be compressed.
+ * @param {JSON} options.options The socket.io-client options configured for each transport type.
+ * - The current default is `{ websocket: { reconnection: true, reconnectionAttempts: 2,
+ *   reconnectionDelay: 5000, reconnectionDelayMax: 2000, randomizationFactor: 0.5, timeout: 20000 },
+ *   polling: { reconnection: true, reconnectionAttempts: 4, reconnectionDelay: 2000,
+ *   reconnectionDelayMax: 1000, randomizationFactor: 0.5, timeout: 20000 } }`
+ * @param {JSON} options.options.index @[exp] The socket options for the `"index"` transport type.
+ * - `"index"` can be identified as: `"websocket"` (Websocket) or `"polling"` (Polling).
+ * @param {Boolean} [options.options.index.reconnection=true] The flag if socket connection should
+ *   reconnect several attempts for the current transport or port used before switching to the next
+ *   available transport or port available.
+ * @param {Number} [options.options.index.reconnectionAttempts] The reconnection attempts to take if
+ *   `options.options.index.reconnection` is enabled.
+ * - The maximum value that can be provided is `5`.
+ * @param {Number} [options.options.index.reconnectionDelay] The number of miliseconds to wait before
+ *   starting the next reconnection attempt, which is affected by the `randomizationFactor` configured.
+ * @param {Number} [options.options.index.reconnectionDelayMax] The maximum number of miliseconds to wait
+ *   before starting the next reconnection attempt.
+ * @param {Number} [options.options.index.randomizationFactor] The randomization for each reconnection attempt.
+ * - The range is from `0` to `1`.
+ * @param {Number} [options.options.index.timeout] The timeout in miliseconds to consider
+ *   that the inital connection has timed out.
  * @constructor
+ * @private
+ * @for Temasys
  * @since 0.7.0
  */
 function Socket (options, defaultOptions) {

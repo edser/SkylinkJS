@@ -48,6 +48,7 @@
                 "Temasys.Socket": 1
             },
             "fors": {
+                "Temasys.Socket": 1,
                 "Socket": 1
             },
             "namespaces": {}
@@ -59,7 +60,7 @@
                 "Temasys.Utils": 1
             },
             "fors": {
-                "Utils": 1
+                "Temasys.Utils": 1
             },
             "namespaces": {}
         },
@@ -461,15 +462,6 @@
             "line": 1,
             "description": "Module that handles utility functionalities.",
             "since": "0.7.0"
-        },
-        "Utils": {
-            "name": "Utils",
-            "shortname": "Utils",
-            "classitems": [],
-            "plugins": [],
-            "extensions": [],
-            "plugin_for": [],
-            "extension_for": []
         },
         "Skylink": {
             "name": "Skylink",
@@ -1568,7 +1560,7 @@
             "type": "String",
             "readonly": "",
             "since": "0.7.0",
-            "class": "Socket"
+            "class": "Temasys.Socket"
         },
         {
             "file": "source/components/socket.js",
@@ -1579,7 +1571,7 @@
             "type": "String",
             "readonly": "",
             "since": "0.7.0",
-            "class": "Socket"
+            "class": "Temasys.Socket"
         },
         {
             "file": "source/components/socket.js",
@@ -2063,7 +2055,7 @@
                 }
             ],
             "since": "0.7.0",
-            "class": "Utils"
+            "class": "Temasys.Utils"
         },
         {
             "file": "source/components/utils.js",
@@ -2076,7 +2068,7 @@
                 "type": "JSON"
             },
             "since": "0.7.0",
-            "class": "Utils"
+            "class": "Temasys.Utils"
         },
         {
             "file": "source/components/utils.js",
@@ -2097,7 +2089,7 @@
                 }
             ],
             "since": "0.7.0",
-            "class": "Utils"
+            "class": "Temasys.Utils"
         },
         {
             "file": "source/components/utils.js",
@@ -2130,7 +2122,7 @@
                 }
             ],
             "since": "0.7.0",
-            "class": "Utils"
+            "class": "Temasys.Utils"
         },
         {
             "file": "source/components/utils.js",
@@ -2153,7 +2145,7 @@
                 }
             ],
             "since": "0.7.0",
-            "class": "Utils"
+            "class": "Temasys.Utils"
         },
         {
             "file": "source/components/utils.js",
@@ -2176,7 +2168,7 @@
                 }
             ],
             "since": "0.7.0",
-            "class": "Utils"
+            "class": "Temasys.Utils"
         },
         {
             "file": "source/components/utils.js",
@@ -2192,13 +2184,13 @@
                 }
             ],
             "since": "0.7.0",
-            "class": "Utils"
+            "class": "Temasys.Utils"
         },
         {
             "file": "source/components/utils.js",
             "line": 202,
             "description": "Function that gets byte length of string.",
-            "class": "Utils"
+            "class": "Temasys.Utils"
         },
         {
             "file": "source/template/header.js",

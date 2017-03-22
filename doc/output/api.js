@@ -7,8 +7,7 @@ YUI.add("yuidoc-meta", function(Y) {
         "Temasys.Peer",
         "Temasys.Room",
         "Temasys.Socket",
-        "Temasys.Utils",
-        "Utils"
+        "Temasys.Utils"
     ],
     "modules": [],
     "allModules": [],
