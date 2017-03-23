@@ -1,5 +1,5 @@
 /**
- * Handles the Signaling server socket connection.
+ * Handles the Room socket.io-client connection to the Signling server.
  * @class Temasys.Socket
  * @param {JSON} [options] The options.
  * @param {String} [options.server] @[exp] The custom Signaling server domain to use.
@@ -14,12 +14,12 @@
  * - When not provided, `("websocket", "polling")` will be used.
  * - If the browser does not support `WebSocket` API, `"websocket"` transports will be ignored.
  * @param {Boolean} [options.compressData=false] The flag if data sent should be compressed.
- * @param {JSON} options.options The socket.io-client options configured for each transport type.
+ * @param {JSON} options.options The socket.io-client options configured for each socket.io-client transport type.
  * - The current default is `{ websocket: { reconnection: true, reconnectionAttempts: 2,
  *   reconnectionDelay: 5000, reconnectionDelayMax: 2000, randomizationFactor: 0.5, timeout: 20000 },
  *   polling: { reconnection: true, reconnectionAttempts: 4, reconnectionDelay: 2000,
  *   reconnectionDelayMax: 1000, randomizationFactor: 0.5, timeout: 20000 } }`
- * @param {JSON} options.options.index @[exp] The socket options for the `"index"` transport type.
+ * @param {JSON} options.options.index @[exp] The socket options for the `"index"` socket.io-client transport type.
  * - `"index"` can be identified as: `"websocket"` (Websocket) or `"polling"` (Polling).
  * @param {Boolean} [options.options.index.reconnection=true] The flag if socket connection should
  *   reconnect several attempts for the current transport or port used before switching to the next
@@ -44,7 +44,7 @@ function Socket (options, defaultOptions) {
   options = options && typeof options === 'object' ? options : {};
 
   /**
-   * The Signaling server domain.
+   * The Socket server domain.
    * @attribute server
    * @type String
    * @readOnly
@@ -56,7 +56,7 @@ function Socket (options, defaultOptions) {
     defaultOptions.server : 'signaling.temasys.io');
 
   /**
-   * The Signaling server path.
+   * The Socket path.
    * @attribute path
    * @type String
    * @readOnly
@@ -66,45 +66,44 @@ function Socket (options, defaultOptions) {
   this.path = options.path && typeof options.path === 'string' ? options.path : '/socket.io';
 
   /**
-   * The Signaling server protocol.
+   * The Socket protocol.
    * @attribute protocol
    * @type String
    * @readOnly
-   * @for Socket
+   * @for Temasys.Socket
    * @since 0.7.0
    */
   this.protocol = options.protocol && typeof options.protocol === 'string' && options.protocol.length > 2 &&
     options.protocol.indexOf(':') === (options.protocol.length - 1) ? options.protocol : window.location.protocol;
 
   /**
-   * The flag if messages sent to the Signaling server are compressed.
+   * The flag if Socket data sent is compressed.
    * @attribute compressed
    * @type Boolean
    * @readOnly
-   * @for Socket
+   * @for Temasys.Socket
    * @since 0.7.0
    */
   this.compressed = options.compressData === true;
 
   /**
-   * The current socket connection status.
-   * @attribute current
+   * The Socket current states.
+   * @attribute $current
    * @type JSON
-   * @param {String} state The current socket connection state.
-   *   References the `STATES` enum attribute.
-   * @param {Boolean} connected The flag if socket connection is connected.
-   * @param {Number} reconnectionAttempts The current number of reconnection attempts
-   *   made for the current port and transport used.
-   * @param {Number} fallbackAttempts The current number of fallback attempts
-   *   made for each available ports and transports.
-   * @param {Number} port The current port to connect used.
-   * @param {String} transport The current socket transport used.
+   * @param {String} state The current Socket connection state.
+   * - See {{#crossLink "Temasys.Socket/STATE_ENUM:attribute"}}{{/crossLink}} for reference.
+   * @param {Boolean} connected The flag if Socket is connected.
+   * @param {Number} reconnectionAttempts The current total number of reconnection attempts
+   *   made for the current port and socket.io-client transport used.
+   * @param {Number} fallbackAttempts The current total number of fallback attempts made.
+   * @param {Number} port The current port used.
+   * @param {String} transport The current socket.io-client transport used.
    * @param {JSON} options The current socket.io-client options used.
    * @readOnly
-   * @for Socket
+   * @for Temasys.Socket
    * @since 0.7.0
    */
-  this.current = {
+  this.$current = {
     state: null,
     connected: false,
     reconnectionAttempts: 0,
@@ -156,89 +155,79 @@ function Socket (options, defaultOptions) {
 
   // Events
   /**
-   * Event triggered when socket connection state has changed.
-   * @event state
-   * @param {String} state The current socket connection state.
-   *   References the {{#crossLink "Socket/STATE_ENUM:attribute"}}{{/crossLink}} enum attribute.
+   * Event triggered when Socket connection state has been changed.
+   * @event stateChange
+   * @param {String} state The current Socket connection state.
+   * - See {{#crossLink "Temasys.Socket/STATE_ENUM:attribute"}}{{/crossLink}} for reference.
    * @param {Error} error The error object.
-   *   This is defined when `state` value is `STATE_ENUM.RECONNECT_FAILED`,
+   * - This is defined when `state` is `STATE_ENUM.RECONNECT_FAILED`,
    *   `STATE_ENUM.CONNECT_ERROR` and `STATE_ENUM.CONNECT_TIMEOUT`.
-   * @param {JSON} current The current socket connection status.
-   * @param {Number} current.reconnectionAttempts The current reconnection attempts for the current port and transport used.
-   * @param {Number} current.port The current port used.
-   * @param {String} current.transport The current transport used.
-   * @for Socket
+   * @param {Number} attempt The reconnection attempt.
+   * @param {Number} port The port used for the reconnection attempt.
+   * @param {Number} transport The transport used for the reconnection attempt.
+   * @for Temasys.Socket
    * @since 0.7.0
    */
   /**
-   * Event triggered when socket connection sends or receives a message.
+   * Event triggered when Socket connection sends or receives Signaling server keep-alive responses.
+   * @event response
+   * @param {Number} timestamp The timestamp in miliseconds when response is sent or received.
+   * @param {Boolean} isSelf The flag if response is from self.
+   * @param {Number} [latency] The current latency in miliseconds from receiving "pong"
+   *   response from Signaling server after sending a "ping".
+   * - This is defined when `isSelf` is `false`.
+   * @for Temasys.Socket
+   * @since 0.7.0
+   */
+  /**
+   * Event triggered when Socket connection sends or receives a message.
    * @event message
-   * @param {JSON} message The socket message received or sent.
+   * @param {JSON} message The message.
+   * @param {Boolean} isSelf The flag if message is from self.
    * @param {Error} [error] The error object.
-   *   This is defined when message failed to send or parse when received.
-   * @param {Boolean} isSelf The flag if message is sent from self or not.
-   * @for Socket
+   * - This is defined when message failed to send or parse received message.
+   * @for Temasys.Socket
+   * @since 0.7.0
+   */
+  /**
+   * Event triggered when stats retrieval state has changed.
+   * @event getStatsStateChange
+   * @param {String} state The current stats retrieval state.
+   * - See {{#crossLink "Temasys.Socket/GET_STATS_STATE_ENUM:attribute"}}{{/crossLink}} for reference.
+   * @param {JSON} [stats] The stats.
+   * - This is defined when `state` is `SUCCESS`.
+   * @param {String} stats.id The Socket connection socket.io-client ID.
+   * @param {JSON} stats.messages The messages stats.
+   * @param {Number} stats.messages.sent The number of messages sent from this Socket connection.
+   * @param {Number} stats.messages.received The number of messages received from this Socket connection.
+   * @param {Number} stats.messages.buffered The current number of messages buffered for this Socket connection to be sent.
+   * @param {JSON} stats.responses The responses stats.
+   * @param {JSON} stats.responses.ping The responses stats for "ping" response.
+   * @param {Number} stats.responses.ping.sent The total number of "ping" response sent from this Socket connection.
+   * @param {String} stats.responses.ping.timestamp The latest timestamp of the "ping" response sent.
+   * @param {JSON} stats.responses.pong The response stats for "pong" response.
+   * @param {Number} stats.responses.pong.received The total number of "pong" response received from this Socket connection.
+   * @param {String} stats.responses.pong.timestamp The latest timestamp of the "pong" response received.
+   * @param {JSON} stats.responses.latency The response latency.
+   * @param {Number} stats.responses.latency.average The average response latency in miliseconds.
+   * @param {Number} stats.responses.latency.lowest The lowest response latency in miliseconds.
+   * @param {Number} stats.responses.latency.highest The highest response latency in miliseconds.
+   * @param {Error} [error] The error object.
+   * - This is defined when `state` is `FAILED`.
+   * @for Temasys.Socket
    * @since 0.7.0
    */
   /**
    * Event triggered when there are exceptions thrown in this event handlers.
    * @event domError
    * @param {Error} error The error object.
-   * @for Socket
-   * @since 0.7.0
-   */
-  /**
-   * Event triggered when socket connection receives and sends responses to Signaling server for keep-alive.
-   * @event response
-   * @param {String} state The current socket connection response state.
-   *   References the {{#crossLink "Socket/RESPONSE_ENUM:attribute"}}{{/crossLink}} enum attribute.
-   * @param {Number} timestamp The current timestamp in miliseconds.
-   * @param {Number} [latency] The current latency in miliseconds from receiving
-   *   the `RESPONSE.PONG` after sending out a `RESPONSE_ENUM.PING`.
-   * @for Socket
+   * @for Temasys.Socket
    * @since 0.7.0
    */
   (function (ref) {
-    /**
-     * Function to subscribe to an event.
-     * @method on
-     * @param {String} event The event to subscribe to once.
-     * @param {Function} callback The callback listener function.
-     * @for Socket
-     * @since 0.7.0
-     */
     ref.on = ref._event.on;
-
-    /**
-     * Function to subscribe to an event once.
-     * @method once
-     * @param {String} event The event to subscribe to once.
-     * @param {Function} callback The callback listener function.
-     * @param {Function} [condition] The condition function that is called when
-     *   event is triggered. If condition is met (when function returns `true`), the
-     *   callback listener function is triggered.
-     *   The default is `function () { return true; }`.
-     * @param {Boolean} [fireAlways] The flag if callback listener function should always
-     *   be triggered regardless as long as condition function is met.
-     *   The default is `false`.
-     * @for Socket
-     * @since 0.7.0
-     */
     ref.once = ref._event.once;
-
-    /**
-     * Function to unsubscribe to events.
-     * @method off
-     * @param {String} [event] The specified event to unsubscribe.
-     *   When not provided, it will unsubscribe all event callback listener functions.
-     * @param {Function} [callback] The specified callback listener function based on
-     *   the provided event to unsubscribe only.
-     *   When not provided, it will unsubscribe all callback listener functions subscribed to the event.
-     * @for Socket
-     * @since 0.7.0
-     */
     ref.off = ref._event.off;
-
     // Catch errors to prevent issues for socket connection
     ref._event.catch(function (error) {
       ref._event.emit('domError', error);
@@ -247,27 +236,29 @@ function Socket (options, defaultOptions) {
 }
 
 /**
- * The enum of socket connection states.
+ * The enum of Socket connection states.
  * @attribute STATE_ENUM
- * @param {String} RECONNECT_FAILED The state when socket connection failed to reconnect after
+ * @param {String} RECONNECT_FAILED The state when Socket connection failed to reconnect after
  *   the several specified attempts configured for the current port and transport used.
- *   At this state, the socket connection will fallback to the next available port or transport.
- * @param {String} RECONNECT_ERROR The state when socket connection failed to reconnect for the
+ *   At this state, the Socket connection will fallback to the next available port or transport.
+ * @param {String} RECONNECT_ERROR The state when Socket connection failed to reconnect for the
  *   current attempt.
- * @param {String} RECONNECT_ATTEMPT The state when socket connection is attempting to reconnect.
- * @param {String} RECONNECTING The state when socket connection is reconnecting.
- * @param {String} RECONNECT The state when socket connection has reconnected successfully.
- * @param {String} CONNECT_TIMEOUT The state when socket connection has failed to connect after
+ * @param {String} RECONNECT_ATTEMPT The state when Socket connection is attempting to reconnect.
+ * @param {String} RECONNECTING The state when Socket connection is reconnecting.
+ * @param {String} RECONNECT The state when Socket connection has reconnected successfully.
+ * @param {String} CONNECT_TIMEOUT The state when Socket connection has failed to connect after
  *   the specified timeout configured for the current port and transport.
  *   At this state, the socket connection will attempt to reconnect a few more times if reconnection is enabled.
- * @param {String} CONNECT_ERROR The state when socket connection has errors and disconnects.
- * @param {String} CONNECT The state when socket connection has connected successfully.
- * @param {String} DISCONNECT The state when socket connection has been disconnected.
- * @param {String} ABORT The state when socket connection has aborted from attempting any available
+ * @param {String} CONNECT_ERROR The state when Socket connection has errors and disconnects.
+ * @param {String} CONNECT The state when Socket connection has connected successfully.
+ * @param {String} DISCONNECT The state when Socket connection has been disconnected.
+ * @param {String} ABORT The state when Socket connection has aborted from attempting any available
  *   ports or transports or reconnection as there is none left to reconnect or fallback with.
- * @param {String} CONSTRUCT_ERROR The state when socket connection failed to construct.
+ * @param {String} CONSTRUCT_ERROR The state when Socket connection failed to construct.
  * @type JSON
- * @for Socket
+ * @readOnly
+ * @final
+ * @for Temasys.Socket
  * @since 0.7.0
  */
 Socket.prototype.STATE_ENUM = {
@@ -285,17 +276,36 @@ Socket.prototype.STATE_ENUM = {
 };
 
 /**
- * The enum of socket response states.
- * @attribute RESPONSE_ENUM
- * @param {String} PING The state when ping packet is written out to Signaling server.
- * @param {String} PONG The state when pong packet response is received from Signaling server.
- * @type JSON
- * @for Socket
+ * The enum of {{#crossLink "Temasys.Socket/getStats:method"}}{{/crossLink}} states.
+ * @attribute GET_STATS_STATE_ENUM
+ * @param {String} LOADING The state when `getStats()` is retrieving stats.
+ * @param {String} SUCCESS The state when `getStats()` has retrieved stats successfully.
+ * @param {String} FAILED The state when `getStats()` has failed to retrieve stats.
+ * @readOnly
+ * @final
+ * @for Temasys.Socket
  * @since 0.7.0
  */
-Socket.prototype.RESPONSE_ENUM = {
-  PING: 'ping',
-  PONG: 'pong'
+Socket.prototype.GET_STATS_STATE_ENUM = {
+	LOADING: 'loading',
+  SUCCESS: 'success',
+  FAILED: 'failed'
+};
+
+/**
+ * Function to retrieve Socket connection stats.
+ * @method getStats
+ * @return {Promise} The Promise for function request completion.
+ * @example
+ *   socket.getStats().then(function (stats) {
+ *     console.log("Received stats ->", stats);
+ *   }).catch(function (error) {
+ *     console.error("Received error ->", error);
+ *   });
+ * @for Temasys.Socket
+ * @since 0.7.0
+ */
+Socket.prototype.getStats = function () {
 };
 
 /**

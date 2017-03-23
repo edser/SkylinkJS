@@ -116,21 +116,25 @@ function Stream (options) {
 	 * @param {Boolean} tracks.audio.muted The flag if Stream audio track is muted.
 	 * @param {String} tracks.audio.state The current Stream audio track active state.
 	 * - See {{#crossLink "Temasys.Stream/TRACK_STATE_ENUM:attribute"}}{{/crossLink}} for reference.
+	 * @param {Boolean} tracks.audio.active The flag if Stream video track is active.
 	 * @param {JSON} tracks.video The current Stream video track states.
 	 * @param {Boolean} tracks.video.muted The flag if Stream video track is muted.
 	 * @param {String} tracks.video.state The current Stream video track active state.
 	 * - See {{#crossLink "Temasys.Stream/TRACK_STATE_ENUM:attribute"}}{{/crossLink}} for reference.
+	 * @param {Boolean} tracks.video.active The flag if Stream video track is active.
 	 * @param {String} state The current Stream active state.
 	 * - See {{#crossLink "Temasys.Stream/STATE_ENUM:attribute"}}{{/crossLink}} for reference.
+	 * @param {Boolean} active The flag if Stream is active.
 	 * @for Temasys.Stream
 	 * @since 0.7.0
 	 */
 	this.$current = {
 		tracks: {
-			audio: { muted: false, state: null },
-			video: { muted: false, state: null }
+			audio: { active: false, muted: false, state: null },
+			video: { active: false, muted: false, state: null }
 		},
-		state: null
+		state: null,
+		active: false
 	};
 
 	/**
@@ -162,10 +166,17 @@ function Stream (options) {
 	 * @for Temasys.Stream
 	 * @since 0.7.0
 	 */
+	/**
+   * Event triggered when there are exceptions thrown in this event handlers.
+   * @event domError
+   * @param {Error} error The error object.
+   * @for Temasys.Stream
+   * @since 0.7.0
+   */
 }
 
 /**
- * The enum of Stream states.
+ * The enum of Stream active states.
  * @attribute STATE_ENUM
  * @param {String} START The state when Stream has been retrieved or initialised successfully and is active.
  * @param {String} STOP The state when Stream is not longer active.
@@ -182,7 +193,7 @@ Stream.prototype.STATE_ENUM = {
 };
 
 /**
- * The enum of Stream track states.
+ * The enum of Stream track active states.
  * @attribute TRACK_STATE_ENUM
  * @param {String} START The state when Stream track has been initialiseda and is active.
  * @param {String} STOP The state when Stream track is not longer active.
@@ -228,23 +239,16 @@ Stream.prototype.attachElement = function (element, options) {
  * @param {Boolean} [options.video] The flag if the Stream video track should be muted.
  * @return {Promise} The Promise for function request completion.
  * @example
- *   var room = new Room (appKey, roomName);
- *
- *   // Example 1: Mute before sending stream
  *   var stream = new Temasys.Stream({ audio: true, video: true });
  *   stream.on("stateChange", function (state) {
  *     if (state === stream.STATE_ENUM.START) {
- *       stream.muteTracks();
- *     	 room.stream(stream);
- *     }
- *   });
- *
- *   // Example 2: Mute after sending stream
- *   var stream = new Temasys.Stream({ audio: true, video: true });
- *   stream.on("stateChange", function (state) {
- *     if (state === stream.STATE_ENUM.START) {
- *       room.stream(stream).then(function () {
- *         stream.muteTracks();
+ *       stream.muteTracks().then(function (mutedStatus) {
+ *         console.log("Audio muted ->", mutedStatus.audio);
+ *         console.log("Video muted ->", mutedStatus.video);
+ *       }).catch(function (error, mutedStatus) {
+ *         console.error("Failed muting ->", error);
+ *         console.error("Audio muted (current) ->", mutedStatus.audio);
+ *         console.error("Video muted (current) ->", mutedStatus.video);
  *       });
  *     }
  *   });
@@ -262,7 +266,14 @@ Stream.prototype.muteTracks = function (options) {
  * @param {Boolean} [options.audio=true] The flag if the Stream audio track should be stopped.
  * @return {Promise} The Promise for function request completion.
  * @example 
- *   stream.stopTracks
+ *   stream.stopTracks().then(function (activeStatus) {
+ *     console.log("Audio active ->", activeStatus.audio);
+ *     console.log("Video active ->", activeStatus.video);
+ *   }).catch(function (error, activeStatus) {
+ *     console.error("Failed stopping tracks ->", error);
+ *     console.error("Audio active (current) ->", activeStatus.audio);
+ *     console.error("Video active (current) ->", activeStatus.video);
+ *   });
  * @for Temasys.Stream
  * @since 0.7.0
  */

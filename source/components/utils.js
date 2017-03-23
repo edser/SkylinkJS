@@ -3,7 +3,9 @@
  * @class Temasys.Utils
  * @since 0.7.0
  */
-var Utils = {
+var Utils = {};
+
+
   /**
    * Function that loops through an Array or JSON object.
    * @method forEach
