@@ -9,15 +9,13 @@
         "source/components/datachannel.js": {
             "name": "source/components/datachannel.js",
             "modules": {},
-            "classes": {},
-            "fors": {},
-            "namespaces": {}
-        },
-        "source/components/event.mixin.js": {
-            "name": "source/components/event.mixin.js",
-            "modules": {},
-            "classes": {},
-            "fors": {},
+            "classes": {
+                "Temasys.Datachannel": 1
+            },
+            "fors": {
+                "Temasys": 1,
+                "Temasys.Datachannel": 1
+            },
             "namespaces": {}
         },
         "source/components/peer.js": {
@@ -26,7 +24,10 @@
             "classes": {
                 "Temasys.Peer": 1
             },
-            "fors": {},
+            "fors": {
+                "Temasys": 1,
+                "Temasys.Peer": 1
+            },
             "namespaces": {}
         },
         "source/components/room.js": {
@@ -48,8 +49,20 @@
                 "Temasys.Socket": 1
             },
             "fors": {
-                "Temasys.Socket": 1,
-                "Socket": 1
+                "Temasys": 1,
+                "Temasys.Socket": 1
+            },
+            "namespaces": {}
+        },
+        "source/components/stream.js": {
+            "name": "source/components/stream.js",
+            "modules": {},
+            "classes": {
+                "Temasys.Stream": 1
+            },
+            "fors": {
+                "Temasys": 1,
+                "Temasys.Stream": 1
             },
             "namespaces": {}
         },
@@ -231,6 +244,31 @@
     },
     "modules": {},
     "classes": {
+        "Temasys.Datachannel": {
+            "name": "Temasys.Datachannel",
+            "shortname": "Temasys.Datachannel",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "file": "source/components/datachannel.js",
+            "line": 1,
+            "description": "Handles the native `RTCDataChannel` object connection.",
+            "is_constructor": 1,
+            "access": "private",
+            "tagname": "",
+            "since": "0.7.0"
+        },
+        "Temasys": {
+            "name": "Temasys",
+            "shortname": "Temasys",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": []
+        },
         "Temasys.Peer": {
             "name": "Temasys.Peer",
             "shortname": "Temasys.Peer",
@@ -241,19 +279,503 @@
             "extension_for": [],
             "file": "source/components/peer.js",
             "line": 1,
-            "description": "Handles the Peer connection.",
+            "description": "Handles the native `RTCPeerConnection` object connection.",
             "params": [
                 {
                     "name": "options",
                     "description": "The options.",
-                    "type": "JSON"
-                },
-                {
-                    "name": "UNKNOWN",
-                    "description": ""
+                    "type": "JSON",
+                    "props": [
+                        {
+                            "name": "constraints] @[exp",
+                            "description": "The native `RTCPeerConnection` object constraints settings.",
+                            "type": "JSON",
+                            "optional": true
+                        },
+                        {
+                            "name": "constraints.iceTransportPolicy",
+                            "description": "The ICE transport policy for gathering ICE candidates.\n- See {{#crossLink \"Temasys.Peer/ICE_TRANSPORT_POLICY_ENUM:attribute\"}}{{/crossLink}} for reference.",
+                            "type": "String",
+                            "optional": true,
+                            "optdefault": "ALL"
+                        },
+                        {
+                            "name": "constraints.rtcpMuxPolicy",
+                            "description": "The RTP and RTCP multiplex policy for gathering ICE candidates.\n- See {{#crossLink \"Temasys.Peer/RTCP_MUX_POLICY_ENUM:attribute\"}}{{/crossLink}} for reference.",
+                            "type": "String",
+                            "optional": true,
+                            "optdefault": "REQUIRE"
+                        },
+                        {
+                            "name": "constraints.bundlePolicy",
+                            "description": "The bundle policy for gathering ICE candidates.\n- See {{#crossLink \"Temasys.Peer/BUNDLE_POLICY_ENUM:attribute\"}}{{/crossLink}} for reference.",
+                            "type": "String",
+                            "optional": true,
+                            "optdefault": "BALANCED"
+                        },
+                        {
+                            "name": "constraints.iceCandidatePoolSize",
+                            "description": "The ICE candidate pool size to limit\n  for gathering ICE candidates.\n- Set it as `0` to remove limits.",
+                            "type": "Number",
+                            "optional": true,
+                            "optdefault": "0"
+                        },
+                        {
+                            "name": "constraints.certificate",
+                            "description": "The certificate algorithm to use for\n  the ICE connection media streaming encryption.\n- When provided as `String`, see {{#crossLink \"Temasys.Peer/CERTIFICATE_ENUM:attribute\"}}{{/crossLink}} for reference.",
+                            "type": "String|RTCCertificate",
+                            "optional": true
+                        },
+                        {
+                            "name": "constraints.iceServers",
+                            "description": "The ICE servers settings.",
+                            "type": "JSON",
+                            "optional": true
+                        },
+                        {
+                            "name": "constraints.iceServers.turn",
+                            "description": "The TURN ICE servers settings.\n- When provided as a `Boolean`, it determines if TURN ICE servers should be used.",
+                            "type": "JSON|Boolean",
+                            "optional": true
+                        },
+                        {
+                            "name": "constraints.iceServers.turn.secure",
+                            "description": "The flag if TURN servers with TLS only should be used.",
+                            "type": "Boolean",
+                            "optional": true,
+                            "optdefault": "false"
+                        },
+                        {
+                            "name": "constraints.iceServers.turn.transport",
+                            "description": "The TURN server transport to use.\n- See {{#crossLink \"Temasys.Peer/TURN_TRANSPORT_ENUM:attribute\"}}{{/crossLink}} for reference.",
+                            "type": "String",
+                            "optional": true,
+                            "optdefault": "AUTO"
+                        },
+                        {
+                            "name": "constraints.iceServers.turn.urls",
+                            "description": "The list of TURN servers urls to use.\n E.g. `(\"turn.temasys.io:3478\", \"turn.temasys.io:19305\")` or `\"turn.temasys.io\"`",
+                            "type": "Array|String",
+                            "optional": true
+                        },
+                        {
+                            "name": "constraints.iceServers.stun",
+                            "description": "The STUN ICE servers settings.\n- When provided as a `Boolean`, it determines if STUN ICE servers should be used.",
+                            "type": "JSON|Boolean",
+                            "optional": true
+                        },
+                        {
+                            "name": "constraints.iceServers.stun.public",
+                            "description": "The flag if public STUN ICE servers should be used.",
+                            "type": "Boolean",
+                            "optional": true
+                        },
+                        {
+                            "name": "constraints.iceServers.stun.urls",
+                            "description": "The list of STUN servers urls to use.\n E.g. `(\"turn.temasys.io:3478\", \"turn.temasys.io:19305\")` or `\"turn.temasys.io\"`",
+                            "type": "Array|String",
+                            "optional": true
+                        },
+                        {
+                            "name": "candidates] @[exp",
+                            "description": "The ICE candidates settings.",
+                            "type": "JSON",
+                            "optional": true
+                        },
+                        {
+                            "name": "candidates.host",
+                            "description": "The flag if \"host\" ICE candidates should be used.",
+                            "type": "Boolean",
+                            "optional": true,
+                            "optdefault": "true"
+                        },
+                        {
+                            "name": "candidates.srflx",
+                            "description": "The flag if \"srflx\" ICE candidates should be used.",
+                            "type": "Boolean",
+                            "optional": true,
+                            "optdefault": "true"
+                        },
+                        {
+                            "name": "candidates.relay",
+                            "description": "The flag if \"relay\" ICE candidates should be used.",
+                            "type": "Boolean",
+                            "optional": true,
+                            "optdefault": "true"
+                        },
+                        {
+                            "name": "codecs] @[exp",
+                            "description": "The codecs settings.\n- This configures the Peer connection native `RTCSessionDescription` object string.",
+                            "type": "JSON",
+                            "optional": true
+                        },
+                        {
+                            "name": "codecs.params",
+                            "description": "The media connection codecs parameters settings.\n- When settings are not provided, the default browser configuration is used.",
+                            "type": "JSON",
+                            "optional": true
+                        },
+                        {
+                            "name": "codecs.params.audio",
+                            "description": "The media connection audio codecs settings.",
+                            "type": "JSON",
+                            "optional": true
+                        },
+                        {
+                            "name": "codecs.params.audio.opus",
+                            "description": "The media connection OPUS audio codec settings.\n- When provided as a `String`, it sets as the full parameter settings. E.g. `minptime=1;stereo=1`",
+                            "type": "JSON|String",
+                            "optional": true
+                        },
+                        {
+                            "name": "codecs.params.audio.opus.stereo",
+                            "description": "The flag if OPUS audio codec stereo band\n  should be configured for sending audio packets.",
+                            "type": "Boolean",
+                            "optional": true
+                        },
+                        {
+                            "name": "codecs.params.audio.opus.usedtx",
+                            "description": "The flag if OPUS audio codec should enable\n  DTX (Discontinuous Transmission) for sending audio packets. This might help to reduce bandwidth\n  as it reduces the bitrate during silence or background noise, and goes hand-in-hand with the\n  `options.media.audio.voiceActivityDetection` flag.",
+                            "type": "Boolean",
+                            "optional": true
+                        },
+                        {
+                            "name": "codecs.params.audio.opus.useinbandfec",
+                            "description": "The flag if OPUS audio codec has the\n  capability to take advantage of the in-band FEC (Forward Error Correction) when sending audio packets.\n  This helps to reduce the harm of packet loss by encoding information about the previous packet loss.",
+                            "type": "Boolean",
+                            "optional": true
+                        },
+                        {
+                            "name": "codecs.params.audio.opus.maxplaybackrate",
+                            "description": "The OPUS audio codec\n  maximum output sampling rate in Hz (hertz) that is is capable of receiving audio packets,\n  to adjust to the hardware limitations and ensure that any sending audio packets\n  would not encode at a higher sampling rate specified by this.\n- This value must be between `8000` to `48000`.",
+                            "type": "Number",
+                            "optional": true
+                        },
+                        {
+                            "name": "codecs.params.audio.opus.minptime",
+                            "description": "The OPUS audio codec encoder\n  minimum length of time in milleseconds should be encapsulated for a single audio data packet.",
+                            "type": "Number",
+                            "optional": true
+                        },
+                        {
+                            "name": "codecs.params.audio.telephoneEvent",
+                            "description": "The media connection DTMF audio codec settings.\n- When provided as a `String`, it sets as the full parameter settings. E.g. `0-5`",
+                            "type": "JSON|String",
+                            "optional": true
+                        },
+                        {
+                            "name": "codecs.params.audio.pcma",
+                            "description": "The media connection PCMA (G711a) audio codec settings.\n- When provided as a `String`, it sets as the full parameter settings.",
+                            "type": "JSON|String",
+                            "optional": true
+                        },
+                        {
+                            "name": "codecs.params.audio.pcmu",
+                            "description": "The media connection PCMU (G711u) audio codec settings.\n- When provided as a `String`, it sets as the full parameter settings.",
+                            "type": "JSON|String",
+                            "optional": true
+                        },
+                        {
+                            "name": "codecs.params.audio.g722",
+                            "description": "The media connection G722 audio codec settings.\n- When provided as a `String`, it sets as the full parameter settings.",
+                            "type": "JSON|String",
+                            "optional": true
+                        },
+                        {
+                            "name": "codecs.params.audio.isac",
+                            "description": "The media connection ISAC audio codec settings.\n- When provided as a `String`, it sets as the full parameter settings.",
+                            "type": "JSON|String",
+                            "optional": true
+                        },
+                        {
+                            "name": "codecs.params.audio.ilbc",
+                            "description": "The media connection iLBC audio codec settings.\n- When provided as a `String`, it sets as the full parameter settings.",
+                            "type": "JSON|String",
+                            "optional": true
+                        },
+                        {
+                            "name": "codecs.params.video",
+                            "description": "The media connection video codecs settings.",
+                            "type": "JSON",
+                            "optional": true
+                        },
+                        {
+                            "name": "codecs.params.video.h264",
+                            "description": "The media connection H264 video codec settings.\n- When provided as a `String`, it sets as the full parameter settings. E.g. `levelAsymmetryAllowed=1;packetizationMode=1`",
+                            "type": "JSON|String",
+                            "optional": true
+                        },
+                        {
+                            "name": "codecs.params.video.h264.profileLevelId",
+                            "description": "The H264 video codec base16 encoded\n  string which indicates the H264 baseline, main, or the extended profiles.",
+                            "type": "String",
+                            "optional": true
+                        },
+                        {
+                            "name": "codecs.params.video.h264.levelAsymmetryAllowed",
+                            "description": "The flag if H264 video codec\n  encoder of video packets should be at a different level from decoder of video packets.",
+                            "type": "Boolean",
+                            "optional": true
+                        },
+                        {
+                            "name": "codecs.params.video.h264.packetizationMode",
+                            "description": "The flag if H264 video codec\n  packetization mode should be enabled where it splits video frames that are larger for a RTP packet into RTP packet chunks.",
+                            "type": "Boolean",
+                            "optional": true
+                        },
+                        {
+                            "name": "codecs.params.video.vp8",
+                            "description": "The media connection VP8 video codec settings.\n- When provided as a `String`, it sets as the full parameter settings.",
+                            "type": "JSON|String",
+                            "optional": true
+                        },
+                        {
+                            "name": "codecs.params.video.vp8.maxFr",
+                            "description": "The maximum number of frames per second (fps) the\n  VP8 video decoder is capable of decoding video packets.",
+                            "type": "Number",
+                            "optional": true
+                        },
+                        {
+                            "name": "codecs.params.video.vp8.maxFs",
+                            "description": "The maximum number of frame size macroblocks\n  that the VP8 video decoder is capable of decoding video packets.\n- The value has to have the width and height of the frame in macroblocks less than the value of\n  `parseInt(Math.sqrt(maxFs * 8))`. For example, if the value is `1200`, it is capable of the\n  support of `640x480` frame width and height, which heights up to `1552px` (`97` macroblocks value.",
+                            "type": "Number",
+                            "optional": true
+                        },
+                        {
+                            "name": "codecs.params.video.vp9",
+                            "description": "The media connection VP9 video codec settings.\n- When provided as a `String`, it sets as the full parameter settings.",
+                            "type": "JSON|String",
+                            "optional": true
+                        },
+                        {
+                            "name": "codecs.params.video.vp9.maxFr",
+                            "description": "The maximum number of frames per second (fps) the\n  VP9 video decoder is capable of decoding video packets.",
+                            "type": "Number",
+                            "optional": true
+                        },
+                        {
+                            "name": "codecs.params.video.vp9.maxFs",
+                            "description": "The maximum number of frame size macroblocks\n  that the VP9 video decoder is capable of decoding video packets.\n- The value has to have the width and height of the frame in macroblocks less than the value of\n  `parseInt(Math.sqrt(maxFs * 8))`. For example, if the value is `1200`, it is capable of the\n  support of `640x480` frame width and height, which heights up to `1552px` (`97` macroblocks value.",
+                            "type": "Number",
+                            "optional": true
+                        },
+                        {
+                            "name": "codecs.prefer",
+                            "description": "The media connection codec preference settings.",
+                            "type": "JSON",
+                            "optional": true
+                        },
+                        {
+                            "name": "codecs.prefer.audio",
+                            "description": "The preferred audio codec settings.\n- When provided as a `String`, it is the preferred audio codec name.\n- See {{#crossLink \"Temasys.Peer/AUDIO_CODEC_ENUM:attribute\"}}{{/crossLink}} for reference.",
+                            "type": "String|JSON",
+                            "optional": true,
+                            "optdefault": "AUTO"
+                        },
+                        {
+                            "name": "codecs.prefer.audio.codec",
+                            "description": "The preferred audio codec name.\n- Note that value cannot be `AUDIO_CODEC_ENUM.AUTO`.\n- See {{#crossLink \"Temasys.Peer/AUDIO_CODEC_ENUM:attribute\"}}{{/crossLink}} for reference.",
+                            "type": "String"
+                        },
+                        {
+                            "name": "codecs.prefer.audio.codec.samplingRate",
+                            "description": "The preferred audio codec sampling rate\n  if available for the preferred audio codec name.",
+                            "type": "Number",
+                            "optional": true
+                        },
+                        {
+                            "name": "codecs.prefer.audio.codec.channels",
+                            "description": "The preferred audio codec channels\n  if available for the preferred audio codec name.",
+                            "type": "Number",
+                            "optional": true
+                        },
+                        {
+                            "name": "codecs.prefer.video",
+                            "description": "The preferred audio codec settings.\n- When provided as a `String`, it is the preferred video codec name.\n- See {{#crossLink \"Temasys.Peer/VIDEO_CODEC_ENUM:attribute\"}}{{/crossLink}} for reference.",
+                            "type": "String|JSON",
+                            "optional": true,
+                            "optdefault": "AUTO"
+                        },
+                        {
+                            "name": "codecs.prefer.video.codec",
+                            "description": "The preferred video codec name.\n- Note that value cannot be `VIDEO_CODEC_ENUM.AUTO`.\n- See {{#crossLink \"Temasys.Peer/VIDEO_CODEC_ENUM:attribute\"}}{{/crossLink}} for reference.",
+                            "type": "String"
+                        },
+                        {
+                            "name": "codecs.prefer.video.codec.samplingRate",
+                            "description": "The preferred video codec sampling rate\n  if available for the preferred video codec name.",
+                            "type": "Number",
+                            "optional": true
+                        },
+                        {
+                            "name": "codecs.mechanism",
+                            "description": "The codecs RTCP or FECs settings.",
+                            "type": "JSON",
+                            "optional": true
+                        },
+                        {
+                            "name": "codecs.mechanism.ulpfec",
+                            "description": "The flag to enable ULPFEC codec\n  (generic forward error correction) mechanism when available.",
+                            "type": "Boolean",
+                            "optional": true,
+                            "optdefault": "true"
+                        },
+                        {
+                            "name": "codecs.mechanism.red",
+                            "description": "The flag to enable RED codec\n  (generic forward error correction) mechanism when available.",
+                            "type": "Boolean",
+                            "optional": true,
+                            "optdefault": "true"
+                        },
+                        {
+                            "name": "codecs.mechanism.rtx",
+                            "description": "The flag to enable RTX (re-transmission) mechanism when available.",
+                            "type": "Boolean",
+                            "optional": true,
+                            "optdefault": "true"
+                        },
+                        {
+                            "name": "codecs.mechanism.remb",
+                            "description": "The flag to enable REMB\n  (receiver estimated maximum bitrate) mechanism when available.",
+                            "type": "Boolean",
+                            "optional": true,
+                            "optdefault": "true"
+                        },
+                        {
+                            "name": "codecs.mechanism.nack",
+                            "description": "The flag to enable NACK\n  (negative acknowledgement) mechanism when available.",
+                            "type": "Boolean",
+                            "optional": true,
+                            "optdefault": "true"
+                        },
+                        {
+                            "name": "codecs.mechanism.ccm",
+                            "description": "The flag to enable CCM\n  (codec control messages) mechanism when available.",
+                            "type": "Boolean",
+                            "optional": true,
+                            "optdefault": "true"
+                        },
+                        {
+                            "name": "codecs.mechanism.transportcc",
+                            "description": "The flag to enable transport-cc\n  (transport-wide congestion control) mechanism when available.",
+                            "type": "Boolean",
+                            "optional": true,
+                            "optdefault": "true"
+                        },
+                        {
+                            "name": "media",
+                            "description": "The Peer connection media connection settings.\n- This configures the Peer connection native `RTCSessionDescription` object string.",
+                            "type": "JSON",
+                            "optional": true,
+                            "props": [
+                                {
+                                    "name": "audio",
+                                    "description": "The media audio streaming settings.\n- When provided as `false`, this disables the audio streaming connection entirely.",
+                                    "type": "JSON|Boolean",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "audio.send",
+                                    "description": "The flag if audio packets should be sent to Peer connection.\n- When provided as `false`, this prevents sending audio packets to Peer despite audio tracks being added.",
+                                    "type": "Boolean",
+                                    "optional": true,
+                                    "optdefault": "true"
+                                },
+                                {
+                                    "name": "audio.receive",
+                                    "description": "The flag if audio packets should be sent to Peer connection.\n- When provided as `false`, this prevents receiving audio packets from Peer despite audio tracks being added remotely.",
+                                    "type": "Boolean",
+                                    "optional": true,
+                                    "optdefault": "true"
+                                },
+                                {
+                                    "name": "audio.voiceActivityDetection",
+                                    "description": "The flag if voice activity detection\n  (VAD) should be enabled.",
+                                    "type": "Boolean",
+                                    "optional": true,
+                                    "optdefault": "true"
+                                },
+                                {
+                                    "name": "audio.maxBandwidth",
+                                    "description": "The maximum range limit of sending audio bandwidth in kbps.\n- The bandwidth might be lower or higher by a few kbps than the specified range at times.\n- Set it as `0` to remove limits.",
+                                    "type": "Number",
+                                    "optional": true,
+                                    "optdefault": "20"
+                                },
+                                {
+                                    "name": "video",
+                                    "description": "The media video streaming settings.\n- When provided as `false`, this disables the video streaming connection entirely.",
+                                    "type": "JSON|Boolean",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "video.send",
+                                    "description": "The flag if video packets should be sent to Peer connection.\n- When provided as `false`, this prevents sending video packets to Peer despite video tracks being added.",
+                                    "type": "Boolean",
+                                    "optional": true,
+                                    "optdefault": "true"
+                                },
+                                {
+                                    "name": "video.receive",
+                                    "description": "The flag if video packets should be sent to Peer connection.\n- When provided as `false`, this prevents receiving video packets from Peer despite video tracks being added remotely.",
+                                    "type": "Boolean",
+                                    "optional": true,
+                                    "optdefault": "true"
+                                },
+                                {
+                                    "name": "video.maxBandwidth",
+                                    "description": "The maximum range limit of sending video bandwidth in kbps.\n- The bandwidth might be lower or higher by a few kbps than the specified range at times.\n- Set it as `0` to remove limits.",
+                                    "type": "Number",
+                                    "optional": true,
+                                    "optdefault": "512"
+                                },
+                                {
+                                    "name": "video.xGoogleBandwidth] @[exp",
+                                    "description": "The bitrate configuration for video codec bandwidth.\n- When settings are not provided, the default browser configuration is used.",
+                                    "type": "JSON",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "video.xGoogleBandwidth.min",
+                                    "description": "The `\"x-google-min-bitrate\"` configuration.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "video.xGoogleBandwidth.max",
+                                    "description": "The `\"x-google-max-bitrate\"` configuration.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "datachannel",
+                                    "description": "The media datachannel connection settings.\n- When provided as `false`, this disables the datachannel connection entirely.",
+                                    "type": "JSON|Boolean",
+                                    "optional": true,
+                                    "optdefault": "true"
+                                },
+                                {
+                                    "name": "datachannel.maxBandwidth",
+                                    "description": "The maximum range limit of sending datachannel bandwidth in kbps.\n- The bandwidth might be lower or higher by a few kbps than the specified range at times.\n- Set it as `0` to remove limits.",
+                                    "type": "Number",
+                                    "optional": true,
+                                    "optdefault": "30"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "trickleICE",
+                            "description": "The flag if trickle ICE handshake should be enabled.",
+                            "type": "Number",
+                            "optional": true,
+                            "optdefault": "true"
+                        }
+                    ]
                 }
             ],
             "is_constructor": 1,
+            "access": "private",
+            "tagname": "",
             "since": "0.7.0"
         },
         "Temasys.Room": {
@@ -332,7 +854,7 @@
             "extension_for": [],
             "file": "source/components/socket.js",
             "line": 1,
-            "description": "Handles the socket connection to the Signaling server.\nThis class is only to be initialised from {{#crossLink \"Room\"}}{{/crossLink}} class.",
+            "description": "Handles the Room socket.io-client connection to the Signling server.",
             "params": [
                 {
                     "name": "options",
@@ -341,104 +863,86 @@
                     "optional": true,
                     "props": [
                         {
-                            "name": "server",
-                            "description": "The Signaling server domain to connect to.\n  The default is based on the server domain provided by the Auth (API) server.",
+                            "name": "server] @[exp",
+                            "description": "The custom Signaling server domain to use.",
                             "type": "String",
                             "optional": true
                         },
                         {
-                            "name": "ports",
-                            "description": "The list of Signaling server ports to connect to.\n  Priority of port to use are based on first index order starting from `0`.\n  The default is based on the list of ports provided by the Auth (API) server.",
+                            "name": "ports] @[exp",
+                            "description": "The custom list of Signaling server ports (`Number`) to use.\n- The priority of port used is based on first index order starting from `0`.",
                             "type": "Array",
-                            "optional": true,
-                            "props": [
-                                {
-                                    "name": "#index",
-                                    "description": "The port number to use.",
-                                    "type": "Number"
-                                }
-                            ]
+                            "optional": true
                         },
                         {
-                            "name": "path",
-                            "description": "The Signaling server path to connect to.\n  The default is `/socket.io`.",
+                            "name": "path] @[exp",
+                            "description": "The custom Signaling server path to use.",
                             "type": "String",
                             "optional": true
                         },
                         {
                             "name": "protocol",
-                            "description": "The Signaling server protocol to connect to.\n  The default is the value of the current accessing `window.location.protocol`.",
+                            "description": "The protocol to use to connect to the Signaling server.\n- When not provided, the current accessing `window.location.protocol` will be used.",
                             "type": "String",
                             "optional": true
                         },
                         {
                             "name": "transports",
-                            "description": "The list of socket transports to use.\n  Priority of transport to use are based on first index order starting from `0`.\n  The default is `(\"websocket\", \"polling\")`, or `(\"polling\")` only if Websocket transport is not supported.",
+                            "description": "The list of socket.io-client transports to use.\n- Available transports are: `\"websocket\"` (Websocket) and `\"polling\"` (Polling).\n- The priority of transport to use are based on first index order starting from `0`.\n- When not provided, `(\"websocket\", \"polling\")` will be used.\n- If the browser does not support `WebSocket` API, `\"websocket\"` transports will be ignored.",
                             "type": "Array",
-                            "optional": true,
-                            "props": [
-                                {
-                                    "name": "#index",
-                                    "description": "The transport item to use.\n  Available options are: `\"websocket\"` (Websocket) and `\"polling\"` (Polling).",
-                                    "type": "String"
-                                }
-                            ]
-                        },
-                        {
-                            "name": "compressData",
-                            "description": "The flag if data sent to Signaling server should be compressed.\n  The default is `false`.",
-                            "type": "Boolean",
                             "optional": true
                         },
                         {
+                            "name": "compressData",
+                            "description": "The flag if data sent should be compressed.",
+                            "type": "Boolean",
+                            "optional": true,
+                            "optdefault": "false"
+                        },
+                        {
                             "name": "options",
-                            "description": "The socket options for each transport type.",
+                            "description": "The socket.io-client options configured for each socket.io-client transport type.\n- The current default is `{ websocket: { reconnection: true, reconnectionAttempts: 2,\n  reconnectionDelay: 5000, reconnectionDelayMax: 2000, randomizationFactor: 0.5, timeout: 20000 },\n  polling: { reconnection: true, reconnectionAttempts: 4, reconnectionDelay: 2000,\n  reconnectionDelayMax: 1000, randomizationFactor: 0.5, timeout: 20000 } }`",
                             "type": "JSON",
                             "props": [
                                 {
-                                    "name": "#transport",
-                                    "description": "The socket options for transport type.\n  The `#transport` key is either `\"websocket\"` (Websocket) or `\"polling\"` (Polling).",
+                                    "name": "index",
+                                    "description": "@[exp] The socket options for the `\"index\"` socket.io-client transport type.\n- `\"index\"` can be identified as: `\"websocket\"` (Websocket) or `\"polling\"` (Polling).",
                                     "type": "JSON"
                                 },
                                 {
-                                    "name": "#transport.reconnection",
-                                    "description": "The flag if socket should attempt\n  reconnection for each port and transport type.\n  The default is `true`.",
+                                    "name": "index.reconnection",
+                                    "description": "The flag if socket connection should\n  reconnect several attempts for the current transport or port used before switching to the next\n  available transport or port available.",
                                     "type": "Boolean",
-                                    "optional": true
+                                    "optional": true,
+                                    "optdefault": "true"
                                 },
                                 {
-                                    "name": "#transport.reconnection",
-                                    "description": "The flag if socket should attempt at least several\n  reconnections for current port and transport type before switching to the next available port or transport.\n  The defaults are `true` for both Websocket and Polling.",
+                                    "name": "index.reconnectionAttempts",
+                                    "description": "The reconnection attempts to take if\n  `options.options.index.reconnection` is enabled.\n- The maximum value that can be provided is `5`.",
                                     "type": "Number",
                                     "optional": true
                                 },
                                 {
-                                    "name": "#transport.reconnectionAttempts",
-                                    "description": "The reconnection attempts to\n  take if reconnection is enabled for each port and transport type.\n  The defaults are `2` for Websocket and `4` for Polling. The maximum is `5`.",
+                                    "name": "index.reconnectionDelay",
+                                    "description": "The number of miliseconds to wait before\n  starting the next reconnection attempt, which is affected by the `randomizationFactor` configured.",
                                     "type": "Number",
                                     "optional": true
                                 },
                                 {
-                                    "name": "#transport.reconnectionDelay",
-                                    "description": "The number of miliseconds to initially\n  wait before attempting a new reconnection. This is affected by the randomization factor range.\n  The defaults are `5000` for Websocket and `2000` for Polling.",
+                                    "name": "index.reconnectionDelayMax",
+                                    "description": "The maximum number of miliseconds to wait\n  before starting the next reconnection attempt.",
                                     "type": "Number",
                                     "optional": true
                                 },
                                 {
-                                    "name": "#transport.reconnectionDelayMax",
-                                    "description": "The maximum number of miliseconds to\n  wait between reconnections. This increases the reconnection delay for randomization factor range\n  before waiting to start a reconnection.\n  The defaults are `2000` for Websocket and `1000` for Polling.",
+                                    "name": "index.randomizationFactor",
+                                    "description": "The randomization for each reconnection attempt.\n- The range is from `0` to `1`.",
                                     "type": "Number",
                                     "optional": true
                                 },
                                 {
-                                    "name": "#transport.randomizationFactor",
-                                    "description": "The randomization\n  factor range from `0` to `1`.\n  The defaults are `0.5` for both Websocket and Polling.",
-                                    "type": "Number",
-                                    "optional": true
-                                },
-                                {
-                                    "name": "#transport.timeout",
-                                    "description": "The timeout in miliseconds to consider\n  that the connection timed out.\n  The defaults are `20000` for both Websocket and Polling.",
+                                    "name": "index.timeout",
+                                    "description": "The timeout in miliseconds to consider\n  that the inital connection has timed out.",
                                     "type": "Number",
                                     "optional": true
                                 }
@@ -448,6 +952,110 @@
                 }
             ],
             "is_constructor": 1,
+            "access": "private",
+            "tagname": "",
+            "since": "0.7.0"
+        },
+        "Temasys.Stream": {
+            "name": "Temasys.Stream",
+            "shortname": "Temasys.Stream",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "file": "source/components/stream.js",
+            "line": 1,
+            "description": "Handles the native `MediaStream` object audio and video tracks.",
+            "params": [
+                {
+                    "name": "options",
+                    "description": "The options.\n- When provided as a native `MediaStream` object, only `1` track each for audio and video is allowed or\n  the object is rejected. Note that audio and video constraints will not be retrieved and be counted as `true`.",
+                    "type": "JSON|MediaStream",
+                    "props": [
+                        {
+                            "name": "audio",
+                            "description": "The audio track options.\n- When provided as a `Boolean`, it simply passes it as `true` as the native `getUserMedia()` API audio constraint.",
+                            "type": "JSON|Boolean",
+                            "optional": true,
+                            "props": [
+                                {
+                                    "name": "echoCancellation",
+                                    "description": "The flag to enable echo cancellation (AEC) when supported.",
+                                    "type": "Boolean",
+                                    "optional": true,
+                                    "optdefault": "true"
+                                },
+                                {
+                                    "name": "sourceId",
+                                    "description": "The audio track source ID to request.\n- When provided as a `JSON`, it follows the native `getUserMedia()` API constraints.\n  E.g. `sourceId: { exact: ..., ideal: ... }`.\n- The list of available audio track sources can be obtained from\n  {{#crossLink \"Utils/Utils.Stream.getSources:method\"}}{{/crossLink}}.",
+                                    "type": "JSON|String",
+                                    "optional": true
+                                }
+                            ]
+                        },
+                        {
+                            "name": "video",
+                            "description": "The video track options.\n- When provided as a `Boolean`, it simply passes it as `true` as the native `getUserMedia()` API video constraint.",
+                            "type": "JSON|Boolean",
+                            "optional": true,
+                            "props": [
+                                {
+                                    "name": "sourceId",
+                                    "description": "The video track source ID to request.\n- When provided as a `JSON`, it follows the native `getUserMedia()` API constraints.\n  E.g. `sourceId: { exact: ..., ideal: ... }`.\n- The list of available video track sources can be obtained from\n  {{#crossLink \"Utils/Utils.Stream.getSources:method\"}}{{/crossLink}}.",
+                                    "type": "JSON|String",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "width] @[exp",
+                                    "description": "The video track expected video frame resolution width.\n- When provided as a `JSON`, it follows the native `getUserMedia()` API constraints.\n  E.g. `width: { exact: ..., ideal: ..., min: ..., max: ... }`.",
+                                    "type": "JSON|Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "height] @[exp",
+                                    "description": "The video track expected video frame resolution height.\n- When provided as a `JSON`, it follows the native `getUserMedia()` API constraints.\n  E.g. `height: { exact: ..., ideal: ..., min: ..., max: ... }`.",
+                                    "type": "JSON|Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "frameRate] @[exp",
+                                    "description": "The video track expected video framerate (fps).\n- When provided as a `JSON`, it follows the native `getUserMedia()` API constraints.\n  E.g. `frameRate: { exact: ..., ideal: ..., min: ..., max: ... }`.",
+                                    "type": "JSON|Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "facingMode] @[exp",
+                                    "description": "The video track expected video camera facing mode.\n- When provided as a `JSON`, it follows the native `getUserMedia()` API constraints.\n  E.g. `facingMode: { exact: ..., ideal: ..., min: ..., max: ... }`.",
+                                    "type": "JSON|Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "screenshare] @[exp",
+                                    "description": "The flag if video track is screensharing source.\n- When provided as an `Array` or a `String`, it follows the native `getUserMedia()` API `\"mediaSource\"` constraints.\n  E.g. `mediaSource: options.video.screenshare`.\n- If this is defined (not as `false`), the native `getUserMedia()` API might be executed twice for audio track and\n  video track separately.",
+                                    "type": "Array|String|Boolean",
+                                    "optional": true
+                                }
+                            ]
+                        },
+                        {
+                            "name": "custom] @[exp",
+                            "description": "The custom native `getUserMedia()` API constraints to use.\n  E.g. `custom: { audio: { ... }, video: { ... } }`.\n- If this is defined, this will override all `options.audio` and `options.video` settings.",
+                            "type": "JSON",
+                            "optional": true
+                        }
+                    ]
+                },
+                {
+                    "name": "[options.audio.optional] @[exp] The native `getUserMedia()` API audio optional constraints.\n  E.g. `optional: [{ xxx, xxx }]",
+                    "description": "",
+                    "type": "Array"
+                }
+            ],
+            "is_constructor": 1,
+            "example": [
+                "\n  // Example 1: Retrieve audio and video tracks\n  var stream = new Temasys.Stream({ audio: true, video: true });\n  stream.on(\"state\", function (state) {\n    if (state === stream.STATE_ENUM.START) {\n      stream.attachElement(videoDOM);\n    } else if (state === stream.STATE_ENUM.ERROR) {\n      console.log(\"Failed retrieving stream ->\", error);\n    }\n  });\n\n  // Example 2: Append the MediaStream object\n  var stream = new Temasys.Stream(stream);\n  stream.on(\"state\", function (state) {\n    if (state === stream.STATE_ENUM.START) {\n      stream.attachElement(videoDOM);\n    } else if (state === stream.STATE_ENUM.ERROR) {\n      console.log(\"Failed retrieving stream ->\", error);\n    }\n  });"
+            ],
             "since": "0.7.0"
         },
         "Temasys.Utils": {
@@ -485,85 +1093,1336 @@
     "classitems": [
         {
             "file": "source/components/datachannel.js",
-            "line": 1,
-            "description": "Class that handles the RTCDataChannel connection.",
-            "class": "Temasys.Peer"
-        },
-        {
-            "file": "source/components/datachannel.js",
-            "line": 25,
-            "description": "Function to start initializing events.",
-            "class": "Temasys.Peer"
-        },
-        {
-            "file": "source/components/datachannel.js",
-            "line": 96,
-            "description": "Function to send data.",
-            "class": "Temasys.Peer"
-        },
-        {
-            "file": "source/components/datachannel.js",
-            "line": 155,
-            "description": "Function to get current stats.",
-            "class": "Temasys.Peer"
-        },
-        {
-            "file": "source/components/datachannel.js",
-            "line": 175,
-            "description": "Function to close connection.",
-            "class": "Temasys.Peer"
-        },
-        {
-            "file": "source/components/event.mixin.js",
-            "line": 1,
-            "description": "Mixin that handles event listeners and subscription.",
-            "class": "Temasys.Peer"
-        },
-        {
-            "file": "source/components/event.mixin.js",
             "line": 11,
-            "description": "Function to subscribe to an event.",
-            "class": "Temasys.Peer"
+            "description": "The Datachannel ID.",
+            "itemtype": "attribute",
+            "name": "id",
+            "type": "String",
+            "readonly": "",
+            "since": "0.7.0",
+            "class": "Temasys.Datachannel"
         },
         {
-            "file": "source/components/event.mixin.js",
-            "line": 22,
-            "description": "Function to subscribe to an event once.",
-            "class": "Temasys.Peer"
+            "file": "source/components/datachannel.js",
+            "line": 21,
+            "description": "The Datachannel type.\n- See {{#crossLink \"Temasys.Datachannel/TYPE_ENUM:attribute\"}}{{/crossLink}} for reference.",
+            "itemtype": "attribute",
+            "name": "type",
+            "type": "String",
+            "readonly": "",
+            "since": "0.7.0",
+            "class": "Temasys.Datachannel"
         },
         {
-            "file": "source/components/event.mixin.js",
-            "line": 33,
-            "description": "Function to subscribe to an event once.",
-            "class": "Temasys.Peer"
+            "file": "source/components/datachannel.js",
+            "line": 32,
+            "description": "The Datachannel current states.",
+            "itemtype": "attribute",
+            "name": "$current",
+            "params": [
+                {
+                    "name": "state",
+                    "description": "The current Datachannel connection state.",
+                    "type": "String"
+                },
+                {
+                    "name": "connected",
+                    "description": "The flag if Datachannel is connected.",
+                    "type": "Boolean"
+                },
+                {
+                    "name": "streamId",
+                    "description": "The current Datatransfer streaming session ID.",
+                    "type": "String"
+                },
+                {
+                    "name": "transferId",
+                    "description": "The current Datatransfer transfer session ID.",
+                    "type": "String"
+                }
+            ],
+            "type": "JSON",
+            "readonly": "",
+            "since": "0.7.0",
+            "class": "Temasys.Datachannel"
         },
         {
-            "file": "source/components/event.mixin.js",
-            "line": 71,
-            "description": "Function to emit events.",
+            "file": "source/components/datachannel.js",
+            "line": 68,
+            "description": "Event triggered when Datachannel connection state has been changed.",
+            "itemtype": "event",
+            "name": "stateChange",
+            "params": [
+                {
+                    "name": "state",
+                    "description": "The current Datachannel connection state.\n- See {{#crossLink \"Temasys.Datachannel/STATE_ENUM:attribute\"}}{{/crossLink}} for reference.",
+                    "type": "String"
+                }
+            ],
+            "since": "0.7.0",
+            "class": "Temasys.Datachannel"
+        },
+        {
+            "file": "source/components/datachannel.js",
+            "line": 76,
+            "description": "Event triggered when Datachannel connection has encountered errors.",
+            "itemtype": "event",
+            "name": "error",
+            "params": [
+                {
+                    "name": "error",
+                    "description": "The error object.",
+                    "type": "Error"
+                }
+            ],
+            "since": "0.7.0",
+            "class": "Temasys.Datachannel"
+        },
+        {
+            "file": "source/components/datachannel.js",
+            "line": 83,
+            "description": "Event triggered when Datachannel connection buffered amount threshold is low.",
+            "itemtype": "event",
+            "name": "bufferedAmountLow",
+            "params": [
+                {
+                    "name": "bufferedAmount",
+                    "description": "The current buffered amount in bytes.",
+                    "type": "Number"
+                },
+                {
+                    "name": "bufferedAmountLowThreshold",
+                    "description": "The current buffered amount threshold set in bytes.",
+                    "type": "Number"
+                }
+            ],
+            "since": "0.7.0",
+            "class": "Temasys.Datachannel"
+        },
+        {
+            "file": "source/components/datachannel.js",
+            "line": 91,
+            "description": "Event triggered when Datachannel connection sends or receives data.",
+            "itemtype": "event",
+            "name": "data",
+            "params": [
+                {
+                    "name": "data",
+                    "description": "The data.",
+                    "type": "JSON|Blob"
+                },
+                {
+                    "name": "isSelf",
+                    "description": "The flag if data is sent from self.",
+                    "type": "Boolean"
+                },
+                {
+                    "name": "error",
+                    "description": "The error object.\n- This is defined when data failed to send or parse received data.",
+                    "type": "Error",
+                    "optional": true
+                }
+            ],
+            "since": "0.7.0",
+            "class": "Temasys.Datachannel"
+        },
+        {
+            "file": "source/components/datachannel.js",
+            "line": 101,
+            "description": "Event triggered when there are exceptions thrown in this event handlers.",
+            "itemtype": "event",
+            "name": "domError",
+            "params": [
+                {
+                    "name": "error",
+                    "description": "The error object.",
+                    "type": "Error"
+                }
+            ],
+            "since": "0.7.0",
+            "class": "Temasys.Datachannel"
+        },
+        {
+            "file": "source/components/datachannel.js",
+            "line": 108,
+            "description": "Event triggered when stats retrieval state has changed.",
+            "itemtype": "event",
+            "name": "getStatsStateChange",
+            "params": [
+                {
+                    "name": "state",
+                    "description": "The current stats retrieval state.\n- See {{#crossLink \"Temasys.Datachannel/GET_STATS_STATE_ENUM:attribute\"}}{{/crossLink}} for reference.",
+                    "type": "String"
+                },
+                {
+                    "name": "stats",
+                    "description": "The stats.\n- This is defined when `state` is `SUCCESS`.",
+                    "type": "JSON",
+                    "optional": true,
+                    "props": [
+                        {
+                            "name": "id",
+                            "description": "The native `RTCDataChannel` object `.id` property.",
+                            "type": "String"
+                        },
+                        {
+                            "name": "label",
+                            "description": "The native `RTCDataChannel` object `.label` property.",
+                            "type": "String"
+                        },
+                        {
+                            "name": "binaryType",
+                            "description": "The native `RTCDataChannel` object `.binaryType` property.\n- This indicates the type of native object type it uses to send and pack received binary data.",
+                            "type": "String"
+                        },
+                        {
+                            "name": "bufferedAmount",
+                            "description": "The current Datachannel connection buffered amount in bytes.",
+                            "type": "Number"
+                        },
+                        {
+                            "name": "bufferedAmountLowThreshold",
+                            "description": "The current Datachannel connection\n  buffered amount low threshold in bytes.",
+                            "type": "Number"
+                        },
+                        {
+                            "name": "messages",
+                            "description": "The messages stats.",
+                            "type": "JSON",
+                            "props": [
+                                {
+                                    "name": "sent",
+                                    "description": "The number of messages sent from this Datachannel connection.",
+                                    "type": "Number"
+                                },
+                                {
+                                    "name": "received",
+                                    "description": "The number of messages received from this Datachannel connection.",
+                                    "type": "Number"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "bytes",
+                            "description": "The bytes stats.",
+                            "type": "JSON",
+                            "props": [
+                                {
+                                    "name": "sent",
+                                    "description": "The number of bytes sent from this Datachannel connection.",
+                                    "type": "Number"
+                                },
+                                {
+                                    "name": "received",
+                                    "description": "The number of bytes received from this Datachannel connection.",
+                                    "type": "Number"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "bufferControlOptions",
+                            "description": "The current Datachannel connection buffer control settings.",
+                            "type": "JSON",
+                            "props": [
+                                {
+                                    "name": "method",
+                                    "description": "The current Datachannel connection buffer control method.\n- Available methods are: `\"polling\"` (Polling) and `\"bufferedAmount\"` (Buffer amount threshold).",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "block",
+                                    "description": "The current Datachannel connection buffer control full threshold block.",
+                                    "type": "Number"
+                                },
+                                {
+                                    "name": "interval",
+                                    "description": "The current Datachannel connection buffer control polling interval.\n- This is defined only for Polling method.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "flushTimeout",
+                                    "description": "The current Datachannel connection timeout to consider that\n  the packet has been sent.",
+                                    "type": "Number"
+                                },
+                                {
+                                    "name": "finalFlushTimeout",
+                                    "description": "The current Datachannel connection timeout\n  to consider that all the packets has been sent before the Datachannel connection closes explicitly.",
+                                    "type": "Number"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "name": "error",
+                    "description": "The error object.\n- This is defined when `state` is `FAILED`.",
+                    "type": "Error",
+                    "optional": true
+                }
+            ],
+            "since": "0.7.0",
+            "class": "Temasys.Datachannel"
+        },
+        {
+            "file": "source/components/datachannel.js",
+            "line": 143,
+            "description": "Event triggered when there are exceptions thrown in this event handlers.",
+            "itemtype": "event",
+            "name": "domError",
+            "params": [
+                {
+                    "name": "error",
+                    "description": "The error object.",
+                    "type": "Error"
+                }
+            ],
+            "since": "0.7.0",
+            "class": "Temasys.Datachannel"
+        },
+        {
+            "file": "source/components/datachannel.js",
+            "line": 152,
+            "description": "The enum of Datachannel connection states.",
+            "itemtype": "attribute",
+            "name": "STATE_ENUM",
+            "params": [
+                {
+                    "name": "CONNECTING",
+                    "description": "The state when Datachannel connection is connecting.",
+                    "type": "String"
+                },
+                {
+                    "name": "OPEN",
+                    "description": "The state when Datachannel connection has opened.",
+                    "type": "String"
+                },
+                {
+                    "name": "CLOSING",
+                    "description": "The state when Datachannel connection is closing.",
+                    "type": "String"
+                },
+                {
+                    "name": "CLOSED",
+                    "description": "The state when Datachannel connection has closed.",
+                    "type": "String"
+                }
+            ],
+            "readonly": "",
+            "final": 1,
+            "since": "0.7.0",
+            "class": "Temasys.Datachannel"
+        },
+        {
+            "file": "source/components/datachannel.js",
+            "line": 171,
+            "description": "The enum of {{#crossLink \"Temasys.Datachannel/getStats:method\"}}{{/crossLink}} states.",
+            "itemtype": "attribute",
+            "name": "GET_STATS_STATE_ENUM",
+            "params": [
+                {
+                    "name": "LOADING",
+                    "description": "The state when `getStats()` is retrieving stats.",
+                    "type": "String"
+                },
+                {
+                    "name": "SUCCESS",
+                    "description": "The state when `getStats()` has retrieved stats successfully.",
+                    "type": "String"
+                },
+                {
+                    "name": "FAILED",
+                    "description": "The state when `getStats()` has failed to retrieve stats.",
+                    "type": "String"
+                }
+            ],
+            "readonly": "",
+            "final": 1,
+            "since": "0.7.0",
+            "class": "Temasys.Datachannel"
+        },
+        {
+            "file": "source/components/datachannel.js",
+            "line": 188,
+            "description": "Function to retrieve Datachannel connection stats.",
+            "itemtype": "method",
+            "name": "getStats",
+            "return": {
+                "description": "The Promise for function request completion.",
+                "type": "Promise"
+            },
+            "example": [
+                "\n  channel.getStats().then(function (stats) {\n    console.log(\"Received stats ->\", stats);\n  }).catch(function (error) {\n    console.error(\"Received error ->\", error);\n  });"
+            ],
+            "since": "0.7.0",
+            "class": "Temasys.Datachannel"
+        },
+        {
+            "file": "source/components/datachannel.js",
+            "line": 218,
+            "description": "Function to start initializing events.",
+            "class": "Temasys.Datachannel"
+        },
+        {
+            "file": "source/components/datachannel.js",
+            "line": 289,
+            "description": "Function to send data.",
+            "class": "Temasys.Datachannel"
+        },
+        {
+            "file": "source/components/datachannel.js",
+            "line": 348,
+            "description": "Function to close connection.",
+            "class": "Temasys.Datachannel"
+        },
+        {
+            "file": "source/components/peer.js",
+            "line": 168,
+            "description": "The Peer ID.",
+            "itemtype": "attribute",
+            "name": "id",
+            "type": "String",
+            "readonly": "",
+            "since": "0.7.0",
             "class": "Temasys.Peer"
         },
         {
             "file": "source/components/peer.js",
-            "line": 12,
+            "line": 178,
+            "description": "The Peer parent ID.",
+            "itemtype": "attribute",
+            "name": "parentId",
+            "type": "String",
+            "readonly": "",
+            "since": "0.7.0",
+            "class": "Temasys.Peer"
+        },
+        {
+            "file": "source/components/peer.js",
+            "line": 188,
+            "description": "The Peer connection type.\n- See {{#crossLink \"Temasys.Peer/TYPE_ENUM:attribute\"}}{{/crossLink}} for reference.",
+            "itemtype": "attribute",
+            "name": "type",
+            "type": "String",
+            "readonly": "",
+            "since": "0.7.0",
+            "class": "Temasys.Peer"
+        },
+        {
+            "file": "source/components/peer.js",
+            "line": 199,
+            "description": "The Peer custom data.",
+            "itemtype": "attribute",
+            "name": "data",
+            "type": "Any",
+            "readonly": "",
+            "since": "0.7.0",
+            "class": "Temasys.Peer"
+        },
+        {
+            "file": "source/components/peer.js",
+            "line": 209,
+            "description": "The Peer client agent.",
+            "itemtype": "attribute",
+            "name": "agent",
+            "params": [
+                {
+                    "name": "name",
+                    "description": "The client agent name.",
+                    "type": "String"
+                },
+                {
+                    "name": "version",
+                    "description": "The client agent version.",
+                    "type": "String"
+                },
+                {
+                    "name": "platform",
+                    "description": "The client agent platform when available.",
+                    "type": "String",
+                    "optional": true
+                },
+                {
+                    "name": "pluginVersion",
+                    "description": "The client WebRTC plugin version when available.",
+                    "type": "String",
+                    "optional": true
+                }
+            ],
+            "type": "JSON",
+            "readonly": "",
+            "since": "0.7.0",
+            "class": "Temasys.Peer"
+        },
+        {
+            "file": "source/components/peer.js",
+            "line": 228,
+            "description": "The Peer protocol versions.",
+            "itemtype": "attribute",
+            "name": "protocol",
+            "params": [
+                {
+                    "name": "DTProtocolVersion",
+                    "description": "The DT protocol version.",
+                    "type": "String"
+                },
+                {
+                    "name": "SMProtocolVersion",
+                    "description": "The SM protocol version.",
+                    "type": "String"
+                }
+            ],
+            "type": "JSON",
+            "readonly": "",
+            "since": "0.7.0",
+            "class": "Temasys.Peer"
+        },
+        {
+            "file": "source/components/peer.js",
+            "line": 243,
+            "description": "The Peer session settings.",
+            "itemtype": "attribute",
+            "name": "session",
+            "params": [
+                {
+                    "name": "publishOnly",
+                    "description": "The flag if Peer is sending Stream only and not receiving.",
+                    "type": "Boolean"
+                },
+                {
+                    "name": "receiveOnly",
+                    "description": "The flag if Peer is receiving Stream only and not sending.",
+                    "type": "Boolean"
+                },
+                {
+                    "name": "datachannel",
+                    "description": "The flag if Peer chooses to have Datachannel connection enabled.",
+                    "type": "Boolean"
+                },
+                {
+                    "name": "trickleICE",
+                    "description": "The flag if Peer chooses to have trickle ICE handshake.",
+                    "type": "Boolean"
+                },
+                {
+                    "name": "iceRestart",
+                    "description": "The flag if Peer has ICE restart capability.",
+                    "type": "Boolean"
+                }
+            ],
+            "type": "JSON",
+            "readonly": "",
+            "since": "0.7.0",
+            "class": "Temasys.Peer"
+        },
+        {
+            "file": "source/components/peer.js",
+            "line": 264,
+            "description": "The Peer current states.",
+            "itemtype": "attribute",
+            "name": "$current",
+            "params": [
+                {
+                    "name": "handshakeState",
+                    "description": "The Peer handshake state.",
+                    "type": "String"
+                },
+                {
+                    "name": "iceConnectionState",
+                    "description": "The Peer ICE connection state.",
+                    "type": "String"
+                },
+                {
+                    "name": "iceGatheringState",
+                    "description": "The Peer ICE gathering state.",
+                    "type": "String"
+                },
+                {
+                    "name": "signalingState",
+                    "description": "The Peer signaling state.",
+                    "type": "String"
+                },
+                {
+                    "name": "connected",
+                    "description": "The flag if Peer ICE is connected.",
+                    "type": "Boolean"
+                }
+            ],
+            "type": "JSON",
+            "readonly": "",
+            "since": "0.7.0",
+            "class": "Temasys.Peer"
+        },
+        {
+            "file": "source/components/peer.js",
+            "line": 285,
+            "description": "Event triggered when Peer handshake state has changed.",
+            "itemtype": "event",
+            "name": "handshakeStateChange",
+            "params": [
+                {
+                    "name": "state",
+                    "description": "The current handshake state.\n- See {{#crossLink \"Temasys.Peer/HANDSHAKE_STATE_ENUM:attribute\"}}{{/crossLink}} for reference.",
+                    "type": "String"
+                },
+                {
+                    "name": "error",
+                    "description": "The error.\n- This is defined when `state` is `ERROR`.",
+                    "type": "JSON",
+                    "optional": true,
+                    "props": [
+                        {
+                            "name": "error",
+                            "description": "The error object.",
+                            "type": "Error",
+                            "optional": true
+                        },
+                        {
+                            "name": "type",
+                            "description": "The error type.\n- See {{#crossLink \"Temasys.Peer/HANDSHAKE_ERROR_TYPE_ENUM:attribute\"}}{{/crossLink}} for reference.",
+                            "type": "String",
+                            "optional": true
+                        }
+                    ]
+                }
+            ],
+            "since": "0.7.0",
+            "class": "Temasys.Peer"
+        },
+        {
+            "file": "source/components/peer.js",
+            "line": 298,
+            "description": "Event triggered when Peer signaling state has changed.",
+            "itemtype": "event",
+            "name": "signalingStateChange",
+            "params": [
+                {
+                    "name": "state",
+                    "description": "The current signaling state.\n- See {{#crossLink \"Temasys.Peer/SIGNALING_STATE_ENUM:attribute\"}}{{/crossLink}} for reference.",
+                    "type": "String"
+                }
+            ],
+            "since": "0.7.0",
+            "class": "Temasys.Peer"
+        },
+        {
+            "file": "source/components/peer.js",
+            "line": 306,
+            "description": "Event triggered when Peer ICE connection state has changed.",
+            "itemtype": "event",
+            "name": "iceConnectionStateChange",
+            "params": [
+                {
+                    "name": "state",
+                    "description": "The current ICE connection state.\n- See {{#crossLink \"Temasys.Peer/ICE_CONNECTION_STATE_ENUM:attribute\"}}{{/crossLink}} for reference.",
+                    "type": "String"
+                }
+            ],
+            "since": "0.7.0",
+            "class": "Temasys.Peer"
+        },
+        {
+            "file": "source/components/peer.js",
+            "line": 314,
+            "description": "Event triggered when Peer ICE gathering state has changed.",
+            "itemtype": "event",
+            "name": "iceGatheringStateChange",
+            "params": [
+                {
+                    "name": "state",
+                    "description": "The current ICE gathering state.\n- See {{#crossLink \"Temasys.Peer/ICE_GATHERING_STATE_ENUM:attribute\"}}{{/crossLink}} for reference.",
+                    "type": "String"
+                }
+            ],
+            "since": "0.7.0",
+            "class": "Temasys.Peer"
+        },
+        {
+            "file": "source/components/peer.js",
+            "line": 322,
+            "description": "Event triggered when sending or receiving Stream object.",
+            "itemtype": "event",
+            "name": "stream",
+            "params": [
+                {
+                    "name": "stream",
+                    "description": "The Stream object.",
+                    "type": "Temasys.Stream"
+                },
+                {
+                    "name": "streamId",
+                    "description": "The Stream ID.",
+                    "type": "String"
+                },
+                {
+                    "name": "isSelf",
+                    "description": "The flag if Stream object is sent from self.",
+                    "type": "Boolean"
+                }
+            ],
+            "since": "0.7.0",
+            "class": "Temasys.Peer"
+        },
+        {
+            "file": "source/components/peer.js",
+            "line": 331,
+            "description": "Event triggered when receiving Datachannel object.",
+            "itemtype": "event",
+            "name": "datachannel",
+            "params": [
+                {
+                    "name": "channel",
+                    "description": "The Datachannel object.",
+                    "type": "Temasys.Datachannel"
+                },
+                {
+                    "name": "channelId",
+                    "description": "The Datachannel ID.",
+                    "type": "String"
+                },
+                {
+                    "name": "isSelf",
+                    "description": "The flag if Datachannel object has started from self.",
+                    "type": "Boolean"
+                }
+            ],
+            "since": "0.7.0",
+            "class": "Temasys.Peer"
+        },
+        {
+            "file": "source/components/peer.js",
+            "line": 340,
+            "description": "Event triggered when sending or receiving message.",
+            "itemtype": "event",
+            "name": "message",
+            "params": [
+                {
+                    "name": "message",
+                    "description": "The message.",
+                    "type": "Any"
+                },
+                {
+                    "name": "isPrivate",
+                    "description": "The flag if message sent is targeted or not.",
+                    "type": "Boolean"
+                },
+                {
+                    "name": "isDatachannel",
+                    "description": "The flag if message is sent from Datachannel connections.",
+                    "type": "Boolean"
+                },
+                {
+                    "name": "isSelf",
+                    "description": "The flag if sent from self.",
+                    "type": "Boolean"
+                }
+            ],
+            "since": "0.7.0",
+            "class": "Temasys.Peer"
+        },
+        {
+            "file": "source/components/peer.js",
+            "line": 350,
+            "description": "Event triggered when sending or receiving data transfers.",
+            "itemtype": "event",
+            "name": "transfer",
+            "params": [
+                {
+                    "name": "transfer",
+                    "description": "The data transfer object.",
+                    "type": "Temasys.Datatransfer"
+                },
+                {
+                    "name": "transferId",
+                    "description": "The data transfer ID.",
+                    "type": "String"
+                },
+                {
+                    "name": "isSelf",
+                    "description": "The flag if transfer started from self.",
+                    "type": "Boolean"
+                }
+            ],
+            "since": "0.7.0",
+            "class": "Temasys.Peer"
+        },
+        {
+            "file": "source/components/peer.js",
+            "line": 359,
+            "description": "Event triggered when stats retrieval state has changed.",
+            "itemtype": "event",
+            "name": "getStatsStateChange",
+            "params": [
+                {
+                    "name": "state",
+                    "description": "The current stats retrieval state.\n- See {{#crossLink \"Temasys.Peer/GET_STATS_STATE_ENUM:attribute\"}}{{/crossLink}} for reference.",
+                    "type": "String"
+                },
+                {
+                    "name": "stats",
+                    "description": "The stats.\n- This is defined when `state` is `SUCCESS`.",
+                    "type": "JSON",
+                    "optional": true
+                },
+                {
+                    "name": "error",
+                    "description": "The error object.\n- This is defined when `state` is `FAILED`.",
+                    "type": "Error",
+                    "optional": true
+                }
+            ],
+            "since": "0.7.0",
+            "class": "Temasys.Peer"
+        },
+        {
+            "file": "source/components/peer.js",
+            "line": 372,
+            "description": "Event triggered when there are exceptions thrown in this event handlers.",
+            "itemtype": "event",
+            "name": "domError",
+            "params": [
+                {
+                    "name": "error",
+                    "description": "The error object.",
+                    "type": "Error"
+                }
+            ],
+            "since": "0.7.0",
+            "class": "Temasys.Peer"
+        },
+        {
+            "file": "source/components/peer.js",
+            "line": 381,
+            "description": "The enum of ICE transport policies.",
+            "itemtype": "attribute",
+            "name": "ICE_TRANSPORT_POLICY_ENUM",
+            "params": [
+                {
+                    "name": "ALL",
+                    "description": "The policy to gathering all types (\"host\", \"srflx\", \"relay\") of ICE candidates.",
+                    "type": "String"
+                },
+                {
+                    "name": "RELAY",
+                    "description": "The policy to gathering only \"relay\" ICE candidates.",
+                    "type": "String"
+                }
+            ],
+            "type": "JSON",
+            "readonly": "",
+            "final": 1,
+            "since": "0.7.0",
+            "class": "Temasys.Peer"
+        },
+        {
+            "file": "source/components/peer.js",
+            "line": 397,
+            "description": "The enum of RTP and RTCP multiplex policies.",
+            "itemtype": "attribute",
+            "name": "RTCP_MUX_POLICY_ENUM",
+            "params": [
+                {
+                    "name": "NEGOTIATE",
+                    "description": "The policy to gather ICE candidates for both RTP and RTCP.",
+                    "type": "String"
+                },
+                {
+                    "name": "REQUIRE",
+                    "description": "The policy to gather ICE candidates for only RTP, which RTCP would share.",
+                    "type": "String"
+                }
+            ],
+            "type": "JSON",
+            "readonly": "",
+            "final": 1,
+            "since": "0.7.0",
+            "class": "Temasys.Peer"
+        },
+        {
+            "file": "source/components/peer.js",
+            "line": 413,
+            "description": "The enum of media bundle policies.",
+            "itemtype": "attribute",
+            "name": "BUNDLE_POLICY_ENUM",
+            "params": [
+                {
+                    "name": "BALANCED",
+                    "description": "The policy to switch to `MAX_COMPAT` or `MAX_BUNDLE` depending on remote Peer supports.",
+                    "type": "String"
+                },
+                {
+                    "name": "MAX_COMPAT",
+                    "description": "The policy to gather ICE candidates for each media type and media streams will flow in\n  each individual ICE candidate connections.",
+                    "type": "String"
+                },
+                {
+                    "name": "MAX_BUNDLE",
+                    "description": "The policy to gather ICE candidates for one media type and media streams will flow in\n  one ICE candidate connection.",
+                    "type": "String"
+                }
+            ],
+            "type": "JSON",
+            "readonly": "",
+            "final": 1,
+            "since": "0.7.0",
+            "class": "Temasys.Peer"
+        },
+        {
+            "file": "source/components/peer.js",
+            "line": 433,
+            "description": "The enum of certificate algorithms.",
+            "itemtype": "attribute",
+            "name": "CERTIFICATE_ENUM",
+            "params": [
+                {
+                    "name": "RSA",
+                    "description": "The option to generate certificate with RSA-1024 algorithm.",
+                    "type": "String"
+                },
+                {
+                    "name": "ECDSA",
+                    "description": "The option to generate certificate with ECDSA algorithm.",
+                    "type": "String"
+                },
+                {
+                    "name": "AUTO",
+                    "description": "The option to use browser specified algorithm.",
+                    "type": "String"
+                }
+            ],
+            "type": "JSON",
+            "readonly": "",
+            "final": 1,
+            "since": "0.7.0",
+            "class": "Temasys.Peer"
+        },
+        {
+            "file": "source/components/peer.js",
+            "line": 451,
+            "description": "The enum of TURN transport types.",
+            "itemtype": "attribute",
+            "name": "TURN_TRANSPORT_ENUM",
+            "params": [
+                {
+                    "name": "UDP",
+                    "description": "The option to use UDP transport type.",
+                    "type": "String"
+                },
+                {
+                    "name": "TCP",
+                    "description": "The option to use TCP transport type.",
+                    "type": "String"
+                },
+                {
+                    "name": "AUTO",
+                    "description": "The option to use default transport type.",
+                    "type": "String"
+                }
+            ],
+            "type": "JSON",
+            "readonly": "",
+            "final": 1,
+            "since": "0.7.0",
+            "class": "Temasys.Peer"
+        },
+        {
+            "file": "source/components/peer.js",
+            "line": 469,
+            "description": "The enum of audio codecs.",
+            "itemtype": "attribute",
+            "name": "AUDIO_CODEC_ENUM",
+            "params": [
+                {
+                    "name": "OPUS",
+                    "description": "The option to prefer OPUS audio codec.",
+                    "type": "String"
+                },
+                {
+                    "name": "ISAC",
+                    "description": "The option to prefer ISAC audio codec.",
+                    "type": "String"
+                },
+                {
+                    "name": "ILBC",
+                    "description": "The option to prefer iLBC audio codec.",
+                    "type": "String"
+                },
+                {
+                    "name": "G722",
+                    "description": "The option to prefer the G722 audio codec.",
+                    "type": "String"
+                },
+                {
+                    "name": "PCMA",
+                    "description": "The option to prefer the G711u audio codec.",
+                    "type": "String"
+                },
+                {
+                    "name": "PCMU",
+                    "description": "The option to prefer the G711a audio codec.",
+                    "type": "String"
+                },
+                {
+                    "name": "AUTO",
+                    "description": "The option to use browser specified audio codec.",
+                    "type": "String"
+                }
+            ],
+            "type": "JSON",
+            "readonly": "",
+            "final": 1,
+            "since": "0.7.0",
+            "class": "Temasys.Peer"
+        },
+        {
+            "file": "source/components/peer.js",
+            "line": 496,
+            "description": "The enum of video codecs.",
+            "itemtype": "attribute",
+            "name": "VIDEO_CODEC_ENUM",
+            "params": [
+                {
+                    "name": "VP8",
+                    "description": "The option to prefer the VP8 video codec.",
+                    "type": "String"
+                },
+                {
+                    "name": "VP9",
+                    "description": "The option to prefer the VP9 video codec.",
+                    "type": "String"
+                },
+                {
+                    "name": "H264",
+                    "description": "The option to prefer the H264 video codec.",
+                    "type": "String"
+                },
+                {
+                    "name": "AUTO",
+                    "description": "The option to use browser specified audio codec.",
+                    "type": "String"
+                }
+            ],
+            "type": "JSON",
+            "readonly": "",
+            "final": 1,
+            "since": "0.7.0",
+            "class": "Temasys.Peer"
+        },
+        {
+            "file": "source/components/peer.js",
+            "line": 517,
+            "description": "The enum of Peer handshake states.",
+            "itemtype": "attribute",
+            "name": "HANDSHAKE_STATE_ENUM",
+            "params": [
+                {
+                    "name": "ENTER",
+                    "description": "The state when Peer has joined the Room.",
+                    "type": "String"
+                },
+                {
+                    "name": "WELCOME",
+                    "description": "The state when Peer acknowledges self has joined the Room.",
+                    "type": "String"
+                },
+                {
+                    "name": "OFFER",
+                    "description": "The state when Peer sends an offer to start ICE connection.",
+                    "type": "String"
+                },
+                {
+                    "name": "ANSWER",
+                    "description": "The state when Peer responses an answer to self offer.",
+                    "type": "String"
+                },
+                {
+                    "name": "ERROR",
+                    "description": "The state when Peer connection fails to start, or set offer or answer.",
+                    "type": "String"
+                }
+            ],
+            "type": "JSON",
+            "readonly": "",
+            "final": 1,
+            "since": "0.7.0",
+            "class": "Temasys.Peer"
+        },
+        {
+            "file": "source/components/peer.js",
+            "line": 539,
+            "description": "The enum of Peer handshake error types.",
+            "itemtype": "attribute",
+            "name": "HANDSHAKE_STATE_ERROR_TYPE_ENUM",
+            "params": [
+                {
+                    "name": "CREATE_PEER",
+                    "description": "The error type when Peer fails to create connection.",
+                    "type": "String"
+                },
+                {
+                    "name": "CREATE_OFFER",
+                    "description": "The error type when Peer fails to create local offer.",
+                    "type": "String"
+                },
+                {
+                    "name": "SET_LOCAL_OFFER",
+                    "description": "The error type when Peer fails to set local offer.",
+                    "type": "String"
+                },
+                {
+                    "name": "SET_REMOTE_OFFER",
+                    "description": "The error type when Peer fails to set remote offer.",
+                    "type": "String"
+                },
+                {
+                    "name": "CREATE_ANSWER",
+                    "description": "The error type when Peer fails to create local answer.",
+                    "type": "String"
+                },
+                {
+                    "name": "SET_LOCAL_ANSWER",
+                    "description": "The error type when Peer fails to set local answer.",
+                    "type": "String"
+                },
+                {
+                    "name": "SET_REMOTE_ANSWER",
+                    "description": "The error type when Peer fails to set remote answer.",
+                    "type": "String"
+                }
+            ],
+            "type": "JSON",
+            "readonly": "",
+            "final": 1,
+            "since": "0.7.0",
+            "class": "Temasys.Peer"
+        },
+        {
+            "file": "source/components/peer.js",
+            "line": 565,
+            "description": "The enum of Peer ICE connection states.",
+            "itemtype": "attribute",
+            "name": "ICE_CONNECTION_STATE_ENUM",
+            "params": [
+                {
+                    "name": "CONNECTING",
+                    "description": "The state when ICE is connecting.",
+                    "type": "String"
+                },
+                {
+                    "name": "CONNECTED",
+                    "description": "The state when ICE has connected but is still finding for a better ICE candidate pairing.",
+                    "type": "String"
+                },
+                {
+                    "name": "COMPLETED",
+                    "description": "The state when ICE has connected and has already paired the best ICE candidate.",
+                    "type": "String"
+                },
+                {
+                    "name": "FAILED",
+                    "description": "The state when ICE has failed to connect.",
+                    "type": "String"
+                },
+                {
+                    "name": "DISCONNECTED",
+                    "description": "The state when ICE connection has been disconnected.",
+                    "type": "String"
+                },
+                {
+                    "name": "CLOSED",
+                    "description": "The state when ICE connection has closed.",
+                    "type": "String"
+                }
+            ],
+            "type": "JSON",
+            "readonly": "",
+            "final": 1,
+            "since": "0.7.0",
+            "class": "Temasys.Peer"
+        },
+        {
+            "file": "source/components/peer.js",
+            "line": 589,
+            "description": "The enum of Peer ICE gathering states.",
+            "itemtype": "attribute",
+            "name": "ICE_GATHERING_STATE_ENUM",
+            "params": [
+                {
+                    "name": "GATHERING",
+                    "description": "The state when ICE is still gathering.",
+                    "type": "String"
+                },
+                {
+                    "name": "COMPLETD",
+                    "description": "The state when ICE has completed gathering.",
+                    "type": "String"
+                }
+            ],
+            "type": "JSON",
+            "readonly": "",
+            "final": 1,
+            "since": "0.7.0",
+            "class": "Temasys.Peer"
+        },
+        {
+            "file": "source/components/peer.js",
+            "line": 605,
+            "description": "The enum of Peer ICE gathering states.",
+            "itemtype": "attribute",
+            "name": "SIGNALING_STATE_ENUM",
+            "params": [
+                {
+                    "name": "STABLE",
+                    "description": "The state when no local or remote, offer or answer is expected.",
+                    "type": "String"
+                },
+                {
+                    "name": "HAVE_LOCAL_OFFER",
+                    "description": "The state when Peer has local offer and is expecting a remote answer to be set.",
+                    "type": "String"
+                },
+                {
+                    "name": "HAVE_REMOTE_OFFER",
+                    "description": "The state when Peer has remote offer and is expecting a local answer to be set.",
+                    "type": "String"
+                },
+                {
+                    "name": "CLOSED",
+                    "description": "The state when Peer exchanging of offer or answer has closed.",
+                    "type": "String"
+                }
+            ],
+            "type": "JSON",
+            "readonly": "",
+            "final": 1,
+            "since": "0.7.0",
+            "class": "Temasys.Peer"
+        },
+        {
+            "file": "source/components/peer.js",
+            "line": 627,
+            "description": "The enum of {{#crossLink \"Temasys.Peer/getStats:method\"}}{{/crossLink}} states.",
+            "itemtype": "attribute",
+            "name": "GET_STATS_STATE_ENUM",
+            "params": [
+                {
+                    "name": "LOADING",
+                    "description": "The state when `getStats()` is retrieving stats.",
+                    "type": "String"
+                },
+                {
+                    "name": "SUCCESS",
+                    "description": "The state when `getStats()` has retrieved stats successfully.",
+                    "type": "String"
+                },
+                {
+                    "name": "FAILED",
+                    "description": "The state when `getStats()` has failed to retrieve stats.",
+                    "type": "String"
+                }
+            ],
+            "readonly": "",
+            "final": 1,
+            "since": "0.7.0",
+            "class": "Temasys.Peer"
+        },
+        {
+            "file": "source/components/peer.js",
+            "line": 644,
+            "description": "Function to retrieve Peer connection stats.",
+            "itemtype": "method",
+            "name": "getStats",
+            "params": [
+                {
+                    "name": "isRaw",
+                    "description": "The flag to return native `RTCStats` instead of parsed stats.",
+                    "type": "Boolean",
+                    "optional": true,
+                    "optdefault": "false"
+                }
+            ],
+            "return": {
+                "description": "The Promise for function request completion.",
+                "type": "Promise"
+            },
+            "example": [
+                "\n  peer.getStats().then(function (stats) {\n    console.log(\"Received stats ->\", stats);\n  }).catch(function (error) {\n    console.error(\"Received error ->\", error);\n  });"
+            ],
+            "since": "0.7.0",
+            "class": "Temasys.Peer"
+        },
+        {
+            "file": "source/components/peer.js",
+            "line": 661,
+            "description": "Function to send a new Stream object to Peer.",
+            "itemtype": "method",
+            "name": "stream",
+            "params": [
+                {
+                    "name": "stream",
+                    "description": "The Stream object.",
+                    "type": "Temasys.Stream"
+                },
+                {
+                    "name": "options",
+                    "description": "The options.",
+                    "type": "JSON",
+                    "props": [
+                        {
+                            "name": "media",
+                            "description": "The media connection options.\n- This follows the",
+                            "type": "JSON"
+                        }
+                    ]
+                }
+            ],
+            "return": {
+                "description": "The Promise for function request completion.",
+                "type": "Promise"
+            },
+            "example": [
+                "\n  peer.stream(stream, options).then(function () {\n    console.log(\"Send stream success ->\");\n  }).catch(function (error) {\n    console.error(\"Received error ->\", error);\n  });"
+            ],
+            "since": "0.7.0",
+            "class": "Temasys.Peer"
+        },
+        {
+            "file": "source/components/peer.js",
+            "line": 681,
+            "description": "Function to refresh Peer connection.",
+            "itemtype": "method",
+            "name": "refresh",
+            "return": {
+                "description": "The Promise for function request completion.",
+                "type": "Promise"
+            },
+            "example": [
+                "\n  peer.stream(options).then(function () {\n    console.log(\"Send stream success ->\");\n  }).catch(function (error) {\n    console.error(\"Received error ->\", error);\n  });"
+            ],
+            "since": "0.7.0",
+            "class": "Temasys.Peer"
+        },
+        {
+            "file": "source/components/peer.js",
+            "line": 698,
             "description": "Function to send message to Peer.",
             "class": "Temasys.Peer"
         },
         {
             "file": "source/components/peer.js",
-            "line": 20,
+            "line": 706,
             "description": "Function to send message to P",
             "class": "Temasys.Peer"
         },
         {
             "file": "source/components/peer.js",
-            "line": 24,
+            "line": 710,
             "description": "Function to start Peer connection.",
             "class": "Temasys.Peer"
         },
         {
             "file": "source/components/peer.js",
-            "line": 31,
+            "line": 717,
             "description": "Function to stop Peer connection.",
             "class": "Temasys.Peer"
         },
@@ -1553,8 +3412,8 @@
         },
         {
             "file": "source/components/socket.js",
-            "line": 54,
-            "description": "The Signaling server domain.",
+            "line": 46,
+            "description": "The Socket server domain.",
             "itemtype": "attribute",
             "name": "server",
             "type": "String",
@@ -1564,8 +3423,8 @@
         },
         {
             "file": "source/components/socket.js",
-            "line": 66,
-            "description": "The Signaling server path.",
+            "line": 58,
+            "description": "The Socket path.",
             "itemtype": "attribute",
             "name": "path",
             "type": "String",
@@ -1575,62 +3434,62 @@
         },
         {
             "file": "source/components/socket.js",
-            "line": 76,
-            "description": "The Signaling server protocol.",
+            "line": 68,
+            "description": "The Socket protocol.",
             "itemtype": "attribute",
             "name": "protocol",
             "type": "String",
             "readonly": "",
             "since": "0.7.0",
-            "class": "Socket"
+            "class": "Temasys.Socket"
         },
         {
             "file": "source/components/socket.js",
-            "line": 87,
-            "description": "The flag if messages sent to the Signaling server are compressed.",
+            "line": 79,
+            "description": "The flag if Socket data sent is compressed.",
             "itemtype": "attribute",
             "name": "compressed",
             "type": "Boolean",
             "readonly": "",
             "since": "0.7.0",
-            "class": "Socket"
+            "class": "Temasys.Socket"
         },
         {
             "file": "source/components/socket.js",
-            "line": 97,
-            "description": "The current socket connection status.",
+            "line": 89,
+            "description": "The Socket current states.",
             "itemtype": "attribute",
-            "name": "current",
+            "name": "$current",
             "type": "JSON",
             "params": [
                 {
                     "name": "state",
-                    "description": "The current socket connection state.\n  References the `STATES` enum attribute.",
+                    "description": "The current Socket connection state.\n- See {{#crossLink \"Temasys.Socket/STATE_ENUM:attribute\"}}{{/crossLink}} for reference.",
                     "type": "String"
                 },
                 {
                     "name": "connected",
-                    "description": "The flag if socket connection is connected.",
+                    "description": "The flag if Socket is connected.",
                     "type": "Boolean"
                 },
                 {
                     "name": "reconnectionAttempts",
-                    "description": "The current number of reconnection attempts\n  made for the current port and transport used.",
+                    "description": "The current total number of reconnection attempts\n  made for the current port and socket.io-client transport used.",
                     "type": "Number"
                 },
                 {
                     "name": "fallbackAttempts",
-                    "description": "The current number of fallback attempts\n  made for each available ports and transports.",
+                    "description": "The current total number of fallback attempts made.",
                     "type": "Number"
                 },
                 {
                     "name": "port",
-                    "description": "The current port to connect used.",
+                    "description": "The current port used.",
                     "type": "Number"
                 },
                 {
                     "name": "transport",
-                    "description": "The current socket transport used.",
+                    "description": "The current socket.io-client transport used.",
                     "type": "String"
                 },
                 {
@@ -1641,81 +3500,215 @@
             ],
             "readonly": "",
             "since": "0.7.0",
-            "class": "Socket"
+            "class": "Temasys.Socket"
         },
         {
             "file": "source/components/socket.js",
-            "line": 166,
-            "description": "Event triggered when socket connection state has changed.",
+            "line": 157,
+            "description": "Event triggered when Socket connection state has been changed.",
             "itemtype": "event",
-            "name": "state",
+            "name": "stateChange",
             "params": [
                 {
                     "name": "state",
-                    "description": "The current socket connection state.\n  References the {{#crossLink \"Socket/STATE_ENUM:attribute\"}}{{/crossLink}} enum attribute.",
+                    "description": "The current Socket connection state.\n- See {{#crossLink \"Temasys.Socket/STATE_ENUM:attribute\"}}{{/crossLink}} for reference.",
                     "type": "String"
                 },
                 {
                     "name": "error",
-                    "description": "The error object.\n  This is defined when `state` value is `STATE_ENUM.RECONNECT_FAILED`,\n  `STATE_ENUM.CONNECT_ERROR` and `STATE_ENUM.CONNECT_TIMEOUT`.",
+                    "description": "The error object.\n- This is defined when `state` is `STATE_ENUM.RECONNECT_FAILED`,\n  `STATE_ENUM.CONNECT_ERROR` and `STATE_ENUM.CONNECT_TIMEOUT`.",
                     "type": "Error"
                 },
                 {
-                    "name": "current",
-                    "description": "The current socket connection status.",
-                    "type": "JSON",
-                    "props": [
-                        {
-                            "name": "reconnectionAttempts",
-                            "description": "The current reconnection attempts for the current port and transport used.",
-                            "type": "Number"
-                        },
-                        {
-                            "name": "port",
-                            "description": "The current port used.",
-                            "type": "Number"
-                        },
-                        {
-                            "name": "transport",
-                            "description": "The current transport used.",
-                            "type": "String"
-                        }
-                    ]
+                    "name": "attempt",
+                    "description": "The reconnection attempt.",
+                    "type": "Number"
+                },
+                {
+                    "name": "port",
+                    "description": "The port used for the reconnection attempt.",
+                    "type": "Number"
+                },
+                {
+                    "name": "transport",
+                    "description": "The transport used for the reconnection attempt.",
+                    "type": "Number"
                 }
             ],
             "since": "0.7.0",
-            "class": "Socket"
+            "class": "Temasys.Socket"
         },
         {
             "file": "source/components/socket.js",
-            "line": 181,
-            "description": "Event triggered when socket connection sends or receives a message.",
+            "line": 171,
+            "description": "Event triggered when Socket connection sends or receives Signaling server keep-alive responses.",
+            "itemtype": "event",
+            "name": "response",
+            "params": [
+                {
+                    "name": "timestamp",
+                    "description": "The timestamp in miliseconds when response is sent or received.",
+                    "type": "Number"
+                },
+                {
+                    "name": "isSelf",
+                    "description": "The flag if response is from self.",
+                    "type": "Boolean"
+                },
+                {
+                    "name": "latency",
+                    "description": "The current latency in miliseconds from receiving \"pong\"\n  response from Signaling server after sending a \"ping\".\n- This is defined when `isSelf` is `false`.",
+                    "type": "Number",
+                    "optional": true
+                }
+            ],
+            "since": "0.7.0",
+            "class": "Temasys.Socket"
+        },
+        {
+            "file": "source/components/socket.js",
+            "line": 182,
+            "description": "Event triggered when Socket connection sends or receives a message.",
             "itemtype": "event",
             "name": "message",
             "params": [
                 {
                     "name": "message",
-                    "description": "The socket message received or sent.",
+                    "description": "The message.",
                     "type": "JSON"
                 },
                 {
-                    "name": "error",
-                    "description": "The error object.\n  This is defined when message failed to send or parse when received.",
-                    "type": "Error",
-                    "optional": true
+                    "name": "isSelf",
+                    "description": "The flag if message is from self.",
+                    "type": "Boolean"
                 },
                 {
-                    "name": "isSelf",
-                    "description": "The flag if message is sent from self or not.",
-                    "type": "Boolean"
+                    "name": "error",
+                    "description": "The error object.\n- This is defined when message failed to send or parse received message.",
+                    "type": "Error",
+                    "optional": true
                 }
             ],
             "since": "0.7.0",
-            "class": "Socket"
+            "class": "Temasys.Socket"
         },
         {
             "file": "source/components/socket.js",
-            "line": 191,
+            "line": 192,
+            "description": "Event triggered when stats retrieval state has changed.",
+            "itemtype": "event",
+            "name": "getStatsStateChange",
+            "params": [
+                {
+                    "name": "state",
+                    "description": "The current stats retrieval state.\n- See {{#crossLink \"Temasys.Socket/GET_STATS_STATE_ENUM:attribute\"}}{{/crossLink}} for reference.",
+                    "type": "String"
+                },
+                {
+                    "name": "stats",
+                    "description": "The stats.\n- This is defined when `state` is `SUCCESS`.",
+                    "type": "JSON",
+                    "optional": true,
+                    "props": [
+                        {
+                            "name": "id",
+                            "description": "The Socket connection socket.io-client ID.",
+                            "type": "String"
+                        },
+                        {
+                            "name": "messages",
+                            "description": "The messages stats.",
+                            "type": "JSON",
+                            "props": [
+                                {
+                                    "name": "sent",
+                                    "description": "The number of messages sent from this Socket connection.",
+                                    "type": "Number"
+                                },
+                                {
+                                    "name": "received",
+                                    "description": "The number of messages received from this Socket connection.",
+                                    "type": "Number"
+                                },
+                                {
+                                    "name": "buffered",
+                                    "description": "The current number of messages buffered for this Socket connection to be sent.",
+                                    "type": "Number"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "responses",
+                            "description": "The responses stats.",
+                            "type": "JSON",
+                            "props": [
+                                {
+                                    "name": "ping",
+                                    "description": "The responses stats for \"ping\" response.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "ping.sent",
+                                    "description": "The total number of \"ping\" response sent from this Socket connection.",
+                                    "type": "Number"
+                                },
+                                {
+                                    "name": "ping.timestamp",
+                                    "description": "The latest timestamp of the \"ping\" response sent.",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "pong",
+                                    "description": "The response stats for \"pong\" response.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "pong.received",
+                                    "description": "The total number of \"pong\" response received from this Socket connection.",
+                                    "type": "Number"
+                                },
+                                {
+                                    "name": "pong.timestamp",
+                                    "description": "The latest timestamp of the \"pong\" response received.",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "latency",
+                                    "description": "The response latency.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "latency.average",
+                                    "description": "The average response latency in miliseconds.",
+                                    "type": "Number"
+                                },
+                                {
+                                    "name": "latency.lowest",
+                                    "description": "The lowest response latency in miliseconds.",
+                                    "type": "Number"
+                                },
+                                {
+                                    "name": "latency.highest",
+                                    "description": "The highest response latency in miliseconds.",
+                                    "type": "Number"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "name": "error",
+                    "description": "The error object.\n- This is defined when `state` is `FAILED`.",
+                    "type": "Error",
+                    "optional": true
+                }
+            ],
+            "since": "0.7.0",
+            "class": "Temasys.Socket"
+        },
+        {
+            "file": "source/components/socket.js",
+            "line": 220,
             "description": "Event triggered when there are exceptions thrown in this event handlers.",
             "itemtype": "event",
             "name": "domError",
@@ -1727,318 +3720,634 @@
                 }
             ],
             "since": "0.7.0",
-            "class": "Socket"
+            "class": "Temasys.Socket"
         },
         {
             "file": "source/components/socket.js",
-            "line": 198,
-            "description": "Event triggered when socket connection receives and sends responses to Signaling server for keep-alive.",
-            "itemtype": "event",
-            "name": "response",
-            "params": [
-                {
-                    "name": "state",
-                    "description": "The current socket connection response state.\n  References the {{#crossLink \"Socket/RESPONSE_ENUM:attribute\"}}{{/crossLink}} enum attribute.",
-                    "type": "String"
-                },
-                {
-                    "name": "timestamp",
-                    "description": "The current timestamp in miliseconds.",
-                    "type": "Number"
-                },
-                {
-                    "name": "latency",
-                    "description": "The current latency in miliseconds from receiving\n  the `RESPONSE.PONG` after sending out a `RESPONSE_ENUM.PING`.",
-                    "type": "Number",
-                    "optional": true
-                }
-            ],
-            "since": "0.7.0",
-            "class": "Socket"
-        },
-        {
-            "file": "source/components/socket.js",
-            "line": 210,
-            "description": "Function to subscribe to an event.",
-            "itemtype": "method",
-            "name": "on",
-            "params": [
-                {
-                    "name": "event",
-                    "description": "The event to subscribe to once.",
-                    "type": "String"
-                },
-                {
-                    "name": "callback",
-                    "description": "The callback listener function.",
-                    "type": "Function"
-                }
-            ],
-            "since": "0.7.0",
-            "class": "Socket"
-        },
-        {
-            "file": "source/components/socket.js",
-            "line": 220,
-            "description": "Function to subscribe to an event once.",
-            "itemtype": "method",
-            "name": "once",
-            "params": [
-                {
-                    "name": "event",
-                    "description": "The event to subscribe to once.",
-                    "type": "String"
-                },
-                {
-                    "name": "callback",
-                    "description": "The callback listener function.",
-                    "type": "Function"
-                },
-                {
-                    "name": "condition",
-                    "description": "The condition function that is called when\n  event is triggered. If condition is met (when function returns `true`), the\n  callback listener function is triggered.\n  The default is `function () { return true; }`.",
-                    "type": "Function",
-                    "optional": true
-                },
-                {
-                    "name": "fireAlways",
-                    "description": "The flag if callback listener function should always\n  be triggered regardless as long as condition function is met.\n  The default is `false`.",
-                    "type": "Boolean",
-                    "optional": true
-                }
-            ],
-            "since": "0.7.0",
-            "class": "Socket"
-        },
-        {
-            "file": "source/components/socket.js",
-            "line": 237,
-            "description": "Function to unsubscribe to events.",
-            "itemtype": "method",
-            "name": "off",
-            "params": [
-                {
-                    "name": "event",
-                    "description": "The specified event to unsubscribe.\n  When not provided, it will unsubscribe all event callback listener functions.",
-                    "type": "String",
-                    "optional": true
-                },
-                {
-                    "name": "callback",
-                    "description": "The specified callback listener function based on\n  the provided event to unsubscribe only.\n  When not provided, it will unsubscribe all callback listener functions subscribed to the event.",
-                    "type": "Function",
-                    "optional": true
-                }
-            ],
-            "since": "0.7.0",
-            "class": "Socket"
-        },
-        {
-            "file": "source/components/socket.js",
-            "line": 257,
-            "description": "The enum of socket connection states.",
+            "line": 238,
+            "description": "The enum of Socket connection states.",
             "itemtype": "attribute",
             "name": "STATE_ENUM",
             "params": [
                 {
                     "name": "RECONNECT_FAILED",
-                    "description": "The state when socket connection failed to reconnect after\n  the several specified attempts configured for the current port and transport used.\n  At this state, the socket connection will fallback to the next available port or transport.",
+                    "description": "The state when Socket connection failed to reconnect after\n  the several specified attempts configured for the current port and transport used.\n  At this state, the Socket connection will fallback to the next available port or transport.",
                     "type": "String"
                 },
                 {
                     "name": "RECONNECT_ERROR",
-                    "description": "The state when socket connection failed to reconnect for the\n  current attempt.",
+                    "description": "The state when Socket connection failed to reconnect for the\n  current attempt.",
                     "type": "String"
                 },
                 {
                     "name": "RECONNECT_ATTEMPT",
-                    "description": "The state when socket connection is attempting to reconnect.",
+                    "description": "The state when Socket connection is attempting to reconnect.",
                     "type": "String"
                 },
                 {
                     "name": "RECONNECTING",
-                    "description": "The state when socket connection is reconnecting.",
+                    "description": "The state when Socket connection is reconnecting.",
                     "type": "String"
                 },
                 {
                     "name": "RECONNECT",
-                    "description": "The state when socket connection has reconnected successfully.",
+                    "description": "The state when Socket connection has reconnected successfully.",
                     "type": "String"
                 },
                 {
                     "name": "CONNECT_TIMEOUT",
-                    "description": "The state when socket connection has failed to connect after\n  the specified timeout configured for the current port and transport.\n  At this state, the socket connection will attempt to reconnect a few more times if reconnection is enabled.",
+                    "description": "The state when Socket connection has failed to connect after\n  the specified timeout configured for the current port and transport.\n  At this state, the socket connection will attempt to reconnect a few more times if reconnection is enabled.",
                     "type": "String"
                 },
                 {
                     "name": "CONNECT_ERROR",
-                    "description": "The state when socket connection has errors and disconnects.",
+                    "description": "The state when Socket connection has errors and disconnects.",
                     "type": "String"
                 },
                 {
                     "name": "CONNECT",
-                    "description": "The state when socket connection has connected successfully.",
+                    "description": "The state when Socket connection has connected successfully.",
                     "type": "String"
                 },
                 {
                     "name": "DISCONNECT",
-                    "description": "The state when socket connection has been disconnected.",
+                    "description": "The state when Socket connection has been disconnected.",
                     "type": "String"
                 },
                 {
                     "name": "ABORT",
-                    "description": "The state when socket connection has aborted from attempting any available\n  ports or transports or reconnection as there is none left to reconnect or fallback with.",
+                    "description": "The state when Socket connection has aborted from attempting any available\n  ports or transports or reconnection as there is none left to reconnect or fallback with.",
                     "type": "String"
                 },
                 {
                     "name": "CONSTRUCT_ERROR",
-                    "description": "The state when socket connection failed to construct.",
+                    "description": "The state when Socket connection failed to construct.",
                     "type": "String"
                 }
             ],
             "type": "JSON",
+            "readonly": "",
+            "final": 1,
             "since": "0.7.0",
-            "class": "Socket"
+            "class": "Temasys.Socket"
+        },
+        {
+            "file": "source/components/socket.js",
+            "line": 278,
+            "description": "The enum of {{#crossLink \"Temasys.Socket/getStats:method\"}}{{/crossLink}} states.",
+            "itemtype": "attribute",
+            "name": "GET_STATS_STATE_ENUM",
+            "params": [
+                {
+                    "name": "LOADING",
+                    "description": "The state when `getStats()` is retrieving stats.",
+                    "type": "String"
+                },
+                {
+                    "name": "SUCCESS",
+                    "description": "The state when `getStats()` has retrieved stats successfully.",
+                    "type": "String"
+                },
+                {
+                    "name": "FAILED",
+                    "description": "The state when `getStats()` has failed to retrieve stats.",
+                    "type": "String"
+                }
+            ],
+            "readonly": "",
+            "final": 1,
+            "since": "0.7.0",
+            "class": "Temasys.Socket"
         },
         {
             "file": "source/components/socket.js",
             "line": 295,
-            "description": "The enum of socket response states.",
+            "description": "Function to retrieve Socket connection stats.",
+            "itemtype": "method",
+            "name": "getStats",
+            "return": {
+                "description": "The Promise for function request completion.",
+                "type": "Promise"
+            },
+            "example": [
+                "\n  socket.getStats().then(function (stats) {\n    console.log(\"Received stats ->\", stats);\n  }).catch(function (error) {\n    console.error(\"Received error ->\", error);\n  });"
+            ],
+            "since": "0.7.0",
+            "class": "Temasys.Socket"
+        },
+        {
+            "file": "source/components/socket.js",
+            "line": 311,
+            "description": "Function to start socket connection.",
+            "class": "Temasys.Socket"
+        },
+        {
+            "file": "source/components/socket.js",
+            "line": 321,
+            "description": "Internal function to update \"state\" event.",
+            "class": "Temasys.Socket"
+        },
+        {
+            "file": "source/components/socket.js",
+            "line": 436,
+            "description": "Socket.io-client \"connect\" state.",
+            "class": "Temasys.Socket"
+        },
+        {
+            "file": "source/components/socket.js",
+            "line": 443,
+            "description": "Socket.io-client \"reconnect\" state.",
+            "class": "Temasys.Socket"
+        },
+        {
+            "file": "source/components/socket.js",
+            "line": 450,
+            "description": "Socket.io-client \"disconnect\" state.",
+            "class": "Temasys.Socket"
+        },
+        {
+            "file": "source/components/socket.js",
+            "line": 457,
+            "description": "Socket.io-client \"connect_timeout\" state.",
+            "class": "Temasys.Socket"
+        },
+        {
+            "file": "source/components/socket.js",
+            "line": 464,
+            "description": "Socket.io-client \"connect_error\" state.",
+            "class": "Temasys.Socket"
+        },
+        {
+            "file": "source/components/socket.js",
+            "line": 472,
+            "description": "Socket.io-client \"reconnecting\" state.",
+            "class": "Temasys.Socket"
+        },
+        {
+            "file": "source/components/socket.js",
+            "line": 479,
+            "description": "Socket.io-client \"reconnect_error\" state.",
+            "class": "Temasys.Socket"
+        },
+        {
+            "file": "source/components/socket.js",
+            "line": 487,
+            "description": "Socket.io-client \"reconnect_failed\" state.",
+            "class": "Temasys.Socket"
+        },
+        {
+            "file": "source/components/socket.js",
+            "line": 494,
+            "description": "Socket.io-client \"reconnect_failed\" state.",
+            "class": "Temasys.Socket"
+        },
+        {
+            "file": "source/components/socket.js",
+            "line": 501,
+            "description": "Socket.io-client \"error\" state.\nDeprecated socket.io-client 1.4.x",
+            "class": "Temasys.Socket"
+        },
+        {
+            "file": "source/components/socket.js",
+            "line": 510,
+            "description": "Socket.io-client \"ping\" state.",
+            "class": "Temasys.Socket"
+        },
+        {
+            "file": "source/components/socket.js",
+            "line": 517,
+            "description": "Socket.io-client \"pong\" state.",
+            "class": "Temasys.Socket"
+        },
+        {
+            "file": "source/components/socket.js",
+            "line": 524,
+            "description": "Socket.io-client \"message\" state.",
+            "class": "Temasys.Socket"
+        },
+        {
+            "file": "source/components/socket.js",
+            "line": 549,
+            "description": "Function to stop socket connection.",
+            "class": "Temasys.Socket"
+        },
+        {
+            "file": "source/components/socket.js",
+            "line": 563,
+            "description": "Function to send the next batch of queued messages.",
+            "class": "Temasys.Socket"
+        },
+        {
+            "file": "source/components/socket.js",
+            "line": 616,
+            "description": "Function to send messages.",
+            "class": "Temasys.Socket"
+        },
+        {
+            "file": "source/components/socket.js",
+            "line": 622,
+            "description": "Internal function to send message.",
+            "class": "Temasys.Socket"
+        },
+        {
+            "file": "source/components/stream.js",
+            "line": 69,
+            "description": "The Stream ID.",
             "itemtype": "attribute",
-            "name": "RESPONSE_ENUM",
+            "name": "id",
+            "type": "String",
+            "readonly": "",
+            "since": "0.7.0",
+            "class": "Temasys.Stream"
+        },
+        {
+            "file": "source/components/stream.js",
+            "line": 79,
+            "description": "The flag if Stream is from self or not.",
+            "itemtype": "attribute",
+            "name": "remote",
+            "type": "Boolean",
+            "readonly": "",
+            "since": "0.7.0",
+            "class": "Temasys.Stream"
+        },
+        {
+            "file": "source/components/stream.js",
+            "line": 89,
+            "description": "The Stream settings.",
+            "itemtype": "attribute",
+            "name": "settings",
             "params": [
                 {
-                    "name": "PING",
-                    "description": "The state when ping packet is written out to Signaling server.",
-                    "type": "String"
+                    "name": "audio",
+                    "description": "The audio track constraints settings.\n- The value follows the `options.audio` (or `options.custom.audio`) parameter passed in the constructor\n  except for the `.id`.",
+                    "type": "JSON|Boolean",
+                    "props": [
+                        {
+                            "name": "id",
+                            "description": "The audio track ID.",
+                            "type": "String"
+                        }
+                    ]
                 },
                 {
-                    "name": "PONG",
-                    "description": "The state when pong packet response is received from Signaling server.",
-                    "type": "String"
+                    "name": "video",
+                    "description": "The video track constraints settings.\n- The value follows the `options.video` (or `options.custom.video`) parameter passed in the constructor\n  except for the `.id`.",
+                    "type": "JSON|Boolean",
+                    "props": [
+                        {
+                            "name": "id",
+                            "description": "The video track ID.",
+                            "type": "String"
+                        }
+                    ]
                 }
             ],
             "type": "JSON",
+            "readonly": "",
             "since": "0.7.0",
-            "class": "Socket"
+            "class": "Temasys.Stream"
         },
         {
-            "file": "source/components/socket.js",
-            "line": 309,
-            "description": "Function to start socket connection.",
-            "class": "Socket"
+            "file": "source/components/stream.js",
+            "line": 110,
+            "description": "The Stream current states.",
+            "itemtype": "attribute",
+            "name": "$current",
+            "type": "JSON",
+            "params": [
+                {
+                    "name": "tracks",
+                    "description": "The current Stream tracks states.",
+                    "type": "JSON",
+                    "props": [
+                        {
+                            "name": "audio",
+                            "description": "The current Stream audio track states.",
+                            "type": "JSON",
+                            "props": [
+                                {
+                                    "name": "muted",
+                                    "description": "The flag if Stream audio track is muted.",
+                                    "type": "Boolean"
+                                },
+                                {
+                                    "name": "state",
+                                    "description": "The current Stream audio track active state.\n- See {{#crossLink \"Temasys.Stream/TRACK_STATE_ENUM:attribute\"}}{{/crossLink}} for reference.",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "active",
+                                    "description": "The flag if Stream video track is active.",
+                                    "type": "Boolean"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "video",
+                            "description": "The current Stream video track states.",
+                            "type": "JSON",
+                            "props": [
+                                {
+                                    "name": "muted",
+                                    "description": "The flag if Stream video track is muted.",
+                                    "type": "Boolean"
+                                },
+                                {
+                                    "name": "state",
+                                    "description": "The current Stream video track active state.\n- See {{#crossLink \"Temasys.Stream/TRACK_STATE_ENUM:attribute\"}}{{/crossLink}} for reference.",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "active",
+                                    "description": "The flag if Stream video track is active.",
+                                    "type": "Boolean"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "name": "state",
+                    "description": "The current Stream active state.\n- See {{#crossLink \"Temasys.Stream/STATE_ENUM:attribute\"}}{{/crossLink}} for reference.",
+                    "type": "String"
+                },
+                {
+                    "name": "active",
+                    "description": "The flag if Stream is active.",
+                    "type": "Boolean"
+                }
+            ],
+            "since": "0.7.0",
+            "class": "Temasys.Stream"
         },
         {
-            "file": "source/components/socket.js",
-            "line": 319,
-            "description": "Internal function to update \"state\" event.",
-            "class": "Socket"
+            "file": "source/components/stream.js",
+            "line": 140,
+            "description": "Event triggered when Stream active state has been changed.",
+            "itemtype": "event",
+            "name": "stateChange",
+            "params": [
+                {
+                    "name": "state",
+                    "description": "The current Stream active state.\n- See {{#crossLink \"Temasys.Stream/STATE_ENUM:attribute\"}}{{/crossLink}} for reference.",
+                    "type": "String"
+                }
+            ],
+            "since": "0.7.0",
+            "class": "Temasys.Stream"
         },
         {
-            "file": "source/components/socket.js",
-            "line": 434,
-            "description": "Socket.io-client \"connect\" state.",
-            "class": "Socket"
+            "file": "source/components/stream.js",
+            "line": 148,
+            "description": "Event triggered when Stream track active state has been changed.",
+            "itemtype": "event",
+            "name": "trackStateChange",
+            "params": [
+                {
+                    "name": "state",
+                    "description": "The current Stream track active state.\n- See {{#crossLink \"Temasys.Stream/TRACK_STATE_ENUM:attribute\"}}{{/crossLink}} for reference.",
+                    "type": "String"
+                },
+                {
+                    "name": "type",
+                    "description": "The Stream track type.\n- Available values for identification are: `\"audio\"` for audio track and `\"video\"` for video track.",
+                    "type": "String"
+                },
+                {
+                    "name": "trackId",
+                    "description": "The Stream track ID.",
+                    "type": "String"
+                }
+            ],
+            "since": "0.7.0",
+            "class": "Temasys.Stream"
         },
         {
-            "file": "source/components/socket.js",
-            "line": 441,
-            "description": "Socket.io-client \"reconnect\" state.",
-            "class": "Socket"
+            "file": "source/components/stream.js",
+            "line": 159,
+            "description": "Event triggered when Stream track muted state has been changed.",
+            "itemtype": "event",
+            "name": "mutedStateChange",
+            "params": [
+                {
+                    "name": "muted",
+                    "description": "The flag if Stream track is muted.",
+                    "type": "Boolean"
+                },
+                {
+                    "name": "type",
+                    "description": "The Stream track type.\n- Available values for identification are: `\"audio\"` for audio track and `\"video\"` for video track.",
+                    "type": "String"
+                },
+                {
+                    "name": "trackId",
+                    "description": "The Stream track ID.",
+                    "type": "String"
+                }
+            ],
+            "since": "0.7.0",
+            "class": "Temasys.Stream"
         },
         {
-            "file": "source/components/socket.js",
-            "line": 448,
-            "description": "Socket.io-client \"disconnect\" state.",
-            "class": "Socket"
+            "file": "source/components/stream.js",
+            "line": 169,
+            "description": "Event triggered when there are exceptions thrown in this event handlers.",
+            "itemtype": "event",
+            "name": "domError",
+            "params": [
+                {
+                    "name": "error",
+                    "description": "The error object.",
+                    "type": "Error"
+                }
+            ],
+            "since": "0.7.0",
+            "class": "Temasys.Stream"
         },
         {
-            "file": "source/components/socket.js",
-            "line": 455,
-            "description": "Socket.io-client \"connect_timeout\" state.",
-            "class": "Socket"
+            "file": "source/components/stream.js",
+            "line": 178,
+            "description": "The enum of Stream active states.",
+            "itemtype": "attribute",
+            "name": "STATE_ENUM",
+            "params": [
+                {
+                    "name": "START",
+                    "description": "The state when Stream has been retrieved or initialised successfully and is active.",
+                    "type": "String"
+                },
+                {
+                    "name": "STOP",
+                    "description": "The state when Stream is not longer active.",
+                    "type": "String"
+                },
+                {
+                    "name": "ERROR",
+                    "description": "The state when Stream had failed to retrieve or initilaise successfully.",
+                    "type": "String"
+                }
+            ],
+            "readonly": "",
+            "final": 1,
+            "since": "0.7.0",
+            "class": "Temasys.Stream"
         },
         {
-            "file": "source/components/socket.js",
-            "line": 462,
-            "description": "Socket.io-client \"connect_error\" state.",
-            "class": "Socket"
+            "file": "source/components/stream.js",
+            "line": 195,
+            "description": "The enum of Stream track active states.",
+            "itemtype": "attribute",
+            "name": "TRACK_STATE_ENUM",
+            "params": [
+                {
+                    "name": "START",
+                    "description": "The state when Stream track has been initialiseda and is active.",
+                    "type": "String"
+                },
+                {
+                    "name": "STOP",
+                    "description": "The state when Stream track is not longer active.",
+                    "type": "String"
+                },
+                {
+                    "name": "DEVICE_MUTED",
+                    "description": "The state when Stream track streaming is muted by device not by client.",
+                    "type": "String"
+                },
+                {
+                    "name": "DEVICE_UNMUTED",
+                    "description": "The state when Stream track streaming is unmuted by device not by client.",
+                    "type": "String"
+                }
+            ],
+            "readonly": "",
+            "final": 1,
+            "since": "0.7.0",
+            "class": "Temasys.Stream"
         },
         {
-            "file": "source/components/socket.js",
-            "line": 470,
-            "description": "Socket.io-client \"reconnecting\" state.",
-            "class": "Socket"
+            "file": "source/components/stream.js",
+            "line": 214,
+            "description": "Function to attach Stream audio and video tracks to the `<video>` or `<audio>` DOM elements.",
+            "itemtype": "method",
+            "name": "attachElement",
+            "params": [
+                {
+                    "name": "element",
+                    "description": "The `<video>` or `<audio>` DOM element.",
+                    "type": "DOM"
+                },
+                {
+                    "name": "options",
+                    "description": "The options.",
+                    "type": "JSON",
+                    "optional": true,
+                    "props": [
+                        {
+                            "name": "audio",
+                            "description": "The flag if the Stream audio track should be appended to the element.",
+                            "type": "Boolean",
+                            "optional": true,
+                            "optdefault": "true"
+                        },
+                        {
+                            "name": "video",
+                            "description": "The flag if the Stream video track should be appended to the element.",
+                            "type": "Boolean",
+                            "optional": true,
+                            "optdefault": "true"
+                        }
+                    ]
+                }
+            ],
+            "example": [
+                "\n  var stream = new Temasys.Stream({ audio: true, video: true });\n  stream.on(\"stateChange\", function (state) {\n    if (state === stream.STATE_ENUM.START) {\n      stream.attachElement(videoDOM);\n    }\n  });"
+            ],
+            "since": "0.7.0",
+            "class": "Temasys.Stream"
         },
         {
-            "file": "source/components/socket.js",
-            "line": 477,
-            "description": "Socket.io-client \"reconnect_error\" state.",
-            "class": "Socket"
+            "file": "source/components/stream.js",
+            "line": 234,
+            "description": "Function to mute Stream audio and video tracks.",
+            "itemtype": "method",
+            "name": "muteTracks",
+            "params": [
+                {
+                    "name": "options",
+                    "description": "The options.",
+                    "type": "JSON",
+                    "optional": true,
+                    "props": [
+                        {
+                            "name": "audio",
+                            "description": "The flag if the Stream audio track should be muted.",
+                            "type": "Boolean",
+                            "optional": true
+                        },
+                        {
+                            "name": "video",
+                            "description": "The flag if the Stream video track should be muted.",
+                            "type": "Boolean",
+                            "optional": true
+                        }
+                    ]
+                }
+            ],
+            "return": {
+                "description": "The Promise for function request completion.",
+                "type": "Promise"
+            },
+            "example": [
+                "\n  var stream = new Temasys.Stream({ audio: true, video: true });\n  stream.on(\"stateChange\", function (state) {\n    if (state === stream.STATE_ENUM.START) {\n      stream.muteTracks().then(function (mutedStatus) {\n        console.log(\"Audio muted ->\", mutedStatus.audio);\n        console.log(\"Video muted ->\", mutedStatus.video);\n      }).catch(function (error, mutedStatus) {\n        console.error(\"Failed muting ->\", error);\n        console.error(\"Audio muted (current) ->\", mutedStatus.audio);\n        console.error(\"Video muted (current) ->\", mutedStatus.video);\n      });\n    }\n  });"
+            ],
+            "since": "0.7.0",
+            "class": "Temasys.Stream"
         },
         {
-            "file": "source/components/socket.js",
-            "line": 485,
-            "description": "Socket.io-client \"reconnect_failed\" state.",
-            "class": "Socket"
-        },
-        {
-            "file": "source/components/socket.js",
-            "line": 492,
-            "description": "Socket.io-client \"reconnect_failed\" state.",
-            "class": "Socket"
-        },
-        {
-            "file": "source/components/socket.js",
-            "line": 499,
-            "description": "Socket.io-client \"error\" state.\nDeprecated socket.io-client 1.4.x",
-            "class": "Socket"
-        },
-        {
-            "file": "source/components/socket.js",
-            "line": 508,
-            "description": "Socket.io-client \"ping\" state.",
-            "class": "Socket"
-        },
-        {
-            "file": "source/components/socket.js",
-            "line": 515,
-            "description": "Socket.io-client \"pong\" state.",
-            "class": "Socket"
-        },
-        {
-            "file": "source/components/socket.js",
-            "line": 522,
-            "description": "Socket.io-client \"message\" state.",
-            "class": "Socket"
-        },
-        {
-            "file": "source/components/socket.js",
-            "line": 547,
-            "description": "Function to stop socket connection.",
-            "class": "Socket"
-        },
-        {
-            "file": "source/components/socket.js",
-            "line": 561,
-            "description": "Function to send the next batch of queued messages.",
-            "class": "Socket"
-        },
-        {
-            "file": "source/components/socket.js",
-            "line": 614,
-            "description": "Function to send messages.",
-            "class": "Socket"
-        },
-        {
-            "file": "source/components/socket.js",
-            "line": 620,
-            "description": "Internal function to send message.",
-            "class": "Socket"
+            "file": "source/components/stream.js",
+            "line": 261,
+            "description": "Function to stop Stream audio and video tracks.",
+            "itemtype": "method",
+            "name": "stopTracks",
+            "params": [
+                {
+                    "name": "options",
+                    "description": "The options.",
+                    "type": "JSON",
+                    "optional": true,
+                    "props": [
+                        {
+                            "name": "audio",
+                            "description": "The flag if the Stream audio track should be stopped.",
+                            "type": "Boolean",
+                            "optional": true,
+                            "optdefault": "true"
+                        },
+                        {
+                            "name": "audio",
+                            "description": "The flag if the Stream audio track should be stopped.",
+                            "type": "Boolean",
+                            "optional": true,
+                            "optdefault": "true"
+                        }
+                    ]
+                }
+            ],
+            "return": {
+                "description": "The Promise for function request completion.",
+                "type": "Promise"
+            },
+            "example": [
+                " \n  stream.stopTracks().then(function (activeStatus) {\n    console.log(\"Audio active ->\", activeStatus.audio);\n    console.log(\"Video active ->\", activeStatus.video);\n  }).catch(function (error, activeStatus) {\n    console.error(\"Failed stopping tracks ->\", error);\n    console.error(\"Audio active (current) ->\", activeStatus.audio);\n    console.error(\"Video active (current) ->\", activeStatus.video);\n  });"
+            ],
+            "since": "0.7.0",
+            "class": "Temasys.Stream"
         },
         {
             "file": "source/components/utils.js",
-            "line": 7,
+            "line": 9,
             "description": "Function that loops through an Array or JSON object.",
             "itemtype": "method",
             "name": "forEach",
@@ -2059,7 +4368,7 @@
         },
         {
             "file": "source/components/utils.js",
-            "line": 39,
+            "line": 41,
             "description": "Function that creates an event emitter manager to handle event triggers and subscription.",
             "itemtype": "method",
             "name": "createEventManager",
@@ -2072,7 +4381,7 @@
         },
         {
             "file": "source/components/utils.js",
-            "line": 62,
+            "line": 64,
             "description": "Function to subscribe to an event.",
             "itemtype": "method",
             "name": "createEventManager.on",
@@ -2093,7 +4402,7 @@
         },
         {
             "file": "source/components/utils.js",
-            "line": 82,
+            "line": 84,
             "description": "Function to subscribe to an event once.",
             "itemtype": "method",
             "name": "createEventManager.once",
@@ -2126,7 +4435,7 @@
         },
         {
             "file": "source/components/utils.js",
-            "line": 110,
+            "line": 112,
             "description": "Function to unsubscribe to an event.",
             "itemtype": "method",
             "name": "createEventManager.off",
@@ -2149,7 +4458,7 @@
         },
         {
             "file": "source/components/utils.js",
-            "line": 151,
+            "line": 153,
             "description": "Function that when provided catches errors instead of throwing them during event subscription or triggers.",
             "itemtype": "method",
             "name": "createEventManager.catch",
@@ -2172,7 +4481,7 @@
         },
         {
             "file": "source/components/utils.js",
-            "line": 163,
+            "line": 165,
             "description": "Function to trigger an event.",
             "itemtype": "method",
             "name": "createEventManager.emit",
@@ -2188,7 +4497,7 @@
         },
         {
             "file": "source/components/utils.js",
-            "line": 202,
+            "line": 204,
             "description": "Function that gets byte length of string.",
             "class": "Temasys.Utils"
         },
@@ -11908,10 +14217,6 @@
     ],
     "warnings": [
         {
-            "message": "param name missing: {}",
-            "line": " source/components/peer.js:1"
-        },
-        {
             "message": "param name/type/descript missing",
             "line": " source/components/room.js:109"
         },
@@ -12108,60 +14413,32 @@
             "line": " source/stream-media.js:1380"
         },
         {
-            "message": "Missing item type\nClass that handles the RTCDataChannel connection.",
-            "line": " source/components/datachannel.js:1"
-        },
-        {
             "message": "Missing item type\nFunction to start initializing events.",
-            "line": " source/components/datachannel.js:25"
+            "line": " source/components/datachannel.js:218"
         },
         {
             "message": "Missing item type\nFunction to send data.",
-            "line": " source/components/datachannel.js:96"
-        },
-        {
-            "message": "Missing item type\nFunction to get current stats.",
-            "line": " source/components/datachannel.js:155"
+            "line": " source/components/datachannel.js:289"
         },
         {
             "message": "Missing item type\nFunction to close connection.",
-            "line": " source/components/datachannel.js:175"
-        },
-        {
-            "message": "Missing item type\nMixin that handles event listeners and subscription.",
-            "line": " source/components/event.mixin.js:1"
-        },
-        {
-            "message": "Missing item type\nFunction to subscribe to an event.",
-            "line": " source/components/event.mixin.js:11"
-        },
-        {
-            "message": "Missing item type\nFunction to subscribe to an event once.",
-            "line": " source/components/event.mixin.js:22"
-        },
-        {
-            "message": "Missing item type\nFunction to subscribe to an event once.",
-            "line": " source/components/event.mixin.js:33"
-        },
-        {
-            "message": "Missing item type\nFunction to emit events.",
-            "line": " source/components/event.mixin.js:71"
+            "line": " source/components/datachannel.js:348"
         },
         {
             "message": "Missing item type\nFunction to send message to Peer.",
-            "line": " source/components/peer.js:12"
+            "line": " source/components/peer.js:698"
         },
         {
             "message": "Missing item type\nFunction to send message to P",
-            "line": " source/components/peer.js:20"
+            "line": " source/components/peer.js:706"
         },
         {
             "message": "Missing item type\nFunction to start Peer connection.",
-            "line": " source/components/peer.js:24"
+            "line": " source/components/peer.js:710"
         },
         {
             "message": "Missing item type\nFunction to stop Peer connection.",
-            "line": " source/components/peer.js:31"
+            "line": " source/components/peer.js:717"
         },
         {
             "message": "Missing item type\nInternal function to update and trigger state.",
@@ -12201,83 +14478,83 @@
         },
         {
             "message": "Missing item type\nFunction to start socket connection.",
-            "line": " source/components/socket.js:309"
+            "line": " source/components/socket.js:311"
         },
         {
             "message": "Missing item type\nInternal function to update \"state\" event.",
-            "line": " source/components/socket.js:319"
+            "line": " source/components/socket.js:321"
         },
         {
             "message": "Missing item type\nSocket.io-client \"connect\" state.",
-            "line": " source/components/socket.js:434"
+            "line": " source/components/socket.js:436"
         },
         {
             "message": "Missing item type\nSocket.io-client \"reconnect\" state.",
-            "line": " source/components/socket.js:441"
+            "line": " source/components/socket.js:443"
         },
         {
             "message": "Missing item type\nSocket.io-client \"disconnect\" state.",
-            "line": " source/components/socket.js:448"
+            "line": " source/components/socket.js:450"
         },
         {
             "message": "Missing item type\nSocket.io-client \"connect_timeout\" state.",
-            "line": " source/components/socket.js:455"
+            "line": " source/components/socket.js:457"
         },
         {
             "message": "Missing item type\nSocket.io-client \"connect_error\" state.",
-            "line": " source/components/socket.js:462"
+            "line": " source/components/socket.js:464"
         },
         {
             "message": "Missing item type\nSocket.io-client \"reconnecting\" state.",
-            "line": " source/components/socket.js:470"
+            "line": " source/components/socket.js:472"
         },
         {
             "message": "Missing item type\nSocket.io-client \"reconnect_error\" state.",
-            "line": " source/components/socket.js:477"
+            "line": " source/components/socket.js:479"
         },
         {
             "message": "Missing item type\nSocket.io-client \"reconnect_failed\" state.",
-            "line": " source/components/socket.js:485"
+            "line": " source/components/socket.js:487"
         },
         {
             "message": "Missing item type\nSocket.io-client \"reconnect_failed\" state.",
-            "line": " source/components/socket.js:492"
+            "line": " source/components/socket.js:494"
         },
         {
             "message": "Missing item type\nSocket.io-client \"error\" state.\nDeprecated socket.io-client 1.4.x",
-            "line": " source/components/socket.js:499"
+            "line": " source/components/socket.js:501"
         },
         {
             "message": "Missing item type\nSocket.io-client \"ping\" state.",
-            "line": " source/components/socket.js:508"
+            "line": " source/components/socket.js:510"
         },
         {
             "message": "Missing item type\nSocket.io-client \"pong\" state.",
-            "line": " source/components/socket.js:515"
+            "line": " source/components/socket.js:517"
         },
         {
             "message": "Missing item type\nSocket.io-client \"message\" state.",
-            "line": " source/components/socket.js:522"
+            "line": " source/components/socket.js:524"
         },
         {
             "message": "Missing item type\nFunction to stop socket connection.",
-            "line": " source/components/socket.js:547"
+            "line": " source/components/socket.js:549"
         },
         {
             "message": "Missing item type\nFunction to send the next batch of queued messages.",
-            "line": " source/components/socket.js:561"
+            "line": " source/components/socket.js:563"
         },
         {
             "message": "Missing item type\nFunction to send messages.",
-            "line": " source/components/socket.js:614"
+            "line": " source/components/socket.js:616"
         },
         {
             "message": "Missing item type\nInternal function to send message.",
-            "line": " source/components/socket.js:620"
+            "line": " source/components/socket.js:622"
         },
         {
             "message": "Missing item type\nFunction that gets byte length of string.",
-            "line": " source/components/utils.js:202"
+            "line": " source/components/utils.js:204"
         },
         {
             "message": "Missing item type\nGlobal function that clones an object.",

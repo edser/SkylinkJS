@@ -34,6 +34,8 @@ function Datachannel (channel, peerId, propertyId) {
    * @attribute $current
    * @param {String} state The current Datachannel connection state.
    * @param {Boolean} connected The flag if Datachannel is connected.
+   * @param {String} streamId The current Datatransfer streaming session ID.
+   * @param {String} transferId The current Datatransfer transfer session ID.
    * @type JSON
    * @readOnly
    * @for Temasys.Datachannel
@@ -41,7 +43,9 @@ function Datachannel (channel, peerId, propertyId) {
    */
   this.$current = {
     state: null,
-    connected: false
+    connected: false,
+    streamId: null,
+    transferId: null
   };
   
   // Public properties
@@ -102,7 +106,7 @@ function Datachannel (channel, peerId, propertyId) {
    * @since 0.7.0
    */
   /**
-   * Event triggered when stats retrieval state has changed.
+   * Event triggered when {{#crossLink "Temasys.Datachannel/getStats:method"}}{{/crossLink}} state has changed.
    * @event getStatsStateChange
    * @param {String} state The current stats retrieval state.
    * - See {{#crossLink "Temasys.Datachannel/GET_STATS_STATE_ENUM:attribute"}}{{/crossLink}} for reference.

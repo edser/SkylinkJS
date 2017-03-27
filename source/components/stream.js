@@ -13,7 +13,7 @@
  * - The list of available audio track sources can be obtained from
  *   {{#crossLink "Utils/Utils.Stream.getSources:method"}}{{/crossLink}}.
  * @param {Array} [options.audio.optional] @[exp] The native `getUserMedia()` API audio optional constraints.
- *   E.g. `optional: [{ xxx, xxx }]
+ *   E.g. `optional: ({ xxx, xxx })`
  * @param {JSON|Boolean} [options.video] The video track options.
  * - When provided as a `Boolean`, it simply passes it as `true` as the native `getUserMedia()` API video constraint.
  * @param {JSON|String} [options.video.sourceId] The video track source ID to request.

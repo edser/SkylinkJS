@@ -85,6 +85,18 @@
                       Socket <small>class</small>
                     </a>
                   </li>
+                  ([&quot;Temasys&quot;,&quot;test&quot;])
+                  <li>
+                    <a href="classes/Temasys.html" class="nodropdown">
+                      Temasys <small>class</small>
+                    </a>
+                  </li>
+                  ([&quot;Temasys.Datachannel&quot;,&quot;test&quot;])
+                  <li>
+                    <a href="classes/Temasys.Datachannel.html" class="nodropdown">
+                      Temasys.Datachannel <small>class</small>
+                    </a>
+                  </li>
                   ([&quot;Temasys.Peer&quot;,&quot;test&quot;])
                   <li>
                     <a href="classes/Temasys.Peer.html" class="nodropdown">
@@ -101,6 +113,12 @@
                   <li>
                     <a href="classes/Temasys.Socket.html" class="nodropdown">
                       Temasys.Socket <small>class</small>
+                    </a>
+                  </li>
+                  ([&quot;Temasys.Stream&quot;,&quot;test&quot;])
+                  <li>
+                    <a href="classes/Temasys.Stream.html" class="nodropdown">
+                      Temasys.Stream <small>class</small>
                     </a>
                   </li>
                   ([&quot;Temasys.Utils&quot;,&quot;test&quot;])
@@ -127,13 +145,13 @@
       
       
       <div class="box intro">
-          <p>Handles the Peer connection.</p>
+          <p>Handles the native <code>RTCPeerConnection</code> object connection.</p>
       
       </div>
       
           <div class="constructor">
               <h2>Constructor</h2>
-      <div id="method_Temasys.Peer" class="method item">
+      <div id="method_Temasys.Peer" class="method item private">
           <h3 class="name"><code>Temasys.Peer</code></h3>
       
               <div class="args">
@@ -141,14 +159,12 @@
                       <li class="arg">
                               <code>options</code>
                       </li>
-                      <li class="arg">
-                              <code>UNKNOWN</code>
-                      </li>
                   </ul><span class="paren">)</span>
               </div>
       
       
       
+              <span class="flag private">private</span>
       
       
       
@@ -183,16 +199,953 @@
       
                           </div>
       
-                      </li>
-                      <li class="param">
-                              <code class="param-name">UNKNOWN</code>
-                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a></span>
+                              <ul class="params-list">
+                                  <li class="param">
+                                          <code class="param-name optional">[constraints] @[exp]</code>
+                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
+                                          <span class="flag optional" title="This parameter is optional.">optional</span>
       
+                                      <div class="param-description">
+                                          <p>The native <code>RTCPeerConnection</code> object constraints settings.</p>
       
-                          <div class="param-description">
-                               
-                          </div>
+                                      </div>
       
+                                  </li>
+                                  <li class="param">
+                                          <code class="param-name optional">[constraints.iceTransportPolicy=ALL]</code>
+                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
+                                          <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                      <div class="param-description">
+                                          <p>The ICE transport policy for gathering ICE candidates.</p>
+      <ul>
+      <li>See <a href="../classes/Temasys.Peer.html#attr_ICE_TRANSPORT_POLICY_ENUM" class="crosslink">ICE_TRANSPORT_POLICY_ENUM</a> for reference.</li>
+      </ul>
+      
+                                      </div>
+      
+                                  </li>
+                                  <li class="param">
+                                          <code class="param-name optional">[constraints.rtcpMuxPolicy=REQUIRE]</code>
+                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
+                                          <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                      <div class="param-description">
+                                          <p>The RTP and RTCP multiplex policy for gathering ICE candidates.</p>
+      <ul>
+      <li>See <a href="../classes/Temasys.Peer.html#attr_RTCP_MUX_POLICY_ENUM" class="crosslink">RTCP_MUX_POLICY_ENUM</a> for reference.</li>
+      </ul>
+      
+                                      </div>
+      
+                                  </li>
+                                  <li class="param">
+                                          <code class="param-name optional">[constraints.bundlePolicy=BALANCED]</code>
+                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
+                                          <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                      <div class="param-description">
+                                          <p>The bundle policy for gathering ICE candidates.</p>
+      <ul>
+      <li>See <a href="../classes/Temasys.Peer.html#attr_BUNDLE_POLICY_ENUM" class="crosslink">BUNDLE_POLICY_ENUM</a> for reference.</li>
+      </ul>
+      
+                                      </div>
+      
+                                  </li>
+                                  <li class="param">
+                                          <code class="param-name optional">[constraints.iceCandidatePoolSize=0]</code>
+                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number" class="crosslink external" target="_blank">Number</a></span>
+                                          <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                      <div class="param-description">
+                                          <p>The ICE candidate pool size to limit
+      for gathering ICE candidates.</p>
+      <ul>
+      <li>Set it as <code>0</code> to remove limits.</li>
+      </ul>
+      
+                                      </div>
+      
+                                  </li>
+                                  <li class="param">
+                                          <code class="param-name optional">[constraints.certificate]</code>
+                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a> | RTCCertificate</span>
+                                          <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                      <div class="param-description">
+                                          <p>The certificate algorithm to use for
+      the ICE connection media streaming encryption.</p>
+      <ul>
+      <li>When provided as <code>String</code>, see <a href="../classes/Temasys.Peer.html#attr_CERTIFICATE_ENUM" class="crosslink">CERTIFICATE_ENUM</a> for reference.</li>
+      </ul>
+      
+                                      </div>
+      
+                                  </li>
+                                  <li class="param">
+                                          <code class="param-name optional">[constraints.iceServers]</code>
+                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
+                                          <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                      <div class="param-description">
+                                          <p>The ICE servers settings.</p>
+      
+                                      </div>
+      
+                                  </li>
+                                  <li class="param">
+                                          <code class="param-name optional">[constraints.iceServers.turn]</code>
+                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean" class="crosslink external" target="_blank">Boolean</a></span>
+                                          <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                      <div class="param-description">
+                                          <p>The TURN ICE servers settings.</p>
+      <ul>
+      <li>When provided as a <code>Boolean</code>, it determines if TURN ICE servers should be used.</li>
+      </ul>
+      
+                                      </div>
+      
+                                  </li>
+                                  <li class="param">
+                                          <code class="param-name optional">[constraints.iceServers.turn.secure=false]</code>
+                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean" class="crosslink external" target="_blank">Boolean</a></span>
+                                          <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                      <div class="param-description">
+                                          <p>The flag if TURN servers with TLS only should be used.</p>
+      
+                                      </div>
+      
+                                  </li>
+                                  <li class="param">
+                                          <code class="param-name optional">[constraints.iceServers.turn.transport=AUTO]</code>
+                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
+                                          <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                      <div class="param-description">
+                                          <p>The TURN server transport to use.</p>
+      <ul>
+      <li>See <a href="../classes/Temasys.Peer.html#attr_TURN_TRANSPORT_ENUM" class="crosslink">TURN_TRANSPORT_ENUM</a> for reference.</li>
+      </ul>
+      
+                                      </div>
+      
+                                  </li>
+                                  <li class="param">
+                                          <code class="param-name optional">[constraints.iceServers.turn.urls]</code>
+                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array" class="crosslink external" target="_blank">Array</a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
+                                          <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                      <div class="param-description">
+                                          <p>The list of TURN servers urls to use.
+      E.g. <code>("turn.temasys.io:3478", "turn.temasys.io:19305")</code> or <code>"turn.temasys.io"</code></p>
+      
+                                      </div>
+      
+                                  </li>
+                                  <li class="param">
+                                          <code class="param-name optional">[constraints.iceServers.stun]</code>
+                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean" class="crosslink external" target="_blank">Boolean</a></span>
+                                          <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                      <div class="param-description">
+                                          <p>The STUN ICE servers settings.</p>
+      <ul>
+      <li>When provided as a <code>Boolean</code>, it determines if STUN ICE servers should be used.</li>
+      </ul>
+      
+                                      </div>
+      
+                                  </li>
+                                  <li class="param">
+                                          <code class="param-name optional">[constraints.iceServers.stun.public]</code>
+                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean" class="crosslink external" target="_blank">Boolean</a></span>
+                                          <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                      <div class="param-description">
+                                          <p>The flag if public STUN ICE servers should be used.</p>
+      
+                                      </div>
+      
+                                  </li>
+                                  <li class="param">
+                                          <code class="param-name optional">[constraints.iceServers.stun.urls]</code>
+                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array" class="crosslink external" target="_blank">Array</a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
+                                          <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                      <div class="param-description">
+                                          <p>The list of STUN servers urls to use.
+      E.g. <code>("turn.temasys.io:3478", "turn.temasys.io:19305")</code> or <code>"turn.temasys.io"</code></p>
+      
+                                      </div>
+      
+                                  </li>
+                                  <li class="param">
+                                          <code class="param-name optional">[candidates] @[exp]</code>
+                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
+                                          <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                      <div class="param-description">
+                                          <p>The ICE candidates settings.</p>
+      
+                                      </div>
+      
+                                  </li>
+                                  <li class="param">
+                                          <code class="param-name optional">[candidates.host=true]</code>
+                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean" class="crosslink external" target="_blank">Boolean</a></span>
+                                          <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                      <div class="param-description">
+                                          <p>The flag if "host" ICE candidates should be used.</p>
+      
+                                      </div>
+      
+                                  </li>
+                                  <li class="param">
+                                          <code class="param-name optional">[candidates.srflx=true]</code>
+                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean" class="crosslink external" target="_blank">Boolean</a></span>
+                                          <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                      <div class="param-description">
+                                          <p>The flag if "srflx" ICE candidates should be used.</p>
+      
+                                      </div>
+      
+                                  </li>
+                                  <li class="param">
+                                          <code class="param-name optional">[candidates.relay=true]</code>
+                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean" class="crosslink external" target="_blank">Boolean</a></span>
+                                          <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                      <div class="param-description">
+                                          <p>The flag if "relay" ICE candidates should be used.</p>
+      
+                                      </div>
+      
+                                  </li>
+                                  <li class="param">
+                                          <code class="param-name optional">[codecs] @[exp]</code>
+                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
+                                          <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                      <div class="param-description">
+                                          <p>The codecs settings.</p>
+      <ul>
+      <li>This configures the Peer connection native <code>RTCSessionDescription</code> object string.</li>
+      </ul>
+      
+                                      </div>
+      
+                                  </li>
+                                  <li class="param">
+                                          <code class="param-name optional">[codecs.params]</code>
+                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
+                                          <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                      <div class="param-description">
+                                          <p>The media connection codecs parameters settings.</p>
+      <ul>
+      <li>When settings are not provided, the default browser configuration is used.</li>
+      </ul>
+      
+                                      </div>
+      
+                                  </li>
+                                  <li class="param">
+                                          <code class="param-name optional">[codecs.params.audio]</code>
+                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
+                                          <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                      <div class="param-description">
+                                          <p>The media connection audio codecs settings.</p>
+      
+                                      </div>
+      
+                                  </li>
+                                  <li class="param">
+                                          <code class="param-name optional">[codecs.params.audio.opus]</code>
+                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
+                                          <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                      <div class="param-description">
+                                          <p>The media connection OPUS audio codec settings.</p>
+      <ul>
+      <li>When provided as a <code>String</code>, it sets as the full parameter settings. E.g. <code>minptime=1;stereo=1</code></li>
+      </ul>
+      
+                                      </div>
+      
+                                  </li>
+                                  <li class="param">
+                                          <code class="param-name optional">[codecs.params.audio.opus.stereo]</code>
+                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean" class="crosslink external" target="_blank">Boolean</a></span>
+                                          <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                      <div class="param-description">
+                                          <p>The flag if OPUS audio codec stereo band
+      should be configured for sending audio packets.</p>
+      
+                                      </div>
+      
+                                  </li>
+                                  <li class="param">
+                                          <code class="param-name optional">[codecs.params.audio.opus.usedtx]</code>
+                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean" class="crosslink external" target="_blank">Boolean</a></span>
+                                          <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                      <div class="param-description">
+                                          <p>The flag if OPUS audio codec should enable
+      DTX (Discontinuous Transmission) for sending audio packets. This might help to reduce bandwidth
+      as it reduces the bitrate during silence or background noise, and goes hand-in-hand with the
+      <code>options.media.audio.voiceActivityDetection</code> flag.</p>
+      
+                                      </div>
+      
+                                  </li>
+                                  <li class="param">
+                                          <code class="param-name optional">[codecs.params.audio.opus.useinbandfec]</code>
+                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean" class="crosslink external" target="_blank">Boolean</a></span>
+                                          <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                      <div class="param-description">
+                                          <p>The flag if OPUS audio codec has the
+      capability to take advantage of the in-band FEC (Forward Error Correction) when sending audio packets.
+      This helps to reduce the harm of packet loss by encoding information about the previous packet loss.</p>
+      
+                                      </div>
+      
+                                  </li>
+                                  <li class="param">
+                                          <code class="param-name optional">[codecs.params.audio.opus.maxplaybackrate]</code>
+                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number" class="crosslink external" target="_blank">Number</a></span>
+                                          <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                      <div class="param-description">
+                                          <p>The OPUS audio codec
+      maximum output sampling rate in Hz (hertz) that is is capable of receiving audio packets,
+      to adjust to the hardware limitations and ensure that any sending audio packets
+      would not encode at a higher sampling rate specified by this.</p>
+      <ul>
+      <li>This value must be between <code>8000</code> to <code>48000</code>.</li>
+      </ul>
+      
+                                      </div>
+      
+                                  </li>
+                                  <li class="param">
+                                          <code class="param-name optional">[codecs.params.audio.opus.minptime]</code>
+                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number" class="crosslink external" target="_blank">Number</a></span>
+                                          <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                      <div class="param-description">
+                                          <p>The OPUS audio codec encoder
+      minimum length of time in milleseconds should be encapsulated for a single audio data packet.</p>
+      
+                                      </div>
+      
+                                  </li>
+                                  <li class="param">
+                                          <code class="param-name optional">[codecs.params.audio.telephoneEvent]</code>
+                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
+                                          <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                      <div class="param-description">
+                                          <p>The media connection DTMF audio codec settings.</p>
+      <ul>
+      <li>When provided as a <code>String</code>, it sets as the full parameter settings. E.g. <code>0-5</code></li>
+      </ul>
+      
+                                      </div>
+      
+                                  </li>
+                                  <li class="param">
+                                          <code class="param-name optional">[codecs.params.audio.pcma]</code>
+                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
+                                          <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                      <div class="param-description">
+                                          <p>The media connection PCMA (G711a) audio codec settings.</p>
+      <ul>
+      <li>When provided as a <code>String</code>, it sets as the full parameter settings.</li>
+      </ul>
+      
+                                      </div>
+      
+                                  </li>
+                                  <li class="param">
+                                          <code class="param-name optional">[codecs.params.audio.pcmu]</code>
+                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
+                                          <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                      <div class="param-description">
+                                          <p>The media connection PCMU (G711u) audio codec settings.</p>
+      <ul>
+      <li>When provided as a <code>String</code>, it sets as the full parameter settings.</li>
+      </ul>
+      
+                                      </div>
+      
+                                  </li>
+                                  <li class="param">
+                                          <code class="param-name optional">[codecs.params.audio.g722]</code>
+                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
+                                          <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                      <div class="param-description">
+                                          <p>The media connection G722 audio codec settings.</p>
+      <ul>
+      <li>When provided as a <code>String</code>, it sets as the full parameter settings.</li>
+      </ul>
+      
+                                      </div>
+      
+                                  </li>
+                                  <li class="param">
+                                          <code class="param-name optional">[codecs.params.audio.isac]</code>
+                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
+                                          <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                      <div class="param-description">
+                                          <p>The media connection ISAC audio codec settings.</p>
+      <ul>
+      <li>When provided as a <code>String</code>, it sets as the full parameter settings.</li>
+      </ul>
+      
+                                      </div>
+      
+                                  </li>
+                                  <li class="param">
+                                          <code class="param-name optional">[codecs.params.audio.ilbc]</code>
+                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
+                                          <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                      <div class="param-description">
+                                          <p>The media connection iLBC audio codec settings.</p>
+      <ul>
+      <li>When provided as a <code>String</code>, it sets as the full parameter settings.</li>
+      </ul>
+      
+                                      </div>
+      
+                                  </li>
+                                  <li class="param">
+                                          <code class="param-name optional">[codecs.params.video]</code>
+                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
+                                          <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                      <div class="param-description">
+                                          <p>The media connection video codecs settings.</p>
+      
+                                      </div>
+      
+                                  </li>
+                                  <li class="param">
+                                          <code class="param-name optional">[codecs.params.video.h264]</code>
+                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
+                                          <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                      <div class="param-description">
+                                          <p>The media connection H264 video codec settings.</p>
+      <ul>
+      <li>When provided as a <code>String</code>, it sets as the full parameter settings. E.g. <code>levelAsymmetryAllowed=1;packetizationMode=1</code></li>
+      </ul>
+      
+                                      </div>
+      
+                                  </li>
+                                  <li class="param">
+                                          <code class="param-name optional">[codecs.params.video.h264.profileLevelId]</code>
+                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
+                                          <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                      <div class="param-description">
+                                          <p>The H264 video codec base16 encoded
+      string which indicates the H264 baseline, main, or the extended profiles.</p>
+      
+                                      </div>
+      
+                                  </li>
+                                  <li class="param">
+                                          <code class="param-name optional">[codecs.params.video.h264.levelAsymmetryAllowed]</code>
+                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean" class="crosslink external" target="_blank">Boolean</a></span>
+                                          <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                      <div class="param-description">
+                                          <p>The flag if H264 video codec
+      encoder of video packets should be at a different level from decoder of video packets.</p>
+      
+                                      </div>
+      
+                                  </li>
+                                  <li class="param">
+                                          <code class="param-name optional">[codecs.params.video.h264.packetizationMode]</code>
+                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean" class="crosslink external" target="_blank">Boolean</a></span>
+                                          <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                      <div class="param-description">
+                                          <p>The flag if H264 video codec
+      packetization mode should be enabled where it splits video frames that are larger for a RTP packet into RTP packet chunks.</p>
+      
+                                      </div>
+      
+                                  </li>
+                                  <li class="param">
+                                          <code class="param-name optional">[codecs.params.video.vp8]</code>
+                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
+                                          <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                      <div class="param-description">
+                                          <p>The media connection VP8 video codec settings.</p>
+      <ul>
+      <li>When provided as a <code>String</code>, it sets as the full parameter settings.</li>
+      </ul>
+      
+                                      </div>
+      
+                                  </li>
+                                  <li class="param">
+                                          <code class="param-name optional">[codecs.params.video.vp8.maxFr]</code>
+                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number" class="crosslink external" target="_blank">Number</a></span>
+                                          <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                      <div class="param-description">
+                                          <p>The maximum number of frames per second (fps) the
+      VP8 video decoder is capable of decoding video packets.</p>
+      
+                                      </div>
+      
+                                  </li>
+                                  <li class="param">
+                                          <code class="param-name optional">[codecs.params.video.vp8.maxFs]</code>
+                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number" class="crosslink external" target="_blank">Number</a></span>
+                                          <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                      <div class="param-description">
+                                          <p>The maximum number of frame size macroblocks
+      that the VP8 video decoder is capable of decoding video packets.</p>
+      <ul>
+      <li>The value has to have the width and height of the frame in macroblocks less than the value of
+      <code>parseInt(Math.sqrt(maxFs * 8))</code>. For example, if the value is <code>1200</code>, it is capable of the
+      support of <code>640x480</code> frame width and height, which heights up to <code>1552px</code> (<code>97</code> macroblocks value.</li>
+      </ul>
+      
+                                      </div>
+      
+                                  </li>
+                                  <li class="param">
+                                          <code class="param-name optional">[codecs.params.video.vp9]</code>
+                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
+                                          <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                      <div class="param-description">
+                                          <p>The media connection VP9 video codec settings.</p>
+      <ul>
+      <li>When provided as a <code>String</code>, it sets as the full parameter settings.</li>
+      </ul>
+      
+                                      </div>
+      
+                                  </li>
+                                  <li class="param">
+                                          <code class="param-name optional">[codecs.params.video.vp9.maxFr]</code>
+                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number" class="crosslink external" target="_blank">Number</a></span>
+                                          <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                      <div class="param-description">
+                                          <p>The maximum number of frames per second (fps) the
+      VP9 video decoder is capable of decoding video packets.</p>
+      
+                                      </div>
+      
+                                  </li>
+                                  <li class="param">
+                                          <code class="param-name optional">[codecs.params.video.vp9.maxFs]</code>
+                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number" class="crosslink external" target="_blank">Number</a></span>
+                                          <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                      <div class="param-description">
+                                          <p>The maximum number of frame size macroblocks
+      that the VP9 video decoder is capable of decoding video packets.</p>
+      <ul>
+      <li>The value has to have the width and height of the frame in macroblocks less than the value of
+      <code>parseInt(Math.sqrt(maxFs * 8))</code>. For example, if the value is <code>1200</code>, it is capable of the
+      support of <code>640x480</code> frame width and height, which heights up to <code>1552px</code> (<code>97</code> macroblocks value.</li>
+      </ul>
+      
+                                      </div>
+      
+                                  </li>
+                                  <li class="param">
+                                          <code class="param-name optional">[codecs.prefer]</code>
+                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
+                                          <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                      <div class="param-description">
+                                          <p>The media connection codec preference settings.</p>
+      
+                                      </div>
+      
+                                  </li>
+                                  <li class="param">
+                                          <code class="param-name optional">[codecs.prefer.audio=AUTO]</code>
+                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
+                                          <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                      <div class="param-description">
+                                          <p>The preferred audio codec settings.</p>
+      <ul>
+      <li>When provided as a <code>String</code>, it is the preferred audio codec name.</li>
+      <li>See <a href="../classes/Temasys.Peer.html#attr_AUDIO_CODEC_ENUM" class="crosslink">AUDIO_CODEC_ENUM</a> for reference.</li>
+      </ul>
+      
+                                      </div>
+      
+                                  </li>
+                                  <li class="param">
+                                          <code class="param-name">codecs.prefer.audio.codec</code>
+                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
+      
+                                      <div class="param-description">
+                                          <p>The preferred audio codec name.</p>
+      <ul>
+      <li>Note that value cannot be <code>AUDIO_CODEC_ENUM.AUTO</code>.</li>
+      <li>See <a href="../classes/Temasys.Peer.html#attr_AUDIO_CODEC_ENUM" class="crosslink">AUDIO_CODEC_ENUM</a> for reference.</li>
+      </ul>
+      
+                                      </div>
+      
+                                  </li>
+                                  <li class="param">
+                                          <code class="param-name optional">[codecs.prefer.audio.codec.samplingRate]</code>
+                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number" class="crosslink external" target="_blank">Number</a></span>
+                                          <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                      <div class="param-description">
+                                          <p>The preferred audio codec sampling rate
+      if available for the preferred audio codec name.</p>
+      
+                                      </div>
+      
+                                  </li>
+                                  <li class="param">
+                                          <code class="param-name optional">[codecs.prefer.audio.codec.channels]</code>
+                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number" class="crosslink external" target="_blank">Number</a></span>
+                                          <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                      <div class="param-description">
+                                          <p>The preferred audio codec channels
+      if available for the preferred audio codec name.</p>
+      
+                                      </div>
+      
+                                  </li>
+                                  <li class="param">
+                                          <code class="param-name optional">[codecs.prefer.video=AUTO]</code>
+                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
+                                          <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                      <div class="param-description">
+                                          <p>The preferred audio codec settings.</p>
+      <ul>
+      <li>When provided as a <code>String</code>, it is the preferred video codec name.</li>
+      <li>See <a href="../classes/Temasys.Peer.html#attr_VIDEO_CODEC_ENUM" class="crosslink">VIDEO_CODEC_ENUM</a> for reference.</li>
+      </ul>
+      
+                                      </div>
+      
+                                  </li>
+                                  <li class="param">
+                                          <code class="param-name">codecs.prefer.video.codec</code>
+                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
+      
+                                      <div class="param-description">
+                                          <p>The preferred video codec name.</p>
+      <ul>
+      <li>Note that value cannot be <code>VIDEO_CODEC_ENUM.AUTO</code>.</li>
+      <li>See <a href="../classes/Temasys.Peer.html#attr_VIDEO_CODEC_ENUM" class="crosslink">VIDEO_CODEC_ENUM</a> for reference.</li>
+      </ul>
+      
+                                      </div>
+      
+                                  </li>
+                                  <li class="param">
+                                          <code class="param-name optional">[codecs.prefer.video.codec.samplingRate]</code>
+                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number" class="crosslink external" target="_blank">Number</a></span>
+                                          <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                      <div class="param-description">
+                                          <p>The preferred video codec sampling rate
+      if available for the preferred video codec name.</p>
+      
+                                      </div>
+      
+                                  </li>
+                                  <li class="param">
+                                          <code class="param-name optional">[codecs.mechanism]</code>
+                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
+                                          <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                      <div class="param-description">
+                                          <p>The codecs RTCP or FECs settings.</p>
+      
+                                      </div>
+      
+                                  </li>
+                                  <li class="param">
+                                          <code class="param-name optional">[codecs.mechanism.ulpfec=true]</code>
+                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean" class="crosslink external" target="_blank">Boolean</a></span>
+                                          <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                      <div class="param-description">
+                                          <p>The flag to enable ULPFEC codec
+      (generic forward error correction) mechanism when available.</p>
+      
+                                      </div>
+      
+                                  </li>
+                                  <li class="param">
+                                          <code class="param-name optional">[codecs.mechanism.red=true]</code>
+                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean" class="crosslink external" target="_blank">Boolean</a></span>
+                                          <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                      <div class="param-description">
+                                          <p>The flag to enable RED codec
+      (generic forward error correction) mechanism when available.</p>
+      
+                                      </div>
+      
+                                  </li>
+                                  <li class="param">
+                                          <code class="param-name optional">[codecs.mechanism.rtx=true]</code>
+                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean" class="crosslink external" target="_blank">Boolean</a></span>
+                                          <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                      <div class="param-description">
+                                          <p>The flag to enable RTX (re-transmission) mechanism when available.</p>
+      
+                                      </div>
+      
+                                  </li>
+                                  <li class="param">
+                                          <code class="param-name optional">[codecs.mechanism.remb=true]</code>
+                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean" class="crosslink external" target="_blank">Boolean</a></span>
+                                          <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                      <div class="param-description">
+                                          <p>The flag to enable REMB
+      (receiver estimated maximum bitrate) mechanism when available.</p>
+      
+                                      </div>
+      
+                                  </li>
+                                  <li class="param">
+                                          <code class="param-name optional">[codecs.mechanism.nack=true]</code>
+                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean" class="crosslink external" target="_blank">Boolean</a></span>
+                                          <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                      <div class="param-description">
+                                          <p>The flag to enable NACK
+      (negative acknowledgement) mechanism when available.</p>
+      
+                                      </div>
+      
+                                  </li>
+                                  <li class="param">
+                                          <code class="param-name optional">[codecs.mechanism.ccm=true]</code>
+                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean" class="crosslink external" target="_blank">Boolean</a></span>
+                                          <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                      <div class="param-description">
+                                          <p>The flag to enable CCM
+      (codec control messages) mechanism when available.</p>
+      
+                                      </div>
+      
+                                  </li>
+                                  <li class="param">
+                                          <code class="param-name optional">[codecs.mechanism.transportcc=true]</code>
+                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean" class="crosslink external" target="_blank">Boolean</a></span>
+                                          <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                      <div class="param-description">
+                                          <p>The flag to enable transport-cc
+      (transport-wide congestion control) mechanism when available.</p>
+      
+                                      </div>
+      
+                                  </li>
+                                  <li class="param">
+                                          <code class="param-name optional">[media]</code>
+                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
+                                          <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                      <div class="param-description">
+                                          <p>The Peer connection media connection settings.</p>
+      <ul>
+      <li>This configures the Peer connection native <code>RTCSessionDescription</code> object string.</li>
+      </ul>
+      
+                                      </div>
+      
+                                          <ul class="params-list">
+                                              <li class="param">
+                                                      <code class="param-name optional">[audio]</code>
+                                                      <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean" class="crosslink external" target="_blank">Boolean</a></span>
+                                                      <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                                  <div class="param-description">
+                                                      The media audio streaming settings.
+      - When provided as <code>false</code>, this disables the audio streaming connection entirely.
+                                                  </div>
+                                              </li>
+                                              <li class="param">
+                                                      <code class="param-name optional">[audio.send=true]</code>
+                                                      <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean" class="crosslink external" target="_blank">Boolean</a></span>
+                                                      <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                                  <div class="param-description">
+                                                      The flag if audio packets should be sent to Peer connection.
+      - When provided as <code>false</code>, this prevents sending audio packets to Peer despite audio tracks being added.
+                                                  </div>
+                                              </li>
+                                              <li class="param">
+                                                      <code class="param-name optional">[audio.receive=true]</code>
+                                                      <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean" class="crosslink external" target="_blank">Boolean</a></span>
+                                                      <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                                  <div class="param-description">
+                                                      The flag if audio packets should be sent to Peer connection.
+      - When provided as <code>false</code>, this prevents receiving audio packets from Peer despite audio tracks being added remotely.
+                                                  </div>
+                                              </li>
+                                              <li class="param">
+                                                      <code class="param-name optional">[audio.voiceActivityDetection=true]</code>
+                                                      <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean" class="crosslink external" target="_blank">Boolean</a></span>
+                                                      <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                                  <div class="param-description">
+                                                      The flag if voice activity detection
+        (VAD) should be enabled.
+                                                  </div>
+                                              </li>
+                                              <li class="param">
+                                                      <code class="param-name optional">[audio.maxBandwidth=20]</code>
+                                                      <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number" class="crosslink external" target="_blank">Number</a></span>
+                                                      <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                                  <div class="param-description">
+                                                      The maximum range limit of sending audio bandwidth in kbps.
+      - The bandwidth might be lower or higher by a few kbps than the specified range at times.
+      - Set it as <code>0</code> to remove limits.
+                                                  </div>
+                                              </li>
+                                              <li class="param">
+                                                      <code class="param-name optional">[video]</code>
+                                                      <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean" class="crosslink external" target="_blank">Boolean</a></span>
+                                                      <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                                  <div class="param-description">
+                                                      The media video streaming settings.
+      - When provided as <code>false</code>, this disables the video streaming connection entirely.
+                                                  </div>
+                                              </li>
+                                              <li class="param">
+                                                      <code class="param-name optional">[video.send=true]</code>
+                                                      <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean" class="crosslink external" target="_blank">Boolean</a></span>
+                                                      <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                                  <div class="param-description">
+                                                      The flag if video packets should be sent to Peer connection.
+      - When provided as <code>false</code>, this prevents sending video packets to Peer despite video tracks being added.
+                                                  </div>
+                                              </li>
+                                              <li class="param">
+                                                      <code class="param-name optional">[video.receive=true]</code>
+                                                      <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean" class="crosslink external" target="_blank">Boolean</a></span>
+                                                      <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                                  <div class="param-description">
+                                                      The flag if video packets should be sent to Peer connection.
+      - When provided as <code>false</code>, this prevents receiving video packets from Peer despite video tracks being added remotely.
+                                                  </div>
+                                              </li>
+                                              <li class="param">
+                                                      <code class="param-name optional">[video.maxBandwidth=512]</code>
+                                                      <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number" class="crosslink external" target="_blank">Number</a></span>
+                                                      <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                                  <div class="param-description">
+                                                      The maximum range limit of sending video bandwidth in kbps.
+      - The bandwidth might be lower or higher by a few kbps than the specified range at times.
+      - Set it as <code>0</code> to remove limits.
+                                                  </div>
+                                              </li>
+                                              <li class="param">
+                                                      <code class="param-name optional">[video.xGoogleBandwidth] @[exp]</code>
+                                                      <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
+                                                      <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                                  <div class="param-description">
+                                                      The bitrate configuration for video codec bandwidth.
+      - When settings are not provided, the default browser configuration is used.
+                                                  </div>
+                                              </li>
+                                              <li class="param">
+                                                      <code class="param-name optional">[video.xGoogleBandwidth.min]</code>
+                                                      <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number" class="crosslink external" target="_blank">Number</a></span>
+                                                      <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                                  <div class="param-description">
+                                                      The <code>&quot;x-google-min-bitrate&quot;</code> configuration.
+                                                  </div>
+                                              </li>
+                                              <li class="param">
+                                                      <code class="param-name optional">[video.xGoogleBandwidth.max]</code>
+                                                      <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number" class="crosslink external" target="_blank">Number</a></span>
+                                                      <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                                  <div class="param-description">
+                                                      The <code>&quot;x-google-max-bitrate&quot;</code> configuration.
+                                                  </div>
+                                              </li>
+                                              <li class="param">
+                                                      <code class="param-name optional">[datachannel=true]</code>
+                                                      <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean" class="crosslink external" target="_blank">Boolean</a></span>
+                                                      <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                                  <div class="param-description">
+                                                      The media datachannel connection settings.
+      - When provided as <code>false</code>, this disables the datachannel connection entirely.
+                                                  </div>
+                                              </li>
+                                              <li class="param">
+                                                      <code class="param-name optional">[datachannel.maxBandwidth=30]</code>
+                                                      <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number" class="crosslink external" target="_blank">Number</a></span>
+                                                      <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                                  <div class="param-description">
+                                                      The maximum range limit of sending datachannel bandwidth in kbps.
+      - The bandwidth might be lower or higher by a few kbps than the specified range at times.
+      - Set it as <code>0</code> to remove limits.
+                                                  </div>
+                                              </li>
+                                          </ul>
+                                  </li>
+                                  <li class="param">
+                                          <code class="param-name optional">[trickleICE=true]</code>
+                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number" class="crosslink external" target="_blank">Number</a></span>
+                                          <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+                                      <div class="param-description">
+                                          <p>The flag if trickle ICE handshake should be enabled.</p>
+      
+                                      </div>
+      
+                                  </li>
+                              </ul>
                       </li>
                   </ul>
               </div>
@@ -206,20 +1159,1695 @@
           <ul class="api-class-tabs">
               <li class="api-class-tab index"><a href="#index">Index</a></li>
       
+                  <li class="api-class-tab methods"><a href="#methods">Methods</a></li>
+                  <li class="api-class-tab attrs"><a href="#attrs">Attributes</a></li>
+                  <li class="api-class-tab events"><a href="#events">Events</a></li>
           </ul>
       
           <div>
               <div id="index" class="api-class-tabpanel index">
                   <h2 class="off-left">Item Index</h2>
       
+                      <div class="index-section methods">
+                          <h3>Methods</h3>
+      
+                          <ul class="index-list methods">
+                                  <li class="index-item method">
+                                      <a href="#method_getStats">getStats</a>
+      
+                                  </li>
+                                  <li class="index-item method">
+                                      <a href="#method_refresh">refresh</a>
+      
+                                  </li>
+                                  <li class="index-item method">
+                                      <a href="#method_stream">stream</a>
+      
+                                  </li>
+                          </ul>
+                      </div>
+      
+      
+                      <div class="index-section attrs">
+                          <h3>Attributes</h3>
+      
+                          <ul class="index-list attrs">
+                                  <li class="index-item attr">
+                                      <a href="#attr_$current">$current</a>
+                                  </li>
+                                  <li class="index-item attr">
+                                      <a href="#attr_agent">agent</a>
+                                  </li>
+                                  <li class="index-item attr">
+                                      <a href="#attr_AUDIO_CODEC_ENUM">AUDIO_CODEC_ENUM</a>
+                                  </li>
+                                  <li class="index-item attr">
+                                      <a href="#attr_BUNDLE_POLICY_ENUM">BUNDLE_POLICY_ENUM</a>
+                                  </li>
+                                  <li class="index-item attr">
+                                      <a href="#attr_CERTIFICATE_ENUM">CERTIFICATE_ENUM</a>
+                                  </li>
+                                  <li class="index-item attr">
+                                      <a href="#attr_data">data</a>
+                                  </li>
+                                  <li class="index-item attr">
+                                      <a href="#attr_GET_STATS_STATE_ENUM">GET_STATS_STATE_ENUM</a>
+                                  </li>
+                                  <li class="index-item attr">
+                                      <a href="#attr_HANDSHAKE_STATE_ENUM">HANDSHAKE_STATE_ENUM</a>
+                                  </li>
+                                  <li class="index-item attr">
+                                      <a href="#attr_HANDSHAKE_STATE_ERROR_TYPE_ENUM">HANDSHAKE_STATE_ERROR_TYPE_ENUM</a>
+                                  </li>
+                                  <li class="index-item attr">
+                                      <a href="#attr_ICE_CONNECTION_STATE_ENUM">ICE_CONNECTION_STATE_ENUM</a>
+                                  </li>
+                                  <li class="index-item attr">
+                                      <a href="#attr_ICE_GATHERING_STATE_ENUM">ICE_GATHERING_STATE_ENUM</a>
+                                  </li>
+                                  <li class="index-item attr">
+                                      <a href="#attr_ICE_TRANSPORT_POLICY_ENUM">ICE_TRANSPORT_POLICY_ENUM</a>
+                                  </li>
+                                  <li class="index-item attr">
+                                      <a href="#attr_id">id</a>
+                                  </li>
+                                  <li class="index-item attr">
+                                      <a href="#attr_parentId">parentId</a>
+                                  </li>
+                                  <li class="index-item attr">
+                                      <a href="#attr_protocol">protocol</a>
+                                  </li>
+                                  <li class="index-item attr">
+                                      <a href="#attr_RTCP_MUX_POLICY_ENUM">RTCP_MUX_POLICY_ENUM</a>
+                                  </li>
+                                  <li class="index-item attr">
+                                      <a href="#attr_session">session</a>
+                                  </li>
+                                  <li class="index-item attr">
+                                      <a href="#attr_SIGNALING_STATE_ENUM">SIGNALING_STATE_ENUM</a>
+                                  </li>
+                                  <li class="index-item attr">
+                                      <a href="#attr_TURN_TRANSPORT_ENUM">TURN_TRANSPORT_ENUM</a>
+                                  </li>
+                                  <li class="index-item attr">
+                                      <a href="#attr_type">type</a>
+                                  </li>
+                                  <li class="index-item attr">
+                                      <a href="#attr_VIDEO_CODEC_ENUM">VIDEO_CODEC_ENUM</a>
+                                  </li>
+                          </ul>
+                      </div>
+      
+                      <div class="index-section events">
+                          <h3>Events</h3>
+      
+                          <ul class="index-list events">
+                                  <li class="index-item event">
+                                      <a href="#event_datachannel">datachannel</a>
+      
+                                  </li>
+                                  <li class="index-item event">
+                                      <a href="#event_domError">domError</a>
+      
+                                  </li>
+                                  <li class="index-item event">
+                                      <a href="#event_getStatsStateChange">getStatsStateChange</a>
+      
+                                  </li>
+                                  <li class="index-item event">
+                                      <a href="#event_handshakeStateChange">handshakeStateChange</a>
+      
+                                  </li>
+                                  <li class="index-item event">
+                                      <a href="#event_iceConnectionStateChange">iceConnectionStateChange</a>
+      
+                                  </li>
+                                  <li class="index-item event">
+                                      <a href="#event_iceGatheringStateChange">iceGatheringStateChange</a>
+      
+                                  </li>
+                                  <li class="index-item event">
+                                      <a href="#event_message">message</a>
+      
+                                  </li>
+                                  <li class="index-item event">
+                                      <a href="#event_signalingStateChange">signalingStateChange</a>
+      
+                                  </li>
+                                  <li class="index-item event">
+                                      <a href="#event_stream">stream</a>
+      
+                                  </li>
+                                  <li class="index-item event">
+                                      <a href="#event_transfer">transfer</a>
+      
+                                  </li>
+                          </ul>
+                      </div>
+              </div>
+      
+                  <div id="methods" class="api-class-tabpanel">
+                      <h2 class="off-left">Methods</h2>
+      
+      <div id="method_getStats" class="method item">
+          <h3 class="name"><code>getStats</code></h3>
+      
+              <div class="args">
+                  <span class="paren">(</span><ul class="args-list inline commas">
+                      <li class="arg">
+                              <code class="optional">[isRaw=false]</code>
+                      </li>
+                  </ul><span class="paren">)</span>
+              </div>
+      
+              <span class="returns-inline">
+                  <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise" class="crosslink external" target="_blank">Promise</a></span>
+              </span>
       
       
       
+      
+      
+      
+      
+          <div class="meta">
+                      <p>
+                      Defined in
+              <a href="../files/source_components_peer.js.html#l644"><code>source&#x2F;components&#x2F;peer.js:644</code></a>
+              </p>
+      
+      
+      
+                  <p>Available since 0.7.0</p>
+          </div>
+      
+          <div class="description">
+              <p>Function to retrieve Peer connection stats.</p>
+      
+          </div>
+      
+              <div class="params">
+                  <h4>Parameters:</h4>
+      
+                  <ul class="params-list">
+                      <li class="param">
+                              <code class="param-name optional">[isRaw=false]</code>
+                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean" class="crosslink external" target="_blank">Boolean</a></span>
+                              <span class="flag optional" title="This parameter is optional.">optional</span>
+      
+      
+                          <div class="param-description">
+                              <p>The flag to return native <code>RTCStats</code> instead of parsed stats.</p>
+      
+                          </div>
+      
+                      </li>
+                  </ul>
+              </div>
+      
+              <div class="returns">
+                  <h4>Returns:</h4>
+      
+                  <div class="returns-description">
+                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise" class="crosslink external" target="_blank">Promise</a></span>:
+                          <p>The Promise for function request completion.</p>
+      
+                  </div>
               </div>
       
       
+              <div class="example">
+                  <h4>Example:</h4>
+      
+                  <div class="example-content">
+                      <p>peer.getStats().then(function (stats) {
+      console.log("Received stats -&gt;", stats);
+      }).catch(function (error) {
+      console.error("Received error -&gt;", error);
+      });</p>
+      
+                  </div>
+              </div>
+      </div>
+      <div id="method_refresh" class="method item">
+          <h3 class="name"><code>refresh</code></h3>
+      
+              <span class="paren">()</span>
+      
+              <span class="returns-inline">
+                  <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise" class="crosslink external" target="_blank">Promise</a></span>
+              </span>
       
       
+      
+      
+      
+      
+      
+          <div class="meta">
+                      <p>
+                      Defined in
+              <a href="../files/source_components_peer.js.html#l681"><code>source&#x2F;components&#x2F;peer.js:681</code></a>
+              </p>
+      
+      
+      
+                  <p>Available since 0.7.0</p>
+          </div>
+      
+          <div class="description">
+              <p>Function to refresh Peer connection.</p>
+      
+          </div>
+      
+      
+              <div class="returns">
+                  <h4>Returns:</h4>
+      
+                  <div class="returns-description">
+                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise" class="crosslink external" target="_blank">Promise</a></span>:
+                          <p>The Promise for function request completion.</p>
+      
+                  </div>
+              </div>
+      
+      
+              <div class="example">
+                  <h4>Example:</h4>
+      
+                  <div class="example-content">
+                      <p>peer.stream(options).then(function () {
+      console.log("Send stream success -&gt;");
+      }).catch(function (error) {
+      console.error("Received error -&gt;", error);
+      });</p>
+      
+                  </div>
+              </div>
+      </div>
+      <div id="method_stream" class="method item">
+          <h3 class="name"><code>stream</code></h3>
+      
+              <div class="args">
+                  <span class="paren">(</span><ul class="args-list inline commas">
+                      <li class="arg">
+                              <code>stream</code>
+                      </li>
+                      <li class="arg">
+                              <code>options</code>
+                      </li>
+                  </ul><span class="paren">)</span>
+              </div>
+      
+              <span class="returns-inline">
+                  <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise" class="crosslink external" target="_blank">Promise</a></span>
+              </span>
+      
+      
+      
+      
+      
+      
+      
+          <div class="meta">
+                      <p>
+                      Defined in
+              <a href="../files/source_components_peer.js.html#l661"><code>source&#x2F;components&#x2F;peer.js:661</code></a>
+              </p>
+      
+      
+      
+                  <p>Available since 0.7.0</p>
+          </div>
+      
+          <div class="description">
+              <p>Function to send a new Stream object to Peer.</p>
+      
+          </div>
+      
+              <div class="params">
+                  <h4>Parameters:</h4>
+      
+                  <ul class="params-list">
+                      <li class="param">
+                              <code class="param-name">stream</code>
+                              <span class="type"><a href="../classes/Temasys.Stream.html" class="crosslink">Temasys.Stream</a></span>
+      
+      
+                          <div class="param-description">
+                              <p>The Stream object.</p>
+      
+                          </div>
+      
+                      </li>
+                      <li class="param">
+                              <code class="param-name">options</code>
+                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
+      
+      
+                          <div class="param-description">
+                              <p>The options.</p>
+      
+                          </div>
+      
+                              <ul class="params-list">
+                                  <li class="param">
+                                          <code class="param-name">media</code>
+                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
+      
+                                      <div class="param-description">
+                                          <p>The media connection options.</p>
+      <ul>
+      <li>This follows the</li>
+      </ul>
+      
+                                      </div>
+      
+                                  </li>
+                              </ul>
+                      </li>
+                  </ul>
+              </div>
+      
+              <div class="returns">
+                  <h4>Returns:</h4>
+      
+                  <div class="returns-description">
+                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise" class="crosslink external" target="_blank">Promise</a></span>:
+                          <p>The Promise for function request completion.</p>
+      
+                  </div>
+              </div>
+      
+      
+              <div class="example">
+                  <h4>Example:</h4>
+      
+                  <div class="example-content">
+                      <p>peer.stream(stream, options).then(function () {
+      console.log("Send stream success -&gt;");
+      }).catch(function (error) {
+      console.error("Received error -&gt;", error);
+      });</p>
+      
+                  </div>
+              </div>
+      </div>
+                  </div>
+      
+      
+                  <div id="attrs" class="api-class-tabpanel">
+                      <h2 class="off-left">Attributes</h2>
+      
+                          <div id="attr_$current" class="attr item">
+                              <a name="config_$current"></a> 
+                              <h3 class="name"><code>$current</code></h3>
+                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
+                          
+                          
+                          
+                          
+                          
+                          
+                          
+                                  <span class="flag readonly">readonly</span>
+                          
+                              <div class="meta">
+                                          <p>
+                                          Defined in
+                                  <a href="../files/source_components_peer.js.html#l264"><code>source&#x2F;components&#x2F;peer.js:264</code></a>
+                                  </p>
+                          
+                          
+                                      <p>Available since 0.7.0</p>
+                              </div>
+                          
+                              <div class="description">
+                                  <p>The Peer current states.</p>
+                          
+                              </div>
+                          
+                          
+                          
+                          </div>
+                          <div id="attr_agent" class="attr item">
+                              <a name="config_agent"></a> 
+                              <h3 class="name"><code>agent</code></h3>
+                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
+                          
+                          
+                          
+                          
+                          
+                          
+                          
+                                  <span class="flag readonly">readonly</span>
+                          
+                              <div class="meta">
+                                          <p>
+                                          Defined in
+                                  <a href="../files/source_components_peer.js.html#l209"><code>source&#x2F;components&#x2F;peer.js:209</code></a>
+                                  </p>
+                          
+                          
+                                      <p>Available since 0.7.0</p>
+                              </div>
+                          
+                              <div class="description">
+                                  <p>The Peer client agent.</p>
+                          
+                              </div>
+                          
+                          
+                          
+                          </div>
+                          <div id="attr_AUDIO_CODEC_ENUM" class="attr item">
+                              <a name="config_AUDIO_CODEC_ENUM"></a> 
+                              <h3 class="name"><code>AUDIO_CODEC_ENUM</code></h3>
+                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
+                          
+                          
+                          
+                                  <span class="flag final">final</span>
+                          
+                          
+                          
+                          
+                                  <span class="flag readonly">readonly</span>
+                          
+                              <div class="meta">
+                                          <p>
+                                          Defined in
+                                  <a href="../files/source_components_peer.js.html#l469"><code>source&#x2F;components&#x2F;peer.js:469</code></a>
+                                  </p>
+                          
+                          
+                                      <p>Available since 0.7.0</p>
+                              </div>
+                          
+                              <div class="description">
+                                  <p>The enum of audio codecs.</p>
+                          
+                              </div>
+                          
+                          
+                          
+                          </div>
+                          <div id="attr_BUNDLE_POLICY_ENUM" class="attr item">
+                              <a name="config_BUNDLE_POLICY_ENUM"></a> 
+                              <h3 class="name"><code>BUNDLE_POLICY_ENUM</code></h3>
+                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
+                          
+                          
+                          
+                                  <span class="flag final">final</span>
+                          
+                          
+                          
+                          
+                                  <span class="flag readonly">readonly</span>
+                          
+                              <div class="meta">
+                                          <p>
+                                          Defined in
+                                  <a href="../files/source_components_peer.js.html#l413"><code>source&#x2F;components&#x2F;peer.js:413</code></a>
+                                  </p>
+                          
+                          
+                                      <p>Available since 0.7.0</p>
+                              </div>
+                          
+                              <div class="description">
+                                  <p>The enum of media bundle policies.</p>
+                          
+                              </div>
+                          
+                          
+                          
+                          </div>
+                          <div id="attr_CERTIFICATE_ENUM" class="attr item">
+                              <a name="config_CERTIFICATE_ENUM"></a> 
+                              <h3 class="name"><code>CERTIFICATE_ENUM</code></h3>
+                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
+                          
+                          
+                          
+                                  <span class="flag final">final</span>
+                          
+                          
+                          
+                          
+                                  <span class="flag readonly">readonly</span>
+                          
+                              <div class="meta">
+                                          <p>
+                                          Defined in
+                                  <a href="../files/source_components_peer.js.html#l433"><code>source&#x2F;components&#x2F;peer.js:433</code></a>
+                                  </p>
+                          
+                          
+                                      <p>Available since 0.7.0</p>
+                              </div>
+                          
+                              <div class="description">
+                                  <p>The enum of certificate algorithms.</p>
+                          
+                              </div>
+                          
+                          
+                          
+                          </div>
+                          <div id="attr_data" class="attr item">
+                              <a name="config_data"></a> 
+                              <h3 class="name"><code>data</code></h3>
+                              <span class="type">Any</span>
+                          
+                          
+                          
+                          
+                          
+                          
+                          
+                                  <span class="flag readonly">readonly</span>
+                          
+                              <div class="meta">
+                                          <p>
+                                          Defined in
+                                  <a href="../files/source_components_peer.js.html#l199"><code>source&#x2F;components&#x2F;peer.js:199</code></a>
+                                  </p>
+                          
+                          
+                                      <p>Available since 0.7.0</p>
+                              </div>
+                          
+                              <div class="description">
+                                  <p>The Peer custom data.</p>
+                          
+                              </div>
+                          
+                          
+                          
+                          </div>
+                          <div id="attr_GET_STATS_STATE_ENUM" class="attr item">
+                              <a name="config_GET_STATS_STATE_ENUM"></a> 
+                              <h3 class="name"><code>GET_STATS_STATE_ENUM</code></h3>
+                              <span class="type"></span>
+                          
+                          
+                          
+                                  <span class="flag final">final</span>
+                          
+                          
+                          
+                          
+                                  <span class="flag readonly">readonly</span>
+                          
+                              <div class="meta">
+                                          <p>
+                                          Defined in
+                                  <a href="../files/source_components_peer.js.html#l627"><code>source&#x2F;components&#x2F;peer.js:627</code></a>
+                                  </p>
+                          
+                          
+                                      <p>Available since 0.7.0</p>
+                              </div>
+                          
+                              <div class="description">
+                                  <p>The enum of <a href="../classes/Temasys.Peer.html#method_getStats" class="crosslink">getStats</a> states.</p>
+                          
+                              </div>
+                          
+                          
+                          
+                          </div>
+                          <div id="attr_HANDSHAKE_STATE_ENUM" class="attr item">
+                              <a name="config_HANDSHAKE_STATE_ENUM"></a> 
+                              <h3 class="name"><code>HANDSHAKE_STATE_ENUM</code></h3>
+                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
+                          
+                          
+                          
+                                  <span class="flag final">final</span>
+                          
+                          
+                          
+                          
+                                  <span class="flag readonly">readonly</span>
+                          
+                              <div class="meta">
+                                          <p>
+                                          Defined in
+                                  <a href="../files/source_components_peer.js.html#l517"><code>source&#x2F;components&#x2F;peer.js:517</code></a>
+                                  </p>
+                          
+                          
+                                      <p>Available since 0.7.0</p>
+                              </div>
+                          
+                              <div class="description">
+                                  <p>The enum of Peer handshake states.</p>
+                          
+                              </div>
+                          
+                          
+                          
+                          </div>
+                          <div id="attr_HANDSHAKE_STATE_ERROR_TYPE_ENUM" class="attr item">
+                              <a name="config_HANDSHAKE_STATE_ERROR_TYPE_ENUM"></a> 
+                              <h3 class="name"><code>HANDSHAKE_STATE_ERROR_TYPE_ENUM</code></h3>
+                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
+                          
+                          
+                          
+                                  <span class="flag final">final</span>
+                          
+                          
+                          
+                          
+                                  <span class="flag readonly">readonly</span>
+                          
+                              <div class="meta">
+                                          <p>
+                                          Defined in
+                                  <a href="../files/source_components_peer.js.html#l539"><code>source&#x2F;components&#x2F;peer.js:539</code></a>
+                                  </p>
+                          
+                          
+                                      <p>Available since 0.7.0</p>
+                              </div>
+                          
+                              <div class="description">
+                                  <p>The enum of Peer handshake error types.</p>
+                          
+                              </div>
+                          
+                          
+                          
+                          </div>
+                          <div id="attr_ICE_CONNECTION_STATE_ENUM" class="attr item">
+                              <a name="config_ICE_CONNECTION_STATE_ENUM"></a> 
+                              <h3 class="name"><code>ICE_CONNECTION_STATE_ENUM</code></h3>
+                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
+                          
+                          
+                          
+                                  <span class="flag final">final</span>
+                          
+                          
+                          
+                          
+                                  <span class="flag readonly">readonly</span>
+                          
+                              <div class="meta">
+                                          <p>
+                                          Defined in
+                                  <a href="../files/source_components_peer.js.html#l565"><code>source&#x2F;components&#x2F;peer.js:565</code></a>
+                                  </p>
+                          
+                          
+                                      <p>Available since 0.7.0</p>
+                              </div>
+                          
+                              <div class="description">
+                                  <p>The enum of Peer ICE connection states.</p>
+                          
+                              </div>
+                          
+                          
+                          
+                          </div>
+                          <div id="attr_ICE_GATHERING_STATE_ENUM" class="attr item">
+                              <a name="config_ICE_GATHERING_STATE_ENUM"></a> 
+                              <h3 class="name"><code>ICE_GATHERING_STATE_ENUM</code></h3>
+                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
+                          
+                          
+                          
+                                  <span class="flag final">final</span>
+                          
+                          
+                          
+                          
+                                  <span class="flag readonly">readonly</span>
+                          
+                              <div class="meta">
+                                          <p>
+                                          Defined in
+                                  <a href="../files/source_components_peer.js.html#l589"><code>source&#x2F;components&#x2F;peer.js:589</code></a>
+                                  </p>
+                          
+                          
+                                      <p>Available since 0.7.0</p>
+                              </div>
+                          
+                              <div class="description">
+                                  <p>The enum of Peer ICE gathering states.</p>
+                          
+                              </div>
+                          
+                          
+                          
+                          </div>
+                          <div id="attr_ICE_TRANSPORT_POLICY_ENUM" class="attr item">
+                              <a name="config_ICE_TRANSPORT_POLICY_ENUM"></a> 
+                              <h3 class="name"><code>ICE_TRANSPORT_POLICY_ENUM</code></h3>
+                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
+                          
+                          
+                          
+                                  <span class="flag final">final</span>
+                          
+                          
+                          
+                          
+                                  <span class="flag readonly">readonly</span>
+                          
+                              <div class="meta">
+                                          <p>
+                                          Defined in
+                                  <a href="../files/source_components_peer.js.html#l381"><code>source&#x2F;components&#x2F;peer.js:381</code></a>
+                                  </p>
+                          
+                          
+                                      <p>Available since 0.7.0</p>
+                              </div>
+                          
+                              <div class="description">
+                                  <p>The enum of ICE transport policies.</p>
+                          
+                              </div>
+                          
+                          
+                          
+                          </div>
+                          <div id="attr_id" class="attr item">
+                              <a name="config_id"></a> 
+                              <h3 class="name"><code>id</code></h3>
+                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
+                          
+                          
+                          
+                          
+                          
+                          
+                          
+                                  <span class="flag readonly">readonly</span>
+                          
+                              <div class="meta">
+                                          <p>
+                                          Defined in
+                                  <a href="../files/source_components_peer.js.html#l168"><code>source&#x2F;components&#x2F;peer.js:168</code></a>
+                                  </p>
+                          
+                          
+                                      <p>Available since 0.7.0</p>
+                              </div>
+                          
+                              <div class="description">
+                                  <p>The Peer ID.</p>
+                          
+                              </div>
+                          
+                          
+                          
+                          </div>
+                          <div id="attr_parentId" class="attr item">
+                              <a name="config_parentId"></a> 
+                              <h3 class="name"><code>parentId</code></h3>
+                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
+                          
+                          
+                          
+                          
+                          
+                          
+                          
+                                  <span class="flag readonly">readonly</span>
+                          
+                              <div class="meta">
+                                          <p>
+                                          Defined in
+                                  <a href="../files/source_components_peer.js.html#l178"><code>source&#x2F;components&#x2F;peer.js:178</code></a>
+                                  </p>
+                          
+                          
+                                      <p>Available since 0.7.0</p>
+                              </div>
+                          
+                              <div class="description">
+                                  <p>The Peer parent ID.</p>
+                          
+                              </div>
+                          
+                          
+                          
+                          </div>
+                          <div id="attr_protocol" class="attr item">
+                              <a name="config_protocol"></a> 
+                              <h3 class="name"><code>protocol</code></h3>
+                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
+                          
+                          
+                          
+                          
+                          
+                          
+                          
+                                  <span class="flag readonly">readonly</span>
+                          
+                              <div class="meta">
+                                          <p>
+                                          Defined in
+                                  <a href="../files/source_components_peer.js.html#l228"><code>source&#x2F;components&#x2F;peer.js:228</code></a>
+                                  </p>
+                          
+                          
+                                      <p>Available since 0.7.0</p>
+                              </div>
+                          
+                              <div class="description">
+                                  <p>The Peer protocol versions.</p>
+                          
+                              </div>
+                          
+                          
+                          
+                          </div>
+                          <div id="attr_RTCP_MUX_POLICY_ENUM" class="attr item">
+                              <a name="config_RTCP_MUX_POLICY_ENUM"></a> 
+                              <h3 class="name"><code>RTCP_MUX_POLICY_ENUM</code></h3>
+                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
+                          
+                          
+                          
+                                  <span class="flag final">final</span>
+                          
+                          
+                          
+                          
+                                  <span class="flag readonly">readonly</span>
+                          
+                              <div class="meta">
+                                          <p>
+                                          Defined in
+                                  <a href="../files/source_components_peer.js.html#l397"><code>source&#x2F;components&#x2F;peer.js:397</code></a>
+                                  </p>
+                          
+                          
+                                      <p>Available since 0.7.0</p>
+                              </div>
+                          
+                              <div class="description">
+                                  <p>The enum of RTP and RTCP multiplex policies.</p>
+                          
+                              </div>
+                          
+                          
+                          
+                          </div>
+                          <div id="attr_session" class="attr item">
+                              <a name="config_session"></a> 
+                              <h3 class="name"><code>session</code></h3>
+                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
+                          
+                          
+                          
+                          
+                          
+                          
+                          
+                                  <span class="flag readonly">readonly</span>
+                          
+                              <div class="meta">
+                                          <p>
+                                          Defined in
+                                  <a href="../files/source_components_peer.js.html#l243"><code>source&#x2F;components&#x2F;peer.js:243</code></a>
+                                  </p>
+                          
+                          
+                                      <p>Available since 0.7.0</p>
+                              </div>
+                          
+                              <div class="description">
+                                  <p>The Peer session settings.</p>
+                          
+                              </div>
+                          
+                          
+                          
+                          </div>
+                          <div id="attr_SIGNALING_STATE_ENUM" class="attr item">
+                              <a name="config_SIGNALING_STATE_ENUM"></a> 
+                              <h3 class="name"><code>SIGNALING_STATE_ENUM</code></h3>
+                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
+                          
+                          
+                          
+                                  <span class="flag final">final</span>
+                          
+                          
+                          
+                          
+                                  <span class="flag readonly">readonly</span>
+                          
+                              <div class="meta">
+                                          <p>
+                                          Defined in
+                                  <a href="../files/source_components_peer.js.html#l605"><code>source&#x2F;components&#x2F;peer.js:605</code></a>
+                                  </p>
+                          
+                          
+                                      <p>Available since 0.7.0</p>
+                              </div>
+                          
+                              <div class="description">
+                                  <p>The enum of Peer ICE gathering states.</p>
+                          
+                              </div>
+                          
+                          
+                          
+                          </div>
+                          <div id="attr_TURN_TRANSPORT_ENUM" class="attr item">
+                              <a name="config_TURN_TRANSPORT_ENUM"></a> 
+                              <h3 class="name"><code>TURN_TRANSPORT_ENUM</code></h3>
+                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
+                          
+                          
+                          
+                                  <span class="flag final">final</span>
+                          
+                          
+                          
+                          
+                                  <span class="flag readonly">readonly</span>
+                          
+                              <div class="meta">
+                                          <p>
+                                          Defined in
+                                  <a href="../files/source_components_peer.js.html#l451"><code>source&#x2F;components&#x2F;peer.js:451</code></a>
+                                  </p>
+                          
+                          
+                                      <p>Available since 0.7.0</p>
+                              </div>
+                          
+                              <div class="description">
+                                  <p>The enum of TURN transport types.</p>
+                          
+                              </div>
+                          
+                          
+                          
+                          </div>
+                          <div id="attr_type" class="attr item">
+                              <a name="config_type"></a> 
+                              <h3 class="name"><code>type</code></h3>
+                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
+                          
+                          
+                          
+                          
+                          
+                          
+                          
+                                  <span class="flag readonly">readonly</span>
+                          
+                              <div class="meta">
+                                          <p>
+                                          Defined in
+                                  <a href="../files/source_components_peer.js.html#l188"><code>source&#x2F;components&#x2F;peer.js:188</code></a>
+                                  </p>
+                          
+                          
+                                      <p>Available since 0.7.0</p>
+                              </div>
+                          
+                              <div class="description">
+                                  <p>The Peer connection type.</p>
+                          <ul>
+                          <li>See Temasys.Peer/TYPE_ENUM:attribute for reference.</li>
+                          </ul>
+                          
+                              </div>
+                          
+                          
+                          
+                          </div>
+                          <div id="attr_VIDEO_CODEC_ENUM" class="attr item">
+                              <a name="config_VIDEO_CODEC_ENUM"></a> 
+                              <h3 class="name"><code>VIDEO_CODEC_ENUM</code></h3>
+                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
+                          
+                          
+                          
+                                  <span class="flag final">final</span>
+                          
+                          
+                          
+                          
+                                  <span class="flag readonly">readonly</span>
+                          
+                              <div class="meta">
+                                          <p>
+                                          Defined in
+                                  <a href="../files/source_components_peer.js.html#l496"><code>source&#x2F;components&#x2F;peer.js:496</code></a>
+                                  </p>
+                          
+                          
+                                      <p>Available since 0.7.0</p>
+                              </div>
+                          
+                              <div class="description">
+                                  <p>The enum of video codecs.</p>
+                          
+                              </div>
+                          
+                          
+                          
+                          </div>
+                  </div>
+      
+                  <div id="events" class="api-class-tabpanel">
+                      <h2 class="off-left">Events</h2>
+      
+                          <div id="event_datachannel" class="events item">
+                              <h3 class="name"><code>datachannel</code></h3>
+                              <span class="type"></span>
+                          
+                          
+                          
+                          
+                          
+                              <div class="meta">
+                                          <p>
+                                          Defined in
+                                  <a href="../files/source_components_peer.js.html#l331"><code>source&#x2F;components&#x2F;peer.js:331</code></a>
+                                  </p>
+                          
+                          
+                                      <p>Available since 0.7.0</p>
+                              </div>
+                          
+                              <div class="description">
+                                  <p>Event triggered when receiving Datachannel object.</p>
+                          
+                              </div>
+                          
+                                  <div class="params">
+                                      <h4>Event Payload:</h4>
+                          
+                                      <ul class="params-list">
+                                          <li class="param">
+                                                  <code class="param-name">channel</code>
+                                                  <span class="type"><a href="../classes/Temasys.Datachannel.html" class="crosslink">Temasys.Datachannel</a></span>
+                          
+                          
+                                              <div class="param-description">
+                                                  <p>The Datachannel object.</p>
+                          
+                                              </div>
+                          
+                                          </li>
+                                          <li class="param">
+                                                  <code class="param-name">channelId</code>
+                                                  <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
+                          
+                          
+                                              <div class="param-description">
+                                                  <p>The Datachannel ID.</p>
+                          
+                                              </div>
+                          
+                                          </li>
+                                          <li class="param">
+                                                  <code class="param-name">isSelf</code>
+                                                  <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean" class="crosslink external" target="_blank">Boolean</a></span>
+                          
+                          
+                                              <div class="param-description">
+                                                  <p>The flag if Datachannel object has started from self.</p>
+                          
+                                              </div>
+                          
+                                          </li>
+                                      </ul>
+                                  </div>
+                          
+                          
+                          </div>
+                          <div id="event_domError" class="events item">
+                              <h3 class="name"><code>domError</code></h3>
+                              <span class="type"></span>
+                          
+                          
+                          
+                          
+                          
+                              <div class="meta">
+                                          <p>
+                                          Defined in
+                                  <a href="../files/source_components_peer.js.html#l372"><code>source&#x2F;components&#x2F;peer.js:372</code></a>
+                                  </p>
+                          
+                          
+                                      <p>Available since 0.7.0</p>
+                              </div>
+                          
+                              <div class="description">
+                                  <p>Event triggered when there are exceptions thrown in this event handlers.</p>
+                          
+                              </div>
+                          
+                                  <div class="params">
+                                      <h4>Event Payload:</h4>
+                          
+                                      <ul class="params-list">
+                                          <li class="param">
+                                                  <code class="param-name">error</code>
+                                                  <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error" class="crosslink external" target="_blank">Error</a></span>
+                          
+                          
+                                              <div class="param-description">
+                                                  <p>The error object.</p>
+                          
+                                              </div>
+                          
+                                          </li>
+                                      </ul>
+                                  </div>
+                          
+                          
+                          </div>
+                          <div id="event_getStatsStateChange" class="events item">
+                              <h3 class="name"><code>getStatsStateChange</code></h3>
+                              <span class="type"></span>
+                          
+                          
+                          
+                          
+                          
+                              <div class="meta">
+                                          <p>
+                                          Defined in
+                                  <a href="../files/source_components_peer.js.html#l359"><code>source&#x2F;components&#x2F;peer.js:359</code></a>
+                                  </p>
+                          
+                          
+                                      <p>Available since 0.7.0</p>
+                              </div>
+                          
+                              <div class="description">
+                                  <p>Event triggered when stats retrieval state has changed.</p>
+                          
+                              </div>
+                          
+                                  <div class="params">
+                                      <h4>Event Payload:</h4>
+                          
+                                      <ul class="params-list">
+                                          <li class="param">
+                                                  <code class="param-name">state</code>
+                                                  <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
+                          
+                          
+                                              <div class="param-description">
+                                                  <p>The current stats retrieval state.</p>
+                          <ul>
+                          <li>See <a href="../classes/Temasys.Peer.html#attr_GET_STATS_STATE_ENUM" class="crosslink">GET_STATS_STATE_ENUM</a> for reference.</li>
+                          </ul>
+                          
+                                              </div>
+                          
+                                          </li>
+                                          <li class="param">
+                                                  <code class="param-name optional">[stats]</code>
+                                                  <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
+                                                  <span class="flag optional" title="This parameter is optional.">optional</span>
+                          
+                          
+                                              <div class="param-description">
+                                                  <p>The stats.</p>
+                          <ul>
+                          <li>This is defined when <code>state</code> is <code>SUCCESS</code>.</li>
+                          </ul>
+                          
+                                              </div>
+                          
+                                          </li>
+                                          <li class="param">
+                                                  <code class="param-name optional">[error]</code>
+                                                  <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error" class="crosslink external" target="_blank">Error</a></span>
+                                                  <span class="flag optional" title="This parameter is optional.">optional</span>
+                          
+                          
+                                              <div class="param-description">
+                                                  <p>The error object.</p>
+                          <ul>
+                          <li>This is defined when <code>state</code> is <code>FAILED</code>.</li>
+                          </ul>
+                          
+                                              </div>
+                          
+                                          </li>
+                                      </ul>
+                                  </div>
+                          
+                          
+                          </div>
+                          <div id="event_handshakeStateChange" class="events item">
+                              <h3 class="name"><code>handshakeStateChange</code></h3>
+                              <span class="type"></span>
+                          
+                          
+                          
+                          
+                          
+                              <div class="meta">
+                                          <p>
+                                          Defined in
+                                  <a href="../files/source_components_peer.js.html#l285"><code>source&#x2F;components&#x2F;peer.js:285</code></a>
+                                  </p>
+                          
+                          
+                                      <p>Available since 0.7.0</p>
+                              </div>
+                          
+                              <div class="description">
+                                  <p>Event triggered when Peer handshake state has changed.</p>
+                          
+                              </div>
+                          
+                                  <div class="params">
+                                      <h4>Event Payload:</h4>
+                          
+                                      <ul class="params-list">
+                                          <li class="param">
+                                                  <code class="param-name">state</code>
+                                                  <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
+                          
+                          
+                                              <div class="param-description">
+                                                  <p>The current handshake state.</p>
+                          <ul>
+                          <li>See <a href="../classes/Temasys.Peer.html#attr_HANDSHAKE_STATE_ENUM" class="crosslink">HANDSHAKE_STATE_ENUM</a> for reference.</li>
+                          </ul>
+                          
+                                              </div>
+                          
+                                          </li>
+                                          <li class="param">
+                                                  <code class="param-name optional">[error]</code>
+                                                  <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
+                                                  <span class="flag optional" title="This parameter is optional.">optional</span>
+                          
+                          
+                                              <div class="param-description">
+                                                  <p>The error.</p>
+                          <ul>
+                          <li>This is defined when <code>state</code> is <code>ERROR</code>.</li>
+                          </ul>
+                          
+                                              </div>
+                          
+                                                  <ul class="params-list">
+                                                      <li class="param">
+                                                              <code class="param-name optional">[error]</code>
+                                                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error" class="crosslink external" target="_blank">Error</a></span>
+                                                              <span class="flag optional" title="This parameter is optional.">optional</span>
+                          
+                                                          <div class="param-description">
+                                                              <p>The error object.</p>
+                          
+                                                          </div>
+                          
+                                                      </li>
+                                                      <li class="param">
+                                                              <code class="param-name optional">[type]</code>
+                                                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
+                                                              <span class="flag optional" title="This parameter is optional.">optional</span>
+                          
+                                                          <div class="param-description">
+                                                              <p>The error type.</p>
+                          <ul>
+                          <li>See Temasys.Peer/HANDSHAKE_ERROR_TYPE_ENUM:attribute for reference.</li>
+                          </ul>
+                          
+                                                          </div>
+                          
+                                                      </li>
+                                                  </ul>
+                                          </li>
+                                      </ul>
+                                  </div>
+                          
+                          
+                          </div>
+                          <div id="event_iceConnectionStateChange" class="events item">
+                              <h3 class="name"><code>iceConnectionStateChange</code></h3>
+                              <span class="type"></span>
+                          
+                          
+                          
+                          
+                          
+                              <div class="meta">
+                                          <p>
+                                          Defined in
+                                  <a href="../files/source_components_peer.js.html#l306"><code>source&#x2F;components&#x2F;peer.js:306</code></a>
+                                  </p>
+                          
+                          
+                                      <p>Available since 0.7.0</p>
+                              </div>
+                          
+                              <div class="description">
+                                  <p>Event triggered when Peer ICE connection state has changed.</p>
+                          
+                              </div>
+                          
+                                  <div class="params">
+                                      <h4>Event Payload:</h4>
+                          
+                                      <ul class="params-list">
+                                          <li class="param">
+                                                  <code class="param-name">state</code>
+                                                  <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
+                          
+                          
+                                              <div class="param-description">
+                                                  <p>The current ICE connection state.</p>
+                          <ul>
+                          <li>See <a href="../classes/Temasys.Peer.html#attr_ICE_CONNECTION_STATE_ENUM" class="crosslink">ICE_CONNECTION_STATE_ENUM</a> for reference.</li>
+                          </ul>
+                          
+                                              </div>
+                          
+                                          </li>
+                                      </ul>
+                                  </div>
+                          
+                          
+                          </div>
+                          <div id="event_iceGatheringStateChange" class="events item">
+                              <h3 class="name"><code>iceGatheringStateChange</code></h3>
+                              <span class="type"></span>
+                          
+                          
+                          
+                          
+                          
+                              <div class="meta">
+                                          <p>
+                                          Defined in
+                                  <a href="../files/source_components_peer.js.html#l314"><code>source&#x2F;components&#x2F;peer.js:314</code></a>
+                                  </p>
+                          
+                          
+                                      <p>Available since 0.7.0</p>
+                              </div>
+                          
+                              <div class="description">
+                                  <p>Event triggered when Peer ICE gathering state has changed.</p>
+                          
+                              </div>
+                          
+                                  <div class="params">
+                                      <h4>Event Payload:</h4>
+                          
+                                      <ul class="params-list">
+                                          <li class="param">
+                                                  <code class="param-name">state</code>
+                                                  <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
+                          
+                          
+                                              <div class="param-description">
+                                                  <p>The current ICE gathering state.</p>
+                          <ul>
+                          <li>See <a href="../classes/Temasys.Peer.html#attr_ICE_GATHERING_STATE_ENUM" class="crosslink">ICE_GATHERING_STATE_ENUM</a> for reference.</li>
+                          </ul>
+                          
+                                              </div>
+                          
+                                          </li>
+                                      </ul>
+                                  </div>
+                          
+                          
+                          </div>
+                          <div id="event_message" class="events item">
+                              <h3 class="name"><code>message</code></h3>
+                              <span class="type"></span>
+                          
+                          
+                          
+                          
+                          
+                              <div class="meta">
+                                          <p>
+                                          Defined in
+                                  <a href="../files/source_components_peer.js.html#l340"><code>source&#x2F;components&#x2F;peer.js:340</code></a>
+                                  </p>
+                          
+                          
+                                      <p>Available since 0.7.0</p>
+                              </div>
+                          
+                              <div class="description">
+                                  <p>Event triggered when sending or receiving message.</p>
+                          
+                              </div>
+                          
+                                  <div class="params">
+                                      <h4>Event Payload:</h4>
+                          
+                                      <ul class="params-list">
+                                          <li class="param">
+                                                  <code class="param-name">message</code>
+                                                  <span class="type">Any</span>
+                          
+                          
+                                              <div class="param-description">
+                                                  <p>The message.</p>
+                          
+                                              </div>
+                          
+                                          </li>
+                                          <li class="param">
+                                                  <code class="param-name">isPrivate</code>
+                                                  <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean" class="crosslink external" target="_blank">Boolean</a></span>
+                          
+                          
+                                              <div class="param-description">
+                                                  <p>The flag if message sent is targeted or not.</p>
+                          
+                                              </div>
+                          
+                                          </li>
+                                          <li class="param">
+                                                  <code class="param-name">isDatachannel</code>
+                                                  <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean" class="crosslink external" target="_blank">Boolean</a></span>
+                          
+                          
+                                              <div class="param-description">
+                                                  <p>The flag if message is sent from Datachannel connections.</p>
+                          
+                                              </div>
+                          
+                                          </li>
+                                          <li class="param">
+                                                  <code class="param-name">isSelf</code>
+                                                  <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean" class="crosslink external" target="_blank">Boolean</a></span>
+                          
+                          
+                                              <div class="param-description">
+                                                  <p>The flag if sent from self.</p>
+                          
+                                              </div>
+                          
+                                          </li>
+                                      </ul>
+                                  </div>
+                          
+                          
+                          </div>
+                          <div id="event_signalingStateChange" class="events item">
+                              <h3 class="name"><code>signalingStateChange</code></h3>
+                              <span class="type"></span>
+                          
+                          
+                          
+                          
+                          
+                              <div class="meta">
+                                          <p>
+                                          Defined in
+                                  <a href="../files/source_components_peer.js.html#l298"><code>source&#x2F;components&#x2F;peer.js:298</code></a>
+                                  </p>
+                          
+                          
+                                      <p>Available since 0.7.0</p>
+                              </div>
+                          
+                              <div class="description">
+                                  <p>Event triggered when Peer signaling state has changed.</p>
+                          
+                              </div>
+                          
+                                  <div class="params">
+                                      <h4>Event Payload:</h4>
+                          
+                                      <ul class="params-list">
+                                          <li class="param">
+                                                  <code class="param-name">state</code>
+                                                  <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
+                          
+                          
+                                              <div class="param-description">
+                                                  <p>The current signaling state.</p>
+                          <ul>
+                          <li>See <a href="../classes/Temasys.Peer.html#attr_SIGNALING_STATE_ENUM" class="crosslink">SIGNALING_STATE_ENUM</a> for reference.</li>
+                          </ul>
+                          
+                                              </div>
+                          
+                                          </li>
+                                      </ul>
+                                  </div>
+                          
+                          
+                          </div>
+                          <div id="event_stream" class="events item">
+                              <h3 class="name"><code>stream</code></h3>
+                              <span class="type"></span>
+                          
+                          
+                          
+                          
+                          
+                              <div class="meta">
+                                          <p>
+                                          Defined in
+                                  <a href="../files/source_components_peer.js.html#l322"><code>source&#x2F;components&#x2F;peer.js:322</code></a>
+                                  </p>
+                          
+                          
+                                      <p>Available since 0.7.0</p>
+                              </div>
+                          
+                              <div class="description">
+                                  <p>Event triggered when sending or receiving Stream object.</p>
+                          
+                              </div>
+                          
+                                  <div class="params">
+                                      <h4>Event Payload:</h4>
+                          
+                                      <ul class="params-list">
+                                          <li class="param">
+                                                  <code class="param-name">stream</code>
+                                                  <span class="type"><a href="../classes/Temasys.Stream.html" class="crosslink">Temasys.Stream</a></span>
+                          
+                          
+                                              <div class="param-description">
+                                                  <p>The Stream object.</p>
+                          
+                                              </div>
+                          
+                                          </li>
+                                          <li class="param">
+                                                  <code class="param-name">streamId</code>
+                                                  <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
+                          
+                          
+                                              <div class="param-description">
+                                                  <p>The Stream ID.</p>
+                          
+                                              </div>
+                          
+                                          </li>
+                                          <li class="param">
+                                                  <code class="param-name">isSelf</code>
+                                                  <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean" class="crosslink external" target="_blank">Boolean</a></span>
+                          
+                          
+                                              <div class="param-description">
+                                                  <p>The flag if Stream object is sent from self.</p>
+                          
+                                              </div>
+                          
+                                          </li>
+                                      </ul>
+                                  </div>
+                          
+                          
+                          </div>
+                          <div id="event_transfer" class="events item">
+                              <h3 class="name"><code>transfer</code></h3>
+                              <span class="type"></span>
+                          
+                          
+                          
+                          
+                          
+                              <div class="meta">
+                                          <p>
+                                          Defined in
+                                  <a href="../files/source_components_peer.js.html#l350"><code>source&#x2F;components&#x2F;peer.js:350</code></a>
+                                  </p>
+                          
+                          
+                                      <p>Available since 0.7.0</p>
+                              </div>
+                          
+                              <div class="description">
+                                  <p>Event triggered when sending or receiving data transfers.</p>
+                          
+                              </div>
+                          
+                                  <div class="params">
+                                      <h4>Event Payload:</h4>
+                          
+                                      <ul class="params-list">
+                                          <li class="param">
+                                                  <code class="param-name">transfer</code>
+                                                  <span class="type">Temasys.Datatransfer</span>
+                          
+                          
+                                              <div class="param-description">
+                                                  <p>The data transfer object.</p>
+                          
+                                              </div>
+                          
+                                          </li>
+                                          <li class="param">
+                                                  <code class="param-name">transferId</code>
+                                                  <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
+                          
+                          
+                                              <div class="param-description">
+                                                  <p>The data transfer ID.</p>
+                          
+                                              </div>
+                          
+                                          </li>
+                                          <li class="param">
+                                                  <code class="param-name">isSelf</code>
+                                                  <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean" class="crosslink external" target="_blank">Boolean</a></span>
+                          
+                          
+                                              <div class="param-description">
+                                                  <p>The flag if transfer started from self.</p>
+                          
+                                              </div>
+                          
+                                          </li>
+                                      </ul>
+                                  </div>
+                          
+                          
+                          </div>
+                  </div>
           </div>
       </div>
     </div>

@@ -190,7 +190,7 @@ function Socket (options, defaultOptions) {
    * @since 0.7.0
    */
   /**
-   * Event triggered when stats retrieval state has changed.
+   * Event triggered when {{#crossLink "Temasys.Socket/getStats:method"}}{{/crossLink}} state has changed.
    * @event getStatsStateChange
    * @param {String} state The current stats retrieval state.
    * - See {{#crossLink "Temasys.Socket/GET_STATS_STATE_ENUM:attribute"}}{{/crossLink}} for reference.

@@ -225,7 +225,7 @@ navbar.top ul.menu li a:hover {
   bottom: 0;
   top: 45px;
   display: block;
-  overflow: hidden;
+  /*overflow: hidden;*/
 }
 
 .container .container-wrapper {

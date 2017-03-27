@@ -4,9 +4,12 @@ YUI.add("yuidoc-meta", function(Y) {
         "Room",
         "Skylink",
         "Socket",
+        "Temasys",
+        "Temasys.Datachannel",
         "Temasys.Peer",
         "Temasys.Room",
         "Temasys.Socket",
+        "Temasys.Stream",
         "Temasys.Utils"
     ],
     "modules": [],

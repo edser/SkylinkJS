@@ -14,7 +14,7 @@
  * - Set it as `0` to remove limits.
  * @param {String|RTCCertificate} [options.constraints.certificate] The certificate algorithm to use for
  *   the ICE connection media streaming encryption.
- * - When provided as `string`, see {{#crossLink "Temasys.Peer/CERTIFICATE_ENUM:attribute"}}{{/crossLink}} for reference.
+ * - When provided as `String`, see {{#crossLink "Temasys.Peer/CERTIFICATE_ENUM:attribute"}}{{/crossLink}} for reference.
  * @param {JSON} [options.constraints.iceServers] The ICE servers settings.
  * @param {JSON|Boolean} [options.constraints.iceServers.turn] The TURN ICE servers settings.
  * - When provided as a `Boolean`, it determines if TURN ICE servers should be used.
@@ -22,12 +22,12 @@
  * @param {String} [options.constraints.iceServers.turn.transport=AUTO] The TURN server transport to use.
  * - See {{#crossLink "Temasys.Peer/TURN_TRANSPORT_ENUM:attribute"}}{{/crossLink}} for reference.
  * @param {Array|String} [options.constraints.iceServers.turn.urls] The list of TURN servers urls to use.
- *  E.g. `["turn.temasys.io:3478", "turn.temasys.io:19305"]` or `"turn.temasys.io"`
+ *  E.g. `("turn.temasys.io:3478", "turn.temasys.io:19305")` or `"turn.temasys.io"`
  * @param {JSON|Boolean} [options.constraints.iceServers.stun] The STUN ICE servers settings.
  * - When provided as a `Boolean`, it determines if STUN ICE servers should be used.
  * @param {Boolean} [options.constraints.iceServers.stun.public] The flag if public STUN ICE servers should be used.
  * @param {Array|String} [options.constraints.iceServers.stun.urls] The list of STUN servers urls to use.
- *  E.g. `["turn.temasys.io:3478", "turn.temasys.io:19305"]` or `"turn.temasys.io"`
+ *  E.g. `("turn.temasys.io:3478", "turn.temasys.io:19305")` or `"turn.temasys.io"`
  * @param {JSON} [options.candidates] @[exp] The ICE candidates settings.
  * @param {Boolean} [options.candidates.host=true] The flag if "host" ICE candidates should be used.
  * @param {Boolean} [options.candidates.srflx=true] The flag if "srflx" ICE candidates should be used.
@@ -137,6 +137,7 @@
  * - When provided as `false`, this prevents receiving audio packets from Peer despite audio tracks being added remotely.
  * @param {Boolean} [options.media.audio.voiceActivityDetection=true] The flag if voice activity detection
  *   (VAD) should be enabled.
+ * @param {Boolean} [options.media.audio.dtmf=false] The flag if DTMF should be created if supported.
  * @param {Number} [options.media.audio.maxBandwidth=20] The maximum range limit of sending audio bandwidth in kbps.
  * - The bandwidth might be lower or higher by a few kbps than the specified range at times.
  * - Set it as `0` to remove limits.
@@ -248,6 +249,8 @@ function Peer (options, defaultOptions) {
    * @param {Boolean} datachannel The flag if Peer chooses to have Datachannel connection enabled.
    * @param {Boolean} trickleICE The flag if Peer chooses to have trickle ICE handshake.
    * @param {Boolean} iceRestart The flag if Peer has ICE restart capability.
+   * @param {Number} weight The Peer weight to determine if Peer should be start offer first
+   *   or not depending on whose weight is higher.
    * @type JSON
    * @readOnly
    * @for Temasys.Peer
@@ -258,7 +261,8 @@ function Peer (options, defaultOptions) {
     receiveOnly: false,
     datachannel: true,
     trickleICE: true,
-    iceRestart: !(window.webrtcDetectedBrowser === 'firefox' && window.webrtcDetectedVersion < 48)
+    iceRestart: !(window.webrtcDetectedBrowser === 'firefox' && window.webrtcDetectedVersion < 48),
+    weight: 0
   };
 
   /**
@@ -268,6 +272,13 @@ function Peer (options, defaultOptions) {
    * @param {String} iceConnectionState The Peer ICE connection state.
    * @param {String} iceGatheringState The Peer ICE gathering state.
    * @param {String} signalingState The Peer signaling state.
+   * @param {JSON} candidates The Peer ICE candidates states.
+   * @param {JSON} candidates.local The local ICE candidates sending states.
+   * - `"index"` can be identified as the local ICE candidate ID, which value is the state of the ICE candidate.
+   * @param {String} candidates.local.index The local ICE candidate sending state.
+   * @param {JSON} candidates.remote The remote ICE candidates processing states.
+   * - `"index"` can be identified as the remote ICE candidate ID, which value is the state of the ICE candidate.
+   * @param {String} candidates.remote.index The local ICE candidate processing state.
    * @param {Boolean} connected The flag if Peer ICE is connected.
    * @type JSON
    * @readOnly
@@ -279,6 +290,7 @@ function Peer (options, defaultOptions) {
     iceConnectionState: null,
     iceGatheringState: null,
     signalingState: null,
+    candidates: { remote: {}, local: {} },
     connected: false
   };
 
@@ -320,6 +332,289 @@ function Peer (options, defaultOptions) {
    * @since 0.7.0
    */
   /**
+   * Event triggered when Peer local ICE candidate sending state has changed.
+   * @event candidateSentStateChange
+   * @param {String} state The current local ICE candidate sending state.
+   * - See {{#crossLink "Temasys.Peer/CANDIDATE_SENT_STATE_ENUM:attribute"}}{{/crossLink}} for reference.
+   * @param {String} candidateId The local ICE candidate ID.
+   * @for Temasys.Peer
+   * @since 0.7.0
+   */
+  /**
+   * Event triggered when Peer remote ICE candidate processing state has changed.
+   * @event candidateProcessingStateChange
+   * @param {String} state The current remote ICE candidate processing state.
+   * - See {{#crossLink "Temasys.Peer/CANDIDATE_PROCESSING_STATE_ENUM:attribute"}}{{/crossLink}} for reference.
+   * @param {String} candidateId The remote ICE candidate ID.
+   * @param {Error} [error] The error object.
+   * - This is defined when `state` is `FAILED`.
+   * @for Temasys.Peer
+   * @since 0.7.0
+   */
+  /**
+   * Event triggered when {{#crossLink "Temasys.Peer/getStats:method"}}{{/crossLink}} state has changed.
+   * @event getStatsStateChange
+   * @param {String} state The current stats retrieval state.
+   * - See {{#crossLink "Temasys.Peer/GET_STATS_STATE_ENUM:attribute"}}{{/crossLink}} for reference.
+   * @param {JSON} [stats] The stats.
+   * - This is defined when `state` is `SUCCESS`.
+   * - The below `stats` parameters will not be the same if `isRaw` parameter is set to `true` in the 
+   * @param {JSON} stats.audio The Peer connection audio stats.
+   * @param {JSON} stats.audio.sent The audio stats sent.
+   * @param {JSON} stats.audio.sent.bytes The audio bytes sent information.
+   * @param {Number} stats.audio.sent.bytes.current The current audio bytes sent.
+   * @param {Number} stats.audio.sent.bytes.total The total audio bytes sent.
+   * @param {JSON} stats.audio.sent.packets The audio packets sent information.
+   * @param {Number} stats.audio.sent.packets.current The current audio packets sent.
+   * @param {Number} stats.audio.sent.packets.total The total audio packets sent.
+   * @param {JSON} stats.audio.sent.nackCount The audio nacks sent.
+   * @param {Number} [stats.audio.sent.nackCount.current] The current audio nacks sent.
+   * @param {Number} [stats.audio.sent.nackCount.total] The total audio nacks sent.
+   * @param {String} stats.audio.sent.ssrc The audio sending direction RTP packets synchronization source (SSRC) ID.
+   * @param {JSON} stats.audio.sent.rtt The audio sending direction round-trip time (RTT) taken.
+   * @param {Number} [stats.audio.sent.rtt.current] The current audio sending direction RTT in seconds.
+   * @param {JSON} stats.audio.sent.codec The selected audio sending direction codec information.
+   * @param {String} stats.audio.sent.codec.name The audio sending direction codec name.
+   * @param {String} stats.audio.sent.codec.payloadType The audio sending direction codec payload number.
+   * @param {String} [stats.audio.sent.codec.implementation] The audio sending direction codec implementation.
+   * @param {Number} stats.audio.sent.codec.channels The audio sending direction codec channels.
+   * @param {Number} stats.audio.sent.codec.clockRate The audio sending direction codec sampling rate in hertz (Hz).
+   * @param {String} stats.audio.sent.codec.params The audio sending direction codec parameters.
+   * @param {Number} [stats.audio.sent.level] The current audio sending stream input level.
+   * @param {Number} [stats.audio.sent.echoReturnLoss] The current audio sending stream echo return loss in decibels (db).
+   * @param {Number} [stats.audio.sent.echoReturnLossEnhancement] The current audio sending stream echo return loss
+   *   enhancement in decibels (db).
+   * @param {JSON} stats.audio.received The audio stats received.
+   * @param {JSON} stats.audio.received.bytes The audio bytes received information.
+   * @param {Number} stats.audio.received.bytes.current The current audio bytes received.
+   * @param {Number} stats.audio.received.bytes.total The total audio bytes received.
+   * @param {JSON} stats.audio.received.packets The audio packets received information.
+   * @param {Number} stats.audio.received.packets.current The current audio packets received.
+   * @param {Number} stats.audio.received.packets.total The total audio packets received.
+   * @param {JSON} stats.audio.received.packetsLost The audio packets lost information.
+   * @param {Number} [stats.audio.received.packetsLost.current] The current audio packets lost.
+   * @param {Number} [stats.audio.received.packetsLost.total] The total audio packets lost.
+   * @param {JSON} stats.audio.received.packetsDiscarded The audio packets discarded information.
+   * @param {Number} [stats.audio.received.packetsDiscarded.current] The current audio packets discarded.
+   * @param {Number} [stats.audio.received.packetsDiscarded.total] The total audio packets discarded.
+   * @param {JSON} stats.audio.received.packetsRepaired The audio packets repaired information.
+   * @param {Number} [stats.audio.received.packetsRepaired.current] The current audio packets repaired.
+   * @param {Number} [stats.audio.received.packetsRepaired.total] The total audio packets repaired.
+   * @param {JSON} stats.audio.received.fractionLost The audio packets fraction loss information.
+   * @param {Number} [stats.audio.received.fractionLost.current] The current audio packets fraction loss.
+   * @param {JSON} stats.audio.received.jitter The audio packets jitter information.
+   * @param {Number} [stats.audio.received.jitter.current] The current audio packets jitter in seconds.
+   * @param {Number} [stats.audio.received.jitter.currentMs] The current audio packets jitter in miliseconds.
+   * @param {JSON} stats.audio.received.nackCount The audio nacks received.
+   * @param {Number} [stats.audio.received.nackCount.current] The current audio nacks received.
+   * @param {Number} [stats.audio.received.nackCount.total] The total audio nacks received.
+   * @param {String} stats.audio.received.ssrc The audio receiving direction RTP packets synchronization source (SSRC) ID.
+   * @param {JSON} [stats.audio.received.codec] The selected audio receiving direction codec information.
+   * @param {String} [stats.audio.received.codec.name] The audio receiving direction codec name.
+   * @param {String} [stats.audio.received.codec.payloadType] The audio receiving direction codec payload number.
+   * @param {String} [stats.audio.received.codec.implementation] The audio receiving direction codec implementation.
+   * @param {Number} [stats.audio.received.codec.channels] The audio receiving direction codec channels.
+   * @param {Number} [stats.audio.received.codec.clockRate] The audio receiving direction codec sampling rate in hertz (Hz).
+   * @param {String} [stats.audio.received.codec.params] The audio receiving direction codec parameters.
+   * @param {Number} [stats.audio.received.level] The current audio receiving stream output level.
+   * @param {JSON} stats.video The Peer connection video stats.
+   * @param {JSON} stats.video.sent The video stats sent.
+   * @param {JSON} stats.video.sent.bytes The video bytes sent information.
+   * @param {Number} stats.video.sent.bytes.current The current video bytes sent.
+   * @param {Number} stats.video.sent.bytes.total The total video bytes sent.
+   * @param {JSON} stats.video.sent.packets The video packets sent information.
+   * @param {Number} stats.video.sent.packets.current The current video packets sent.
+   * @param {Number} stats.video.sent.packets.total The total video packets sent.
+   * @param {String} stats.video.sent.ssrc The video sending direction RTP packets synchronization source (SSRC) ID.
+   * @param {JSON} stats.video.sent.rtt The video sending direction round-trip time (RTT) taken.
+   * @param {Number} [stats.video.sent.rtt.current] The current video sending direction RTT in seconds.
+   * @param {JSON} stats.video.sent.nackCount The video nacks sent.
+   * @param {Number} [stats.video.sent.nackCount.current] The current video nacks sent.
+   * @param {Number} [stats.video.sent.nackCount.total] The total video nacks sent.
+   * @param {JSON} stats.video.sent.sliCount The video slis sent.
+   * @param {Number} [stats.video.sent.sliCount.current] The current video slis sent.
+   * @param {Number} [stats.video.sent.sliCount.total] The total video slis sent.
+   * @param {JSON} stats.video.sent.pliCount The video plis sent.
+   * @param {Number} [stats.video.sent.pliCount.current] The current video plis sent.
+   * @param {Number} [stats.video.sent.pliCount.total] The total video plis sent.
+   * @param {JSON} stats.video.sent.firCount The video firs sent.
+   * @param {Number} [stats.video.sent.firCount.current] The current video firs sent.
+   * @param {Number} [stats.video.sent.firCount.total] The total video firs sent.
+   * @param {JSON} stats.video.sent.codec The selected video sending direction codec information.
+   * @param {String} stats.video.sent.codec.name The selected video sending direction codec name.
+   * @param {String} stats.video.sent.codec.payloadType The selected video sending direction codec payload number.
+   * @param {String} [stats.video.sent.codec.implementation] The selected video sending direction codec implementation.
+   * @param {Number} stats.video.sent.codec.clockRate The selected video sending direction
+   *   codec sampling rate in hertz (Hz).
+   * @param {String} stats.video.sent.codec.params The selected video sending direction codec parameters.
+   * @param {JSON} stats.video.sent.frames The video frames sent information.
+   * @param {Number} [stats.video.sent.frames.current] The current number of video frames sent.
+   * @param {Number} [stats.video.sent.frames.total] The total number of video frames sent.
+   * @param {JSON} stats.video.sent.frameRate The video frames per second (fps) sent information.
+   * @param {Number} [stats.video.sent.frameRate.current] The current video frames per second (fps) sent.
+   * @param {Number} [stats.video.sent.frameRate.mean] The current mean of the current video frames per second (fps) sent.
+   * @param {Number} [stats.video.sent.frameRate.stdDev] The current standard deviation
+   *   of the current video frames per second (fps) sent.
+   * @param {Number} [stats.video.sent.frameRate.input] The current sending video stream frames per second (fps) input.
+   * @param {JSON} stats.video.sent.framesDropped The video frames dropped information.
+   * @param {Number} [stats.video.sent.framesDropped.current] The current number of video frames dropped.
+   * @param {Number} [stats.video.sent.framesDropped.total] The total number of video frames dropped.
+   * @param {JSON} stats.video.sent.framesCorrupted The video frames corrupted information.
+   * @param {Number} [stats.video.sent.framesCorrupted.current] The current number of video frames corrupted.
+   * @param {Number} [stats.video.sent.framesCorrupted.total] The total number of video frames corrupted.
+   * @param {JSON} stats.video.sent.framesEncoded The video frames encoded information.
+   * @param {Number} [stats.video.sent.framesEncoded.current] The current number of video frames encoded.
+   * @param {Number} [stats.video.sent.framesEncoded.total] The total number of video frames encoded.
+   * @param {JSON} stats.video.sent.frameSize The current video frame size sent information.
+   * @param {Number} [stats.video.sent.frameSize.width] The current video frame width in pixels (px) sent.
+   * @param {Number} [stats.video.sent.frameSize.height] The current video frame height in pixels (px) sent.
+   * @param {Number} [stats.video.sent.qpSum] The sum of the QP values of frames passed.
+   * @param {JSON} stats.video.received The video stats received.
+   * @param {JSON} stats.video.received.bytes The video bytes received information.
+   * @param {Number} stats.video.received.bytes.current The current video bytes received.
+   * @param {Number} stats.video.received.bytes.total The total video bytes received.
+   * @param {JSON} stats.video.received.packets The video packets received information.
+   * @param {Number} stats.video.received.packets.current The current video packets received.
+   * @param {Number} stats.video.received.packets.total The total video packets received.
+   * @param {String} stats.video.received.ssrc The video sending direction RTP packets synchronization source (SSRC) ID.
+   * @param {JSON} stats.video.received.jitter The video packets jitter information.
+   * @param {Number} [stats.video.received.jitter.current] The current video packets jitter in seconds.
+   * @param {Number} [stats.video.received.jitter.currentMs] The current video packets jitter in miliseconds.
+   * @param {JSON} stats.video.received.nackCount The video nacks received.
+   * @param {Number} [stats.video.received.nackCount.current] The current video nacks received.
+   * @param {Number} [stats.video.received.nackCount.total] The total video nacks received.
+   * @param {JSON} stats.video.received.sliCount The video slis received.
+   * @param {Number} [stats.video.received.sliCount.current] The current video slis received.
+   * @param {Number} [stats.video.received.sliCount.total] The total video slis received.
+   * @param {JSON} stats.video.received.pliCount The video plis received.
+   * @param {Number} [stats.video.received.pliCount.current] The current video plis received.
+   * @param {Number} [stats.video.received.pliCount.total] The total video plis received.
+   * @param {JSON} stats.video.received.firCount The video firs received.
+   * @param {Number} [stats.video.received.firCount.current] The current video firs received.
+   * @param {Number} [stats.video.received.firCount.total] The total video firs received.
+   * @param {JSON} stats.video.received.codec The selected video sending direction codec information.
+   * @param {String} [stats.video.received.codec.name] The selected video sending direction codec name.
+   * @param {String} [stats.video.received.codec.payloadType] The selected video sending direction codec payload number.
+   * @param {String} [stats.video.received.codec.implementation] The selected video sending direction codec implementation.
+   * @param {Number} [stats.video.received.codec.clockRate] The selected video sending direction
+   *   codec sampling rate in hertz (Hz).
+   * @param {String} [stats.video.received.codec.params] The selected video sending direction codec parameters.
+   * @param {JSON} stats.video.received.frames The video frames received information.
+   * @param {Number} [stats.video.received.frames.current] The current number of video frames received.
+   * @param {Number} [stats.video.received.frames.total] The total number of video frames received.
+   * @param {JSON} stats.video.received.frameRate The video frames per second (fps) received information.
+   * @param {Number} [stats.video.received.frameRate.current] The current video frames per second (fps) received.
+   * @param {Number} [stats.video.received.frameRate.mean] The current mean of the current video frames per second (fps) received.
+   * @param {Number} [stats.video.received.frameRate.stdDev] The current standard deviation
+   *   of the current video frames per second (fps) received.
+   * @param {Number} [stats.video.received.frameRate.output] The current sending video stream frames per second (fps) output.
+   * @param {JSON} stats.video.received.framesDropped The video frames dropped information.
+   * @param {Number} [stats.video.received.framesDropped.current] The current number of video frames dropped.
+   * @param {Number} [stats.video.received.framesDropped.total] The total number of video frames dropped.
+   * @param {JSON} stats.video.received.framesCorrupted The video frames corrupted information.
+   * @param {Number} [stats.video.received.framesCorrupted.current] The current number of video frames corrupted.
+   * @param {Number} [stats.video.received.framesCorrupted.total] The total number of video frames corrupted.
+   * @param {JSON} stats.video.received.framesEncoded The video frames decoded information.
+   * @param {Number} [stats.video.received.framesDecoded.current] The current number of video frames decoded.
+   * @param {Number} [stats.video.received.framesDecoded.total] The total number of video frames decoded.
+   * @param {JSON} stats.video.received.frameSize The current video frame size received information.
+   * @param {Number} [stats.video.received.frameSize.width] The current video frame width in pixels (px) received.
+   * @param {Number} [stats.video.received.frameSize.height] The current video frame height in pixels (px) received.
+   * @param {Number} [stats.video.received.e2eDelay] The current video e2e delay.
+   * - This requires a {{#crossLink "Stream"}}{{/crossLink}} attached to a video element.
+   * @param {JSON} stats.candidates The Peer connection ICE candidates information.
+   * @param {Array} stats.candidates.local The array of local ICE candidates stats information.
+   * - `"index"` can be identified as the index item of each local ICE candidate stats object.
+   * @param {String} [stats.candidates.local.index] The local ICE candidate stats.
+   * @param {String} [stats.candidates.local.index.ip] The local ICE candidate IP address.
+   * @param {Number} [stats.candidates.local.index.port] The local ICE candidate port.
+   * @param {String} [stats.candidates.local.index.protocol] The local ICE candidate protocol.
+   * @param {String} [stats.candidates.local.index.turnProtocol] The local ICE candidate protocol used to
+   *   communicate with TURN server.
+   * @param {String} [stats.candidates.local.index.candidateType] The local ICE candidate type.
+   * - Available values are: `"host"` (local network area), `"srflx"` (STUN) and `"relay"` (TURN)
+   * @param {Number} [stats.candidates.local.index.priority] The local ICE candidate priority.
+   * @param {Number} [stats.candidates.local.index.selected] The flag if the local ICE candidate is selected.
+   * @param {Array} stats.candidates.remote The array of remote ICE candidates stats information.
+   * - `"index"` can be identified as the index item of each remote ICE candidate stats object.
+   * @param {String} [stats.candidates.remote.index] The remote ICE candidate stats.
+   * @param {String} [stats.candidates.remote.index.ip] The remote ICE candidate IP address.
+   * @param {Number} [stats.candidates.remote.index.port] The remote ICE candidate port.
+   * @param {String} [stats.candidates.remote.index.protocol] The remote ICE candidate protocol.
+   * @param {String} [stats.candidates.remote.index.turnProtocol] The remote ICE candidate protocol used to
+   *   communicate with TURN server.
+   * @param {String} [stats.candidates.remote.index.candidateType] The remote ICE candidate type.
+   * - Available values are: `"host"` (local network area), `"srflx"` (STUN) and `"relay"` (TURN)
+   * @param {Number} [stats.candidates.remote.index.priority] The remote ICE candidate priority.
+   * @param {Number} [stats.candidates.remote.index.selected] The flag if the remote ICE candidate is selected.
+   * @param {Boolean} [stats.candidates.writable] The flag if Peer has gotten ACK to an ICE request.
+   * @param {Boolean} [stats.candidates.readable] The flag if Peer has gotten a valid incoming ICE request.
+   * @param {JSON} stats.candidates.rtt The current STUN connectivity checks round-trip delay (RTT) information.
+   * @param {Number} [stats.candidates.current] The current rtt in seconds.
+   * @param {Number} [stats.candidates.total] The total rtt in seconds.
+   * @param {JSON} stats.candidates.requests The ICE connectivity check requests.
+   * @param {JSON} stats.candidates.requests.received The ICE connectivity check requests received.
+   * @param {Number} [stats.candidates.requests.received.current] The current number of
+   *   ICE connectivity check requests received.
+   * @param {Number} [stats.candidates.requests.received.total] The total number of
+   *   ICE connectivity check requests received.
+   * @param {JSON} stats.candidates.requests.sent The ICE connectivity check requests sent.
+   * @param {Number} [stats.candidates.requests.sent.current] The current number of
+   *   ICE connectivity check requests sent.
+   * @param {Number} [stats.candidates.requests.sent.total] The total number of
+   *   ICE connectivity check requests sent.
+   * @param {JSON} stats.candidates.responses The ICE connectivity check responses.
+   * @param {JSON} stats.candidates.responses.received The ICE connectivity check responses received.
+   * @param {Number} [stats.candidates.responses.received.current] The current number of
+   *   ICE connectivity check responses received.
+   * @param {Number} [stats.candidates.responses.received.total] The total number of
+   *   ICE connectivity check responses received.
+   * @param {JSON} stats.candidates.responses.sent The ICE connectivity check responses sent.
+   * @param {Number} [stats.candidates.responses.sent.current] The current number of
+   *   ICE connectivity check responses sent.
+   * @param {Number} [stats.candidates.responses.sent.total] The total number of
+   *   ICE connectivity check responses sent.
+   * @param {JSON} stats.candidates.consentRequests The ICE connectivity consent requests.
+   * @param {JSON} stats.candidates.consentRequests.received The ICE connectivity check consent requests received.
+   * @param {Number} [stats.candidates.consentRequests.received.current] The current number of
+   *   ICE connectivity consent requests received.
+   * @param {Number} [stats.candidates.consentRequests.received.total] The total number of
+   *   ICE connectivity consent requests received.
+   * @param {JSON} stats.candidates.consentRequests.sent The ICE connectivity consent requests sent.
+   * @param {Number} [stats.candidates.consentRequests.sent.current] The current number of
+   *   ICE connectivity consent requests sent.
+   * @param {Number} [stats.candidates.consentRequests.sent.total] The total number of
+   *   ICE connectivity consent requests sent.
+   * @param {JSON} stats.candidates.consentResponses The ICE connectivity consent responses.
+   * @param {JSON} stats.candidates.consentResponses.received The ICE connectivity check consent responses received.
+   * @param {Number} [stats.candidates.consentResponses.received.current] The current number of
+   *   ICE connectivity consent responses received.
+   * @param {Number} [stats.candidates.consentResponses.received.total] The total number of
+   *   ICE connectivity consent responses received.
+   * @param {JSON} stats.candidates.consentResponses.sent The ICE connectivity consent responses sent.
+   * @param {Number} [stats.candidates.consentResponses.sent.current] The current number of
+   *   ICE connectivity consent responses sent.
+   * @param {Number} [stats.candidates.consentResponses.sent.total] The total number of
+   *   ICE connectivity consent responses sent.
+   * @param {JSON} stats.certificate The Peer connection DTLS/SRTP exchanged certificates information.
+   * @param {JSON} stats.certificate.local The local certificate information.
+   * @param {String} [stats.certificate.local.fingerprint] The local certificate fingerprint.
+   * @param {String} [stats.certificate.local.fingerprintAlgorithm] The local certificate fingerprint algorithm.
+   * @param {String} [stats.certificate.local.derBase64] The local
+   *   base64 certificate in binary DER format encoded in base64.
+   * @param {JSON} stats.certificate.remote The remote certificate information.
+   * @param {String} [stats.certificate.remote.fingerprint] The remote certificate fingerprint.
+   * @param {String} [stats.certificate.remote.fingerprintAlgorithm] The remote certificate fingerprint algorithm.
+   * @param {String} [stats.certificate.remote.derBase64] The remote
+   *   base64 certificate in binary DER format encoded in base64.
+   * @param {String} [stats.certificate.srtpCipher] The certificates SRTP cipher.
+   * @param {String} [stats.certificate.dtlsCipher] The certificates DTLS cipher.
+   * @param {Error} [error] The error object.
+   * - This is defined when `state` is `FAILED`.
+   * @for Temasys.Peer
+   * @since 0.7.0
+   */
+  /**
    * Event triggered when sending or receiving Stream object.
    * @event stream
    * @param {Temasys.Stream} stream The Stream object.
@@ -353,19 +648,6 @@ function Peer (options, defaultOptions) {
    * @param {Temasys.Datatransfer} transfer The data transfer object.
    * @param {String} transferId The data transfer ID.
    * @param {Boolean} isSelf The flag if transfer started from self.
-   * @for Temasys.Peer
-   * @since 0.7.0
-   */
-  /**
-   * Event triggered when stats retrieval state has changed.
-   * @event getStatsStateChange
-   * @param {String} state The current stats retrieval state.
-   * - See {{#crossLink "Temasys.Peer/GET_STATS_STATE_ENUM:attribute"}}{{/crossLink}} for reference.
-   * @param {JSON} [stats] The stats.
-   * - This is defined when `state` is `SUCCESS`.
-
-   * @param {Error} [error] The error object.
-   * - This is defined when `state` is `FAILED`.
    * @for Temasys.Peer
    * @since 0.7.0
    */
@@ -519,6 +801,8 @@ Peer.prototype.VIDEO_CODEC_ENUM = {
  * @attribute HANDSHAKE_STATE_ENUM
  * @param {String} ENTER The state when Peer has joined the Room.
  * @param {String} WELCOME The state when Peer acknowledges self has joined the Room.
+ * @param {String} RESTART The state after `ENTER` or `WELCOME` when Peer wants to resend another offer
+ *   to switch Stream object or restart ICE connection.
  * @param {String} OFFER The state when Peer sends an offer to start ICE connection.
  * @param {String} ANSWER The state when Peer responses an answer to self offer.
  * @param {String} ERROR The state when Peer connection fails to start, or set offer or answer.
@@ -531,6 +815,7 @@ Peer.prototype.VIDEO_CODEC_ENUM = {
 Peer.prototype.HANDSHAKE_STATE_ENUM = {
   ENTER: 'enter',
   WELCOME: 'welcome',
+  RESTART: 'restart',
   OFFER: 'offer',
   ANSWER: 'answer',
   ERROR: 'error'
@@ -642,8 +927,107 @@ Peer.prototype.GET_STATS_STATE_ENUM = {
 };
 
 /**
+ * The enum of Peer types.
+ * @attribute TYPE_ENUM
+ * @param {String} MCU The type when Peer is MCU Peer.
+ * @param {String} P2P The type when Peer is MCU disabled Peer.
+ * @param {String} MCU_RELAYED The type when Peer is MCU relayed Peer.
+ * @readOnly
+ * @final
+ * @for Temasys.Peer
+ * @since 0.7.0
+ */
+Peer.prototype.TYPE_ENUM = {
+  MCU: 'MCU',
+  // SIP: 'SIP',
+  P2P: 'p2p',
+  MCU_RELAYED: 'MCURelayed'
+};
+
+/**
+ * The enum of Peer local ICE candidate (native `RTCIceCandidate` object) sending states.
+ * @attribute CANDIDATE_SENT_STATE_ENUM
+ * @param {String} GATHERED The state when the ICE candidate is gathered.
+ * @param {String} DROPPED The state when the ICE candidate is dropped from sending.
+ * @param {String} SENT The state when the ICE candidate is sent.
+ * @readOnly
+ * @final
+ * @for Temasys.Peer
+ * @since 0.7.0
+ */
+Peer.prototype.CANDIDATE_SENT_STATE_ENUM = {
+  GATHERED: 'gathered',
+  DROPPED: 'dropped',
+  SENT: 'sent'
+};
+
+/**
+ * The enum of Peer remote ICE candidate (native `RTCIceCandidate` object) processing states.
+ * @attribute CANDIDATE_PROCESSING_STATE_ENUM
+ * @param {String} Received The state when the ICE candidate is received.
+ * @param {String} DROPPED The state when the ICE candidate is dropped from processing.
+ * @param {String} PROCESSING The state when the ICE candidate is processing.
+ * @param {String} PROCESSED The state when the ICE candidate has been processed
+ *   and added to Peer connection successfully.
+ * @param {String} FAILED The state when the ICE candidate has failed to process
+ *   and add to Peer connection.
+ * @readOnly
+ * @final
+ * @for Temasys.Peer
+ * @since 0.7.0
+ */
+Peer.prototype.CANDIDATE_PROCESSING_STATE_ENUM = {
+  RECEIVED: 'received',
+  DROPPED: 'dropped',
+  PROCESSING: 'processing',
+  PROCESSED: 'processed',
+  FAILED: 'failed'
+};
+
+/**
+ * Function to retrieve Peer ICE candidates.
+ * @method getCandidates
+ * @return {JSON} [test] rere
+ * @for Temasys.Peer
+ * @since 0.7.0
+ */
+Peer.prototype.getCandidate = function () {
+};
+
+/**
+ * Function to retrieve Peer {{#crossLink "Stream"}}Streams{{/crossLink}}.
+ * @param getStreams
+ * @return {JSON} [test] rere
+ * @for Temasys.Peer
+ * @since 0.7.0
+ */
+Peer.prototype.getStreams = function () {
+};
+
+/**
+ * Function to retrieve Datachannel connections.
+ * @param getDatachannels
+ * @return {JSON} [test] rere
+ * @for Temasys.Peer
+ * @since 0.7.0
+ */
+Peer.prototype.getDatachannels = function () {
+};
+
+/**
+ * Function to retrieve DTMF sender.
+ * @param getDTMFSender
+ * @return {JSON} [test] rere
+ * @for Temasys.Peer
+ * @since 0.7.0
+ */
+Peer.prototype.getDTMFSender = function () {
+};
+
+/**
  * Function to retrieve Peer connection stats.
  * @method getStats
+ * @param {Boolean} [isRaw=false] The flag to return native stats object instead of parsed stats.
  * @return {Promise} The Promise for function request completion.
  * @example
  *   peer.getStats().then(function (stats) {
@@ -654,7 +1038,7 @@ Peer.prototype.GET_STATS_STATE_ENUM = {
  * @for Temasys.Peer
  * @since 0.7.0
  */
-Peer.prototype.getStats = function () {
+Peer.prototype.getStats = function (isRaw) {
 };
 
 /**
@@ -700,22 +1084,4 @@ Peer.prototype.refresh = function (stream, options) {
  */
 Peer.prototype.send = function (message, isP2P, fn) {
   var ref = this;
-};
-
-/**
- * Function to send message to P
- */
-
-/**
- * Function to start Peer connection.
- */
-Peer.prototype._connect = function () {
-
-};
-
-/**
- * Function to stop Peer connection.
- */
-Peer.prototype._disconnect = function () {
-
 };
