@@ -77,566 +77,1035 @@
         </div>
       </navbar>      <!-- Content -->
       <div id="template-content">
-          <h1>Temasys.Utils Class</h1>
-      <div class="box meta">
-      
-      
-              <div class="foundat">
-                  Defined in: <a href="../files/source_components_utils.js.html#l1"><code>source&#x2F;components&#x2F;utils.js:1</code></a>
-              </div>
-      
-      
-              <p>Available since 0.7.0</p>
-      </div>
-      
-      
-      <div class="box intro">
+      <section class="doc">
+        <h1><var>Temasys.Utils</var> module</h1>
+        <article class="_first">
+          <!-- Description -->
           <p>Module that handles utility functionalities.</p>
       
-      </div>
-      
-      
-      <div id="classdocs" class="tabview">
-          <ul class="api-class-tabs">
-              <li class="api-class-tab index"><a href="#index">Index</a></li>
-      
-                  <li class="api-class-tab methods"><a href="#methods">Methods</a></li>
-          </ul>
-      
-          <div>
-              <div id="index" class="api-class-tabpanel index">
-                  <h2 class="off-left">Item Index</h2>
-      
-                      <div class="index-section methods">
-                          <h3>Methods</h3>
-      
-                          <ul class="index-list methods">
-                                  <li class="index-item method">
-                                      <a href="#method_createEventManager">createEventManager</a>
-      
-                                  </li>
-                                  <li class="index-item method">
-                                      <a href="#method_createEventManager.catch">createEventManager.catch</a>
-      
-                                  </li>
-                                  <li class="index-item method">
-                                      <a href="#method_createEventManager.emit">createEventManager.emit</a>
-      
-                                  </li>
-                                  <li class="index-item method">
-                                      <a href="#method_createEventManager.off">createEventManager.off</a>
-      
-                                  </li>
-                                  <li class="index-item method">
-                                      <a href="#method_createEventManager.on">createEventManager.on</a>
-      
-                                  </li>
-                                  <li class="index-item method">
-                                      <a href="#method_createEventManager.once">createEventManager.once</a>
-      
-                                  </li>
-                                  <li class="index-item method">
-                                      <a href="#method_forEach">forEach</a>
-      
-                                  </li>
-                          </ul>
-                      </div>
-      
-      
-      
+          <!-- Properties -->
+          <h5>Properties</h5>
+          <table>
+            <thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead>
+            <tbody>
+            </tbody>
+          </table>
+          <!-- Enums -->
+          <h5>Constants / Enums</h5>
+          <table>
+            <thead><tr><th>Name</th><th>Description</th></tr></thead>
+            <tbody>
+            </tbody>
+          </table>
+          <!-- Methods -->
+          <h5>Methods</h5>
+          <table>
+            <thead><tr><th>Method</th><th>Returns</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr>
+                  <td><a href="#method_createEventManager"><code>.createEventManager</code></a>()</td>
+                  <td><var><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></var></td>
+                  <td>Function that creates an event emitter manager to handle event triggers and subscription.</td>
+                </tr>
+                <tr>
+                  <td><a href="#method_createEventManager.catch"><code>.createEventManager.catch</code></a>(<code>fn</code>)</td>
+                  <td><var>-</var></td>
+                  <td>Function that when provided catches errors instead of throwing them during event subscription or triggers.</td>
+                </tr>
+                <tr>
+                  <td><a href="#method_createEventManager.emit"><code>.createEventManager.emit</code></a>(<code>event</code>)</td>
+                  <td><var>-</var></td>
+                  <td>Function to trigger an event.</td>
+                </tr>
+                <tr>
+                  <td><a href="#method_createEventManager.off"><code>.createEventManager.off</code></a>(<code>[event]</code>, <code>[callback]</code>)</td>
+                  <td><var>-</var></td>
+                  <td>Function to unsubscribe to an event.</td>
+                </tr>
+                <tr>
+                  <td><a href="#method_createEventManager.on"><code>.createEventManager.on</code></a>(<code>event</code>, <code>callback</code>)</td>
+                  <td><var>-</var></td>
+                  <td>Function to subscribe to an event.</td>
+                </tr>
+                <tr>
+                  <td><a href="#method_createEventManager.once"><code>.createEventManager.once</code></a>(<code>event</code>, <code>callback</code>, <code>[condition]</code>, <code>[fireAlways]</code>)</td>
+                  <td><var>-</var></td>
+                  <td>Function to subscribe to an event once.</td>
+                </tr>
+                <tr>
+                  <td><a href="#method_forEach"><code>.forEach</code></a>(<code>object</code>, <code>The</code>)</td>
+                  <td><var>-</var></td>
+                  <td>Function that loops through an Array or JSON object.</td>
+                </tr>
+            </tbody>
+          </table>
+          <!-- Events -->
+          <h5>Events</h5>
+          <table>
+            <thead><tr><th>Event</th><th>Payload</th><th>Description</th></tr></thead>
+            <tbody>
+            </tbody>
+          </table>
+        </article>
+          <article id="method_createEventManager">
+            <div class="doc-type">
+              <div class="doc-type-wrapper">
+                
+                
+                
+                
+                
+                <span class="version">Since 0.7.0</span>
+                <span class="type">Method</span>
+                <span class="definedat">Defined at: <a href="../files/source_components_utils.js.html#l41"><var>source/components/utils.js:41</var></a></span>
               </div>
-      
-                  <div id="methods" class="api-class-tabpanel">
-                      <h2 class="off-left">Methods</h2>
-      
-      <div id="method_createEventManager" class="method item">
-          <h3 class="name"><code>createEventManager</code></h3>
-      
-              <span class="paren">()</span>
-      
-              <span class="returns-inline">
-                  <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
+            </div>
+            <h3><var>.createEventManager</var> () <small>&#8594;&nbsp;&nbsp;
+              <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></small></h3>
+            <!--<p class="doc-supports">
+              <span class="when">When <var>"type"</var> is <code>true</code>.</span>
+              <span class="supports">
+                <em class="title">Supports:</em>
+                <em><i class="fa fa-chrome"></i> 55</em>
+                <em><i class="fa fa-firefox"></i> 48</em>
+                <em><i class="fa fa-opera"></i> 37</em>
+                <em><i class="fa fa-safari"></i> 7 (0.8.870)</em>
+                <em><i class="fa fa-internet-explorer"></i> 11 (0.8.870)</em>
+                <em><i class="fa fa-edge"></i> 13.457</em>
+                <em><i class="fa fa-android"></i> 8</em>
+                <em><i class="fa fa-globe"></i> 0.6.1</em>
               </span>
-      
-      
-      
-      
-      
-      
-      
-          <div class="meta">
-                      <p>
-                      Defined in
-              <a href="../files/source_components_utils.js.html#l41"><code>source&#x2F;components&#x2F;utils.js:41</code></a>
-              </p>
-      
-      
-      
-                  <p>Available since 0.7.0</p>
-          </div>
-      
-          <div class="description">
-              <p>Function that creates an event emitter manager to handle event triggers and subscription.</p>
-      
-          </div>
-      
-      
-              <div class="returns">
-                  <h4>Returns:</h4>
-      
-                  <div class="returns-description">
-                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>:
-                          <p>Returns a list of event tools.</p>
-      
+            </p>-->
+            <p>Function that creates an event emitter manager to handle event triggers and subscription.</p>
+          
+            <!-- Parameters -->
+            <h5>Parameters</h5>
+              <p>None</p>
+            <!-- Returns -->
+            <h5>Returns</h5>
+              
+          </article>
+          <!--
+          <div id="method_createEventManager" class="method item">
+              <h3 class="name"><code>createEventManager</code></h3>
+          
+                  <span class="paren">()</span>
+          
+                  <span class="returns-inline">
+                      <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
+                  </span>
+          
+          
+          
+          
+          
+          
+          
+              <div class="meta">
+                          <p>
+                          Defined in
+                  <a href="../files/source_components_utils.js.html#l41"><code>source&#x2F;components&#x2F;utils.js:41</code></a>
+                  </p>
+          
+          
+          
+                      <p>Available since 0.7.0</p>
+              </div>
+          
+              <div class="description">
+                  <p>Function that creates an event emitter manager to handle event triggers and subscription.</p>
+          
+              </div>
+          
+          
+                  <div class="returns">
+                      <h4>Returns:</h4>
+          
+                      <div class="returns-description">
+                                  <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>:
+                              <p>Returns a list of event tools.</p>
+          
+                      </div>
                   </div>
+          
+          
+          </div>-->
+          <article id="method_createEventManager.catch">
+            <div class="doc-type">
+              <div class="doc-type-wrapper">
+                
+                
+                
+                
+                
+                <span class="version">Since 0.7.0</span>
+                <span class="type">Method</span>
+                <span class="definedat">Defined at: <a href="../files/source_components_utils.js.html#l153"><var>source/components/utils.js:153</var></a></span>
               </div>
-      
-      
-      </div>
-      <div id="method_createEventManager.catch" class="method item">
-          <h3 class="name"><code>createEventManager.catch</code></h3>
-      
-              <div class="args">
-                  <span class="paren">(</span><ul class="args-list inline commas">
-                      <li class="arg">
-                              <code>fn</code>
+            </div>
+            <h3><var>.createEventManager.catch</var> (<code>fn</code>) <small>&#8594;&nbsp;&nbsp;
+              None</small></h3>
+            <!--<p class="doc-supports">
+              <span class="when">When <var>"type"</var> is <code>true</code>.</span>
+              <span class="supports">
+                <em class="title">Supports:</em>
+                <em><i class="fa fa-chrome"></i> 55</em>
+                <em><i class="fa fa-firefox"></i> 48</em>
+                <em><i class="fa fa-opera"></i> 37</em>
+                <em><i class="fa fa-safari"></i> 7 (0.8.870)</em>
+                <em><i class="fa fa-internet-explorer"></i> 11 (0.8.870)</em>
+                <em><i class="fa fa-edge"></i> 13.457</em>
+                <em><i class="fa fa-android"></i> 8</em>
+                <em><i class="fa fa-globe"></i> 0.6.1</em>
+              </span>
+            </p>-->
+            <p>Function that when provided catches errors instead of throwing them during event subscription or triggers.</p>
+          
+            <!-- Parameters -->
+            <h5>Parameters</h5>
+              <ul class="doc-params">
+                <li>
+                  <p class="name">
+                    <var><b>fn</b> - <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="crosslink external" target="_blank">Function</a></var>
+                    
+                    
+                    <!--<span class="label primary"><i class="fa fa-exchange"></i> async</span>
+                      <span class="label danger"><i class="fa fa-exclamation-triangle"></i> deprecated</span>
+                      <span class="label info"><i class="fa fa-flask"></i> beta</span>
+                      <span class="label warning"><i class="fa fa-gavel"></i> final</span>-->
+                  </p>
+                  <p class="desc"><p>The listener to errors during trigger.</p>
+          </p>
+                  <!-- Sub-parameters -->
+                    <ul class="doc-params">
+                      <li>
+                        <p class="name">
+                          <var><b>error</b> - <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error" class="crosslink external" target="_blank">Error</a></var>
+                          
+                          
+                          <!--<span class="label primary"><i class="fa fa-exchange"></i> async</span>
+                              <span class="label danger"><i class="fa fa-exclamation-triangle"></i> deprecated</span>
+                              <span class="label info"><i class="fa fa-flask"></i> beta</span>
+                              <span class="label warning"><i class="fa fa-gavel"></i> final</span>-->
+                        </p>
+                        <p class="desc"><p>The error object caught.</p>
+          </p>
                       </li>
-                  </ul><span class="paren">)</span>
-              </div>
-      
-      
-      
-      
-      
-      
-      
-      
-          <div class="meta">
-                      <p>
-                      Defined in
-              <a href="../files/source_components_utils.js.html#l153"><code>source&#x2F;components&#x2F;utils.js:153</code></a>
-              </p>
-      
-      
-      
-                  <p>Available since 0.7.0</p>
-          </div>
-      
-          <div class="description">
-              <p>Function that when provided catches errors instead of throwing them during event subscription or triggers.</p>
-      
-          </div>
-      
-              <div class="params">
-                  <h4>Parameters:</h4>
-      
-                  <ul class="params-list">
-                      <li class="param">
-                              <code class="param-name">fn</code>
-                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="crosslink external" target="_blank">Function</a></span>
-      
-      
-                          <div class="param-description">
-                              <p>The listener to errors during trigger.</p>
-      
-                          </div>
-      
-                              <ul class="params-list">
-                                  <li class="param">
-                                          <code class="param-name">error</code>
-                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error" class="crosslink external" target="_blank">Error</a></span>
-      
-                                      <div class="param-description">
-                                          <p>The error object caught.</p>
-      
-                                      </div>
-      
-                                  </li>
-                              </ul>
-                      </li>
-                  </ul>
-              </div>
-      
-      
-      
-      </div>
-      <div id="method_createEventManager.emit" class="method item">
-          <h3 class="name"><code>createEventManager.emit</code></h3>
-      
-              <div class="args">
-                  <span class="paren">(</span><ul class="args-list inline commas">
-                      <li class="arg">
-                              <code>event</code>
-                      </li>
-                  </ul><span class="paren">)</span>
-              </div>
-      
-      
-      
-      
-      
-      
-      
-      
-          <div class="meta">
-                      <p>
-                      Defined in
-              <a href="../files/source_components_utils.js.html#l165"><code>source&#x2F;components&#x2F;utils.js:165</code></a>
-              </p>
-      
-      
-      
-                  <p>Available since 0.7.0</p>
-          </div>
-      
-          <div class="description">
-              <p>Function to trigger an event.</p>
-      
-          </div>
-      
-              <div class="params">
-                  <h4>Parameters:</h4>
-      
-                  <ul class="params-list">
-                      <li class="param">
-                              <code class="param-name">event</code>
-                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
-      
-      
-                          <div class="param-description">
-                              <p>The event to trigger.
-      The subsequent parameters are the event payload parameters.</p>
-      
-                          </div>
-      
-                      </li>
-                  </ul>
-              </div>
-      
-      
-      
-      </div>
-      <div id="method_createEventManager.off" class="method item">
-          <h3 class="name"><code>createEventManager.off</code></h3>
-      
-              <div class="args">
-                  <span class="paren">(</span><ul class="args-list inline commas">
-                      <li class="arg">
-                              <code class="optional">[event]</code>
-                      </li>
-                      <li class="arg">
-                              <code class="optional">[callback]</code>
-                      </li>
-                  </ul><span class="paren">)</span>
-              </div>
-      
-      
-      
-      
-      
-      
-      
-      
-          <div class="meta">
-                      <p>
-                      Defined in
-              <a href="../files/source_components_utils.js.html#l112"><code>source&#x2F;components&#x2F;utils.js:112</code></a>
-              </p>
-      
-      
-      
-                  <p>Available since 0.7.0</p>
-          </div>
-      
-          <div class="description">
-              <p>Function to unsubscribe to an event.</p>
-      
-          </div>
-      
-              <div class="params">
-                  <h4>Parameters:</h4>
-      
-                  <ul class="params-list">
-                      <li class="param">
-                              <code class="param-name optional">[event]</code>
-                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
-                              <span class="flag optional" title="This parameter is optional.">optional</span>
-      
-      
-                          <div class="param-description">
-                              <p>The event to unsubscribe.
-      When not provided, it will unsubscribe all event callback listener functions.</p>
-      
-                          </div>
-      
-                      </li>
-                      <li class="param">
-                              <code class="param-name optional">[callback]</code>
-                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="crosslink external" target="_blank">Function</a></span>
-                              <span class="flag optional" title="This parameter is optional.">optional</span>
-      
-      
-                          <div class="param-description">
-                              <p>The callback listener function to unsubscribe only.
-      When not provided, it will unsubscribe all callback listener functions subscribed to the event.</p>
-      
-                          </div>
-      
-                      </li>
-                  </ul>
-              </div>
-      
-      
-      
-      </div>
-      <div id="method_createEventManager.on" class="method item">
-          <h3 class="name"><code>createEventManager.on</code></h3>
-      
-              <div class="args">
-                  <span class="paren">(</span><ul class="args-list inline commas">
-                      <li class="arg">
-                              <code>event</code>
-                      </li>
-                      <li class="arg">
-                              <code>callback</code>
-                      </li>
-                  </ul><span class="paren">)</span>
-              </div>
-      
-      
-      
-      
-      
-      
-      
-      
-          <div class="meta">
-                      <p>
-                      Defined in
-              <a href="../files/source_components_utils.js.html#l64"><code>source&#x2F;components&#x2F;utils.js:64</code></a>
-              </p>
-      
-      
-      
-                  <p>Available since 0.7.0</p>
-          </div>
-      
-          <div class="description">
-              <p>Function to subscribe to an event.</p>
-      
-          </div>
-      
-              <div class="params">
-                  <h4>Parameters:</h4>
-      
-                  <ul class="params-list">
-                      <li class="param">
-                              <code class="param-name">event</code>
-                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
-      
-      
-                          <div class="param-description">
-                              <p>The event to subscribe to.</p>
-      
-                          </div>
-      
-                      </li>
-                      <li class="param">
-                              <code class="param-name">callback</code>
-                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="crosslink external" target="_blank">Function</a></span>
-      
-      
-                          <div class="param-description">
-                              <p>The callback listener function.</p>
-      
-                          </div>
-      
-                      </li>
-                  </ul>
-              </div>
-      
-      
-      
-      </div>
-      <div id="method_createEventManager.once" class="method item">
-          <h3 class="name"><code>createEventManager.once</code></h3>
-      
-              <div class="args">
-                  <span class="paren">(</span><ul class="args-list inline commas">
-                      <li class="arg">
-                              <code>event</code>
-                      </li>
-                      <li class="arg">
-                              <code>callback</code>
-                      </li>
-                      <li class="arg">
-                              <code class="optional">[condition]</code>
-                      </li>
-                      <li class="arg">
-                              <code class="optional">[fireAlways]</code>
-                      </li>
-                  </ul><span class="paren">)</span>
-              </div>
-      
-      
-      
-      
-      
-      
-      
-      
-          <div class="meta">
-                      <p>
-                      Defined in
-              <a href="../files/source_components_utils.js.html#l84"><code>source&#x2F;components&#x2F;utils.js:84</code></a>
-              </p>
-      
-      
-      
-                  <p>Available since 0.7.0</p>
-          </div>
-      
-          <div class="description">
-              <p>Function to subscribe to an event once.</p>
-      
-          </div>
-      
-              <div class="params">
-                  <h4>Parameters:</h4>
-      
-                  <ul class="params-list">
-                      <li class="param">
-                              <code class="param-name">event</code>
-                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
-      
-      
-                          <div class="param-description">
-                              <p>The event to subscribe to once.</p>
-      
-                          </div>
-      
-                      </li>
-                      <li class="param">
-                              <code class="param-name">callback</code>
-                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="crosslink external" target="_blank">Function</a></span>
-      
-      
-                          <div class="param-description">
-                              <p>The callback listener function.</p>
-      
-                          </div>
-      
-                      </li>
-                      <li class="param">
-                              <code class="param-name optional">[condition]</code>
-                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="crosslink external" target="_blank">Function</a></span>
-                              <span class="flag optional" title="This parameter is optional.">optional</span>
-      
-      
-                          <div class="param-description">
-                              <p>The condition function that is called when
-      event is triggered. If condition is met (when function returns <code>true</code>), the
-      callback listener function is triggered.
-      The defaults is <code>function () { return true; }</code>.</p>
-      
-                          </div>
-      
-                      </li>
-                      <li class="param">
-                              <code class="param-name optional">[fireAlways]</code>
-                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean" class="crosslink external" target="_blank">Boolean</a></span>
-                              <span class="flag optional" title="This parameter is optional.">optional</span>
-      
-      
-                          <div class="param-description">
-                              <p>The flag if callback listener function should always
-      be triggered regardless as long as condition function is met.
-      The defaults is <code>false</code>.</p>
-      
-                          </div>
-      
-                      </li>
-                  </ul>
-              </div>
-      
-      
-      
-      </div>
-      <div id="method_forEach" class="method item">
-          <h3 class="name"><code>forEach</code></h3>
-      
-              <div class="args">
-                  <span class="paren">(</span><ul class="args-list inline commas">
-                      <li class="arg">
-                              <code>object</code>
-                      </li>
-                      <li class="arg">
-                              <code>The</code>
-                      </li>
-                  </ul><span class="paren">)</span>
-              </div>
-      
-      
-      
-      
-      
-      
-      
-      
-          <div class="meta">
-                      <p>
-                      Defined in
-              <a href="../files/source_components_utils.js.html#l9"><code>source&#x2F;components&#x2F;utils.js:9</code></a>
-              </p>
-      
-      
-      
-                  <p>Available since 0.7.0</p>
-          </div>
-      
-          <div class="description">
-              <p>Function that loops through an Array or JSON object.</p>
-      
-          </div>
-      
-              <div class="params">
-                  <h4>Parameters:</h4>
-      
-                  <ul class="params-list">
-                      <li class="param">
-                              <code class="param-name">object</code>
-                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array" class="crosslink external" target="_blank">Array</a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
-      
-      
-                          <div class="param-description">
-                              <p>The object.</p>
-      
-                          </div>
-      
-                      </li>
-                      <li class="param">
-                              <code class="param-name">The</code>
-                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="crosslink external" target="_blank">Function</a></span>
-      
-      
-                          <div class="param-description">
-                              <p>callback function.</p>
-      
-                          </div>
-      
-                      </li>
-                  </ul>
-              </div>
-      
-      
-      
-      </div>
+                    </ul>
+                  </li>
+              </ul>
+            <!-- Returns -->
+            <h5>Returns</h5>
+              <p>None</p>
+          </article>
+          <!--
+          <div id="method_createEventManager.catch" class="method item">
+              <h3 class="name"><code>createEventManager.catch</code></h3>
+          
+                  <div class="args">
+                      <span class="paren">(</span><ul class="args-list inline commas">
+                          <li class="arg">
+                                  <code>fn</code>
+                          </li>
+                      </ul><span class="paren">)</span>
                   </div>
-      
-      
-      
-          </div>
-      </div>
+          
+          
+          
+          
+          
+          
+          
+          
+              <div class="meta">
+                          <p>
+                          Defined in
+                  <a href="../files/source_components_utils.js.html#l153"><code>source&#x2F;components&#x2F;utils.js:153</code></a>
+                  </p>
+          
+          
+          
+                      <p>Available since 0.7.0</p>
+              </div>
+          
+              <div class="description">
+                  <p>Function that when provided catches errors instead of throwing them during event subscription or triggers.</p>
+          
+              </div>
+          
+                  <div class="params">
+                      <h4>Parameters:</h4>
+          
+                      <ul class="params-list">
+                          <li class="param">
+                                  <code class="param-name">fn</code>
+                                  <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="crosslink external" target="_blank">Function</a></span>
+          
+          
+                              <div class="param-description">
+                                  <p>The listener to errors during trigger.</p>
+          
+                              </div>
+          
+                                  <ul class="params-list">
+                                      <li class="param">
+                                              <code class="param-name">error</code>
+                                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error" class="crosslink external" target="_blank">Error</a></span>
+          
+                                          <div class="param-description">
+                                              <p>The error object caught.</p>
+          
+                                          </div>
+          
+                                      </li>
+                                  </ul>
+                          </li>
+                      </ul>
+                  </div>
+          
+          
+          
+          </div>-->
+          <article id="method_createEventManager.emit">
+            <div class="doc-type">
+              <div class="doc-type-wrapper">
+                
+                
+                
+                
+                
+                <span class="version">Since 0.7.0</span>
+                <span class="type">Method</span>
+                <span class="definedat">Defined at: <a href="../files/source_components_utils.js.html#l165"><var>source/components/utils.js:165</var></a></span>
+              </div>
+            </div>
+            <h3><var>.createEventManager.emit</var> (<code>event</code>) <small>&#8594;&nbsp;&nbsp;
+              None</small></h3>
+            <!--<p class="doc-supports">
+              <span class="when">When <var>"type"</var> is <code>true</code>.</span>
+              <span class="supports">
+                <em class="title">Supports:</em>
+                <em><i class="fa fa-chrome"></i> 55</em>
+                <em><i class="fa fa-firefox"></i> 48</em>
+                <em><i class="fa fa-opera"></i> 37</em>
+                <em><i class="fa fa-safari"></i> 7 (0.8.870)</em>
+                <em><i class="fa fa-internet-explorer"></i> 11 (0.8.870)</em>
+                <em><i class="fa fa-edge"></i> 13.457</em>
+                <em><i class="fa fa-android"></i> 8</em>
+                <em><i class="fa fa-globe"></i> 0.6.1</em>
+              </span>
+            </p>-->
+            <p>Function to trigger an event.</p>
+          
+            <!-- Parameters -->
+            <h5>Parameters</h5>
+              <ul class="doc-params">
+                <li>
+                  <p class="name">
+                    <var><b>event</b> - <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></var>
+                    
+                    
+                    <!--<span class="label primary"><i class="fa fa-exchange"></i> async</span>
+                      <span class="label danger"><i class="fa fa-exclamation-triangle"></i> deprecated</span>
+                      <span class="label info"><i class="fa fa-flask"></i> beta</span>
+                      <span class="label warning"><i class="fa fa-gavel"></i> final</span>-->
+                  </p>
+                  <p class="desc"><p>The event to trigger.
+          The subsequent parameters are the event payload parameters.</p>
+          </p>
+                  <!-- Sub-parameters -->
+                  </li>
+              </ul>
+            <!-- Returns -->
+            <h5>Returns</h5>
+              <p>None</p>
+          </article>
+          <!--
+          <div id="method_createEventManager.emit" class="method item">
+              <h3 class="name"><code>createEventManager.emit</code></h3>
+          
+                  <div class="args">
+                      <span class="paren">(</span><ul class="args-list inline commas">
+                          <li class="arg">
+                                  <code>event</code>
+                          </li>
+                      </ul><span class="paren">)</span>
+                  </div>
+          
+          
+          
+          
+          
+          
+          
+          
+              <div class="meta">
+                          <p>
+                          Defined in
+                  <a href="../files/source_components_utils.js.html#l165"><code>source&#x2F;components&#x2F;utils.js:165</code></a>
+                  </p>
+          
+          
+          
+                      <p>Available since 0.7.0</p>
+              </div>
+          
+              <div class="description">
+                  <p>Function to trigger an event.</p>
+          
+              </div>
+          
+                  <div class="params">
+                      <h4>Parameters:</h4>
+          
+                      <ul class="params-list">
+                          <li class="param">
+                                  <code class="param-name">event</code>
+                                  <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
+          
+          
+                              <div class="param-description">
+                                  <p>The event to trigger.
+          The subsequent parameters are the event payload parameters.</p>
+          
+                              </div>
+          
+                          </li>
+                      </ul>
+                  </div>
+          
+          
+          
+          </div>-->
+          <article id="method_createEventManager.off">
+            <div class="doc-type">
+              <div class="doc-type-wrapper">
+                
+                
+                
+                
+                
+                <span class="version">Since 0.7.0</span>
+                <span class="type">Method</span>
+                <span class="definedat">Defined at: <a href="../files/source_components_utils.js.html#l112"><var>source/components/utils.js:112</var></a></span>
+              </div>
+            </div>
+            <h3><var>.createEventManager.off</var> (<code>[event]</code>, <code>[callback]</code>) <small>&#8594;&nbsp;&nbsp;
+              None</small></h3>
+            <!--<p class="doc-supports">
+              <span class="when">When <var>"type"</var> is <code>true</code>.</span>
+              <span class="supports">
+                <em class="title">Supports:</em>
+                <em><i class="fa fa-chrome"></i> 55</em>
+                <em><i class="fa fa-firefox"></i> 48</em>
+                <em><i class="fa fa-opera"></i> 37</em>
+                <em><i class="fa fa-safari"></i> 7 (0.8.870)</em>
+                <em><i class="fa fa-internet-explorer"></i> 11 (0.8.870)</em>
+                <em><i class="fa fa-edge"></i> 13.457</em>
+                <em><i class="fa fa-android"></i> 8</em>
+                <em><i class="fa fa-globe"></i> 0.6.1</em>
+              </span>
+            </p>-->
+            <p>Function to unsubscribe to an event.</p>
+          
+            <!-- Parameters -->
+            <h5>Parameters</h5>
+              <ul class="doc-params">
+                <li>
+                  <p class="name">
+                    <var><b>event</b> - <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></var>
+                    
+                    <span class="label default"><i class="fa fa-puzzle-piece"></i> optional</span>
+                    <!--<span class="label primary"><i class="fa fa-exchange"></i> async</span>
+                      <span class="label danger"><i class="fa fa-exclamation-triangle"></i> deprecated</span>
+                      <span class="label info"><i class="fa fa-flask"></i> beta</span>
+                      <span class="label warning"><i class="fa fa-gavel"></i> final</span>-->
+                  </p>
+                  <p class="desc"><p>The event to unsubscribe.
+          When not provided, it will unsubscribe all event callback listener functions.</p>
+          </p>
+                  <!-- Sub-parameters -->
+                  </li>
+              
+                <li>
+                  <p class="name">
+                    <var><b>callback</b> - <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="crosslink external" target="_blank">Function</a></var>
+                    
+                    <span class="label default"><i class="fa fa-puzzle-piece"></i> optional</span>
+                    <!--<span class="label primary"><i class="fa fa-exchange"></i> async</span>
+                      <span class="label danger"><i class="fa fa-exclamation-triangle"></i> deprecated</span>
+                      <span class="label info"><i class="fa fa-flask"></i> beta</span>
+                      <span class="label warning"><i class="fa fa-gavel"></i> final</span>-->
+                  </p>
+                  <p class="desc"><p>The callback listener function to unsubscribe only.
+          When not provided, it will unsubscribe all callback listener functions subscribed to the event.</p>
+          </p>
+                  <!-- Sub-parameters -->
+                  </li>
+              </ul>
+            <!-- Returns -->
+            <h5>Returns</h5>
+              <p>None</p>
+          </article>
+          <!--
+          <div id="method_createEventManager.off" class="method item">
+              <h3 class="name"><code>createEventManager.off</code></h3>
+          
+                  <div class="args">
+                      <span class="paren">(</span><ul class="args-list inline commas">
+                          <li class="arg">
+                                  <code class="optional">[event]</code>
+                          </li>
+                          <li class="arg">
+                                  <code class="optional">[callback]</code>
+                          </li>
+                      </ul><span class="paren">)</span>
+                  </div>
+          
+          
+          
+          
+          
+          
+          
+          
+              <div class="meta">
+                          <p>
+                          Defined in
+                  <a href="../files/source_components_utils.js.html#l112"><code>source&#x2F;components&#x2F;utils.js:112</code></a>
+                  </p>
+          
+          
+          
+                      <p>Available since 0.7.0</p>
+              </div>
+          
+              <div class="description">
+                  <p>Function to unsubscribe to an event.</p>
+          
+              </div>
+          
+                  <div class="params">
+                      <h4>Parameters:</h4>
+          
+                      <ul class="params-list">
+                          <li class="param">
+                                  <code class="param-name optional">[event]</code>
+                                  <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
+                                  <span class="flag optional" title="This parameter is optional.">optional</span>
+          
+          
+                              <div class="param-description">
+                                  <p>The event to unsubscribe.
+          When not provided, it will unsubscribe all event callback listener functions.</p>
+          
+                              </div>
+          
+                          </li>
+                          <li class="param">
+                                  <code class="param-name optional">[callback]</code>
+                                  <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="crosslink external" target="_blank">Function</a></span>
+                                  <span class="flag optional" title="This parameter is optional.">optional</span>
+          
+          
+                              <div class="param-description">
+                                  <p>The callback listener function to unsubscribe only.
+          When not provided, it will unsubscribe all callback listener functions subscribed to the event.</p>
+          
+                              </div>
+          
+                          </li>
+                      </ul>
+                  </div>
+          
+          
+          
+          </div>-->
+          <article id="method_createEventManager.on">
+            <div class="doc-type">
+              <div class="doc-type-wrapper">
+                
+                
+                
+                
+                
+                <span class="version">Since 0.7.0</span>
+                <span class="type">Method</span>
+                <span class="definedat">Defined at: <a href="../files/source_components_utils.js.html#l64"><var>source/components/utils.js:64</var></a></span>
+              </div>
+            </div>
+            <h3><var>.createEventManager.on</var> (<code>event</code>, <code>callback</code>) <small>&#8594;&nbsp;&nbsp;
+              None</small></h3>
+            <!--<p class="doc-supports">
+              <span class="when">When <var>"type"</var> is <code>true</code>.</span>
+              <span class="supports">
+                <em class="title">Supports:</em>
+                <em><i class="fa fa-chrome"></i> 55</em>
+                <em><i class="fa fa-firefox"></i> 48</em>
+                <em><i class="fa fa-opera"></i> 37</em>
+                <em><i class="fa fa-safari"></i> 7 (0.8.870)</em>
+                <em><i class="fa fa-internet-explorer"></i> 11 (0.8.870)</em>
+                <em><i class="fa fa-edge"></i> 13.457</em>
+                <em><i class="fa fa-android"></i> 8</em>
+                <em><i class="fa fa-globe"></i> 0.6.1</em>
+              </span>
+            </p>-->
+            <p>Function to subscribe to an event.</p>
+          
+            <!-- Parameters -->
+            <h5>Parameters</h5>
+              <ul class="doc-params">
+                <li>
+                  <p class="name">
+                    <var><b>event</b> - <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></var>
+                    
+                    
+                    <!--<span class="label primary"><i class="fa fa-exchange"></i> async</span>
+                      <span class="label danger"><i class="fa fa-exclamation-triangle"></i> deprecated</span>
+                      <span class="label info"><i class="fa fa-flask"></i> beta</span>
+                      <span class="label warning"><i class="fa fa-gavel"></i> final</span>-->
+                  </p>
+                  <p class="desc"><p>The event to subscribe to.</p>
+          </p>
+                  <!-- Sub-parameters -->
+                  </li>
+              
+                <li>
+                  <p class="name">
+                    <var><b>callback</b> - <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="crosslink external" target="_blank">Function</a></var>
+                    
+                    
+                    <!--<span class="label primary"><i class="fa fa-exchange"></i> async</span>
+                      <span class="label danger"><i class="fa fa-exclamation-triangle"></i> deprecated</span>
+                      <span class="label info"><i class="fa fa-flask"></i> beta</span>
+                      <span class="label warning"><i class="fa fa-gavel"></i> final</span>-->
+                  </p>
+                  <p class="desc"><p>The callback listener function.</p>
+          </p>
+                  <!-- Sub-parameters -->
+                  </li>
+              </ul>
+            <!-- Returns -->
+            <h5>Returns</h5>
+              <p>None</p>
+          </article>
+          <!--
+          <div id="method_createEventManager.on" class="method item">
+              <h3 class="name"><code>createEventManager.on</code></h3>
+          
+                  <div class="args">
+                      <span class="paren">(</span><ul class="args-list inline commas">
+                          <li class="arg">
+                                  <code>event</code>
+                          </li>
+                          <li class="arg">
+                                  <code>callback</code>
+                          </li>
+                      </ul><span class="paren">)</span>
+                  </div>
+          
+          
+          
+          
+          
+          
+          
+          
+              <div class="meta">
+                          <p>
+                          Defined in
+                  <a href="../files/source_components_utils.js.html#l64"><code>source&#x2F;components&#x2F;utils.js:64</code></a>
+                  </p>
+          
+          
+          
+                      <p>Available since 0.7.0</p>
+              </div>
+          
+              <div class="description">
+                  <p>Function to subscribe to an event.</p>
+          
+              </div>
+          
+                  <div class="params">
+                      <h4>Parameters:</h4>
+          
+                      <ul class="params-list">
+                          <li class="param">
+                                  <code class="param-name">event</code>
+                                  <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
+          
+          
+                              <div class="param-description">
+                                  <p>The event to subscribe to.</p>
+          
+                              </div>
+          
+                          </li>
+                          <li class="param">
+                                  <code class="param-name">callback</code>
+                                  <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="crosslink external" target="_blank">Function</a></span>
+          
+          
+                              <div class="param-description">
+                                  <p>The callback listener function.</p>
+          
+                              </div>
+          
+                          </li>
+                      </ul>
+                  </div>
+          
+          
+          
+          </div>-->
+          <article id="method_createEventManager.once">
+            <div class="doc-type">
+              <div class="doc-type-wrapper">
+                
+                
+                
+                
+                
+                <span class="version">Since 0.7.0</span>
+                <span class="type">Method</span>
+                <span class="definedat">Defined at: <a href="../files/source_components_utils.js.html#l84"><var>source/components/utils.js:84</var></a></span>
+              </div>
+            </div>
+            <h3><var>.createEventManager.once</var> (<code>event</code>, <code>callback</code>, <code>[condition]</code>, <code>[fireAlways]</code>) <small>&#8594;&nbsp;&nbsp;
+              None</small></h3>
+            <!--<p class="doc-supports">
+              <span class="when">When <var>"type"</var> is <code>true</code>.</span>
+              <span class="supports">
+                <em class="title">Supports:</em>
+                <em><i class="fa fa-chrome"></i> 55</em>
+                <em><i class="fa fa-firefox"></i> 48</em>
+                <em><i class="fa fa-opera"></i> 37</em>
+                <em><i class="fa fa-safari"></i> 7 (0.8.870)</em>
+                <em><i class="fa fa-internet-explorer"></i> 11 (0.8.870)</em>
+                <em><i class="fa fa-edge"></i> 13.457</em>
+                <em><i class="fa fa-android"></i> 8</em>
+                <em><i class="fa fa-globe"></i> 0.6.1</em>
+              </span>
+            </p>-->
+            <p>Function to subscribe to an event once.</p>
+          
+            <!-- Parameters -->
+            <h5>Parameters</h5>
+              <ul class="doc-params">
+                <li>
+                  <p class="name">
+                    <var><b>event</b> - <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></var>
+                    
+                    
+                    <!--<span class="label primary"><i class="fa fa-exchange"></i> async</span>
+                      <span class="label danger"><i class="fa fa-exclamation-triangle"></i> deprecated</span>
+                      <span class="label info"><i class="fa fa-flask"></i> beta</span>
+                      <span class="label warning"><i class="fa fa-gavel"></i> final</span>-->
+                  </p>
+                  <p class="desc"><p>The event to subscribe to once.</p>
+          </p>
+                  <!-- Sub-parameters -->
+                  </li>
+              
+                <li>
+                  <p class="name">
+                    <var><b>callback</b> - <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="crosslink external" target="_blank">Function</a></var>
+                    
+                    
+                    <!--<span class="label primary"><i class="fa fa-exchange"></i> async</span>
+                      <span class="label danger"><i class="fa fa-exclamation-triangle"></i> deprecated</span>
+                      <span class="label info"><i class="fa fa-flask"></i> beta</span>
+                      <span class="label warning"><i class="fa fa-gavel"></i> final</span>-->
+                  </p>
+                  <p class="desc"><p>The callback listener function.</p>
+          </p>
+                  <!-- Sub-parameters -->
+                  </li>
+              
+                <li>
+                  <p class="name">
+                    <var><b>condition</b> - <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="crosslink external" target="_blank">Function</a></var>
+                    
+                    <span class="label default"><i class="fa fa-puzzle-piece"></i> optional</span>
+                    <!--<span class="label primary"><i class="fa fa-exchange"></i> async</span>
+                      <span class="label danger"><i class="fa fa-exclamation-triangle"></i> deprecated</span>
+                      <span class="label info"><i class="fa fa-flask"></i> beta</span>
+                      <span class="label warning"><i class="fa fa-gavel"></i> final</span>-->
+                  </p>
+                  <p class="desc"><p>The condition function that is called when
+          event is triggered. If condition is met (when function returns <code>true</code>), the
+          callback listener function is triggered.
+          The defaults is <code>function () { return true; }</code>.</p>
+          </p>
+                  <!-- Sub-parameters -->
+                  </li>
+              
+                <li>
+                  <p class="name">
+                    <var><b>fireAlways</b> - <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean" class="crosslink external" target="_blank">Boolean</a></var>
+                    
+                    <span class="label default"><i class="fa fa-puzzle-piece"></i> optional</span>
+                    <!--<span class="label primary"><i class="fa fa-exchange"></i> async</span>
+                      <span class="label danger"><i class="fa fa-exclamation-triangle"></i> deprecated</span>
+                      <span class="label info"><i class="fa fa-flask"></i> beta</span>
+                      <span class="label warning"><i class="fa fa-gavel"></i> final</span>-->
+                  </p>
+                  <p class="desc"><p>The flag if callback listener function should always
+          be triggered regardless as long as condition function is met.
+          The defaults is <code>false</code>.</p>
+          </p>
+                  <!-- Sub-parameters -->
+                  </li>
+              </ul>
+            <!-- Returns -->
+            <h5>Returns</h5>
+              <p>None</p>
+          </article>
+          <!--
+          <div id="method_createEventManager.once" class="method item">
+              <h3 class="name"><code>createEventManager.once</code></h3>
+          
+                  <div class="args">
+                      <span class="paren">(</span><ul class="args-list inline commas">
+                          <li class="arg">
+                                  <code>event</code>
+                          </li>
+                          <li class="arg">
+                                  <code>callback</code>
+                          </li>
+                          <li class="arg">
+                                  <code class="optional">[condition]</code>
+                          </li>
+                          <li class="arg">
+                                  <code class="optional">[fireAlways]</code>
+                          </li>
+                      </ul><span class="paren">)</span>
+                  </div>
+          
+          
+          
+          
+          
+          
+          
+          
+              <div class="meta">
+                          <p>
+                          Defined in
+                  <a href="../files/source_components_utils.js.html#l84"><code>source&#x2F;components&#x2F;utils.js:84</code></a>
+                  </p>
+          
+          
+          
+                      <p>Available since 0.7.0</p>
+              </div>
+          
+              <div class="description">
+                  <p>Function to subscribe to an event once.</p>
+          
+              </div>
+          
+                  <div class="params">
+                      <h4>Parameters:</h4>
+          
+                      <ul class="params-list">
+                          <li class="param">
+                                  <code class="param-name">event</code>
+                                  <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
+          
+          
+                              <div class="param-description">
+                                  <p>The event to subscribe to once.</p>
+          
+                              </div>
+          
+                          </li>
+                          <li class="param">
+                                  <code class="param-name">callback</code>
+                                  <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="crosslink external" target="_blank">Function</a></span>
+          
+          
+                              <div class="param-description">
+                                  <p>The callback listener function.</p>
+          
+                              </div>
+          
+                          </li>
+                          <li class="param">
+                                  <code class="param-name optional">[condition]</code>
+                                  <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="crosslink external" target="_blank">Function</a></span>
+                                  <span class="flag optional" title="This parameter is optional.">optional</span>
+          
+          
+                              <div class="param-description">
+                                  <p>The condition function that is called when
+          event is triggered. If condition is met (when function returns <code>true</code>), the
+          callback listener function is triggered.
+          The defaults is <code>function () { return true; }</code>.</p>
+          
+                              </div>
+          
+                          </li>
+                          <li class="param">
+                                  <code class="param-name optional">[fireAlways]</code>
+                                  <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean" class="crosslink external" target="_blank">Boolean</a></span>
+                                  <span class="flag optional" title="This parameter is optional.">optional</span>
+          
+          
+                              <div class="param-description">
+                                  <p>The flag if callback listener function should always
+          be triggered regardless as long as condition function is met.
+          The defaults is <code>false</code>.</p>
+          
+                              </div>
+          
+                          </li>
+                      </ul>
+                  </div>
+          
+          
+          
+          </div>-->
+          <article id="method_forEach">
+            <div class="doc-type">
+              <div class="doc-type-wrapper">
+                
+                
+                
+                
+                
+                <span class="version">Since 0.7.0</span>
+                <span class="type">Method</span>
+                <span class="definedat">Defined at: <a href="../files/source_components_utils.js.html#l9"><var>source/components/utils.js:9</var></a></span>
+              </div>
+            </div>
+            <h3><var>.forEach</var> (<code>object</code>, <code>The</code>) <small>&#8594;&nbsp;&nbsp;
+              None</small></h3>
+            <!--<p class="doc-supports">
+              <span class="when">When <var>"type"</var> is <code>true</code>.</span>
+              <span class="supports">
+                <em class="title">Supports:</em>
+                <em><i class="fa fa-chrome"></i> 55</em>
+                <em><i class="fa fa-firefox"></i> 48</em>
+                <em><i class="fa fa-opera"></i> 37</em>
+                <em><i class="fa fa-safari"></i> 7 (0.8.870)</em>
+                <em><i class="fa fa-internet-explorer"></i> 11 (0.8.870)</em>
+                <em><i class="fa fa-edge"></i> 13.457</em>
+                <em><i class="fa fa-android"></i> 8</em>
+                <em><i class="fa fa-globe"></i> 0.6.1</em>
+              </span>
+            </p>-->
+            <p>Function that loops through an Array or JSON object.</p>
+          
+            <!-- Parameters -->
+            <h5>Parameters</h5>
+              <ul class="doc-params">
+                <li>
+                  <p class="name">
+                    <var><b>object</b> - <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array" class="crosslink external" target="_blank">Array</a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></var>
+                    
+                    
+                    <!--<span class="label primary"><i class="fa fa-exchange"></i> async</span>
+                      <span class="label danger"><i class="fa fa-exclamation-triangle"></i> deprecated</span>
+                      <span class="label info"><i class="fa fa-flask"></i> beta</span>
+                      <span class="label warning"><i class="fa fa-gavel"></i> final</span>-->
+                  </p>
+                  <p class="desc"><p>The object.</p>
+          </p>
+                  <!-- Sub-parameters -->
+                  </li>
+              
+                <li>
+                  <p class="name">
+                    <var><b>The</b> - <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="crosslink external" target="_blank">Function</a></var>
+                    
+                    
+                    <!--<span class="label primary"><i class="fa fa-exchange"></i> async</span>
+                      <span class="label danger"><i class="fa fa-exclamation-triangle"></i> deprecated</span>
+                      <span class="label info"><i class="fa fa-flask"></i> beta</span>
+                      <span class="label warning"><i class="fa fa-gavel"></i> final</span>-->
+                  </p>
+                  <p class="desc"><p>callback function.</p>
+          </p>
+                  <!-- Sub-parameters -->
+                  </li>
+              </ul>
+            <!-- Returns -->
+            <h5>Returns</h5>
+              <p>None</p>
+          </article>
+          <!--
+          <div id="method_forEach" class="method item">
+              <h3 class="name"><code>forEach</code></h3>
+          
+                  <div class="args">
+                      <span class="paren">(</span><ul class="args-list inline commas">
+                          <li class="arg">
+                                  <code>object</code>
+                          </li>
+                          <li class="arg">
+                                  <code>The</code>
+                          </li>
+                      </ul><span class="paren">)</span>
+                  </div>
+          
+          
+          
+          
+          
+          
+          
+          
+              <div class="meta">
+                          <p>
+                          Defined in
+                  <a href="../files/source_components_utils.js.html#l9"><code>source&#x2F;components&#x2F;utils.js:9</code></a>
+                  </p>
+          
+          
+          
+                      <p>Available since 0.7.0</p>
+              </div>
+          
+              <div class="description">
+                  <p>Function that loops through an Array or JSON object.</p>
+          
+              </div>
+          
+                  <div class="params">
+                      <h4>Parameters:</h4>
+          
+                      <ul class="params-list">
+                          <li class="param">
+                                  <code class="param-name">object</code>
+                                  <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array" class="crosslink external" target="_blank">Array</a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
+          
+          
+                              <div class="param-description">
+                                  <p>The object.</p>
+          
+                              </div>
+          
+                          </li>
+                          <li class="param">
+                                  <code class="param-name">The</code>
+                                  <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="crosslink external" target="_blank">Function</a></span>
+          
+          
+                              <div class="param-description">
+                                  <p>callback function.</p>
+          
+                              </div>
+          
+                          </li>
+                      </ul>
+                  </div>
+          
+          
+          
+          </div>-->
+      </section>
       </div>    </div>
    </section>
 </body>

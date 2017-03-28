@@ -5,16 +5,10 @@ $(document).ready(function () {
    * @method loadTemplate
    * @for #load-template
    */
-  function loadTemplate (href) {
-    var templateUrl = '';
-    var isYuiDocGen = false;
-    if (href.indexOf('?template=') === 0) {
-      templateUrl = 'assets/templates/' + href.split('?template=')[1] + '.html';
-    } else if (href.indexOf('?class=') === 0) {
-      templateUrl = 'classes/' + href.split('?template=')[1] + '.html';
-      isYuiDocGen = true;
-    }
-    $('#load-template').load(templateUrl, function () {
+  function loadTemplate (templateUrl) {
+    var isYuiDocGen = templateUrl.indexOf('classes') === 0;
+    console.log('template:', templateUrl);
+    $('#load-template').load(templateUrl + '.html', function () {
       if (isYuiDocGen) {
         $('#load-template').html($('#load-template #template-content').html());
       }
@@ -29,13 +23,13 @@ $(document).ready(function () {
    */
   $('#side-menu').on('click', 'a', function () {
     // No sub <ul>
-    if (!$(this).parent().find('ul')) {
+    if ($(this).parent().find('ul').length === 0) {
       if ($(this).attr('template')) {
-        $('#side-menu [template].active').removeClass('active');
+        $('#side-menu a[template].active').removeClass('active');
         $(this).toggleClass('active');
         loadTemplate($(this).attr('template'));
-        return false;
       }
+      return false;
     }
 
     $(this).toggleClass('active');

@@ -1,0 +1,49 @@
+<h1>Overview - Persistent (Scheduled) vs Dynamic Room connection sessions</h1>
+<article class="_first">
+<img src="assets/img/overview/privileged_01.png" width="350px">
+  <p>For cases where in a customer call-centre environment, there is some "Privileged" clients that can select the clients to connect to,
+or when there is a need to have the ability for certain clients to select a client to connect to another client,
+the Privileged Room connection session would come in handy.</p>
+</article>
+<article>
+<h3>Auto-Introduce Room</h3>
+<img src="assets/img/overview/privileged_02.svg">
+<p>When Auto-Introduce is enabled for the <b>App Key</b>, its <b>Room</b>s will have every client to be aware of each other
+presence and be connected to one another. By default, it is turned on.</p>
+<p>When Auto-Introduce is disabled for the <b>App Key</b>, its <b>Room</b>s will not have clients to be aware of each other
+presence in the <b>Room</b>. This goes well with the Privileged Peer feature where the "Privileged" client will have the ability
+to retrieve the list of current client IDs in every <b>Room</b>s in the same <b>App</b> space, and introduce a client to another
+client to start connection with each other.</b>
+</article>
+<article>
+<h3>"Privileged" clients</h3>
+<img src="assets/img/overview/privileged_03.svg">
+<p>After Auto-Introduce is disabled, the clients do not know of each other presence in the <b>Room</b>s. But that however, the
+"Privileged" clients can see what are the list of client IDs in each <b>Room</b>s in the current <b>App</b> space, and introduce
+a client to another, regardless of "Privileged" status or not. By default, it is turned off.</p>
+<h4>To enable "Privileged" and non-"Privileged" clients settings</h4>
+<ol>
+  <li><span>Disable Auto-Introduce both "Privileged" and non-"Privileged" <b>App Key</b>s under the same <b>App</b>. You can
+  toggle that in the <a href="https://console.temasys.io">Temasys Console</a> for the <b>App Key</b> or disable it for both
+  via REST API by a PUT request to <code class="route">PUT /rest/apps/:appkey</code>
+  and toggle the <code>"autoIntroduce"</code> (boolean) property.</span></li>
+  <li><span>Enable "Privileged" for one <b>App Key</b> and disable "Privileged" for the other <b>App Key</b>. You can toggle
+  that in the <a href="https://console.temasys.io">Temasys Console</a> for the <b>App Key</b> or disable it for both
+  via REST API by a PUT request to <code class="route">PUT /rest/apps/:appkey</code>
+  and toggle the <code>"isPrivileged"</code> (boolean) property.</span></li>
+  <li><span>Connect "Privileged" clients via the "Privileged" enabled <b>App Key</b> and non-"Privileged" clients via
+  the "Privileged" disabled <b>App Key</b>.</span></li>
+</ol>
+
+<h4>Here are some rules to know for this "Privileged" feature</h4>
+<ol>
+  <li><span>"Privileged" clients are only able to retrieve clients from <b>Room</b>s connected from Auto-Introduce disabled 
+  <b>App Key</b>s.</span></li>
+  <li><span>"Privileged" clients are only able to introduce clients from <b>Room</b>s connected from Auto-Introduce disabled 
+  <b>App Key</b>s and both clients has to be from the same <b>Room</b>.</span></li>
+  <li><span>"Privileged" clients are able to introduce and retrieve "Privileged" clients too.</span></li>
+  <li><span>Auto-Introduce has to be disabled for "Privileged" functionalities to work.</span></li>
+  <li><span>As long as the client connects via the "Privileged" enabled <b>App Key</b>, the client is a "Privileged" client regardless
+of the <b>Room</b> it's connected to.</span></li>
+</ol>
+</article>

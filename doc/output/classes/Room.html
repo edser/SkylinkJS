@@ -77,1677 +77,1460 @@
         </div>
       </navbar>      <!-- Content -->
       <div id="template-content">
-          <h1>Room Class</h1>
-      <div class="box meta">
-      
-      
-      
-      
-      </div>
-      
-      
-      <div class="box intro">
+      <section class="doc">
+        <h1><var>Room</var> class</h1>
+        <article class="_first">
+          <!-- Description -->
           
-      </div>
-      
-      
-      <div id="classdocs" class="tabview">
-          <ul class="api-class-tabs">
-              <li class="api-class-tab index"><a href="#index">Index</a></li>
-      
-                  <li class="api-class-tab methods"><a href="#methods">Methods</a></li>
-                  <li class="api-class-tab attrs"><a href="#attrs">Attributes</a></li>
-                  <li class="api-class-tab events"><a href="#events">Events</a></li>
-          </ul>
-      
-          <div>
-              <div id="index" class="api-class-tabpanel index">
-                  <h2 class="off-left">Item Index</h2>
-      
-                      <div class="index-section methods">
-                          <h3>Methods</h3>
-      
-                          <ul class="index-list methods">
-                                  <li class="index-item method">
-                                      <a href="#method_connect">connect</a>
-      
-                                  </li>
-                                  <li class="index-item method">
-                                      <a href="#method_getConnectionAvailability">getConnectionAvailability</a>
-      
-                                  </li>
-                                  <li class="index-item method">
-                                      <a href="#method_init">init</a>
-      
-                                  </li>
-                                  <li class="index-item method">
-                                      <a href="#method_off">off</a>
-      
-                                  </li>
-                                  <li class="index-item method">
-                                      <a href="#method_on">on</a>
-      
-                                  </li>
-                                  <li class="index-item method">
-                                      <a href="#method_once">once</a>
-      
-                                  </li>
-                                  <li class="index-item method">
-                                      <a href="#method_update">update</a>
-      
-                                  </li>
-                          </ul>
-                      </div>
-      
-      
-                      <div class="index-section attrs">
-                          <h3>Attributes</h3>
-      
-                          <ul class="index-list attrs">
-                                  <li class="index-item attr">
-                                      <a href="#attr_AUTH_ERROR_CODE_ENUM">AUTH_ERROR_CODE_ENUM</a>
-                                  </li>
-                                  <li class="index-item attr">
-                                      <a href="#attr_AUTH_STATE_ENUM">AUTH_STATE_ENUM</a>
-                                  </li>
-                                  <li class="index-item attr">
-                                      <a href="#attr_autoIntroduce">autoIntroduce</a>
-                                  </li>
-                                  <li class="index-item attr">
-                                      <a href="#attr_current">current</a>
-                                  </li>
-                                  <li class="index-item attr">
-                                      <a href="#attr_DT_PROTOCOL_VERSION">DT_PROTOCOL_VERSION</a>
-                                  </li>
-                                  <li class="index-item attr">
-                                      <a href="#attr_duration">duration</a>
-                                  </li>
-                                  <li class="index-item attr">
-                                      <a href="#attr_hash">hash</a>
-                                  </li>
-                                  <li class="index-item attr">
-                                      <a href="#attr_id">id</a>
-                                  </li>
-                                  <li class="index-item attr">
-                                      <a href="#attr_INIT_ERROR_CODE_ENUM">INIT_ERROR_CODE_ENUM</a>
-                                  </li>
-                                  <li class="index-item attr">
-                                      <a href="#attr_INIT_STATE_ENUM">INIT_STATE_ENUM</a>
-                                  </li>
-                                  <li class="index-item attr">
-                                      <a href="#attr_name">name</a>
-                                  </li>
-                                  <li class="index-item attr">
-                                      <a href="#attr_peer">peer</a>
-                                  </li>
-                                  <li class="index-item attr">
-                                      <a href="#attr_protocol">protocol</a>
-                                  </li>
-                                  <li class="index-item attr">
-                                      <a href="#attr_server">server</a>
-                                  </li>
-                                  <li class="index-item attr">
-                                      <a href="#attr_server">server</a>
-                                  </li>
-                                  <li class="index-item attr">
-                                      <a href="#attr_SESSION_ERROR_ENUM">SESSION_ERROR_ENUM</a>
-                                  </li>
-                                  <li class="index-item attr">
-                                      <a href="#attr_SESSION_STATE_ENUM">SESSION_STATE_ENUM</a>
-                                  </li>
-                                  <li class="index-item attr">
-                                      <a href="#attr_SM_PROTOCOL_VERSION">SM_PROTOCOL_VERSION</a>
-                                  </li>
-                                  <li class="index-item attr">
-                                      <a href="#attr_start">start</a>
-                                  </li>
-                                  <li class="index-item attr">
-                                      <a href="#attr_webrtcSupports">webrtcSupports</a>
-                                  </li>
-                          </ul>
-                      </div>
-      
-                      <div class="index-section events">
-                          <h3>Events</h3>
-      
-                          <ul class="index-list events">
-                                  <li class="index-item event">
-                                      <a href="#event_authState">authState</a>
-      
-                                  </li>
-                                  <li class="index-item event">
-                                      <a href="#event_initState">initState</a>
-      
-                                  </li>
-                                  <li class="index-item event">
-                                      <a href="#event_sessionState">sessionState</a>
-      
-                                  </li>
-                          </ul>
-                      </div>
+          <!-- Properties -->
+          <h5>Properties</h5>
+          <table>
+            <thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead>
+            <tbody>
+                  <!-- -->
+                  <!-- -->
+                  <tr>
+                    <td>
+                      <a href="#attr_autoIntroduce"><code>.autoIntroduce</code></a>
+                      
+                      
+                    </td>
+                    <td><var><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean" class="crosslink external" target="_blank">Boolean</a></var></td>
+                    <td>The flag if Room session has auto-introduce enabled.</td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <a href="#attr_current"><code>.current</code></a>
+                      
+                      
+                    </td>
+                    <td><var><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></var></td>
+                    <td>The current Room session connection status.</td>
+                  </tr>
+                  <!-- -->
+                  <tr>
+                    <td>
+                      <a href="#attr_duration"><code>.duration</code></a>
+                      
+                      
+                    </td>
+                    <td><var><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number" class="crosslink external" target="_blank">Number</a></var></td>
+                    <td>The Room session duration in hours.</td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <a href="#attr_hash"><code>.hash</code></a>
+                      
+                      
+                    </td>
+                    <td><var><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></var></td>
+                    <td>The Room session hash used only for hash based authentication.</td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <a href="#attr_id"><code>.id</code></a>
+                      
+                      
+                    </td>
+                    <td><var><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></var></td>
+                    <td>The Room ID.</td>
+                  </tr>
+                  <!-- -->
+                  <!-- -->
+                  <tr>
+                    <td>
+                      <a href="#attr_name"><code>.name</code></a>
+                      
+                      
+                    </td>
+                    <td><var><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></var></td>
+                    <td>The Room name.</td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <a href="#attr_peer"><code>.peer</code></a>
+                      
+                      
+                    </td>
+                    <td><var><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></var></td>
+                    <td>The Room session self Peer information.</td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <a href="#attr_protocol"><code>.protocol</code></a>
+                      
+                      
+                    </td>
+                    <td><var><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></var></td>
+                    <td>The Auth (API) server protocol.</td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <a href="#attr_server"><code>.server</code></a>
+                      
+                      
+                    </td>
+                    <td><var><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></var></td>
+                    <td>The Auth (API) server domain.</td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <a href="#attr_server"><code>.server</code></a>
+                      
+                      
+                    </td>
+                    <td><var><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></var></td>
+                    <td>The Auth (API) server domain.</td>
+                  </tr>
+                  <!-- -->
+                  <!-- -->
+                  <!-- -->
+                  <tr>
+                    <td>
+                      <a href="#attr_start"><code>.start</code></a>
+                      
+                      
+                    </td>
+                    <td><var><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></var></td>
+                    <td>The Room session start timestamp in ISO-8601 format.</td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <a href="#attr_webrtcSupports"><code>.webrtcSupports</code></a>
+                      
+                      
+                    </td>
+                    <td><var><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></var></td>
+                    <td>The WebRTC supports of the browser or device.</td>
+                  </tr>
+            </tbody>
+          </table>
+          <!-- Enums -->
+          <h5>Constants / Enums</h5>
+          <table>
+            <thead><tr><th>Name</th><th>Description</th></tr></thead>
+            <tbody>
+                  <tr>
+                    <td><a href="#attr_AUTH_ERROR_CODE_ENUM"><code>.AUTH_ERROR_CODE_ENUM</code></a></td>
+                    <td>The enum of Room authentication error codes.</td>
+                  </tr>
+                  <tr>
+                    <td><a href="#attr_AUTH_STATE_ENUM"><code>.AUTH_STATE_ENUM</code></a></td>
+                    <td>The enum of Room authentication states, in which is used to validate the App Key ID before starting a session.</td>
+                  </tr>
+                  <tr>
+                    <td><a href="#attr_DT_PROTOCOL_VERSION"><code>.DT_PROTOCOL_VERSION</code></a></td>
+                    <td>The Room DT protocol version supports.</td>
+                  </tr>
+                  <tr>
+                    <td><a href="#attr_INIT_ERROR_CODE_ENUM"><code>.INIT_ERROR_CODE_ENUM</code></a></td>
+                    <td>The enum of Room dependency initialising error codes.</td>
+                  </tr>
+                  <tr>
+                    <td><a href="#attr_INIT_STATE_ENUM"><code>.INIT_STATE_ENUM</code></a></td>
+                    <td>The enum of Room dependency initialising states.</td>
+                  </tr>
+                  <tr>
+                    <td><a href="#attr_SESSION_ERROR_ENUM"><code>.SESSION_ERROR_ENUM</code></a></td>
+                    <td>The enum of Room connection session error codes.</td>
+                  </tr>
+                  <tr>
+                    <td><a href="#attr_SESSION_STATE_ENUM"><code>.SESSION_STATE_ENUM</code></a></td>
+                    <td>The enum of Room connection session states.</td>
+                  </tr>
+                  <tr>
+                    <td><a href="#attr_SM_PROTOCOL_VERSION"><code>.SM_PROTOCOL_VERSION</code></a></td>
+                    <td>The Room SM protocol version supports.</td>
+                  </tr>
+            </tbody>
+          </table>
+          <!-- Methods -->
+          <h5>Methods</h5>
+          <table>
+            <thead><tr><th>Method</th><th>Returns</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr>
+                  <td><a href="#method_connect"><code>.connect</code></a>(<code>[options]</code>, <code>callback</code>)</td>
+                  <td><var>-</var></td>
+                  <td>Function to start Room session connection.</td>
+                </tr>
+                <tr>
+                  <td><a href="#method_getConnectionAvailability"><code>.getConnectionAvailability</code></a>(<code>callback</code>)</td>
+                  <td><var>-</var></td>
+                  <td>Function to get and check the connection availability.</td>
+                </tr>
+                <tr>
+                  <td><a href="#method_init"><code>.init</code></a>(<code>callback</code>)</td>
+                  <td><var>-</var></td>
+                  <td>Function to start initialising Room dependencies.</td>
+                </tr>
+                <tr>
+                  <td><a href="#method_off"><code>.off</code></a>(<code>[event]</code>, <code>[callback]</code>)</td>
+                  <td><var>-</var></td>
+                  <td>Function to unsubscribe to events.</td>
+                </tr>
+                <tr>
+                  <td><a href="#method_on"><code>.on</code></a>(<code>event</code>, <code>callback</code>)</td>
+                  <td><var>-</var></td>
+                  <td>Function to subscribe to an event.</td>
+                </tr>
+                <tr>
+                  <td><a href="#method_once"><code>.once</code></a>(<code>event</code>, <code>callback</code>, <code>[condition]</code>, <code>[fireAlways]</code>)</td>
+                  <td><var>-</var></td>
+                  <td>Function to subscribe to an event once.</td>
+                </tr>
+                <tr>
+                  <td><a href="#method_update"><code>.update</code></a>(<code>/**
+      Function</code>)</td>
+                  <td><var>-</var></td>
+                  <td>Function to update the default stream or self Peer data.</td>
+                </tr>
+            </tbody>
+          </table>
+          <!-- Events -->
+          <h5>Events</h5>
+          <table>
+            <thead><tr><th>Event</th><th>Payload</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr>
+                  <td><a href="#event_authState"><code>"authState"</code></a></td>
+                  <td>(<code>state</code>, <code>error</code>)</td>
+                  <td>Event triggered when Room authentication state has changed.</td>
+                </tr>
+                <tr>
+                  <td><a href="#event_initState"><code>"initState"</code></a></td>
+                  <td>(<code>state</code>, <code>error</code>)</td>
+                  <td>Event triggered when Room init state has changed.</td>
+                </tr>
+                <tr>
+                  <td><a href="#event_sessionState"><code>"sessionState"</code></a></td>
+                  <td>(<code>state</code>, <code>error</code>)</td>
+                  <td>Event triggered when Room session state has changed.</td>
+                </tr>
+            </tbody>
+          </table>
+        </article>
+          <article id="method_connect">
+            <div class="doc-type">
+              <div class="doc-type-wrapper">
+                <span class="label primary"><i class="fa fa-exchange"></i> async</span>
+                
+                
+                
+                
+                <span class="version">Since 0.7.0</span>
+                <span class="type">Method</span>
+                <span class="definedat">Defined at: <a href="../files/source_components_room.js.html#l619"><var>source/components/room.js:619</var></a></span>
               </div>
-      
-                  <div id="methods" class="api-class-tabpanel">
-                      <h2 class="off-left">Methods</h2>
-      
-      <div id="method_connect" class="method item">
-          <h3 class="name"><code>connect</code></h3>
-      
-              <div class="args">
-                  <span class="paren">(</span><ul class="args-list inline commas">
-                      <li class="arg">
-                              <code class="optional">[options]</code>
+            </div>
+            <h3><var>.connect</var> (<code>[options]</code>, <code>callback</code>) <small>&#8594;&nbsp;&nbsp;
+              None</small></h3>
+            <!--<p class="doc-supports">
+              <span class="when">When <var>"type"</var> is <code>true</code>.</span>
+              <span class="supports">
+                <em class="title">Supports:</em>
+                <em><i class="fa fa-chrome"></i> 55</em>
+                <em><i class="fa fa-firefox"></i> 48</em>
+                <em><i class="fa fa-opera"></i> 37</em>
+                <em><i class="fa fa-safari"></i> 7 (0.8.870)</em>
+                <em><i class="fa fa-internet-explorer"></i> 11 (0.8.870)</em>
+                <em><i class="fa fa-edge"></i> 13.457</em>
+                <em><i class="fa fa-android"></i> 8</em>
+                <em><i class="fa fa-globe"></i> 0.6.1</em>
+              </span>
+            </p>-->
+            <p>Function to start Room session connection.</p>
+          
+            <!-- Parameters -->
+            <h5>Parameters</h5>
+              <ul class="doc-params">
+                <li>
+                  <p class="name">
+                    <var><b>options</b> - <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></var>
+                    
+                    <span class="label default"><i class="fa fa-puzzle-piece"></i> optional</span>
+                    <!--<span class="label primary"><i class="fa fa-exchange"></i> async</span>
+                      <span class="label danger"><i class="fa fa-exclamation-triangle"></i> deprecated</span>
+                      <span class="label info"><i class="fa fa-flask"></i> beta</span>
+                      <span class="label warning"><i class="fa fa-gavel"></i> final</span>-->
+                  </p>
+                  <p class="desc"><p>The options.</p>
+          </p>
+                  <!-- Sub-parameters -->
+                    <ul class="doc-params">
+                      <li>
+                        <p class="name">
+                          <var><b>server</b> - <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></var>
+                          
+                          <span class="label default"><i class="fa fa-puzzle-piece"></i> optional</span>
+                          <!--<span class="label primary"><i class="fa fa-exchange"></i> async</span>
+                              <span class="label danger"><i class="fa fa-exclamation-triangle"></i> deprecated</span>
+                              <span class="label info"><i class="fa fa-flask"></i> beta</span>
+                              <span class="label warning"><i class="fa fa-gavel"></i> final</span>-->
+                        </p>
+                        <p class="desc"><p>The Auth (API) server domain to connect to.
+          The default is based on the preset server domain.</p>
+          </p>
                       </li>
-                      <li class="arg">
-                              <code>callback</code>
+                    
+                      <li>
+                        <p class="name">
+                          <var><b>protocol</b> - <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></var>
+                          
+                          <span class="label default"><i class="fa fa-puzzle-piece"></i> optional</span>
+                          <!--<span class="label primary"><i class="fa fa-exchange"></i> async</span>
+                              <span class="label danger"><i class="fa fa-exclamation-triangle"></i> deprecated</span>
+                              <span class="label info"><i class="fa fa-flask"></i> beta</span>
+                              <span class="label warning"><i class="fa fa-gavel"></i> final</span>-->
+                        </p>
+                        <p class="desc"><p>The Auth (API) server protocol to connect to.
+          The default is the value of the current accessing <code>window.location.protocol</code>.</p>
+          </p>
                       </li>
-                  </ul><span class="paren">)</span>
-              </div>
-      
-      
-      
-      
-      
-      
-      
-              <span class="flag async">async</span>
-      
-          <div class="meta">
-                      <p>
-                      Defined in
-              <a href="../files/source_components_room.js.html#l619"><code>source&#x2F;components&#x2F;room.js:619</code></a>
-              </p>
-      
-      
-      
-                  <p>Available since 0.7.0</p>
-          </div>
-      
-          <div class="description">
-              <p>Function to start Room session connection.</p>
-      
-          </div>
-      
-              <div class="params">
-                  <h4>Parameters:</h4>
-      
-                  <ul class="params-list">
-                      <li class="param">
-                              <code class="param-name optional">[options]</code>
-                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
-                              <span class="flag optional" title="This parameter is optional.">optional</span>
-      
-      
-                          <div class="param-description">
-                              <p>The options.</p>
-      
-                          </div>
-      
-                              <ul class="params-list">
-                                  <li class="param">
-                                          <code class="param-name optional">[server]</code>
-                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
-                                          <span class="flag optional" title="This parameter is optional.">optional</span>
-      
-                                      <div class="param-description">
-                                          <p>The Auth (API) server domain to connect to.
-      The default is based on the preset server domain.</p>
-      
-                                      </div>
-      
-                                  </li>
-                                  <li class="param">
-                                          <code class="param-name optional">[protocol]</code>
-                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
-                                          <span class="flag optional" title="This parameter is optional.">optional</span>
-      
-                                      <div class="param-description">
-                                          <p>The Auth (API) server protocol to connect to.
-      The default is the value of the current accessing <code>window.location.protocol</code>.</p>
-      
-                                      </div>
-      
-                                  </li>
-                                  <li class="param">
-                                          <code class="param-name optional">[authCreds]</code>
-                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
-                                          <span class="flag optional" title="This parameter is optional.">optional</span>
-      
-                                      <div class="param-description">
-                                          <p>The credentials for hash based authentication.
-      If this is not provided, the Auth (API) server will authenticate by checking if the CORS url
-      configuration from the App Key matches the CORS domain from accessing app.</p>
-      
-                                      </div>
-      
-                                          <ul class="params-list">
-                                              <li class="param">
-                                                      <code class="param-name optional">[start]</code>
-                                                      <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
-                                                      <span class="flag optional" title="This parameter is optional.">optional</span>
-      
-                                                  <div class="param-description">
-                                                      The starting DateTime stamp in ISO-8601 string for the Room session connection.
-                                                  </div>
-                                              </li>
-                                              <li class="param">
-                                                      <code class="param-name optional">[duration]</code>
-                                                      <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number" class="crosslink external" target="_blank">Number</a></span>
-                                                      <span class="flag optional" title="This parameter is optional.">optional</span>
-      
-                                                  <div class="param-description">
-                                                      The duration in hours for the Room session connection.
-        The maximum duration is <code>24</code> hours.
-                                                  </div>
-                                              </li>
-                                              <li class="param">
-                                                      <code class="param-name optional">[hash]</code>
-                                                      <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
-                                                      <span class="flag optional" title="This parameter is optional.">optional</span>
-      
-                                                  <div class="param-description">
-                                                      The base64 encoded HMAC-SHA1 hash generated from the starting
-        DateTime stamp, duration, Room name and App Key secret.
-        Please ensure that the string encodes escape characters for URI ready strings.
-                                                  </div>
-                                              </li>
-                                          </ul>
-                                  </li>
-                                  <li class="param">
-                                          <code class="param-name optional">[socket]</code>
-                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
-                                          <span class="flag optional" title="This parameter is optional.">optional</span>
-      
-                                      <div class="param-description">
-                                          <p>The socket connecton configuration.
-      This references the Socket class constructor options.</p>
-      
-                                      </div>
-      
-                                  </li>
-                                  <li class="param">
-                                          <code class="param-name optional">[peer]</code>
-                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
-                                          <span class="flag optional" title="This parameter is optional.">optional</span>
-      
-                                      <div class="param-description">
-                                          <p>The Peer connecton configuration.
-      This references the Peer class constructor options.</p>
-      
-                                      </div>
-      
-                                  </li>
-                              </ul>
+                    
+                      <li>
+                        <p class="name">
+                          <var><b>authCreds</b> - <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></var>
+                          
+                          <span class="label default"><i class="fa fa-puzzle-piece"></i> optional</span>
+                          <!--<span class="label primary"><i class="fa fa-exchange"></i> async</span>
+                              <span class="label danger"><i class="fa fa-exclamation-triangle"></i> deprecated</span>
+                              <span class="label info"><i class="fa fa-flask"></i> beta</span>
+                              <span class="label warning"><i class="fa fa-gavel"></i> final</span>-->
+                        </p>
+                        <p class="desc"><p>The credentials for hash based authentication.
+          If this is not provided, the Auth (API) server will authenticate by checking if the CORS url
+          configuration from the App Key matches the CORS domain from accessing app.</p>
+          </p>
                       </li>
-                      <li class="param">
-                              <code class="param-name">callback</code>
-                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="crosslink external" target="_blank">Function</a></span>
-      
-      
-                          <div class="param-description">
-                              <p>The callback function for async code execution.
-      Returns a format of: <code>function([error])</code></p>
-      
-                          </div>
-      
-                              <ul class="params-list">
-                                  <li class="param">
-                                          <code class="param-name optional">[error]</code>
-                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
-                                          <span class="flag optional" title="This parameter is optional.">optional</span>
-      
-                                      <div class="param-description">
-                                          <p>The error.
-      This is only defined if there are errors in code execution.</p>
-      
-                                      </div>
-      
-                                          <ul class="params-list">
-                                              <li class="param">
-                                                      <code class="param-name">eventName</code>
-                                                      <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
-      
-                                                  <div class="param-description">
-                                                      The event name that caused the error.
-                                                  </div>
-                                              </li>
-                                              <li class="param">
-                                                      <code class="param-name">error</code>
-                                                      <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
-      
-                                                  <div class="param-description">
-                                                      The error.
-        The object signature matches the event based on the <code>error.eventName</code>
-        <code>error</code> payload parameter or the socket connection error object.
-                                                  </div>
-                                              </li>
-                                          </ul>
-                                  </li>
-                              </ul>
+                    
+                      <li>
+                        <p class="name">
+                          <var><b>socket</b> - <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></var>
+                          
+                          <span class="label default"><i class="fa fa-puzzle-piece"></i> optional</span>
+                          <!--<span class="label primary"><i class="fa fa-exchange"></i> async</span>
+                              <span class="label danger"><i class="fa fa-exclamation-triangle"></i> deprecated</span>
+                              <span class="label info"><i class="fa fa-flask"></i> beta</span>
+                              <span class="label warning"><i class="fa fa-gavel"></i> final</span>-->
+                        </p>
+                        <p class="desc"><p>The socket connecton configuration.
+          This references the Socket class constructor options.</p>
+          </p>
                       </li>
-                  </ul>
-              </div>
-      
-      
-      
-      </div>
-      <div id="method_getConnectionAvailability" class="method item">
-          <h3 class="name"><code>getConnectionAvailability</code></h3>
-      
-              <div class="args">
-                  <span class="paren">(</span><ul class="args-list inline commas">
-                      <li class="arg">
-                              <code>callback</code>
+                    
+                      <li>
+                        <p class="name">
+                          <var><b>peer</b> - <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></var>
+                          
+                          <span class="label default"><i class="fa fa-puzzle-piece"></i> optional</span>
+                          <!--<span class="label primary"><i class="fa fa-exchange"></i> async</span>
+                              <span class="label danger"><i class="fa fa-exclamation-triangle"></i> deprecated</span>
+                              <span class="label info"><i class="fa fa-flask"></i> beta</span>
+                              <span class="label warning"><i class="fa fa-gavel"></i> final</span>-->
+                        </p>
+                        <p class="desc"><p>The Peer connecton configuration.
+          This references the Peer class constructor options.</p>
+          </p>
                       </li>
-                  </ul><span class="paren">)</span>
-              </div>
-      
-      
-      
-      
-      
-      
-      
-      
-          <div class="meta">
-                      <p>
-                      Defined in
-              <a href="../files/source_components_room.js.html#l504"><code>source&#x2F;components&#x2F;room.js:504</code></a>
-              </p>
-      
-      
-      
-          </div>
-      
-          <div class="description">
-              <p>Function to get and check the connection availability.</p>
-      
-          </div>
-      
-              <div class="params">
-                  <h4>Parameters:</h4>
-      
-                  <ul class="params-list">
-                      <li class="param">
-                              <code class="param-name">callback</code>
-                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="crosslink external" target="_blank">Function</a></span>
-      
-      
-                          <div class="param-description">
-                               
-                          </div>
-      
+                    </ul>
+                  </li>
+              
+                <li>
+                  <p class="name">
+                    <var><b>callback</b> - <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="crosslink external" target="_blank">Function</a></var>
+                    
+                    
+                    <!--<span class="label primary"><i class="fa fa-exchange"></i> async</span>
+                      <span class="label danger"><i class="fa fa-exclamation-triangle"></i> deprecated</span>
+                      <span class="label info"><i class="fa fa-flask"></i> beta</span>
+                      <span class="label warning"><i class="fa fa-gavel"></i> final</span>-->
+                  </p>
+                  <p class="desc"><p>The callback function for async code execution.
+          Returns a format of: <code>function([error])</code></p>
+          </p>
+                  <!-- Sub-parameters -->
+                    <ul class="doc-params">
+                      <li>
+                        <p class="name">
+                          <var><b>error</b> - <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></var>
+                          
+                          <span class="label default"><i class="fa fa-puzzle-piece"></i> optional</span>
+                          <!--<span class="label primary"><i class="fa fa-exchange"></i> async</span>
+                              <span class="label danger"><i class="fa fa-exclamation-triangle"></i> deprecated</span>
+                              <span class="label info"><i class="fa fa-flask"></i> beta</span>
+                              <span class="label warning"><i class="fa fa-gavel"></i> final</span>-->
+                        </p>
+                        <p class="desc"><p>The error.
+          This is only defined if there are errors in code execution.</p>
+          </p>
                       </li>
-                  </ul>
-              </div>
-      
-      
-      
-      </div>
-      <div id="method_init" class="method item">
-          <h3 class="name"><code>init</code></h3>
-      
-              <div class="args">
-                  <span class="paren">(</span><ul class="args-list inline commas">
-                      <li class="arg">
-                              <code>callback</code>
-                      </li>
-                  </ul><span class="paren">)</span>
-              </div>
-      
-      
-      
-      
-      
-      
-      
-              <span class="flag async">async</span>
-      
-          <div class="meta">
-                      <p>
-                      Defined in
-              <a href="../files/source_components_room.js.html#l515"><code>source&#x2F;components&#x2F;room.js:515</code></a>
-              </p>
-      
-      
-      
-                  <p>Available since 0.7.0</p>
-          </div>
-      
-          <div class="description">
-              <p>Function to start initialising Room dependencies.</p>
-      
-          </div>
-      
-              <div class="params">
-                  <h4>Parameters:</h4>
-      
-                  <ul class="params-list">
-                      <li class="param">
-                              <code class="param-name">callback</code>
-                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="crosslink external" target="_blank">Function</a></span>
-      
-      
-                          <div class="param-description">
-                              <p>The callback function for async code execution.
-      Returns a format of: <code>function([error])</code></p>
-      
-                          </div>
-      
-                              <ul class="params-list">
-                                  <li class="param">
-                                          <code class="param-name optional">[error]</code>
-                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
-                                          <span class="flag optional" title="This parameter is optional.">optional</span>
-      
-                                      <div class="param-description">
-                                          <p>The error.
-      This is only defined if there are errors in code execution.
-      The object signature matches the <a href="../classes/Room.html#event_initState" class="crosslink">initState</a>
-      event <code>error</code> payload parameter.</p>
-      
-                                      </div>
-      
-                                  </li>
-                              </ul>
-                      </li>
-                  </ul>
-              </div>
-      
-      
-      
-      </div>
-      <div id="method_off" class="method item">
-          <h3 class="name"><code>off</code></h3>
-      
-              <div class="args">
-                  <span class="paren">(</span><ul class="args-list inline commas">
-                      <li class="arg">
-                              <code class="optional">[event]</code>
-                      </li>
-                      <li class="arg">
-                              <code class="optional">[callback]</code>
-                      </li>
-                  </ul><span class="paren">)</span>
-              </div>
-      
-      
-      
-      
-      
-      
-      
-      
-          <div class="meta">
-                      <p>
-                      Defined in
-              <a href="../files/source_components_room.js.html#l283"><code>source&#x2F;components&#x2F;room.js:283</code></a>
-              </p>
-      
-      
-      
-                  <p>Available since 0.7.0</p>
-          </div>
-      
-          <div class="description">
-              <p>Function to unsubscribe to events.</p>
-      
-          </div>
-      
-              <div class="params">
-                  <h4>Parameters:</h4>
-      
-                  <ul class="params-list">
-                      <li class="param">
-                              <code class="param-name optional">[event]</code>
-                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
-                              <span class="flag optional" title="This parameter is optional.">optional</span>
-      
-      
-                          <div class="param-description">
-                              <p>The specified event to unsubscribe.
-      When not provided, it will unsubscribe all event callback listener functions.</p>
-      
-                          </div>
-      
-                      </li>
-                      <li class="param">
-                              <code class="param-name optional">[callback]</code>
-                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="crosslink external" target="_blank">Function</a></span>
-                              <span class="flag optional" title="This parameter is optional.">optional</span>
-      
-      
-                          <div class="param-description">
-                              <p>The specified callback listener function based on
-      the provided event to unsubscribe only.
-      When not provided, it will unsubscribe all callback listener functions subscribed to the event.</p>
-      
-                          </div>
-      
-                      </li>
-                  </ul>
-              </div>
-      
-      
-      
-      </div>
-      <div id="method_on" class="method item">
-          <h3 class="name"><code>on</code></h3>
-      
-              <div class="args">
-                  <span class="paren">(</span><ul class="args-list inline commas">
-                      <li class="arg">
-                              <code>event</code>
-                      </li>
-                      <li class="arg">
-                              <code>callback</code>
-                      </li>
-                  </ul><span class="paren">)</span>
-              </div>
-      
-      
-      
-      
-      
-      
-      
-      
-          <div class="meta">
-                      <p>
-                      Defined in
-              <a href="../files/source_components_room.js.html#l256"><code>source&#x2F;components&#x2F;room.js:256</code></a>
-              </p>
-      
-      
-      
-                  <p>Available since 0.7.0</p>
-          </div>
-      
-          <div class="description">
-              <p>Function to subscribe to an event.</p>
-      
-          </div>
-      
-              <div class="params">
-                  <h4>Parameters:</h4>
-      
-                  <ul class="params-list">
-                      <li class="param">
-                              <code class="param-name">event</code>
-                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
-      
-      
-                          <div class="param-description">
-                              <p>The event to subscribe to once.</p>
-      
-                          </div>
-      
-                      </li>
-                      <li class="param">
-                              <code class="param-name">callback</code>
-                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="crosslink external" target="_blank">Function</a></span>
-      
-      
-                          <div class="param-description">
-                              <p>The callback listener function.</p>
-      
-                          </div>
-      
-                      </li>
-                  </ul>
-              </div>
-      
-      
-      
-      </div>
-      <div id="method_once" class="method item">
-          <h3 class="name"><code>once</code></h3>
-      
-              <div class="args">
-                  <span class="paren">(</span><ul class="args-list inline commas">
-                      <li class="arg">
-                              <code>event</code>
-                      </li>
-                      <li class="arg">
-                              <code>callback</code>
-                      </li>
-                      <li class="arg">
-                              <code class="optional">[condition]</code>
-                      </li>
-                      <li class="arg">
-                              <code class="optional">[fireAlways]</code>
-                      </li>
-                  </ul><span class="paren">)</span>
-              </div>
-      
-      
-      
-      
-      
-      
-      
-      
-          <div class="meta">
-                      <p>
-                      Defined in
-              <a href="../files/source_components_room.js.html#l266"><code>source&#x2F;components&#x2F;room.js:266</code></a>
-              </p>
-      
-      
-      
-                  <p>Available since 0.7.0</p>
-          </div>
-      
-          <div class="description">
-              <p>Function to subscribe to an event once.</p>
-      
-          </div>
-      
-              <div class="params">
-                  <h4>Parameters:</h4>
-      
-                  <ul class="params-list">
-                      <li class="param">
-                              <code class="param-name">event</code>
-                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
-      
-      
-                          <div class="param-description">
-                              <p>The event to subscribe to once.</p>
-      
-                          </div>
-      
-                      </li>
-                      <li class="param">
-                              <code class="param-name">callback</code>
-                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="crosslink external" target="_blank">Function</a></span>
-      
-      
-                          <div class="param-description">
-                              <p>The callback listener function.</p>
-      
-                          </div>
-      
-                      </li>
-                      <li class="param">
-                              <code class="param-name optional">[condition]</code>
-                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="crosslink external" target="_blank">Function</a></span>
-                              <span class="flag optional" title="This parameter is optional.">optional</span>
-      
-      
-                          <div class="param-description">
-                              <p>The condition function that is called when
-      event is triggered. If condition is met (when function returns <code>true</code>), the
-      callback listener function is triggered.
-      The default is <code>function () { return true; }</code>.</p>
-      
-                          </div>
-      
-                      </li>
-                      <li class="param">
-                              <code class="param-name optional">[fireAlways]</code>
-                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean" class="crosslink external" target="_blank">Boolean</a></span>
-                              <span class="flag optional" title="This parameter is optional.">optional</span>
-      
-      
-                          <div class="param-description">
-                              <p>The flag if callback listener function should always
-      be triggered regardless as long as condition function is met.
-      The default is <code>false</code>.</p>
-      
-                          </div>
-      
-                      </li>
-                  </ul>
-              </div>
-      
-      
-      
-      </div>
-      <div id="method_update" class="method item">
-          <h3 class="name"><code>update</code></h3>
-      
-              <div class="args">
-                  <span class="paren">(</span><ul class="args-list inline commas">
-                      <li class="arg">
-                              <code>/**
-      Function</code>
-                      </li>
-                  </ul><span class="paren">)</span>
-              </div>
-      
-      
-      
-      
-      
-      
-      
-      
-          <div class="meta">
-                      <p>
-                      Defined in
-              <a href="../files/source_components_room.js.html#l778"><code>source&#x2F;components&#x2F;room.js:778</code></a>
-              </p>
-      
-      
-      
-          </div>
-      
-          <div class="description">
-              <p>Function to update the default stream or self Peer data.</p>
-      
-          </div>
-      
-              <div class="params">
-                  <h4>Parameters:</h4>
-      
-                  <ul class="params-list">
-                      <li class="param">
-                              <code class="param-name">/**
-      Function</code>
-                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a></span>
-      
-      
-                          <div class="param-description">
-                              <p>to parse and retrieve codecs support.</p>
-      
-                          </div>
-      
-                      </li>
-                  </ul>
-              </div>
-      
-      
-      
-      </div>
+                    </ul>
+                  </li>
+              </ul>
+            <!-- Returns -->
+            <h5>Returns</h5>
+              <p>None</p>
+          </article>
+          <!--
+          <div id="method_connect" class="method item">
+              <h3 class="name"><code>connect</code></h3>
+          
+                  <div class="args">
+                      <span class="paren">(</span><ul class="args-list inline commas">
+                          <li class="arg">
+                                  <code class="optional">[options]</code>
+                          </li>
+                          <li class="arg">
+                                  <code>callback</code>
+                          </li>
+                      </ul><span class="paren">)</span>
                   </div>
-      
-      
-                  <div id="attrs" class="api-class-tabpanel">
-                      <h2 class="off-left">Attributes</h2>
-      
-                          <div id="attr_AUTH_ERROR_CODE_ENUM" class="attr item">
-                              <a name="config_AUTH_ERROR_CODE_ENUM"></a> 
-                              <h3 class="name"><code>AUTH_ERROR_CODE_ENUM</code></h3>
-                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
-                          
-                          
-                          
-                                  <span class="flag final">final</span>
-                          
-                          
-                          
-                          
-                                  <span class="flag readonly">readonly</span>
-                          
-                              <div class="meta">
-                                          <p>
-                                          Defined in
-                                  <a href="../files/source_components_room.js.html#l392"><code>source&#x2F;components&#x2F;room.js:392</code></a>
-                                  </p>
-                          
-                          
-                                      <p>Available since 0.7.0</p>
+          
+          
+          
+          
+          
+          
+          
+                  <span class="flag async">async</span>
+          
+              <div class="meta">
+                          <p>
+                          Defined in
+                  <a href="../files/source_components_room.js.html#l619"><code>source&#x2F;components&#x2F;room.js:619</code></a>
+                  </p>
+          
+          
+          
+                      <p>Available since 0.7.0</p>
+              </div>
+          
+              <div class="description">
+                  <p>Function to start Room session connection.</p>
+          
+              </div>
+          
+                  <div class="params">
+                      <h4>Parameters:</h4>
+          
+                      <ul class="params-list">
+                          <li class="param">
+                                  <code class="param-name optional">[options]</code>
+                                  <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
+                                  <span class="flag optional" title="This parameter is optional.">optional</span>
+          
+          
+                              <div class="param-description">
+                                  <p>The options.</p>
+          
                               </div>
-                          
-                              <div class="description">
-                                  <p>The enum of Room authentication error codes.</p>
-                          
+          
+                                  <ul class="params-list">
+                                      <li class="param">
+                                              <code class="param-name optional">[server]</code>
+                                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
+                                              <span class="flag optional" title="This parameter is optional.">optional</span>
+          
+                                          <div class="param-description">
+                                              <p>The Auth (API) server domain to connect to.
+          The default is based on the preset server domain.</p>
+          
+                                          </div>
+          
+                                      </li>
+                                      <li class="param">
+                                              <code class="param-name optional">[protocol]</code>
+                                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
+                                              <span class="flag optional" title="This parameter is optional.">optional</span>
+          
+                                          <div class="param-description">
+                                              <p>The Auth (API) server protocol to connect to.
+          The default is the value of the current accessing <code>window.location.protocol</code>.</p>
+          
+                                          </div>
+          
+                                      </li>
+                                      <li class="param">
+                                              <code class="param-name optional">[authCreds]</code>
+                                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
+                                              <span class="flag optional" title="This parameter is optional.">optional</span>
+          
+                                          <div class="param-description">
+                                              <p>The credentials for hash based authentication.
+          If this is not provided, the Auth (API) server will authenticate by checking if the CORS url
+          configuration from the App Key matches the CORS domain from accessing app.</p>
+          
+                                          </div>
+          
+                                              <ul class="params-list">
+                                                  <li class="param">
+                                                          <code class="param-name optional">[start]</code>
+                                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
+                                                          <span class="flag optional" title="This parameter is optional.">optional</span>
+          
+                                                      <div class="param-description">
+                                                          The starting DateTime stamp in ISO-8601 string for the Room session connection.
+                                                      </div>
+                                                  </li>
+                                                  <li class="param">
+                                                          <code class="param-name optional">[duration]</code>
+                                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number" class="crosslink external" target="_blank">Number</a></span>
+                                                          <span class="flag optional" title="This parameter is optional.">optional</span>
+          
+                                                      <div class="param-description">
+                                                          The duration in hours for the Room session connection.
+            The maximum duration is <code>24</code> hours.
+                                                      </div>
+                                                  </li>
+                                                  <li class="param">
+                                                          <code class="param-name optional">[hash]</code>
+                                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
+                                                          <span class="flag optional" title="This parameter is optional.">optional</span>
+          
+                                                      <div class="param-description">
+                                                          The base64 encoded HMAC-SHA1 hash generated from the starting
+            DateTime stamp, duration, Room name and App Key secret.
+            Please ensure that the string encodes escape characters for URI ready strings.
+                                                      </div>
+                                                  </li>
+                                              </ul>
+                                      </li>
+                                      <li class="param">
+                                              <code class="param-name optional">[socket]</code>
+                                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
+                                              <span class="flag optional" title="This parameter is optional.">optional</span>
+          
+                                          <div class="param-description">
+                                              <p>The socket connecton configuration.
+          This references the Socket class constructor options.</p>
+          
+                                          </div>
+          
+                                      </li>
+                                      <li class="param">
+                                              <code class="param-name optional">[peer]</code>
+                                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
+                                              <span class="flag optional" title="This parameter is optional.">optional</span>
+          
+                                          <div class="param-description">
+                                              <p>The Peer connecton configuration.
+          This references the Peer class constructor options.</p>
+          
+                                          </div>
+          
+                                      </li>
+                                  </ul>
+                          </li>
+                          <li class="param">
+                                  <code class="param-name">callback</code>
+                                  <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="crosslink external" target="_blank">Function</a></span>
+          
+          
+                              <div class="param-description">
+                                  <p>The callback function for async code execution.
+          Returns a format of: <code>function([error])</code></p>
+          
                               </div>
-                          
-                          
-                          
-                          </div>
-                          <div id="attr_AUTH_STATE_ENUM" class="attr item">
-                              <a name="config_AUTH_STATE_ENUM"></a> 
-                              <h3 class="name"><code>AUTH_STATE_ENUM</code></h3>
-                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
-                          
-                          
-                          
-                                  <span class="flag final">final</span>
-                          
-                          
-                          
-                          
-                                  <span class="flag readonly">readonly</span>
-                          
-                              <div class="meta">
-                                          <p>
-                                          Defined in
-                                  <a href="../files/source_components_room.js.html#l374"><code>source&#x2F;components&#x2F;room.js:374</code></a>
-                                  </p>
-                          
-                          
-                                      <p>Available since 0.7.0</p>
-                              </div>
-                          
-                              <div class="description">
-                                  <p>The enum of Room authentication states, in which is used to validate the App Key ID before starting a session.</p>
-                          
-                              </div>
-                          
-                          
-                          
-                          </div>
-                          <div id="attr_autoIntroduce" class="attr item">
-                              <a name="config_autoIntroduce"></a> 
-                              <h3 class="name"><code>autoIntroduce</code></h3>
-                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean" class="crosslink external" target="_blank">Boolean</a></span>
-                          
-                          
-                          
-                          
-                          
-                          
-                          
-                                  <span class="flag readonly">readonly</span>
-                          
-                              <div class="meta">
-                                          <p>
-                                          Defined in
-                                  <a href="../files/source_components_room.js.html#l95"><code>source&#x2F;components&#x2F;room.js:95</code></a>
-                                  </p>
-                          
-                          
-                                      <p>Available since 0.7.0</p>
-                              </div>
-                          
-                              <div class="description">
-                                  <p>The flag if Room session has auto-introduce enabled.</p>
-                          
-                              </div>
-                          
-                          
-                          
-                          </div>
-                          <div id="attr_current" class="attr item">
-                              <a name="config_current"></a> 
-                              <h3 class="name"><code>current</code></h3>
-                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
-                          
-                          
-                          
-                          
-                          
-                          
-                          
-                                  <span class="flag readonly">readonly</span>
-                          
-                              <div class="meta">
-                                          <p>
-                                          Defined in
-                                  <a href="../files/source_components_room.js.html#l167"><code>source&#x2F;components&#x2F;room.js:167</code></a>
-                                  </p>
-                          
-                          
-                                      <p>Available since 0.7.0</p>
-                              </div>
-                          
-                              <div class="description">
-                                  <p>The current Room session connection status.</p>
-                          
-                              </div>
-                          
-                          
-                          
-                          </div>
-                          <div id="attr_DT_PROTOCOL_VERSION" class="attr item">
-                              <a name="config_DT_PROTOCOL_VERSION"></a> 
-                              <h3 class="name"><code>DT_PROTOCOL_VERSION</code></h3>
-                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
-                          
-                          
-                          
-                                  <span class="flag final">final</span>
-                          
-                          
-                          
-                          
-                                  <span class="flag readonly">readonly</span>
-                          
-                              <div class="meta">
-                                          <p>
-                                          Defined in
-                                  <a href="../files/source_components_room.js.html#l320"><code>source&#x2F;components&#x2F;room.js:320</code></a>
-                                  </p>
-                          
-                          
-                                      <p>Available since 0.7.0</p>
-                              </div>
-                          
-                              <div class="description">
-                                  <p>The Room DT protocol version supports.</p>
-                          
-                              </div>
-                          
-                          
-                          
-                          </div>
-                          <div id="attr_duration" class="attr item">
-                              <a name="config_duration"></a> 
-                              <h3 class="name"><code>duration</code></h3>
-                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number" class="crosslink external" target="_blank">Number</a></span>
-                          
-                          
-                          
-                          
-                          
-                          
-                          
-                                  <span class="flag readonly">readonly</span>
-                          
-                              <div class="meta">
-                                          <p>
-                                          Defined in
-                                  <a href="../files/source_components_room.js.html#l74"><code>source&#x2F;components&#x2F;room.js:74</code></a>
-                                  </p>
-                          
-                          
-                                      <p>Available since 0.7.0</p>
-                              </div>
-                          
-                              <div class="description">
-                                  <p>The Room session duration in hours.</p>
-                          
-                              </div>
-                          
-                          
-                          
-                          </div>
-                          <div id="attr_hash" class="attr item">
-                              <a name="config_hash"></a> 
-                              <h3 class="name"><code>hash</code></h3>
-                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
-                          
-                          
-                          
-                          
-                          
-                                  <span class="flag optional">optional</span>
-                          
-                          
-                                  <span class="flag readonly">readonly</span>
-                          
-                              <div class="meta">
-                                          <p>
-                                          Defined in
-                                  <a href="../files/source_components_room.js.html#l84"><code>source&#x2F;components&#x2F;room.js:84</code></a>
-                                  </p>
-                          
-                          
-                                      <p>Available since 0.7.0</p>
-                              </div>
-                          
-                              <div class="description">
-                                  <p>The Room session hash used only for hash based authentication.</p>
-                          
-                              </div>
-                          
-                          
-                          
-                          </div>
-                          <div id="attr_id" class="attr item">
-                              <a name="config_id"></a> 
-                              <h3 class="name"><code>id</code></h3>
-                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
-                          
-                          
-                          
-                          
-                          
-                          
-                          
-                                  <span class="flag readonly">readonly</span>
-                          
-                              <div class="meta">
-                                          <p>
-                                          Defined in
-                                  <a href="../files/source_components_room.js.html#l54"><code>source&#x2F;components&#x2F;room.js:54</code></a>
-                                  </p>
-                          
-                          
-                                      <p>Available since 0.7.0</p>
-                              </div>
-                          
-                              <div class="description">
-                                  <p>The Room ID.</p>
-                          
-                              </div>
-                          
-                          
-                          
-                          </div>
-                          <div id="attr_INIT_ERROR_CODE_ENUM" class="attr item">
-                              <a name="config_INIT_ERROR_CODE_ENUM"></a> 
-                              <h3 class="name"><code>INIT_ERROR_CODE_ENUM</code></h3>
-                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
-                          
-                          
-                          
-                                  <span class="flag final">final</span>
-                          
-                          
-                          
-                          
-                                  <span class="flag readonly">readonly</span>
-                          
-                              <div class="meta">
-                                          <p>
-                                          Defined in
-                                  <a href="../files/source_components_room.js.html#l349"><code>source&#x2F;components&#x2F;room.js:349</code></a>
-                                  </p>
-                          
-                          
-                                      <p>Available since 0.7.0</p>
-                              </div>
-                          
-                              <div class="description">
-                                  <p>The enum of Room dependency initialising error codes.</p>
-                          
-                              </div>
-                          
-                          
-                          
-                          </div>
-                          <div id="attr_INIT_STATE_ENUM" class="attr item">
-                              <a name="config_INIT_STATE_ENUM"></a> 
-                              <h3 class="name"><code>INIT_STATE_ENUM</code></h3>
-                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
-                          
-                          
-                          
-                                  <span class="flag final">final</span>
-                          
-                          
-                          
-                          
-                                  <span class="flag readonly">readonly</span>
-                          
-                              <div class="meta">
-                                          <p>
-                                          Defined in
-                                  <a href="../files/source_components_room.js.html#l331"><code>source&#x2F;components&#x2F;room.js:331</code></a>
-                                  </p>
-                          
-                          
-                                      <p>Available since 0.7.0</p>
-                              </div>
-                          
-                              <div class="description">
-                                  <p>The enum of Room dependency initialising states.</p>
-                          
-                              </div>
-                          
-                          
-                          
-                          </div>
-                          <div id="attr_name" class="attr item">
-                              <a name="config_name"></a> 
-                              <h3 class="name"><code>name</code></h3>
-                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
-                          
-                          
-                          
-                          
-                          
-                          
-                          
-                                  <span class="flag readonly">readonly</span>
-                          
-                              <div class="meta">
-                                          <p>
-                                          Defined in
-                                  <a href="../files/source_components_room.js.html#l44"><code>source&#x2F;components&#x2F;room.js:44</code></a>
-                                  </p>
-                          
-                          
-                                      <p>Available since 0.7.0</p>
-                              </div>
-                          
-                              <div class="description">
-                                  <p>The Room name.</p>
-                          
-                              </div>
-                          
-                          
-                          
-                          </div>
-                          <div id="attr_peer" class="attr item">
-                              <a name="config_peer"></a> 
-                              <h3 class="name"><code>peer</code></h3>
-                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
-                          
-                          
-                          
-                          
-                          
-                          
-                          
-                                  <span class="flag readonly">readonly</span>
-                          
-                              <div class="meta">
-                                          <p>
-                                          Defined in
-                                  <a href="../files/source_components_room.js.html#l105"><code>source&#x2F;components&#x2F;room.js:105</code></a>
-                                  </p>
-                          
-                          
-                                      <p>Available since 0.7.0</p>
-                              </div>
-                          
-                              <div class="description">
-                                  <p>The Room session self Peer information.</p>
-                          
-                              </div>
-                          
-                          
-                          
-                          </div>
-                          <div id="attr_protocol" class="attr item">
-                              <a name="config_protocol"></a> 
-                              <h3 class="name"><code>protocol</code></h3>
-                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
-                          
-                          
-                          
-                          
-                          
-                          
-                          
-                                  <span class="flag readonly">readonly</span>
-                          
-                              <div class="meta">
-                                          <p>
-                                          Defined in
-                                  <a href="../files/source_components_room.js.html#l24"><code>source&#x2F;components&#x2F;room.js:24</code></a>
-                                  </p>
-                          
-                          
-                                      <p>Available since 0.7.0</p>
-                              </div>
-                          
-                              <div class="description">
-                                  <p>The Auth (API) server protocol.</p>
-                          
-                              </div>
-                          
-                          
-                          
-                          </div>
-                          <div id="attr_server" class="attr item">
-                              <a name="config_server"></a> 
-                              <h3 class="name"><code>server</code></h3>
-                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
-                          
-                          
-                          
-                          
-                          
-                          
-                          
-                                  <span class="flag readonly">readonly</span>
-                          
-                              <div class="meta">
-                                          <p>
-                                          Defined in
-                                  <a href="../files/source_components_room.js.html#l34"><code>source&#x2F;components&#x2F;room.js:34</code></a>
-                                  </p>
-                          
-                          
-                                      <p>Available since 0.7.0</p>
-                              </div>
-                          
-                              <div class="description">
-                                  <p>The Auth (API) server domain.</p>
-                          
-                              </div>
-                          
-                          
-                          
-                          </div>
-                          <div id="attr_server" class="attr item">
-                              <a name="config_server"></a> 
-                              <h3 class="name"><code>server</code></h3>
-                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
-                          
-                          
-                          
-                          
-                          
-                          
-                          
-                                  <span class="flag readonly">readonly</span>
-                          
-                              <div class="meta">
-                                          <p>
-                                          Defined in
-                                  <a href="../files/source_components_room.js.html#l14"><code>source&#x2F;components&#x2F;room.js:14</code></a>
-                                  </p>
-                          
-                          
-                                      <p>Available since 0.7.0</p>
-                              </div>
-                          
-                              <div class="description">
-                                  <p>The Auth (API) server domain.</p>
-                          
-                              </div>
-                          
-                          
-                          
-                          </div>
-                          <div id="attr_SESSION_ERROR_ENUM" class="attr item">
-                              <a name="config_SESSION_ERROR_ENUM"></a> 
-                              <h3 class="name"><code>SESSION_ERROR_ENUM</code></h3>
-                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
-                          
-                          
-                          
-                                  <span class="flag final">final</span>
-                          
-                          
-                          
-                          
-                                  <span class="flag readonly">readonly</span>
-                          
-                              <div class="meta">
-                                          <p>
-                                          Defined in
-                                  <a href="../files/source_components_room.js.html#l461"><code>source&#x2F;components&#x2F;room.js:461</code></a>
-                                  </p>
-                          
-                          
-                                      <p>Available since 0.7.0</p>
-                              </div>
-                          
-                              <div class="description">
-                                  <p>The enum of Room connection session error codes.</p>
-                          
-                              </div>
-                          
-                          
-                          
-                          </div>
-                          <div id="attr_SESSION_STATE_ENUM" class="attr item">
-                              <a name="config_SESSION_STATE_ENUM"></a> 
-                              <h3 class="name"><code>SESSION_STATE_ENUM</code></h3>
-                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
-                          
-                          
-                          
-                                  <span class="flag final">final</span>
-                          
-                          
-                          
-                          
-                                  <span class="flag readonly">readonly</span>
-                          
-                              <div class="meta">
-                                          <p>
-                                          Defined in
-                                  <a href="../files/source_components_room.js.html#l435"><code>source&#x2F;components&#x2F;room.js:435</code></a>
-                                  </p>
-                          
-                          
-                                      <p>Available since 0.7.0</p>
-                              </div>
-                          
-                              <div class="description">
-                                  <p>The enum of Room connection session states.</p>
-                          
-                              </div>
-                          
-                          
-                          
-                          </div>
-                          <div id="attr_SM_PROTOCOL_VERSION" class="attr item">
-                              <a name="config_SM_PROTOCOL_VERSION"></a> 
-                              <h3 class="name"><code>SM_PROTOCOL_VERSION</code></h3>
-                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
-                          
-                          
-                          
-                                  <span class="flag final">final</span>
-                          
-                          
-                          
-                          
-                                  <span class="flag readonly">readonly</span>
-                          
-                              <div class="meta">
-                                          <p>
-                                          Defined in
-                                  <a href="../files/source_components_room.js.html#l309"><code>source&#x2F;components&#x2F;room.js:309</code></a>
-                                  </p>
-                          
-                          
-                                      <p>Available since 0.7.0</p>
-                              </div>
-                          
-                              <div class="description">
-                                  <p>The Room SM protocol version supports.</p>
-                          
-                              </div>
-                          
-                          
-                          
-                          </div>
-                          <div id="attr_start" class="attr item">
-                              <a name="config_start"></a> 
-                              <h3 class="name"><code>start</code></h3>
-                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
-                          
-                          
-                          
-                          
-                          
-                          
-                          
-                                  <span class="flag readonly">readonly</span>
-                          
-                              <div class="meta">
-                                          <p>
-                                          Defined in
-                                  <a href="../files/source_components_room.js.html#l64"><code>source&#x2F;components&#x2F;room.js:64</code></a>
-                                  </p>
-                          
-                          
-                                      <p>Available since 0.7.0</p>
-                              </div>
-                          
-                              <div class="description">
-                                  <p>The Room session start timestamp in ISO-8601 format.</p>
-                          
-                              </div>
-                          
-                          
-                          
-                          </div>
-                          <div id="attr_webrtcSupports" class="attr item">
-                              <a name="config_webrtcSupports"></a> 
-                              <h3 class="name"><code>webrtcSupports</code></h3>
-                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
-                          
-                          
-                          
-                          
-                          
-                          
-                          
-                                  <span class="flag readonly">readonly</span>
-                          
-                              <div class="meta">
-                                          <p>
-                                          Defined in
-                                  <a href="../files/source_components_room.js.html#l139"><code>source&#x2F;components&#x2F;room.js:139</code></a>
-                                  </p>
-                          
-                          
-                                      <p>Available since 0.7.0</p>
-                              </div>
-                          
-                              <div class="description">
-                                  <p>The WebRTC supports of the browser or device.</p>
-                          
-                              </div>
-                          
-                          
-                          
-                          </div>
+          
+                                  <ul class="params-list">
+                                      <li class="param">
+                                              <code class="param-name optional">[error]</code>
+                                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
+                                              <span class="flag optional" title="This parameter is optional.">optional</span>
+          
+                                          <div class="param-description">
+                                              <p>The error.
+          This is only defined if there are errors in code execution.</p>
+          
+                                          </div>
+          
+                                              <ul class="params-list">
+                                                  <li class="param">
+                                                          <code class="param-name">eventName</code>
+                                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
+          
+                                                      <div class="param-description">
+                                                          The event name that caused the error.
+                                                      </div>
+                                                  </li>
+                                                  <li class="param">
+                                                          <code class="param-name">error</code>
+                                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
+          
+                                                      <div class="param-description">
+                                                          The error.
+            The object signature matches the event based on the <code>error.eventName</code>
+            <code>error</code> payload parameter or the socket connection error object.
+                                                      </div>
+                                                  </li>
+                                              </ul>
+                                      </li>
+                                  </ul>
+                          </li>
+                      </ul>
                   </div>
-      
-                  <div id="events" class="api-class-tabpanel">
-                      <h2 class="off-left">Events</h2>
-      
-                          <div id="event_authState" class="events item">
-                              <h3 class="name"><code>authState</code></h3>
-                              <span class="type"></span>
-                          
-                          
-                          
-                          
-                          
-                              <div class="meta">
-                                          <p>
-                                          Defined in
-                                  <a href="../files/source_components_room.js.html#l210"><code>source&#x2F;components&#x2F;room.js:210</code></a>
-                                  </p>
-                          
-                          
-                                      <p>Available since 0.7.0</p>
-                              </div>
-                          
-                              <div class="description">
-                                  <p>Event triggered when Room authentication state has changed.</p>
-                          
-                              </div>
-                          
-                                  <div class="params">
-                                      <h4>Event Payload:</h4>
-                          
-                                      <ul class="params-list">
-                                          <li class="param">
-                                                  <code class="param-name">state</code>
-                                                  <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
-                          
-                          
-                                              <div class="param-description">
-                                                  <p>The current authentication state.
-                          References the Socket/AUTH_STATE_ENUM:attribute enum attribute.</p>
-                          
-                                              </div>
-                          
-                                          </li>
-                                          <li class="param">
-                                                  <code class="param-name">error</code>
-                                                  <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
-                          
-                          
-                                              <div class="param-description">
-                                                  <p>The error.
-                          This is defined when <code>state</code> value is <code>STATE_ENUM.ERROR</code>.</p>
-                          
-                                              </div>
-                          
-                                                  <ul class="params-list">
-                                                      <li class="param">
-                                                              <code class="param-name">error</code>
-                                                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error" class="crosslink external" target="_blank">Error</a></span>
-                          
-                                                          <div class="param-description">
-                                                              <p>The error object.</p>
-                          
-                                                          </div>
-                          
-                                                      </li>
-                                                      <li class="param">
-                                                              <code class="param-name">code</code>
-                                                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number" class="crosslink external" target="_blank">Number</a></span>
-                          
-                                                          <div class="param-description">
-                                                              <p>The error code.
-                          References the Socket/AUTH_ERROR_CODE_ENUM:attribute enum attribute.</p>
-                          
-                                                          </div>
-                          
-                                                      </li>
-                                                      <li class="param">
-                                                              <code class="param-name">httpStatus</code>
-                                                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number" class="crosslink external" target="_blank">Number</a></span>
-                          
-                                                          <div class="param-description">
-                                                              <p>The returned HTTP status.</p>
-                          
-                                                          </div>
-                          
-                                                      </li>
-                                                  </ul>
-                                          </li>
-                                      </ul>
-                                  </div>
-                          
-                          
-                          </div>
-                          <div id="event_initState" class="events item">
-                              <h3 class="name"><code>initState</code></h3>
-                              <span class="type"></span>
-                          
-                          
-                          
-                          
-                          
-                              <div class="meta">
-                                          <p>
-                                          Defined in
-                                  <a href="../files/source_components_room.js.html#l224"><code>source&#x2F;components&#x2F;room.js:224</code></a>
-                                  </p>
-                          
-                          
-                                      <p>Available since 0.7.0</p>
-                              </div>
-                          
-                              <div class="description">
-                                  <p>Event triggered when Room init state has changed.</p>
-                          
-                              </div>
-                          
-                                  <div class="params">
-                                      <h4>Event Payload:</h4>
-                          
-                                      <ul class="params-list">
-                                          <li class="param">
-                                                  <code class="param-name">state</code>
-                                                  <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
-                          
-                          
-                                              <div class="param-description">
-                                                  <p>The current init state.
-                          References the Socket/INIT_STATE_ENUM:attribute enum attribute.</p>
-                          
-                                              </div>
-                          
-                                          </li>
-                                          <li class="param">
-                                                  <code class="param-name">error</code>
-                                                  <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
-                          
-                          
-                                              <div class="param-description">
-                                                  <p>The error.</p>
-                          
-                                              </div>
-                          
-                                                  <ul class="params-list">
-                                                      <li class="param">
-                                                              <code class="param-name">error</code>
-                                                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error" class="crosslink external" target="_blank">Error</a></span>
-                          
-                                                          <div class="param-description">
-                                                              <p>The error object.</p>
-                          
-                                                          </div>
-                          
-                                                      </li>
-                                                      <li class="param">
-                                                              <code class="param-name">code</code>
-                                                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number" class="crosslink external" target="_blank">Number</a></span>
-                          
-                                                          <div class="param-description">
-                                                              <p>The error code.
-                          References the Socket/INIT_ERROR_CODE_ENUM:attribute enum attribute.</p>
-                          
-                                                          </div>
-                          
-                                                      </li>
-                                                  </ul>
-                                          </li>
-                                      </ul>
-                                  </div>
-                          
-                          
-                          </div>
-                          <div id="event_sessionState" class="events item">
-                              <h3 class="name"><code>sessionState</code></h3>
-                              <span class="type"></span>
-                          
-                          
-                          
-                          
-                          
-                              <div class="meta">
-                                          <p>
-                                          Defined in
-                                  <a href="../files/source_components_room.js.html#l236"><code>source&#x2F;components&#x2F;room.js:236</code></a>
-                                  </p>
-                          
-                          
-                                      <p>Available since 0.7.0</p>
-                              </div>
-                          
-                              <div class="description">
-                                  <p>Event triggered when Room session state has changed.</p>
-                          
-                              </div>
-                          
-                                  <div class="params">
-                                      <h4>Event Payload:</h4>
-                          
-                                      <ul class="params-list">
-                                          <li class="param">
-                                                  <code class="param-name">state</code>
-                                                  <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
-                          
-                          
-                                              <div class="param-description">
-                                                  <p>The current init state.
-                          References the Socket/INIT_STATE_ENUM:attribute enum attribute.</p>
-                          
-                                              </div>
-                          
-                                          </li>
-                                          <li class="param">
-                                                  <code class="param-name">error</code>
-                                                  <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
-                          
-                          
-                                              <div class="param-description">
-                                                  <p>The error.</p>
-                          
-                                              </div>
-                          
-                                                  <ul class="params-list">
-                                                      <li class="param">
-                                                              <code class="param-name">error</code>
-                                                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error" class="crosslink external" target="_blank">Error</a></span>
-                          
-                                                          <div class="param-description">
-                                                              <p>The error object.</p>
-                          
-                                                          </div>
-                          
-                                                      </li>
-                                                      <li class="param">
-                                                              <code class="param-name">code</code>
-                                                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number" class="crosslink external" target="_blank">Number</a></span>
-                          
-                                                          <div class="param-description">
-                                                              <p>The error code.
-                          References the Socket/INIT_ERROR_CODE_ENUM:attribute enum attribute.</p>
-                          
-                                                          </div>
-                          
-                                                      </li>
-                                                  </ul>
-                                          </li>
-                                      </ul>
-                                  </div>
-                          
-                          
-                          </div>
+          
+          
+          
+          </div>-->
+          <article id="method_getConnectionAvailability">
+            <div class="doc-type">
+              <div class="doc-type-wrapper">
+                
+                
+                
+                
+                
+                <span class="version">Since -</span>
+                <span class="type">Method</span>
+                <span class="definedat">Defined at: <a href="../files/source_components_room.js.html#l504"><var>source/components/room.js:504</var></a></span>
+              </div>
+            </div>
+            <h3><var>.getConnectionAvailability</var> (<code>callback</code>) <small>&#8594;&nbsp;&nbsp;
+              None</small></h3>
+            <!--<p class="doc-supports">
+              <span class="when">When <var>"type"</var> is <code>true</code>.</span>
+              <span class="supports">
+                <em class="title">Supports:</em>
+                <em><i class="fa fa-chrome"></i> 55</em>
+                <em><i class="fa fa-firefox"></i> 48</em>
+                <em><i class="fa fa-opera"></i> 37</em>
+                <em><i class="fa fa-safari"></i> 7 (0.8.870)</em>
+                <em><i class="fa fa-internet-explorer"></i> 11 (0.8.870)</em>
+                <em><i class="fa fa-edge"></i> 13.457</em>
+                <em><i class="fa fa-android"></i> 8</em>
+                <em><i class="fa fa-globe"></i> 0.6.1</em>
+              </span>
+            </p>-->
+            <p>Function to get and check the connection availability.</p>
+          
+            <!-- Parameters -->
+            <h5>Parameters</h5>
+              <ul class="doc-params">
+                <li>
+                  <p class="name">
+                    <var><b>callback</b> - <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="crosslink external" target="_blank">Function</a></var>
+                    
+                    
+                    <!--<span class="label primary"><i class="fa fa-exchange"></i> async</span>
+                      <span class="label danger"><i class="fa fa-exclamation-triangle"></i> deprecated</span>
+                      <span class="label info"><i class="fa fa-flask"></i> beta</span>
+                      <span class="label warning"><i class="fa fa-gavel"></i> final</span>-->
+                  </p>
+                  <p class="desc"> </p>
+                  <!-- Sub-parameters -->
+                  </li>
+              </ul>
+            <!-- Returns -->
+            <h5>Returns</h5>
+              <p>None</p>
+          </article>
+          <!--
+          <div id="method_getConnectionAvailability" class="method item">
+              <h3 class="name"><code>getConnectionAvailability</code></h3>
+          
+                  <div class="args">
+                      <span class="paren">(</span><ul class="args-list inline commas">
+                          <li class="arg">
+                                  <code>callback</code>
+                          </li>
+                      </ul><span class="paren">)</span>
                   </div>
-          </div>
-      </div>
+          
+          
+          
+          
+          
+          
+          
+          
+              <div class="meta">
+                          <p>
+                          Defined in
+                  <a href="../files/source_components_room.js.html#l504"><code>source&#x2F;components&#x2F;room.js:504</code></a>
+                  </p>
+          
+          
+          
+              </div>
+          
+              <div class="description">
+                  <p>Function to get and check the connection availability.</p>
+          
+              </div>
+          
+                  <div class="params">
+                      <h4>Parameters:</h4>
+          
+                      <ul class="params-list">
+                          <li class="param">
+                                  <code class="param-name">callback</code>
+                                  <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="crosslink external" target="_blank">Function</a></span>
+          
+          
+                              <div class="param-description">
+                                   
+                              </div>
+          
+                          </li>
+                      </ul>
+                  </div>
+          
+          
+          
+          </div>-->
+          <article id="method_init">
+            <div class="doc-type">
+              <div class="doc-type-wrapper">
+                <span class="label primary"><i class="fa fa-exchange"></i> async</span>
+                
+                
+                
+                
+                <span class="version">Since 0.7.0</span>
+                <span class="type">Method</span>
+                <span class="definedat">Defined at: <a href="../files/source_components_room.js.html#l515"><var>source/components/room.js:515</var></a></span>
+              </div>
+            </div>
+            <h3><var>.init</var> (<code>callback</code>) <small>&#8594;&nbsp;&nbsp;
+              None</small></h3>
+            <!--<p class="doc-supports">
+              <span class="when">When <var>"type"</var> is <code>true</code>.</span>
+              <span class="supports">
+                <em class="title">Supports:</em>
+                <em><i class="fa fa-chrome"></i> 55</em>
+                <em><i class="fa fa-firefox"></i> 48</em>
+                <em><i class="fa fa-opera"></i> 37</em>
+                <em><i class="fa fa-safari"></i> 7 (0.8.870)</em>
+                <em><i class="fa fa-internet-explorer"></i> 11 (0.8.870)</em>
+                <em><i class="fa fa-edge"></i> 13.457</em>
+                <em><i class="fa fa-android"></i> 8</em>
+                <em><i class="fa fa-globe"></i> 0.6.1</em>
+              </span>
+            </p>-->
+            <p>Function to start initialising Room dependencies.</p>
+          
+            <!-- Parameters -->
+            <h5>Parameters</h5>
+              <ul class="doc-params">
+                <li>
+                  <p class="name">
+                    <var><b>callback</b> - <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="crosslink external" target="_blank">Function</a></var>
+                    
+                    
+                    <!--<span class="label primary"><i class="fa fa-exchange"></i> async</span>
+                      <span class="label danger"><i class="fa fa-exclamation-triangle"></i> deprecated</span>
+                      <span class="label info"><i class="fa fa-flask"></i> beta</span>
+                      <span class="label warning"><i class="fa fa-gavel"></i> final</span>-->
+                  </p>
+                  <p class="desc"><p>The callback function for async code execution.
+          Returns a format of: <code>function([error])</code></p>
+          </p>
+                  <!-- Sub-parameters -->
+                    <ul class="doc-params">
+                      <li>
+                        <p class="name">
+                          <var><b>error</b> - <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></var>
+                          
+                          <span class="label default"><i class="fa fa-puzzle-piece"></i> optional</span>
+                          <!--<span class="label primary"><i class="fa fa-exchange"></i> async</span>
+                              <span class="label danger"><i class="fa fa-exclamation-triangle"></i> deprecated</span>
+                              <span class="label info"><i class="fa fa-flask"></i> beta</span>
+                              <span class="label warning"><i class="fa fa-gavel"></i> final</span>-->
+                        </p>
+                        <p class="desc"><p>The error.
+          This is only defined if there are errors in code execution.
+          The object signature matches the <a href="../classes/Room.html#event_initState" class="crosslink">initState</a>
+          event <code>error</code> payload parameter.</p>
+          </p>
+                      </li>
+                    </ul>
+                  </li>
+              </ul>
+            <!-- Returns -->
+            <h5>Returns</h5>
+              <p>None</p>
+          </article>
+          <!--
+          <div id="method_init" class="method item">
+              <h3 class="name"><code>init</code></h3>
+          
+                  <div class="args">
+                      <span class="paren">(</span><ul class="args-list inline commas">
+                          <li class="arg">
+                                  <code>callback</code>
+                          </li>
+                      </ul><span class="paren">)</span>
+                  </div>
+          
+          
+          
+          
+          
+          
+          
+                  <span class="flag async">async</span>
+          
+              <div class="meta">
+                          <p>
+                          Defined in
+                  <a href="../files/source_components_room.js.html#l515"><code>source&#x2F;components&#x2F;room.js:515</code></a>
+                  </p>
+          
+          
+          
+                      <p>Available since 0.7.0</p>
+              </div>
+          
+              <div class="description">
+                  <p>Function to start initialising Room dependencies.</p>
+          
+              </div>
+          
+                  <div class="params">
+                      <h4>Parameters:</h4>
+          
+                      <ul class="params-list">
+                          <li class="param">
+                                  <code class="param-name">callback</code>
+                                  <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="crosslink external" target="_blank">Function</a></span>
+          
+          
+                              <div class="param-description">
+                                  <p>The callback function for async code execution.
+          Returns a format of: <code>function([error])</code></p>
+          
+                              </div>
+          
+                                  <ul class="params-list">
+                                      <li class="param">
+                                              <code class="param-name optional">[error]</code>
+                                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
+                                              <span class="flag optional" title="This parameter is optional.">optional</span>
+          
+                                          <div class="param-description">
+                                              <p>The error.
+          This is only defined if there are errors in code execution.
+          The object signature matches the <a href="../classes/Room.html#event_initState" class="crosslink">initState</a>
+          event <code>error</code> payload parameter.</p>
+          
+                                          </div>
+          
+                                      </li>
+                                  </ul>
+                          </li>
+                      </ul>
+                  </div>
+          
+          
+          
+          </div>-->
+          <article id="method_off">
+            <div class="doc-type">
+              <div class="doc-type-wrapper">
+                
+                
+                
+                
+                
+                <span class="version">Since 0.7.0</span>
+                <span class="type">Method</span>
+                <span class="definedat">Defined at: <a href="../files/source_components_room.js.html#l283"><var>source/components/room.js:283</var></a></span>
+              </div>
+            </div>
+            <h3><var>.off</var> (<code>[event]</code>, <code>[callback]</code>) <small>&#8594;&nbsp;&nbsp;
+              None</small></h3>
+            <!--<p class="doc-supports">
+              <span class="when">When <var>"type"</var> is <code>true</code>.</span>
+              <span class="supports">
+                <em class="title">Supports:</em>
+                <em><i class="fa fa-chrome"></i> 55</em>
+                <em><i class="fa fa-firefox"></i> 48</em>
+                <em><i class="fa fa-opera"></i> 37</em>
+                <em><i class="fa fa-safari"></i> 7 (0.8.870)</em>
+                <em><i class="fa fa-internet-explorer"></i> 11 (0.8.870)</em>
+                <em><i class="fa fa-edge"></i> 13.457</em>
+                <em><i class="fa fa-android"></i> 8</em>
+                <em><i class="fa fa-globe"></i> 0.6.1</em>
+              </span>
+            </p>-->
+            <p>Function to unsubscribe to events.</p>
+          
+            <!-- Parameters -->
+            <h5>Parameters</h5>
+              <ul class="doc-params">
+                <li>
+                  <p class="name">
+                    <var><b>event</b> - <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></var>
+                    
+                    <span class="label default"><i class="fa fa-puzzle-piece"></i> optional</span>
+                    <!--<span class="label primary"><i class="fa fa-exchange"></i> async</span>
+                      <span class="label danger"><i class="fa fa-exclamation-triangle"></i> deprecated</span>
+                      <span class="label info"><i class="fa fa-flask"></i> beta</span>
+                      <span class="label warning"><i class="fa fa-gavel"></i> final</span>-->
+                  </p>
+                  <p class="desc"><p>The specified event to unsubscribe.
+          When not provided, it will unsubscribe all event callback listener functions.</p>
+          </p>
+                  <!-- Sub-parameters -->
+                  </li>
+              
+                <li>
+                  <p class="name">
+                    <var><b>callback</b> - <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="crosslink external" target="_blank">Function</a></var>
+                    
+                    <span class="label default"><i class="fa fa-puzzle-piece"></i> optional</span>
+                    <!--<span class="label primary"><i class="fa fa-exchange"></i> async</span>
+                      <span class="label danger"><i class="fa fa-exclamation-triangle"></i> deprecated</span>
+                      <span class="label info"><i class="fa fa-flask"></i> beta</span>
+                      <span class="label warning"><i class="fa fa-gavel"></i> final</span>-->
+                  </p>
+                  <p class="desc"><p>The specified callback listener function based on
+          the provided event to unsubscribe only.
+          When not provided, it will unsubscribe all callback listener functions subscribed to the event.</p>
+          </p>
+                  <!-- Sub-parameters -->
+                  </li>
+              </ul>
+            <!-- Returns -->
+            <h5>Returns</h5>
+              <p>None</p>
+          </article>
+          <!--
+          <div id="method_off" class="method item">
+              <h3 class="name"><code>off</code></h3>
+          
+                  <div class="args">
+                      <span class="paren">(</span><ul class="args-list inline commas">
+                          <li class="arg">
+                                  <code class="optional">[event]</code>
+                          </li>
+                          <li class="arg">
+                                  <code class="optional">[callback]</code>
+                          </li>
+                      </ul><span class="paren">)</span>
+                  </div>
+          
+          
+          
+          
+          
+          
+          
+          
+              <div class="meta">
+                          <p>
+                          Defined in
+                  <a href="../files/source_components_room.js.html#l283"><code>source&#x2F;components&#x2F;room.js:283</code></a>
+                  </p>
+          
+          
+          
+                      <p>Available since 0.7.0</p>
+              </div>
+          
+              <div class="description">
+                  <p>Function to unsubscribe to events.</p>
+          
+              </div>
+          
+                  <div class="params">
+                      <h4>Parameters:</h4>
+          
+                      <ul class="params-list">
+                          <li class="param">
+                                  <code class="param-name optional">[event]</code>
+                                  <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
+                                  <span class="flag optional" title="This parameter is optional.">optional</span>
+          
+          
+                              <div class="param-description">
+                                  <p>The specified event to unsubscribe.
+          When not provided, it will unsubscribe all event callback listener functions.</p>
+          
+                              </div>
+          
+                          </li>
+                          <li class="param">
+                                  <code class="param-name optional">[callback]</code>
+                                  <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="crosslink external" target="_blank">Function</a></span>
+                                  <span class="flag optional" title="This parameter is optional.">optional</span>
+          
+          
+                              <div class="param-description">
+                                  <p>The specified callback listener function based on
+          the provided event to unsubscribe only.
+          When not provided, it will unsubscribe all callback listener functions subscribed to the event.</p>
+          
+                              </div>
+          
+                          </li>
+                      </ul>
+                  </div>
+          
+          
+          
+          </div>-->
+          <article id="method_on">
+            <div class="doc-type">
+              <div class="doc-type-wrapper">
+                
+                
+                
+                
+                
+                <span class="version">Since 0.7.0</span>
+                <span class="type">Method</span>
+                <span class="definedat">Defined at: <a href="../files/source_components_room.js.html#l256"><var>source/components/room.js:256</var></a></span>
+              </div>
+            </div>
+            <h3><var>.on</var> (<code>event</code>, <code>callback</code>) <small>&#8594;&nbsp;&nbsp;
+              None</small></h3>
+            <!--<p class="doc-supports">
+              <span class="when">When <var>"type"</var> is <code>true</code>.</span>
+              <span class="supports">
+                <em class="title">Supports:</em>
+                <em><i class="fa fa-chrome"></i> 55</em>
+                <em><i class="fa fa-firefox"></i> 48</em>
+                <em><i class="fa fa-opera"></i> 37</em>
+                <em><i class="fa fa-safari"></i> 7 (0.8.870)</em>
+                <em><i class="fa fa-internet-explorer"></i> 11 (0.8.870)</em>
+                <em><i class="fa fa-edge"></i> 13.457</em>
+                <em><i class="fa fa-android"></i> 8</em>
+                <em><i class="fa fa-globe"></i> 0.6.1</em>
+              </span>
+            </p>-->
+            <p>Function to subscribe to an event.</p>
+          
+            <!-- Parameters -->
+            <h5>Parameters</h5>
+              <ul class="doc-params">
+                <li>
+                  <p class="name">
+                    <var><b>event</b> - <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></var>
+                    
+                    
+                    <!--<span class="label primary"><i class="fa fa-exchange"></i> async</span>
+                      <span class="label danger"><i class="fa fa-exclamation-triangle"></i> deprecated</span>
+                      <span class="label info"><i class="fa fa-flask"></i> beta</span>
+                      <span class="label warning"><i class="fa fa-gavel"></i> final</span>-->
+                  </p>
+                  <p class="desc"><p>The event to subscribe to once.</p>
+          </p>
+                  <!-- Sub-parameters -->
+                  </li>
+              
+                <li>
+                  <p class="name">
+                    <var><b>callback</b> - <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="crosslink external" target="_blank">Function</a></var>
+                    
+                    
+                    <!--<span class="label primary"><i class="fa fa-exchange"></i> async</span>
+                      <span class="label danger"><i class="fa fa-exclamation-triangle"></i> deprecated</span>
+                      <span class="label info"><i class="fa fa-flask"></i> beta</span>
+                      <span class="label warning"><i class="fa fa-gavel"></i> final</span>-->
+                  </p>
+                  <p class="desc"><p>The callback listener function.</p>
+          </p>
+                  <!-- Sub-parameters -->
+                  </li>
+              </ul>
+            <!-- Returns -->
+            <h5>Returns</h5>
+              <p>None</p>
+          </article>
+          <!--
+          <div id="method_on" class="method item">
+              <h3 class="name"><code>on</code></h3>
+          
+                  <div class="args">
+                      <span class="paren">(</span><ul class="args-list inline commas">
+                          <li class="arg">
+                                  <code>event</code>
+                          </li>
+                          <li class="arg">
+                                  <code>callback</code>
+                          </li>
+                      </ul><span class="paren">)</span>
+                  </div>
+          
+          
+          
+          
+          
+          
+          
+          
+              <div class="meta">
+                          <p>
+                          Defined in
+                  <a href="../files/source_components_room.js.html#l256"><code>source&#x2F;components&#x2F;room.js:256</code></a>
+                  </p>
+          
+          
+          
+                      <p>Available since 0.7.0</p>
+              </div>
+          
+              <div class="description">
+                  <p>Function to subscribe to an event.</p>
+          
+              </div>
+          
+                  <div class="params">
+                      <h4>Parameters:</h4>
+          
+                      <ul class="params-list">
+                          <li class="param">
+                                  <code class="param-name">event</code>
+                                  <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
+          
+          
+                              <div class="param-description">
+                                  <p>The event to subscribe to once.</p>
+          
+                              </div>
+          
+                          </li>
+                          <li class="param">
+                                  <code class="param-name">callback</code>
+                                  <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="crosslink external" target="_blank">Function</a></span>
+          
+          
+                              <div class="param-description">
+                                  <p>The callback listener function.</p>
+          
+                              </div>
+          
+                          </li>
+                      </ul>
+                  </div>
+          
+          
+          
+          </div>-->
+          <article id="method_once">
+            <div class="doc-type">
+              <div class="doc-type-wrapper">
+                
+                
+                
+                
+                
+                <span class="version">Since 0.7.0</span>
+                <span class="type">Method</span>
+                <span class="definedat">Defined at: <a href="../files/source_components_room.js.html#l266"><var>source/components/room.js:266</var></a></span>
+              </div>
+            </div>
+            <h3><var>.once</var> (<code>event</code>, <code>callback</code>, <code>[condition]</code>, <code>[fireAlways]</code>) <small>&#8594;&nbsp;&nbsp;
+              None</small></h3>
+            <!--<p class="doc-supports">
+              <span class="when">When <var>"type"</var> is <code>true</code>.</span>
+              <span class="supports">
+                <em class="title">Supports:</em>
+                <em><i class="fa fa-chrome"></i> 55</em>
+                <em><i class="fa fa-firefox"></i> 48</em>
+                <em><i class="fa fa-opera"></i> 37</em>
+                <em><i class="fa fa-safari"></i> 7 (0.8.870)</em>
+                <em><i class="fa fa-internet-explorer"></i> 11 (0.8.870)</em>
+                <em><i class="fa fa-edge"></i> 13.457</em>
+                <em><i class="fa fa-android"></i> 8</em>
+                <em><i class="fa fa-globe"></i> 0.6.1</em>
+              </span>
+            </p>-->
+            <p>Function to subscribe to an event once.</p>
+          
+            <!-- Parameters -->
+            <h5>Parameters</h5>
+              <ul class="doc-params">
+                <li>
+                  <p class="name">
+                    <var><b>event</b> - <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></var>
+                    
+                    
+                    <!--<span class="label primary"><i class="fa fa-exchange"></i> async</span>
+                      <span class="label danger"><i class="fa fa-exclamation-triangle"></i> deprecated</span>
+                      <span class="label info"><i class="fa fa-flask"></i> beta</span>
+                      <span class="label warning"><i class="fa fa-gavel"></i> final</span>-->
+                  </p>
+                  <p class="desc"><p>The event to subscribe to once.</p>
+          </p>
+                  <!-- Sub-parameters -->
+                  </li>
+              
+                <li>
+                  <p class="name">
+                    <var><b>callback</b> - <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="crosslink external" target="_blank">Function</a></var>
+                    
+                    
+                    <!--<span class="label primary"><i class="fa fa-exchange"></i> async</span>
+                      <span class="label danger"><i class="fa fa-exclamation-triangle"></i> deprecated</span>
+                      <span class="label info"><i class="fa fa-flask"></i> beta</span>
+                      <span class="label warning"><i class="fa fa-gavel"></i> final</span>-->
+                  </p>
+                  <p class="desc"><p>The callback listener function.</p>
+          </p>
+                  <!-- Sub-parameters -->
+                  </li>
+              
+                <li>
+                  <p class="name">
+                    <var><b>condition</b> - <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="crosslink external" target="_blank">Function</a></var>
+                    
+                    <span class="label default"><i class="fa fa-puzzle-piece"></i> optional</span>
+                    <!--<span class="label primary"><i class="fa fa-exchange"></i> async</span>
+                      <span class="label danger"><i class="fa fa-exclamation-triangle"></i> deprecated</span>
+                      <span class="label info"><i class="fa fa-flask"></i> beta</span>
+                      <span class="label warning"><i class="fa fa-gavel"></i> final</span>-->
+                  </p>
+                  <p class="desc"><p>The condition function that is called when
+          event is triggered. If condition is met (when function returns <code>true</code>), the
+          callback listener function is triggered.
+          The default is <code>function () { return true; }</code>.</p>
+          </p>
+                  <!-- Sub-parameters -->
+                  </li>
+              
+                <li>
+                  <p class="name">
+                    <var><b>fireAlways</b> - <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean" class="crosslink external" target="_blank">Boolean</a></var>
+                    
+                    <span class="label default"><i class="fa fa-puzzle-piece"></i> optional</span>
+                    <!--<span class="label primary"><i class="fa fa-exchange"></i> async</span>
+                      <span class="label danger"><i class="fa fa-exclamation-triangle"></i> deprecated</span>
+                      <span class="label info"><i class="fa fa-flask"></i> beta</span>
+                      <span class="label warning"><i class="fa fa-gavel"></i> final</span>-->
+                  </p>
+                  <p class="desc"><p>The flag if callback listener function should always
+          be triggered regardless as long as condition function is met.
+          The default is <code>false</code>.</p>
+          </p>
+                  <!-- Sub-parameters -->
+                  </li>
+              </ul>
+            <!-- Returns -->
+            <h5>Returns</h5>
+              <p>None</p>
+          </article>
+          <!--
+          <div id="method_once" class="method item">
+              <h3 class="name"><code>once</code></h3>
+          
+                  <div class="args">
+                      <span class="paren">(</span><ul class="args-list inline commas">
+                          <li class="arg">
+                                  <code>event</code>
+                          </li>
+                          <li class="arg">
+                                  <code>callback</code>
+                          </li>
+                          <li class="arg">
+                                  <code class="optional">[condition]</code>
+                          </li>
+                          <li class="arg">
+                                  <code class="optional">[fireAlways]</code>
+                          </li>
+                      </ul><span class="paren">)</span>
+                  </div>
+          
+          
+          
+          
+          
+          
+          
+          
+              <div class="meta">
+                          <p>
+                          Defined in
+                  <a href="../files/source_components_room.js.html#l266"><code>source&#x2F;components&#x2F;room.js:266</code></a>
+                  </p>
+          
+          
+          
+                      <p>Available since 0.7.0</p>
+              </div>
+          
+              <div class="description">
+                  <p>Function to subscribe to an event once.</p>
+          
+              </div>
+          
+                  <div class="params">
+                      <h4>Parameters:</h4>
+          
+                      <ul class="params-list">
+                          <li class="param">
+                                  <code class="param-name">event</code>
+                                  <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
+          
+          
+                              <div class="param-description">
+                                  <p>The event to subscribe to once.</p>
+          
+                              </div>
+          
+                          </li>
+                          <li class="param">
+                                  <code class="param-name">callback</code>
+                                  <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="crosslink external" target="_blank">Function</a></span>
+          
+          
+                              <div class="param-description">
+                                  <p>The callback listener function.</p>
+          
+                              </div>
+          
+                          </li>
+                          <li class="param">
+                                  <code class="param-name optional">[condition]</code>
+                                  <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="crosslink external" target="_blank">Function</a></span>
+                                  <span class="flag optional" title="This parameter is optional.">optional</span>
+          
+          
+                              <div class="param-description">
+                                  <p>The condition function that is called when
+          event is triggered. If condition is met (when function returns <code>true</code>), the
+          callback listener function is triggered.
+          The default is <code>function () { return true; }</code>.</p>
+          
+                              </div>
+          
+                          </li>
+                          <li class="param">
+                                  <code class="param-name optional">[fireAlways]</code>
+                                  <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean" class="crosslink external" target="_blank">Boolean</a></span>
+                                  <span class="flag optional" title="This parameter is optional.">optional</span>
+          
+          
+                              <div class="param-description">
+                                  <p>The flag if callback listener function should always
+          be triggered regardless as long as condition function is met.
+          The default is <code>false</code>.</p>
+          
+                              </div>
+          
+                          </li>
+                      </ul>
+                  </div>
+          
+          
+          
+          </div>-->
+          <article id="method_update">
+            <div class="doc-type">
+              <div class="doc-type-wrapper">
+                
+                
+                
+                
+                
+                <span class="version">Since -</span>
+                <span class="type">Method</span>
+                <span class="definedat">Defined at: <a href="../files/source_components_room.js.html#l778"><var>source/components/room.js:778</var></a></span>
+              </div>
+            </div>
+            <h3><var>.update</var> (<code>/**
+          Function</code>) <small>&#8594;&nbsp;&nbsp;
+              None</small></h3>
+            <!--<p class="doc-supports">
+              <span class="when">When <var>"type"</var> is <code>true</code>.</span>
+              <span class="supports">
+                <em class="title">Supports:</em>
+                <em><i class="fa fa-chrome"></i> 55</em>
+                <em><i class="fa fa-firefox"></i> 48</em>
+                <em><i class="fa fa-opera"></i> 37</em>
+                <em><i class="fa fa-safari"></i> 7 (0.8.870)</em>
+                <em><i class="fa fa-internet-explorer"></i> 11 (0.8.870)</em>
+                <em><i class="fa fa-edge"></i> 13.457</em>
+                <em><i class="fa fa-android"></i> 8</em>
+                <em><i class="fa fa-globe"></i> 0.6.1</em>
+              </span>
+            </p>-->
+            <p>Function to update the default stream or self Peer data.</p>
+          
+            <!-- Parameters -->
+            <h5>Parameters</h5>
+              <ul class="doc-params">
+                <li>
+                  <p class="name">
+                    <var><b>/**
+          Function</b> - <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a></var>
+                    
+                    
+                    <!--<span class="label primary"><i class="fa fa-exchange"></i> async</span>
+                      <span class="label danger"><i class="fa fa-exclamation-triangle"></i> deprecated</span>
+                      <span class="label info"><i class="fa fa-flask"></i> beta</span>
+                      <span class="label warning"><i class="fa fa-gavel"></i> final</span>-->
+                  </p>
+                  <p class="desc"><p>to parse and retrieve codecs support.</p>
+          </p>
+                  <!-- Sub-parameters -->
+                  </li>
+              </ul>
+            <!-- Returns -->
+            <h5>Returns</h5>
+              <p>None</p>
+          </article>
+          <!--
+          <div id="method_update" class="method item">
+              <h3 class="name"><code>update</code></h3>
+          
+                  <div class="args">
+                      <span class="paren">(</span><ul class="args-list inline commas">
+                          <li class="arg">
+                                  <code>/**
+          Function</code>
+                          </li>
+                      </ul><span class="paren">)</span>
+                  </div>
+          
+          
+          
+          
+          
+          
+          
+          
+              <div class="meta">
+                          <p>
+                          Defined in
+                  <a href="../files/source_components_room.js.html#l778"><code>source&#x2F;components&#x2F;room.js:778</code></a>
+                  </p>
+          
+          
+          
+              </div>
+          
+              <div class="description">
+                  <p>Function to update the default stream or self Peer data.</p>
+          
+              </div>
+          
+                  <div class="params">
+                      <h4>Parameters:</h4>
+          
+                      <ul class="params-list">
+                          <li class="param">
+                                  <code class="param-name">/**
+          Function</code>
+                                  <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a></span>
+          
+          
+                              <div class="param-description">
+                                  <p>to parse and retrieve codecs support.</p>
+          
+                              </div>
+          
+                          </li>
+                      </ul>
+                  </div>
+          
+          
+          
+          </div>-->
+      </section>
       </div>    </div>
    </section>
 </body>

@@ -77,1115 +77,222 @@
         </div>
       </navbar>      <!-- Content -->
       <div id="template-content">
-          <h1>Temasys.Socket Class</h1>
-      <div class="box meta">
-      
-      
-              <div class="foundat">
-                  Defined in: <a href="../files/source_components_socket.js.html#l1"><code>source&#x2F;components&#x2F;socket.js:1</code></a>
-              </div>
-      
-      
-              <p>Available since 0.7.0</p>
-      </div>
-      
-      
-      <div class="box intro">
+      <section class="doc">
+        <h1><var>Temasys.Socket</var> class</h1>
+        <article class="_first">
+          <!-- Description -->
           <p>Handles the Room socket.io-client connection to the Signling server.</p>
       
-      </div>
-      
-          <div class="constructor">
-              <h2>Constructor</h2>
-      <div id="method_Temasys.Socket" class="method item private">
-          <h3 class="name"><code>Temasys.Socket</code></h3>
-      
-              <div class="args">
-                  <span class="paren">(</span><ul class="args-list inline commas">
-                      <li class="arg">
-                              <code class="optional">[options]</code>
-                      </li>
-                  </ul><span class="paren">)</span>
+          <!-- Properties -->
+          <h5>Properties</h5>
+          <table>
+            <thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead>
+            <tbody>
+                  <tr>
+                    <td>
+                      <a href="#attr_$current"><code>.$current</code></a>
+                      
+                      
+                    </td>
+                    <td><var><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></var></td>
+                    <td>The Socket current states.</td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <a href="#attr_compressed"><code>.compressed</code></a>
+                      
+                      
+                    </td>
+                    <td><var><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean" class="crosslink external" target="_blank">Boolean</a></var></td>
+                    <td>The flag if Socket data sent is compressed.</td>
+                  </tr>
+                  <!-- -->
+                  <tr>
+                    <td>
+                      <a href="#attr_path"><code>.path</code></a>
+                      
+                      
+                    </td>
+                    <td><var><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></var></td>
+                    <td>The Socket path.</td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <a href="#attr_protocol"><code>.protocol</code></a>
+                      
+                      
+                    </td>
+                    <td><var><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></var></td>
+                    <td>The Socket protocol.</td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <a href="#attr_server"><code>.server</code></a>
+                      
+                      
+                    </td>
+                    <td><var><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></var></td>
+                    <td>The Socket server domain.</td>
+                  </tr>
+                  <!-- -->
+            </tbody>
+          </table>
+          <!-- Enums -->
+          <h5>Constants / Enums</h5>
+          <table>
+            <thead><tr><th>Name</th><th>Description</th></tr></thead>
+            <tbody>
+                  <tr>
+                    <td><a href="#attr_GET_STATS_STATE_ENUM"><code>.GET_STATS_STATE_ENUM</code></a></td>
+                    <td>The enum of <a href="../classes/Temasys.Socket.html#method_getStats" class="crosslink">getStats</a> states.</td>
+                  </tr>
+                  <tr>
+                    <td><a href="#attr_STATE_ENUM"><code>.STATE_ENUM</code></a></td>
+                    <td>The enum of Socket connection states.</td>
+                  </tr>
+            </tbody>
+          </table>
+          <!-- Methods -->
+          <h5>Methods</h5>
+          <table>
+            <thead><tr><th>Method</th><th>Returns</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr>
+                  <td><a href="#method_getStats"><code>.getStats</code></a>()</td>
+                  <td><var><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise" class="crosslink external" target="_blank">Promise</a></var></td>
+                  <td>Function to retrieve Socket connection stats.</td>
+                </tr>
+            </tbody>
+          </table>
+          <!-- Events -->
+          <h5>Events</h5>
+          <table>
+            <thead><tr><th>Event</th><th>Payload</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr>
+                  <td><a href="#event_domError"><code>"domError"</code></a></td>
+                  <td>(<code>error</code>)</td>
+                  <td>Event triggered when there are exceptions thrown in this event handlers.</td>
+                </tr>
+                <tr>
+                  <td><a href="#event_getStatsStateChange"><code>"getStatsStateChange"</code></a></td>
+                  <td>(<code>state</code>, <code>[stats]</code>, <code>[error]</code>)</td>
+                  <td>Event triggered when <a href="../classes/Temasys.Socket.html#method_getStats" class="crosslink">getStats</a> state has changed.</td>
+                </tr>
+                <tr>
+                  <td><a href="#event_message"><code>"message"</code></a></td>
+                  <td>(<code>message</code>, <code>isSelf</code>, <code>[error]</code>)</td>
+                  <td>Event triggered when Socket connection sends or receives a message.</td>
+                </tr>
+                <tr>
+                  <td><a href="#event_response"><code>"response"</code></a></td>
+                  <td>(<code>timestamp</code>, <code>isSelf</code>, <code>[latency]</code>)</td>
+                  <td>Event triggered when Socket connection sends or receives Signaling server keep-alive responses.</td>
+                </tr>
+                <tr>
+                  <td><a href="#event_stateChange"><code>"stateChange"</code></a></td>
+                  <td>(<code>state</code>, <code>error</code>, <code>attempt</code>, <code>port</code>, <code>transport</code>)</td>
+                  <td>Event triggered when Socket connection state has been changed.</td>
+                </tr>
+            </tbody>
+          </table>
+        </article>
+          <article id="method_getStats">
+            <div class="doc-type">
+              <div class="doc-type-wrapper">
+                
+                
+                
+                
+                
+                <span class="version">Since 0.7.0</span>
+                <span class="type">Method</span>
+                <span class="definedat">Defined at: <a href="../files/source_components_socket.js.html#l295"><var>source/components/socket.js:295</var></a></span>
               </div>
-      
-      
-      
-              <span class="flag private">private</span>
-      
-      
-      
-      
-      
-          <div class="meta">
-                      <p>
-                      Defined in
-              <a href="../files/source_components_socket.js.html#l1"><code>source&#x2F;components&#x2F;socket.js:1</code></a>
-              </p>
-      
-      
-      
-                  <p>Available since 0.7.0</p>
-          </div>
-      
-          <div class="description">
-              
-          </div>
-      
-              <div class="params">
-                  <h4>Parameters:</h4>
-      
-                  <ul class="params-list">
-                      <li class="param">
-                              <code class="param-name optional">[options]</code>
-                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
-                              <span class="flag optional" title="This parameter is optional.">optional</span>
-      
-      
-                          <div class="param-description">
-                              <p>The options.</p>
-      
-                          </div>
-      
-                              <ul class="params-list">
-                                  <li class="param">
-                                          <code class="param-name optional">[server] @[exp]</code>
-                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
-                                          <span class="flag optional" title="This parameter is optional.">optional</span>
-      
-                                      <div class="param-description">
-                                          <p>The custom Signaling server domain to use.</p>
-      
-                                      </div>
-      
-                                  </li>
-                                  <li class="param">
-                                          <code class="param-name optional">[ports] @[exp]</code>
-                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array" class="crosslink external" target="_blank">Array</a></span>
-                                          <span class="flag optional" title="This parameter is optional.">optional</span>
-      
-                                      <div class="param-description">
-                                          <p>The custom list of Signaling server ports (<code>Number</code>) to use.</p>
-      <ul>
-      <li>The priority of port used is based on first index order starting from <code>0</code>.</li>
-      </ul>
-      
-                                      </div>
-      
-                                  </li>
-                                  <li class="param">
-                                          <code class="param-name optional">[path] @[exp]</code>
-                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
-                                          <span class="flag optional" title="This parameter is optional.">optional</span>
-      
-                                      <div class="param-description">
-                                          <p>The custom Signaling server path to use.</p>
-      
-                                      </div>
-      
-                                  </li>
-                                  <li class="param">
-                                          <code class="param-name optional">[protocol]</code>
-                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
-                                          <span class="flag optional" title="This parameter is optional.">optional</span>
-      
-                                      <div class="param-description">
-                                          <p>The protocol to use to connect to the Signaling server.</p>
-      <ul>
-      <li>When not provided, the current accessing <code>window.location.protocol</code> will be used.</li>
-      </ul>
-      
-                                      </div>
-      
-                                  </li>
-                                  <li class="param">
-                                          <code class="param-name optional">[transports]</code>
-                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array" class="crosslink external" target="_blank">Array</a></span>
-                                          <span class="flag optional" title="This parameter is optional.">optional</span>
-      
-                                      <div class="param-description">
-                                          <p>The list of socket.io-client transports to use.</p>
-      <ul>
-      <li>Available transports are: <code>"websocket"</code> (Websocket) and <code>"polling"</code> (Polling).</li>
-      <li>The priority of transport to use are based on first index order starting from <code>0</code>.</li>
-      <li>When not provided, <code>("websocket", "polling")</code> will be used.</li>
-      <li>If the browser does not support <code>WebSocket</code> API, <code>"websocket"</code> transports will be ignored.</li>
-      </ul>
-      
-                                      </div>
-      
-                                  </li>
-                                  <li class="param">
-                                          <code class="param-name optional">[compressData=false]</code>
-                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean" class="crosslink external" target="_blank">Boolean</a></span>
-                                          <span class="flag optional" title="This parameter is optional.">optional</span>
-      
-                                      <div class="param-description">
-                                          <p>The flag if data sent should be compressed.</p>
-      
-                                      </div>
-      
-                                  </li>
-                                  <li class="param">
-                                          <code class="param-name">options</code>
-                                          <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
-      
-                                      <div class="param-description">
-                                          <p>The socket.io-client options configured for each socket.io-client transport type.</p>
-      <ul>
-      <li>The current default is <code>{ websocket: { reconnection: true, reconnectionAttempts: 2, reconnectionDelay: 5000, reconnectionDelayMax: 2000, randomizationFactor: 0.5, timeout: 20000 }, polling: { reconnection: true, reconnectionAttempts: 4, reconnectionDelay: 2000, reconnectionDelayMax: 1000, randomizationFactor: 0.5, timeout: 20000 } }</code></li>
-      </ul>
-      
-                                      </div>
-      
-                                          <ul class="params-list">
-                                              <li class="param">
-                                                      <code class="param-name">index</code>
-                                                      <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
-      
-                                                  <div class="param-description">
-                                                      @[exp] The socket options for the <code>&quot;index&quot;</code> socket.io-client transport type.
-      - <code>&quot;index&quot;</code> can be identified as: <code>&quot;websocket&quot;</code> (Websocket) or <code>&quot;polling&quot;</code> (Polling).
-                                                  </div>
-                                              </li>
-                                              <li class="param">
-                                                      <code class="param-name optional">[index.reconnection=true]</code>
-                                                      <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean" class="crosslink external" target="_blank">Boolean</a></span>
-                                                      <span class="flag optional" title="This parameter is optional.">optional</span>
-      
-                                                  <div class="param-description">
-                                                      The flag if socket connection should
-        reconnect several attempts for the current transport or port used before switching to the next
-        available transport or port available.
-                                                  </div>
-                                              </li>
-                                              <li class="param">
-                                                      <code class="param-name optional">[index.reconnectionAttempts]</code>
-                                                      <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number" class="crosslink external" target="_blank">Number</a></span>
-                                                      <span class="flag optional" title="This parameter is optional.">optional</span>
-      
-                                                  <div class="param-description">
-                                                      The reconnection attempts to take if
-        <code>options.options.index.reconnection</code> is enabled.
-      - The maximum value that can be provided is <code>5</code>.
-                                                  </div>
-                                              </li>
-                                              <li class="param">
-                                                      <code class="param-name optional">[index.reconnectionDelay]</code>
-                                                      <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number" class="crosslink external" target="_blank">Number</a></span>
-                                                      <span class="flag optional" title="This parameter is optional.">optional</span>
-      
-                                                  <div class="param-description">
-                                                      The number of miliseconds to wait before
-        starting the next reconnection attempt, which is affected by the <code>randomizationFactor</code> configured.
-                                                  </div>
-                                              </li>
-                                              <li class="param">
-                                                      <code class="param-name optional">[index.reconnectionDelayMax]</code>
-                                                      <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number" class="crosslink external" target="_blank">Number</a></span>
-                                                      <span class="flag optional" title="This parameter is optional.">optional</span>
-      
-                                                  <div class="param-description">
-                                                      The maximum number of miliseconds to wait
-        before starting the next reconnection attempt.
-                                                  </div>
-                                              </li>
-                                              <li class="param">
-                                                      <code class="param-name optional">[index.randomizationFactor]</code>
-                                                      <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number" class="crosslink external" target="_blank">Number</a></span>
-                                                      <span class="flag optional" title="This parameter is optional.">optional</span>
-      
-                                                  <div class="param-description">
-                                                      The randomization for each reconnection attempt.
-      - The range is from <code>0</code> to <code>1</code>.
-                                                  </div>
-                                              </li>
-                                              <li class="param">
-                                                      <code class="param-name optional">[index.timeout]</code>
-                                                      <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number" class="crosslink external" target="_blank">Number</a></span>
-                                                      <span class="flag optional" title="This parameter is optional.">optional</span>
-      
-                                                  <div class="param-description">
-                                                      The timeout in miliseconds to consider
-        that the inital connection has timed out.
-                                                  </div>
-                                              </li>
-                                          </ul>
-                                  </li>
-                              </ul>
-                      </li>
-                  </ul>
-              </div>
-      
-      
-      
-      </div>
-          </div>
-      
-      <div id="classdocs" class="tabview">
-          <ul class="api-class-tabs">
-              <li class="api-class-tab index"><a href="#index">Index</a></li>
-      
-                  <li class="api-class-tab methods"><a href="#methods">Methods</a></li>
-                  <li class="api-class-tab attrs"><a href="#attrs">Attributes</a></li>
-                  <li class="api-class-tab events"><a href="#events">Events</a></li>
-          </ul>
-      
-          <div>
-              <div id="index" class="api-class-tabpanel index">
-                  <h2 class="off-left">Item Index</h2>
-      
-                      <div class="index-section methods">
-                          <h3>Methods</h3>
-      
-                          <ul class="index-list methods">
-                                  <li class="index-item method">
-                                      <a href="#method_getStats">getStats</a>
-      
-                                  </li>
-                          </ul>
-                      </div>
-      
-      
-                      <div class="index-section attrs">
-                          <h3>Attributes</h3>
-      
-                          <ul class="index-list attrs">
-                                  <li class="index-item attr">
-                                      <a href="#attr_$current">$current</a>
-                                  </li>
-                                  <li class="index-item attr">
-                                      <a href="#attr_compressed">compressed</a>
-                                  </li>
-                                  <li class="index-item attr">
-                                      <a href="#attr_GET_STATS_STATE_ENUM">GET_STATS_STATE_ENUM</a>
-                                  </li>
-                                  <li class="index-item attr">
-                                      <a href="#attr_path">path</a>
-                                  </li>
-                                  <li class="index-item attr">
-                                      <a href="#attr_protocol">protocol</a>
-                                  </li>
-                                  <li class="index-item attr">
-                                      <a href="#attr_server">server</a>
-                                  </li>
-                                  <li class="index-item attr">
-                                      <a href="#attr_STATE_ENUM">STATE_ENUM</a>
-                                  </li>
-                          </ul>
-                      </div>
-      
-                      <div class="index-section events">
-                          <h3>Events</h3>
-      
-                          <ul class="index-list events">
-                                  <li class="index-item event">
-                                      <a href="#event_domError">domError</a>
-      
-                                  </li>
-                                  <li class="index-item event">
-                                      <a href="#event_getStatsStateChange">getStatsStateChange</a>
-      
-                                  </li>
-                                  <li class="index-item event">
-                                      <a href="#event_message">message</a>
-      
-                                  </li>
-                                  <li class="index-item event">
-                                      <a href="#event_response">response</a>
-      
-                                  </li>
-                                  <li class="index-item event">
-                                      <a href="#event_stateChange">stateChange</a>
-      
-                                  </li>
-                          </ul>
-                      </div>
-              </div>
-      
-                  <div id="methods" class="api-class-tabpanel">
-                      <h2 class="off-left">Methods</h2>
-      
-      <div id="method_getStats" class="method item">
-          <h3 class="name"><code>getStats</code></h3>
-      
-              <span class="paren">()</span>
-      
-              <span class="returns-inline">
-                  <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise" class="crosslink external" target="_blank">Promise</a></span>
+            </div>
+            <h3><var>.getStats</var> () <small>&#8594;&nbsp;&nbsp;
+              <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise" class="crosslink external" target="_blank">Promise</a></small></h3>
+            <!--<p class="doc-supports">
+              <span class="when">When <var>"type"</var> is <code>true</code>.</span>
+              <span class="supports">
+                <em class="title">Supports:</em>
+                <em><i class="fa fa-chrome"></i> 55</em>
+                <em><i class="fa fa-firefox"></i> 48</em>
+                <em><i class="fa fa-opera"></i> 37</em>
+                <em><i class="fa fa-safari"></i> 7 (0.8.870)</em>
+                <em><i class="fa fa-internet-explorer"></i> 11 (0.8.870)</em>
+                <em><i class="fa fa-edge"></i> 13.457</em>
+                <em><i class="fa fa-android"></i> 8</em>
+                <em><i class="fa fa-globe"></i> 0.6.1</em>
               </span>
-      
-      
-      
-      
-      
-      
-      
-          <div class="meta">
-                      <p>
-                      Defined in
-              <a href="../files/source_components_socket.js.html#l295"><code>source&#x2F;components&#x2F;socket.js:295</code></a>
-              </p>
-      
-      
-      
-                  <p>Available since 0.7.0</p>
-          </div>
-      
-          <div class="description">
-              <p>Function to retrieve Socket connection stats.</p>
-      
-          </div>
-      
-      
-              <div class="returns">
-                  <h4>Returns:</h4>
-      
-                  <div class="returns-description">
-                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise" class="crosslink external" target="_blank">Promise</a></span>:
-                          <p>The Promise for function request completion.</p>
-      
-                  </div>
+            </p>-->
+            <p>Function to retrieve Socket connection stats.</p>
+          
+            <!-- Parameters -->
+            <h5>Parameters</h5>
+              <p>None</p>
+            <!-- Returns -->
+            <h5>Returns</h5>
+              
+          </article>
+          <!--
+          <div id="method_getStats" class="method item">
+              <h3 class="name"><code>getStats</code></h3>
+          
+                  <span class="paren">()</span>
+          
+                  <span class="returns-inline">
+                      <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise" class="crosslink external" target="_blank">Promise</a></span>
+                  </span>
+          
+          
+          
+          
+          
+          
+          
+              <div class="meta">
+                          <p>
+                          Defined in
+                  <a href="../files/source_components_socket.js.html#l295"><code>source&#x2F;components&#x2F;socket.js:295</code></a>
+                  </p>
+          
+          
+          
+                      <p>Available since 0.7.0</p>
               </div>
-      
-      
-              <div class="example">
-                  <h4>Example:</h4>
-      
-                  <div class="example-content">
-                      <p>socket.getStats().then(function (stats) {
-      console.log("Received stats -&gt;", stats);
-      }).catch(function (error) {
-      console.error("Received error -&gt;", error);
-      });</p>
-      
-                  </div>
+          
+              <div class="description">
+                  <p>Function to retrieve Socket connection stats.</p>
+          
               </div>
-      </div>
+          
+          
+                  <div class="returns">
+                      <h4>Returns:</h4>
+          
+                      <div class="returns-description">
+                                  <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise" class="crosslink external" target="_blank">Promise</a></span>:
+                              <p>The Promise for function request completion.</p>
+          
+                      </div>
                   </div>
-      
-      
-                  <div id="attrs" class="api-class-tabpanel">
-                      <h2 class="off-left">Attributes</h2>
-      
-                          <div id="attr_$current" class="attr item">
-                              <a name="config_$current"></a> 
-                              <h3 class="name"><code>$current</code></h3>
-                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
-                          
-                          
-                          
-                          
-                          
-                          
-                          
-                                  <span class="flag readonly">readonly</span>
-                          
-                              <div class="meta">
-                                          <p>
-                                          Defined in
-                                  <a href="../files/source_components_socket.js.html#l89"><code>source&#x2F;components&#x2F;socket.js:89</code></a>
-                                  </p>
-                          
-                          
-                                      <p>Available since 0.7.0</p>
-                              </div>
-                          
-                              <div class="description">
-                                  <p>The Socket current states.</p>
-                          
-                              </div>
-                          
-                          
-                          
-                          </div>
-                          <div id="attr_compressed" class="attr item">
-                              <a name="config_compressed"></a> 
-                              <h3 class="name"><code>compressed</code></h3>
-                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean" class="crosslink external" target="_blank">Boolean</a></span>
-                          
-                          
-                          
-                          
-                          
-                          
-                          
-                                  <span class="flag readonly">readonly</span>
-                          
-                              <div class="meta">
-                                          <p>
-                                          Defined in
-                                  <a href="../files/source_components_socket.js.html#l79"><code>source&#x2F;components&#x2F;socket.js:79</code></a>
-                                  </p>
-                          
-                          
-                                      <p>Available since 0.7.0</p>
-                              </div>
-                          
-                              <div class="description">
-                                  <p>The flag if Socket data sent is compressed.</p>
-                          
-                              </div>
-                          
-                          
-                          
-                          </div>
-                          <div id="attr_GET_STATS_STATE_ENUM" class="attr item">
-                              <a name="config_GET_STATS_STATE_ENUM"></a> 
-                              <h3 class="name"><code>GET_STATS_STATE_ENUM</code></h3>
-                              <span class="type"></span>
-                          
-                          
-                          
-                                  <span class="flag final">final</span>
-                          
-                          
-                          
-                          
-                                  <span class="flag readonly">readonly</span>
-                          
-                              <div class="meta">
-                                          <p>
-                                          Defined in
-                                  <a href="../files/source_components_socket.js.html#l278"><code>source&#x2F;components&#x2F;socket.js:278</code></a>
-                                  </p>
-                          
-                          
-                                      <p>Available since 0.7.0</p>
-                              </div>
-                          
-                              <div class="description">
-                                  <p>The enum of <a href="../classes/Temasys.Socket.html#method_getStats" class="crosslink">getStats</a> states.</p>
-                          
-                              </div>
-                          
-                          
-                          
-                          </div>
-                          <div id="attr_path" class="attr item">
-                              <a name="config_path"></a> 
-                              <h3 class="name"><code>path</code></h3>
-                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
-                          
-                          
-                          
-                          
-                          
-                          
-                          
-                                  <span class="flag readonly">readonly</span>
-                          
-                              <div class="meta">
-                                          <p>
-                                          Defined in
-                                  <a href="../files/source_components_socket.js.html#l58"><code>source&#x2F;components&#x2F;socket.js:58</code></a>
-                                  </p>
-                          
-                          
-                                      <p>Available since 0.7.0</p>
-                              </div>
-                          
-                              <div class="description">
-                                  <p>The Socket path.</p>
-                          
-                              </div>
-                          
-                          
-                          
-                          </div>
-                          <div id="attr_protocol" class="attr item">
-                              <a name="config_protocol"></a> 
-                              <h3 class="name"><code>protocol</code></h3>
-                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
-                          
-                          
-                          
-                          
-                          
-                          
-                          
-                                  <span class="flag readonly">readonly</span>
-                          
-                              <div class="meta">
-                                          <p>
-                                          Defined in
-                                  <a href="../files/source_components_socket.js.html#l68"><code>source&#x2F;components&#x2F;socket.js:68</code></a>
-                                  </p>
-                          
-                          
-                                      <p>Available since 0.7.0</p>
-                              </div>
-                          
-                              <div class="description">
-                                  <p>The Socket protocol.</p>
-                          
-                              </div>
-                          
-                          
-                          
-                          </div>
-                          <div id="attr_server" class="attr item">
-                              <a name="config_server"></a> 
-                              <h3 class="name"><code>server</code></h3>
-                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
-                          
-                          
-                          
-                          
-                          
-                          
-                          
-                                  <span class="flag readonly">readonly</span>
-                          
-                              <div class="meta">
-                                          <p>
-                                          Defined in
-                                  <a href="../files/source_components_socket.js.html#l46"><code>source&#x2F;components&#x2F;socket.js:46</code></a>
-                                  </p>
-                          
-                          
-                                      <p>Available since 0.7.0</p>
-                              </div>
-                          
-                              <div class="description">
-                                  <p>The Socket server domain.</p>
-                          
-                              </div>
-                          
-                          
-                          
-                          </div>
-                          <div id="attr_STATE_ENUM" class="attr item">
-                              <a name="config_STATE_ENUM"></a> 
-                              <h3 class="name"><code>STATE_ENUM</code></h3>
-                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
-                          
-                          
-                          
-                                  <span class="flag final">final</span>
-                          
-                          
-                          
-                          
-                                  <span class="flag readonly">readonly</span>
-                          
-                              <div class="meta">
-                                          <p>
-                                          Defined in
-                                  <a href="../files/source_components_socket.js.html#l238"><code>source&#x2F;components&#x2F;socket.js:238</code></a>
-                                  </p>
-                          
-                          
-                                      <p>Available since 0.7.0</p>
-                              </div>
-                          
-                              <div class="description">
-                                  <p>The enum of Socket connection states.</p>
-                          
-                              </div>
-                          
-                          
-                          
-                          </div>
+          
+          
+                  <div class="example">
+                      <h4>Example:</h4>
+          
+                      <div class="example-content">
+                          <p>socket.getStats().then(function (stats) {
+          console.log("Received stats -&gt;", stats);
+          }).catch(function (error) {
+          console.error("Received error -&gt;", error);
+          });</p>
+          
+                      </div>
                   </div>
-      
-                  <div id="events" class="api-class-tabpanel">
-                      <h2 class="off-left">Events</h2>
-      
-                          <div id="event_domError" class="events item">
-                              <h3 class="name"><code>domError</code></h3>
-                              <span class="type"></span>
-                          
-                          
-                          
-                          
-                          
-                              <div class="meta">
-                                          <p>
-                                          Defined in
-                                  <a href="../files/source_components_socket.js.html#l220"><code>source&#x2F;components&#x2F;socket.js:220</code></a>
-                                  </p>
-                          
-                          
-                                      <p>Available since 0.7.0</p>
-                              </div>
-                          
-                              <div class="description">
-                                  <p>Event triggered when there are exceptions thrown in this event handlers.</p>
-                          
-                              </div>
-                          
-                                  <div class="params">
-                                      <h4>Event Payload:</h4>
-                          
-                                      <ul class="params-list">
-                                          <li class="param">
-                                                  <code class="param-name">error</code>
-                                                  <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error" class="crosslink external" target="_blank">Error</a></span>
-                          
-                          
-                                              <div class="param-description">
-                                                  <p>The error object.</p>
-                          
-                                              </div>
-                          
-                                          </li>
-                                      </ul>
-                                  </div>
-                          
-                          
-                          </div>
-                          <div id="event_getStatsStateChange" class="events item">
-                              <h3 class="name"><code>getStatsStateChange</code></h3>
-                              <span class="type"></span>
-                          
-                          
-                          
-                          
-                          
-                              <div class="meta">
-                                          <p>
-                                          Defined in
-                                  <a href="../files/source_components_socket.js.html#l192"><code>source&#x2F;components&#x2F;socket.js:192</code></a>
-                                  </p>
-                          
-                          
-                                      <p>Available since 0.7.0</p>
-                              </div>
-                          
-                              <div class="description">
-                                  <p>Event triggered when <a href="../classes/Temasys.Socket.html#method_getStats" class="crosslink">getStats</a> state has changed.</p>
-                          
-                              </div>
-                          
-                                  <div class="params">
-                                      <h4>Event Payload:</h4>
-                          
-                                      <ul class="params-list">
-                                          <li class="param">
-                                                  <code class="param-name">state</code>
-                                                  <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
-                          
-                          
-                                              <div class="param-description">
-                                                  <p>The current stats retrieval state.</p>
-                          <ul>
-                          <li>See <a href="../classes/Temasys.Socket.html#attr_GET_STATS_STATE_ENUM" class="crosslink">GET_STATS_STATE_ENUM</a> for reference.</li>
-                          </ul>
-                          
-                                              </div>
-                          
-                                          </li>
-                                          <li class="param">
-                                                  <code class="param-name optional">[stats]</code>
-                                                  <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
-                                                  <span class="flag optional" title="This parameter is optional.">optional</span>
-                          
-                          
-                                              <div class="param-description">
-                                                  <p>The stats.</p>
-                          <ul>
-                          <li>This is defined when <code>state</code> is <code>SUCCESS</code>.</li>
-                          </ul>
-                          
-                                              </div>
-                          
-                                                  <ul class="params-list">
-                                                      <li class="param">
-                                                              <code class="param-name">id</code>
-                                                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
-                          
-                                                          <div class="param-description">
-                                                              <p>The Socket connection socket.io-client ID.</p>
-                          
-                                                          </div>
-                          
-                                                      </li>
-                                                      <li class="param">
-                                                              <code class="param-name">messages</code>
-                                                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
-                          
-                                                          <div class="param-description">
-                                                              <p>The messages stats.</p>
-                          
-                                                          </div>
-                          
-                                                              <ul class="params-list">
-                                                                  <li class="param">
-                                                                      <code class="param-name">sent</code>
-                                                                      <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number" class="crosslink external" target="_blank">Number</a></span>
-                          
-                                                                      <div class="param-description">
-                                                                          The number of messages sent from this Socket connection.
-                                                                      </div>
-                                                                  </li>
-                                                                  <li class="param">
-                                                                      <code class="param-name">received</code>
-                                                                      <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number" class="crosslink external" target="_blank">Number</a></span>
-                          
-                                                                      <div class="param-description">
-                                                                          The number of messages received from this Socket connection.
-                                                                      </div>
-                                                                  </li>
-                                                                  <li class="param">
-                                                                      <code class="param-name">buffered</code>
-                                                                      <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number" class="crosslink external" target="_blank">Number</a></span>
-                          
-                                                                      <div class="param-description">
-                                                                          The current number of messages buffered for this Socket connection to be sent.
-                                                                      </div>
-                                                                  </li>
-                                                              </ul>
-                                                      </li>
-                                                      <li class="param">
-                                                              <code class="param-name">responses</code>
-                                                              <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
-                          
-                                                          <div class="param-description">
-                                                              <p>The responses stats.</p>
-                          
-                                                          </div>
-                          
-                                                              <ul class="params-list">
-                                                                  <li class="param">
-                                                                      <code class="param-name">ping</code>
-                                                                      <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
-                          
-                                                                      <div class="param-description">
-                                                                          The responses stats for "ping" response.
-                                                                      </div>
-                                                                  </li>
-                                                                  <li class="param">
-                                                                      <code class="param-name">ping.sent</code>
-                                                                      <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number" class="crosslink external" target="_blank">Number</a></span>
-                          
-                                                                      <div class="param-description">
-                                                                          The total number of "ping" response sent from this Socket connection.
-                                                                      </div>
-                                                                  </li>
-                                                                  <li class="param">
-                                                                      <code class="param-name">ping.timestamp</code>
-                                                                      <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
-                          
-                                                                      <div class="param-description">
-                                                                          The latest timestamp of the "ping" response sent.
-                                                                      </div>
-                                                                  </li>
-                                                                  <li class="param">
-                                                                      <code class="param-name">pong</code>
-                                                                      <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
-                          
-                                                                      <div class="param-description">
-                                                                          The response stats for "pong" response.
-                                                                      </div>
-                                                                  </li>
-                                                                  <li class="param">
-                                                                      <code class="param-name">pong.received</code>
-                                                                      <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number" class="crosslink external" target="_blank">Number</a></span>
-                          
-                                                                      <div class="param-description">
-                                                                          The total number of "pong" response received from this Socket connection.
-                                                                      </div>
-                                                                  </li>
-                                                                  <li class="param">
-                                                                      <code class="param-name">pong.timestamp</code>
-                                                                      <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
-                          
-                                                                      <div class="param-description">
-                                                                          The latest timestamp of the "pong" response received.
-                                                                      </div>
-                                                                  </li>
-                                                                  <li class="param">
-                                                                      <code class="param-name">latency</code>
-                                                                      <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
-                          
-                                                                      <div class="param-description">
-                                                                          The response latency.
-                                                                      </div>
-                                                                  </li>
-                                                                  <li class="param">
-                                                                      <code class="param-name">latency.average</code>
-                                                                      <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number" class="crosslink external" target="_blank">Number</a></span>
-                          
-                                                                      <div class="param-description">
-                                                                          The average response latency in miliseconds.
-                                                                      </div>
-                                                                  </li>
-                                                                  <li class="param">
-                                                                      <code class="param-name">latency.lowest</code>
-                                                                      <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number" class="crosslink external" target="_blank">Number</a></span>
-                          
-                                                                      <div class="param-description">
-                                                                          The lowest response latency in miliseconds.
-                                                                      </div>
-                                                                  </li>
-                                                                  <li class="param">
-                                                                      <code class="param-name">latency.highest</code>
-                                                                      <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number" class="crosslink external" target="_blank">Number</a></span>
-                          
-                                                                      <div class="param-description">
-                                                                          The highest response latency in miliseconds.
-                                                                      </div>
-                                                                  </li>
-                                                              </ul>
-                                                      </li>
-                                                  </ul>
-                                          </li>
-                                          <li class="param">
-                                                  <code class="param-name optional">[error]</code>
-                                                  <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error" class="crosslink external" target="_blank">Error</a></span>
-                                                  <span class="flag optional" title="This parameter is optional.">optional</span>
-                          
-                          
-                                              <div class="param-description">
-                                                  <p>The error object.</p>
-                          <ul>
-                          <li>This is defined when <code>state</code> is <code>FAILED</code>.</li>
-                          </ul>
-                          
-                                              </div>
-                          
-                                          </li>
-                                      </ul>
-                                  </div>
-                          
-                          
-                          </div>
-                          <div id="event_message" class="events item">
-                              <h3 class="name"><code>message</code></h3>
-                              <span class="type"></span>
-                          
-                          
-                          
-                          
-                          
-                              <div class="meta">
-                                          <p>
-                                          Defined in
-                                  <a href="../files/source_components_socket.js.html#l182"><code>source&#x2F;components&#x2F;socket.js:182</code></a>
-                                  </p>
-                          
-                          
-                                      <p>Available since 0.7.0</p>
-                              </div>
-                          
-                              <div class="description">
-                                  <p>Event triggered when Socket connection sends or receives a message.</p>
-                          
-                              </div>
-                          
-                                  <div class="params">
-                                      <h4>Event Payload:</h4>
-                          
-                                      <ul class="params-list">
-                                          <li class="param">
-                                                  <code class="param-name">message</code>
-                                                  <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" class="crosslink external" target="_blank">JSON</a></span>
-                          
-                          
-                                              <div class="param-description">
-                                                  <p>The message.</p>
-                          
-                                              </div>
-                          
-                                          </li>
-                                          <li class="param">
-                                                  <code class="param-name">isSelf</code>
-                                                  <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean" class="crosslink external" target="_blank">Boolean</a></span>
-                          
-                          
-                                              <div class="param-description">
-                                                  <p>The flag if message is from self.</p>
-                          
-                                              </div>
-                          
-                                          </li>
-                                          <li class="param">
-                                                  <code class="param-name optional">[error]</code>
-                                                  <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error" class="crosslink external" target="_blank">Error</a></span>
-                                                  <span class="flag optional" title="This parameter is optional.">optional</span>
-                          
-                          
-                                              <div class="param-description">
-                                                  <p>The error object.</p>
-                          <ul>
-                          <li>This is defined when message failed to send or parse received message.</li>
-                          </ul>
-                          
-                                              </div>
-                          
-                                          </li>
-                                      </ul>
-                                  </div>
-                          
-                          
-                          </div>
-                          <div id="event_response" class="events item">
-                              <h3 class="name"><code>response</code></h3>
-                              <span class="type"></span>
-                          
-                          
-                          
-                          
-                          
-                              <div class="meta">
-                                          <p>
-                                          Defined in
-                                  <a href="../files/source_components_socket.js.html#l171"><code>source&#x2F;components&#x2F;socket.js:171</code></a>
-                                  </p>
-                          
-                          
-                                      <p>Available since 0.7.0</p>
-                              </div>
-                          
-                              <div class="description">
-                                  <p>Event triggered when Socket connection sends or receives Signaling server keep-alive responses.</p>
-                          
-                              </div>
-                          
-                                  <div class="params">
-                                      <h4>Event Payload:</h4>
-                          
-                                      <ul class="params-list">
-                                          <li class="param">
-                                                  <code class="param-name">timestamp</code>
-                                                  <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number" class="crosslink external" target="_blank">Number</a></span>
-                          
-                          
-                                              <div class="param-description">
-                                                  <p>The timestamp in miliseconds when response is sent or received.</p>
-                          
-                                              </div>
-                          
-                                          </li>
-                                          <li class="param">
-                                                  <code class="param-name">isSelf</code>
-                                                  <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean" class="crosslink external" target="_blank">Boolean</a></span>
-                          
-                          
-                                              <div class="param-description">
-                                                  <p>The flag if response is from self.</p>
-                          
-                                              </div>
-                          
-                                          </li>
-                                          <li class="param">
-                                                  <code class="param-name optional">[latency]</code>
-                                                  <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number" class="crosslink external" target="_blank">Number</a></span>
-                                                  <span class="flag optional" title="This parameter is optional.">optional</span>
-                          
-                          
-                                              <div class="param-description">
-                                                  <p>The current latency in miliseconds from receiving "pong"
-                          response from Signaling server after sending a "ping".</p>
-                          <ul>
-                          <li>This is defined when <code>isSelf</code> is <code>false</code>.</li>
-                          </ul>
-                          
-                                              </div>
-                          
-                                          </li>
-                                      </ul>
-                                  </div>
-                          
-                          
-                          </div>
-                          <div id="event_stateChange" class="events item">
-                              <h3 class="name"><code>stateChange</code></h3>
-                              <span class="type"></span>
-                          
-                          
-                          
-                          
-                          
-                              <div class="meta">
-                                          <p>
-                                          Defined in
-                                  <a href="../files/source_components_socket.js.html#l157"><code>source&#x2F;components&#x2F;socket.js:157</code></a>
-                                  </p>
-                          
-                          
-                                      <p>Available since 0.7.0</p>
-                              </div>
-                          
-                              <div class="description">
-                                  <p>Event triggered when Socket connection state has been changed.</p>
-                          
-                              </div>
-                          
-                                  <div class="params">
-                                      <h4>Event Payload:</h4>
-                          
-                                      <ul class="params-list">
-                                          <li class="param">
-                                                  <code class="param-name">state</code>
-                                                  <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
-                          
-                          
-                                              <div class="param-description">
-                                                  <p>The current Socket connection state.</p>
-                          <ul>
-                          <li>See <a href="../classes/Temasys.Socket.html#attr_STATE_ENUM" class="crosslink">STATE_ENUM</a> for reference.</li>
-                          </ul>
-                          
-                                              </div>
-                          
-                                          </li>
-                                          <li class="param">
-                                                  <code class="param-name">error</code>
-                                                  <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error" class="crosslink external" target="_blank">Error</a></span>
-                          
-                          
-                                              <div class="param-description">
-                                                  <p>The error object.</p>
-                          <ul>
-                          <li>This is defined when <code>state</code> is <code>STATE_ENUM.RECONNECT_FAILED</code>,
-                          <code>STATE_ENUM.CONNECT_ERROR</code> and <code>STATE_ENUM.CONNECT_TIMEOUT</code>.</li>
-                          </ul>
-                          
-                                              </div>
-                          
-                                          </li>
-                                          <li class="param">
-                                                  <code class="param-name">attempt</code>
-                                                  <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number" class="crosslink external" target="_blank">Number</a></span>
-                          
-                          
-                                              <div class="param-description">
-                                                  <p>The reconnection attempt.</p>
-                          
-                                              </div>
-                          
-                                          </li>
-                                          <li class="param">
-                                                  <code class="param-name">port</code>
-                                                  <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number" class="crosslink external" target="_blank">Number</a></span>
-                          
-                          
-                                              <div class="param-description">
-                                                  <p>The port used for the reconnection attempt.</p>
-                          
-                                              </div>
-                          
-                                          </li>
-                                          <li class="param">
-                                                  <code class="param-name">transport</code>
-                                                  <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number" class="crosslink external" target="_blank">Number</a></span>
-                          
-                          
-                                              <div class="param-description">
-                                                  <p>The transport used for the reconnection attempt.</p>
-                          
-                                              </div>
-                          
-                                          </li>
-                                      </ul>
-                                  </div>
-                          
-                          
-                          </div>
-                  </div>
-          </div>
-      </div>
+          </div>-->
+      </section>
       </div>    </div>
    </section>
 </body>

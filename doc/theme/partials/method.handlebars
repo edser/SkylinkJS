@@ -1,3 +1,79 @@
+<article id="method_{{name}}">
+  <div class="doc-type">
+    <div class="doc-type-wrapper">
+      {{#if async}}<span class="label primary"><i class="fa fa-exchange"></i> async</span>{{/if}}
+      {{#if deprecated}}<span class="label danger"><i class="fa fa-exclamation-triangle"></i> deprecated</span>{{/if}}
+      {{#if beta}}<span class="label info"><i class="fa fa-flask"></i> beta</span>{{/if}}
+      {{#if optional}}<span class="label default"><i class="fa fa-puzzle-piece"></i> optional</span>{{/if}}
+      {{#if final}}<span class="label warning"><i class="fa fa-gavel"></i> final</span>{{/if}}
+      <span class="version">Since {{#if since}}{{since}}{{else}}-{{/if}}</span>
+      <span class="type">Method</span>
+      <span class="definedat">Defined at: <a href="{{foundAt}}"><var>{{{file}}}:{{{line}}}</var></a></span>
+    </div>
+  </div>
+  <h3><var>.{{name}}</var> {{#tableItemParams params}}{{/tableItemParams}} <small>&#8594;&nbsp;&nbsp;
+    {{#if return}}{{#crossLink returnType}}{{/crossLink}}{{else}}None{{/if}}</small></h3>
+  <!--<p class="doc-supports">
+    <span class="when">When <var>"type"</var> is <code>true</code>.</span>
+    <span class="supports">
+      <em class="title">Supports:</em>
+      <em><i class="fa fa-chrome"></i> 55</em>
+      <em><i class="fa fa-firefox"></i> 48</em>
+      <em><i class="fa fa-opera"></i> 37</em>
+      <em><i class="fa fa-safari"></i> 7 (0.8.870)</em>
+      <em><i class="fa fa-internet-explorer"></i> 11 (0.8.870)</em>
+      <em><i class="fa fa-edge"></i> 13.457</em>
+      <em><i class="fa fa-android"></i> 8</em>
+      <em><i class="fa fa-globe"></i> 0.6.1</em>
+    </span>
+  </p>-->
+  {{{description}}}
+  <!-- Parameters -->
+  <h5>Parameters</h5>
+  {{#if params}}
+    <ul class="doc-params">{{#params}}
+      <li>
+        <p class="name">
+          <var><b>{{name}}</b> - {{#crossLink type}}{{/crossLink}}</var>
+          {{#if optdefault}}<span class="name-default">Default: <code>{{optdefault}}</code></span>{{/if}}
+          {{#if optional}}<span class="label default"><i class="fa fa-puzzle-piece"></i> optional</span>{{/if}}
+          <!--<span class="label primary"><i class="fa fa-exchange"></i> async</span>
+            <span class="label danger"><i class="fa fa-exclamation-triangle"></i> deprecated</span>
+            <span class="label info"><i class="fa fa-flask"></i> beta</span>
+            <span class="label warning"><i class="fa fa-gavel"></i> final</span>-->
+        </p>
+        <p class="desc">{{{description}}}</p>
+        <!-- Sub-parameters -->
+        {{#if props}}
+          <ul class="doc-params">{{#props}}
+            <li>
+              <p class="name">
+                <var><b>{{name}}</b> - {{#crossLink type}}{{/crossLink}}</var>
+                {{#if optdefault}}<span class="name-default">Default: <code>{{optdefault}}</code></span>{{/if}}
+                {{#if optional}}<span class="label default"><i class="fa fa-puzzle-piece"></i> optional</span>{{/if}}
+                <!--<span class="label primary"><i class="fa fa-exchange"></i> async</span>
+                    <span class="label danger"><i class="fa fa-exclamation-triangle"></i> deprecated</span>
+                    <span class="label info"><i class="fa fa-flask"></i> beta</span>
+                    <span class="label warning"><i class="fa fa-gavel"></i> final</span>-->
+              </p>
+              <p class="desc">{{{description}}}</p>
+            </li>
+          {{/props}}</ul>
+        {{/if}}
+        </li>
+    {{/params}}</ul>
+  {{else}}
+    <p>None</p>
+  {{/if}}
+  <!-- Returns -->
+  <h5>Returns</h5>
+  {{#if return}}
+    {{#test return}}{{/test}}
+  {{else}}
+    <p>None</p>
+  {{/if}}
+</article>
+<!--
 <div id="method_{{name}}" class="method item{{#if access}} {{access}}{{/if}}{{#if deprecated}} deprecated{{/if}}{{#if extended_from}} inherited{{/if}}">
     <h3 class="name"><code>{{name}}</code></h3>
 
@@ -209,4 +285,4 @@
             </div>
         </div>
     {{/example}}
-</div>
+</div>-->

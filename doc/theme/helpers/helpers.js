@@ -59,5 +59,49 @@ module.exports = {
 			outputStr += '</li>';
 		}
 		return outputStr;
+	},
+
+	/**
+	 * Renders the header.
+	 * @template header
+	 * @for classes.handlebars
+	 */
+	header: function (name) {
+		return '<h1><var>' + name + '</var> ' + (['Temasys.Utils', 'SkylinkLogs'].indexOf(
+			name) > -1 ? 'module' : 'class') + '</h1>';
+	},
+
+	/**
+	 * Renders the table item description.
+	 * @template tableItemDescription
+	 * @for classes.handlebars
+	 */
+	tableItemDescription: function (desc) {
+		var paragraph = desc.toString().match(/<p>.*<\/p>/gi);
+		if (Array.isArray(paragraph) && paragraph[0]) {
+			return paragraph[0].replace(/<(p|\/p)>/gi, '');
+		}
+		return '';
+	},
+
+	/**
+	 * Renders the table item params.
+	 * @template tableItemParams
+	 * @for classes.handlebars
+	 */
+	tableItemParams: function (params) {
+		if (!(Array.isArray(params))) {
+			return '()';
+		}
+		var outputStr = '';
+		for (var i = 0; i < params.length; i++) {
+			if (params[i].name === 'returns') {
+				continue;
+			}
+			outputStr += '<code>' + (params[i].optional ? '[' : '') + params[i].name +
+				(params[i].optional ? ']' : '') + '</code>' + (i !== (params.length - 1) &&
+				!(params[i + 1] && params[i + 1].name === 'returns') ? ', ' : '');
+		}
+		return '(' + outputStr + ')';
 	}
 };

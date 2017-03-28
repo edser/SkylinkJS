@@ -1,0 +1,95 @@
+<h1>Integrating to Your Site - Setting up some code examples</h1>
+<article class="_first">
+  <h3>Starting a Video Call</h3>
+  <h4>Using <code>Temasys</code> module:</h4>
+  <pre class="prettyprint"></pre>
+  <h4>Using <code>Skylink</code> (deprecated) class:</h4>
+  <pre class="prettyprint">
+  var skylink = new Skylink();
+
+  skylink.on("incomingStream", function (peerId, stream, isSelf) {
+    var videoDOM = document.getElementById(peerId);
+    if (!videoDOM) {
+      videoDOM = document.createElement("video");
+      videoDOM.id = peerId;
+      videoDOM.autoplay = true;
+      videoDOM.muted = isSelf;
+      document.getElementById("videolist").append(videoDOM);
+    }
+    attachMediaStream(stream, videoDOM);
+  });
+
+  skylink.init({
+    appKey: appKey,
+    defaultRoom: roomName,
+    audioFallback: audioFallback,
+    credentials: { // If hash authentication
+      credentials: hash,
+      startDateTime: startDateTimeStamp,
+      duration: duration
+    }
+  }, function (err) {
+    if (err) return;
+    skylink.joinRoom({ audio: true, video: true });
+  });
+  </pre>
+</article>
+<article>
+  <h3>Adding chat functionality</h3>
+  <h4>Using <code>Temasys</code> module:</h4>
+  <pre class="prettyprint"></pre>
+  <h4>Using <code>Skylink</code> (deprecated) class:</h4>
+  <pre class="prettyprint">
+  skylink.on("incomingMessage", function (message, peerId, isSelf) {
+    document.getElementById("chatmessage").innerHTML += (isSelf ? "Me" : peerId) + ": " + message.content;
+  });
+
+  function chatMessage (message) {
+    skylink.sendMessage(message);
+  }
+  </pre>
+</article>
+<article>
+  <h3>Adding file transfer functionality</h3>
+  <h4>Using <code>Temasys</code> module:</h4>
+  <pre class="prettyprint"></pre>
+  <h4>Using <code>Skylink</code> (deprecated) class:</h4>
+  <pre class="prettyprint">
+  document.getElementById("filetransfers").innerHTML = "";
+
+  skylink.on("incomingData", function (data, transferId, transferInfo, isSelf) {
+    if (isSelf) return;
+    document.getElementById("filetransfers").innerHTML += "&lt;a href='" + URL.createObjectURL(data) +
+      "' download='" + transferInfo.name + "'&gt;Download&lt;/a&gt;";
+  });
+
+  function sendFile (file) {
+    skylink.sendBlob(file);
+  }
+  </pre>
+</article>
+<article>
+  <h3>Adding screensharing functionality</h3>
+  <h4>Using <code>Temasys</code> module:</h4>
+  <pre class="prettyprint"></pre>
+  <h4>Using <code>Skylink</code> (deprecated) class:</h4>
+  <pre class="prettyprint">
+  var isScreensharing = false;
+  var inProgress = false;
+  function shareScreen () {
+    if (inProgress) return;
+    inProgress = true;
+    if (!isScreensharing) {
+      skylink.shareScreen(true, function (err) {
+        if (err) return;
+        inProgress = false;
+        isScreensharing = true;
+      });
+    } else {
+      skylink.stopScreen();
+      inProgress = false;
+      isScreensharing = false;
+    }
+  }
+  </pre>
+</article>

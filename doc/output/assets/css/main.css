@@ -225,7 +225,7 @@ navbar.top ul.menu li a:hover {
   bottom: 0;
   top: 45px;
   display: block;
-  /*overflow: hidden;*/
+  overflow: hidden;
 }
 
 .container .container-wrapper {
@@ -450,9 +450,23 @@ navbar.side ul .section li:last-child a {
   background: #eee;
 }
 
+.container .container-wrapper .body .body-wrapper .doc article table tr td a {
+  color: #686868;
+}
+
 .container .container-wrapper .body .body-wrapper .doc h3 small {
   color: #80c5dc;
   margin-left: 5px;
+}
+
+.container .container-wrapper .body .body-wrapper .doc h3 small a {
+  color: #80c5dc;
+}
+
+.container .container-wrapper .body .body-wrapper .doc h3 code {
+  color: #008CBA;
+  background: none;
+  font-size: 17px;
 }
 
 .container .container-wrapper .body .body-wrapper .doc h5 {
@@ -552,23 +566,47 @@ navbar.side ul .section li:last-child a {
   margin-right: 2px;
 }
 
-.container .container-wrapper .body .body-wrapper .doc article .doc-params li {
-  color: #444;
+.container .container-wrapper .body .body-wrapper .doc article .doc-params {
+  padding-left: 25px!important;
 }
 
-.container .container-wrapper .body .body-wrapper .doc article .doc-params li p {
+.container .container-wrapper .body .body-wrapper .doc article .doc-params li ul {
+  padding-left: 0;
+}
+
+.container .container-wrapper .body .body-wrapper .doc article .doc-params li ul li {
+  color: #888;
+  list-style-type: none;
+  font-size: 13px;
+}
+
+.container .container-wrapper .body .body-wrapper .doc article .doc-params li ul li:before {
+  content: "→ ";
+}
+
+.container .container-wrapper .body .body-wrapper .doc article .doc-params > li {
+  color: #444!important;
+  list-style-type: circle!important;
+  font-size: 15px!important;
+}
+
+.container .container-wrapper .body .body-wrapper .doc article .doc-params > li:before {
+  content: ""!important;
+}
+
+.container .container-wrapper .body .body-wrapper .doc article .doc-params > li > p {
   margin: 5px 0;
 }
 
-.container .container-wrapper .body .body-wrapper .doc article .doc-params li p.name {
+.container .container-wrapper .body .body-wrapper .doc article .doc-params > li > p.name {
   font-size: 15px;
 }
 
-.container .container-wrapper .body .body-wrapper .doc article .doc-params li p.desc {
+.container .container-wrapper .body .body-wrapper .doc article .doc-params > li > p.desc {
   font-size: 14px;
 }
 
-.container .container-wrapper .body .body-wrapper .doc article .doc-params li p.name .name-default {
+.container .container-wrapper .body .body-wrapper .doc article .doc-params > li > p.name .name-default {
   margin-left: 12px;
   padding-left: 12px;
   border-left: solid 1px #eee;
@@ -582,6 +620,14 @@ navbar.side ul .section li:last-child a {
 .container .container-wrapper .body .body-wrapper .doc article .doc-params li p.name .label {
   color: #fff;
   margin: 0 0 0 5px;
+}
+
+.container .container-wrapper .body .body-wrapper .doc article .doc-params a {
+  color: #aaa;
+}
+
+.container .container-wrapper .body .body-wrapper .doc article .doc-params .doc-params {
+  margin-top: 15px;
 }
 
 .container .container-wrapper .body .body-wrapper .demos {}
