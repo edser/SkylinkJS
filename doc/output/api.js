@@ -6,6 +6,7 @@ YUI.add("yuidoc-meta", function(Y) {
         "Socket",
         "Temasys",
         "Temasys.Datachannel",
+        "Temasys.Datatransfer",
         "Temasys.Peer",
         "Temasys.Room",
         "Temasys.Socket",

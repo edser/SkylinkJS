@@ -285,6 +285,7 @@ navbar.side ul .section li {
 }
 
 navbar.side ul .section li a {
+  cursor: pointer;
   display: block;
   text-decoration: none;
   padding: 12px 15px 10px 12px;

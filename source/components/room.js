@@ -1,18 +1,14 @@
 /**
- * Handles the Room connection session.
+ * Handles the client Room connection session.
  * @class Temasys.Room
  * @param {JSON} options The options.
- * @param {String} options.appKey The App Key ID to connect to the App space to.
- * @param {String} [options.name] The Room name to connect to.
- *   The default is the App Key ID value.
- * @param {Boolean} [options.autoInit=true] The flag if {{#crossLink "Room/init:method"}}{{/crossLink}}
- *   should be automatically called the moment the Room class object is constructed.
- * @param {Boolean} [options.requireWebRTC=true] The flag if WebRTC functionalities are required mandatorily.
- *   If the browser or device does not support WebRTC functionalities, a normal Signaling server connection commences.
+ * @param {String} options.appKey The App Key ID for authenticate.
+ * @param {String} [options.name] The App space Room name.
+ * - When not provided, the value of the App Key ID is used.
  * @constructor
  * @since 0.7.0
  */
-function Room (options) {
+Temasys.Room = function (options) {
   options = options && typeof options === 'object' ? options : {};
 
   /**
@@ -308,7 +304,7 @@ function Room (options) {
       }, 1);
     }
   })(this);
-}
+};
 
 /**
  * The Room SM protocol version supports.
@@ -319,7 +315,7 @@ function Room (options) {
  * @for Room
  * @since 0.7.0
  */
-Room.prototype.SM_PROTOCOL_VERSION = '0.1.2.3';
+Temasys.Room.prototype.SM_PROTOCOL_VERSION = '0.1.2.3';
 
 /**
  * The Room DT protocol version supports.

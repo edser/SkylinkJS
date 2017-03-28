@@ -18,6 +18,15 @@
             },
             "namespaces": {}
         },
+        "source/components/datatransfer.js": {
+            "name": "source/components/datatransfer.js",
+            "modules": {},
+            "classes": {
+                "Temasys.Datatransfer": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
         "source/components/peer.js": {
             "name": "source/components/peer.js",
             "modules": {},
@@ -268,6 +277,18 @@
             "extensions": [],
             "plugin_for": [],
             "extension_for": []
+        },
+        "Temasys.Datatransfer": {
+            "name": "Temasys.Datatransfer",
+            "shortname": "Temasys.Datatransfer",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "file": "source/components/datatransfer.js",
+            "line": 1,
+            "description": "Handles the Datatransfer session."
         },
         "Temasys.Peer": {
             "name": "Temasys.Peer",
@@ -696,6 +717,13 @@
                                     "optdefault": "true"
                                 },
                                 {
+                                    "name": "audio.dtmf",
+                                    "description": "The flag if DTMF should be created if supported.",
+                                    "type": "Boolean",
+                                    "optional": true,
+                                    "optdefault": "false"
+                                },
+                                {
                                     "name": "audio.maxBandwidth",
                                     "description": "The maximum range limit of sending audio bandwidth in kbps.\n- The bandwidth might be lower or higher by a few kbps than the specified range at times.\n- Set it as `0` to remove limits.",
                                     "type": "Number",
@@ -788,7 +816,7 @@
             "extension_for": [],
             "file": "source/components/room.js",
             "line": 1,
-            "description": "Handles the Room connection session.",
+            "description": "Handles the client Room connection session.",
             "params": [
                 {
                     "name": "options",
@@ -797,28 +825,14 @@
                     "props": [
                         {
                             "name": "appKey",
-                            "description": "The App Key ID to connect to the App space to.",
+                            "description": "The App Key ID for authenticate.",
                             "type": "String"
                         },
                         {
                             "name": "name",
-                            "description": "The Room name to connect to.\n  The default is the App Key ID value.",
+                            "description": "The App space Room name.\n- When not provided, the value of the App Key ID is used.",
                             "type": "String",
                             "optional": true
-                        },
-                        {
-                            "name": "autoInit",
-                            "description": "The flag if {{#crossLink \"Room/init:method\"}}{{/crossLink}}\n  should be automatically called the moment the Room class object is constructed.",
-                            "type": "Boolean",
-                            "optional": true,
-                            "optdefault": "true"
-                        },
-                        {
-                            "name": "requireWebRTC",
-                            "description": "The flag if WebRTC functionalities are required mandatorily.\n  If the browser or device does not support WebRTC functionalities, a normal Signaling server connection commences.",
-                            "type": "Boolean",
-                            "optional": true,
-                            "optdefault": "true"
                         }
                     ]
                 }
@@ -991,6 +1005,12 @@
                                     "description": "The audio track source ID to request.\n- When provided as a `JSON`, it follows the native `getUserMedia()` API constraints.\n  E.g. `sourceId: { exact: ..., ideal: ... }`.\n- The list of available audio track sources can be obtained from\n  {{#crossLink \"Utils/Utils.Stream.getSources:method\"}}{{/crossLink}}.",
                                     "type": "JSON|String",
                                     "optional": true
+                                },
+                                {
+                                    "name": "optional] @[exp",
+                                    "description": "The native `getUserMedia()` API audio optional constraints.\n  E.g. `optional: ({ xxx, xxx })`",
+                                    "type": "Array",
+                                    "optional": true
                                 }
                             ]
                         },
@@ -1045,11 +1065,6 @@
                             "optional": true
                         }
                     ]
-                },
-                {
-                    "name": "[options.audio.optional] @[exp] The native `getUserMedia()` API audio optional constraints.\n  E.g. `optional: [{ xxx, xxx }]",
-                    "description": "",
-                    "type": "Array"
                 }
             ],
             "is_constructor": 1,
@@ -1245,7 +1260,7 @@
         {
             "file": "source/components/datachannel.js",
             "line": 108,
-            "description": "Event triggered when stats retrieval state has changed.",
+            "description": "Event triggered when {{#crossLink \"Temasys.Datachannel/getStats:method\"}}{{/crossLink}} state has changed.",
             "itemtype": "event",
             "name": "getStatsStateChange",
             "params": [
@@ -1477,7 +1492,7 @@
         },
         {
             "file": "source/components/peer.js",
-            "line": 168,
+            "line": 169,
             "description": "The Peer ID.",
             "itemtype": "attribute",
             "name": "id",
@@ -1488,7 +1503,7 @@
         },
         {
             "file": "source/components/peer.js",
-            "line": 178,
+            "line": 179,
             "description": "The Peer parent ID.",
             "itemtype": "attribute",
             "name": "parentId",
@@ -1499,7 +1514,7 @@
         },
         {
             "file": "source/components/peer.js",
-            "line": 188,
+            "line": 189,
             "description": "The Peer connection type.\n- See {{#crossLink \"Temasys.Peer/TYPE_ENUM:attribute\"}}{{/crossLink}} for reference.",
             "itemtype": "attribute",
             "name": "type",
@@ -1510,7 +1525,7 @@
         },
         {
             "file": "source/components/peer.js",
-            "line": 199,
+            "line": 200,
             "description": "The Peer custom data.",
             "itemtype": "attribute",
             "name": "data",
@@ -1521,7 +1536,7 @@
         },
         {
             "file": "source/components/peer.js",
-            "line": 209,
+            "line": 210,
             "description": "The Peer client agent.",
             "itemtype": "attribute",
             "name": "agent",
@@ -1556,7 +1571,7 @@
         },
         {
             "file": "source/components/peer.js",
-            "line": 228,
+            "line": 229,
             "description": "The Peer protocol versions.",
             "itemtype": "attribute",
             "name": "protocol",
@@ -1579,7 +1594,7 @@
         },
         {
             "file": "source/components/peer.js",
-            "line": 243,
+            "line": 244,
             "description": "The Peer session settings.",
             "itemtype": "attribute",
             "name": "session",
@@ -1608,6 +1623,11 @@
                     "name": "iceRestart",
                     "description": "The flag if Peer has ICE restart capability.",
                     "type": "Boolean"
+                },
+                {
+                    "name": "weight",
+                    "description": "The Peer weight to determine if Peer should be start offer first\n  or not depending on whose weight is higher.",
+                    "type": "Number"
                 }
             ],
             "type": "JSON",
@@ -1617,7 +1637,7 @@
         },
         {
             "file": "source/components/peer.js",
-            "line": 264,
+            "line": 268,
             "description": "The Peer current states.",
             "itemtype": "attribute",
             "name": "$current",
@@ -1643,6 +1663,37 @@
                     "type": "String"
                 },
                 {
+                    "name": "candidates",
+                    "description": "The Peer ICE candidates states.",
+                    "type": "JSON",
+                    "props": [
+                        {
+                            "name": "local",
+                            "description": "The local ICE candidates sending states.\n- `\"index\"` can be identified as the local ICE candidate ID, which value is the state of the ICE candidate.",
+                            "type": "JSON",
+                            "props": [
+                                {
+                                    "name": "index",
+                                    "description": "The local ICE candidate sending state.",
+                                    "type": "String"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "remote",
+                            "description": "The remote ICE candidates processing states.\n- `\"index\"` can be identified as the remote ICE candidate ID, which value is the state of the ICE candidate.",
+                            "type": "JSON",
+                            "props": [
+                                {
+                                    "name": "index",
+                                    "description": "The local ICE candidate processing state.",
+                                    "type": "String"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
                     "name": "connected",
                     "description": "The flag if Peer ICE is connected.",
                     "type": "Boolean"
@@ -1655,7 +1706,7 @@
         },
         {
             "file": "source/components/peer.js",
-            "line": 285,
+            "line": 297,
             "description": "Event triggered when Peer handshake state has changed.",
             "itemtype": "event",
             "name": "handshakeStateChange",
@@ -1691,7 +1742,7 @@
         },
         {
             "file": "source/components/peer.js",
-            "line": 298,
+            "line": 310,
             "description": "Event triggered when Peer signaling state has changed.",
             "itemtype": "event",
             "name": "signalingStateChange",
@@ -1707,7 +1758,7 @@
         },
         {
             "file": "source/components/peer.js",
-            "line": 306,
+            "line": 318,
             "description": "Event triggered when Peer ICE connection state has changed.",
             "itemtype": "event",
             "name": "iceConnectionStateChange",
@@ -1723,7 +1774,7 @@
         },
         {
             "file": "source/components/peer.js",
-            "line": 314,
+            "line": 326,
             "description": "Event triggered when Peer ICE gathering state has changed.",
             "itemtype": "event",
             "name": "iceGatheringStateChange",
@@ -1739,7 +1790,1318 @@
         },
         {
             "file": "source/components/peer.js",
-            "line": 322,
+            "line": 334,
+            "description": "Event triggered when Peer local ICE candidate sending state has changed.",
+            "itemtype": "event",
+            "name": "candidateSentStateChange",
+            "params": [
+                {
+                    "name": "state",
+                    "description": "The current local ICE candidate sending state.\n- See {{#crossLink \"Temasys.Peer/CANDIDATE_SENT_STATE_ENUM:attribute\"}}{{/crossLink}} for reference.",
+                    "type": "String"
+                },
+                {
+                    "name": "candidateId",
+                    "description": "The local ICE candidate ID.",
+                    "type": "String"
+                }
+            ],
+            "since": "0.7.0",
+            "class": "Temasys.Peer"
+        },
+        {
+            "file": "source/components/peer.js",
+            "line": 343,
+            "description": "Event triggered when Peer remote ICE candidate processing state has changed.",
+            "itemtype": "event",
+            "name": "candidateProcessingStateChange",
+            "params": [
+                {
+                    "name": "state",
+                    "description": "The current remote ICE candidate processing state.\n- See {{#crossLink \"Temasys.Peer/CANDIDATE_PROCESSING_STATE_ENUM:attribute\"}}{{/crossLink}} for reference.",
+                    "type": "String"
+                },
+                {
+                    "name": "candidateId",
+                    "description": "The remote ICE candidate ID.",
+                    "type": "String"
+                },
+                {
+                    "name": "error",
+                    "description": "The error object.\n- This is defined when `state` is `FAILED`.",
+                    "type": "Error",
+                    "optional": true
+                }
+            ],
+            "since": "0.7.0",
+            "class": "Temasys.Peer"
+        },
+        {
+            "file": "source/components/peer.js",
+            "line": 354,
+            "description": "Event triggered when {{#crossLink \"Temasys.Peer/getStats:method\"}}{{/crossLink}} state has changed.",
+            "itemtype": "event",
+            "name": "getStatsStateChange",
+            "params": [
+                {
+                    "name": "state",
+                    "description": "The current stats retrieval state.\n- See {{#crossLink \"Temasys.Peer/GET_STATS_STATE_ENUM:attribute\"}}{{/crossLink}} for reference.",
+                    "type": "String"
+                },
+                {
+                    "name": "stats",
+                    "description": "The stats.\n- This is defined when `state` is `SUCCESS`.\n- The below `stats` parameters will not be the same if `isRaw` parameter is set to `true` in the",
+                    "type": "JSON",
+                    "optional": true,
+                    "props": [
+                        {
+                            "name": "audio",
+                            "description": "The Peer connection audio stats.",
+                            "type": "JSON",
+                            "props": [
+                                {
+                                    "name": "sent",
+                                    "description": "The audio stats sent.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "sent.bytes",
+                                    "description": "The audio bytes sent information.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "sent.bytes.current",
+                                    "description": "The current audio bytes sent.",
+                                    "type": "Number"
+                                },
+                                {
+                                    "name": "sent.bytes.total",
+                                    "description": "The total audio bytes sent.",
+                                    "type": "Number"
+                                },
+                                {
+                                    "name": "sent.packets",
+                                    "description": "The audio packets sent information.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "sent.packets.current",
+                                    "description": "The current audio packets sent.",
+                                    "type": "Number"
+                                },
+                                {
+                                    "name": "sent.packets.total",
+                                    "description": "The total audio packets sent.",
+                                    "type": "Number"
+                                },
+                                {
+                                    "name": "sent.nackCount",
+                                    "description": "The audio nacks sent.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "sent.nackCount.current",
+                                    "description": "The current audio nacks sent.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "sent.nackCount.total",
+                                    "description": "The total audio nacks sent.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "sent.ssrc",
+                                    "description": "The audio sending direction RTP packets synchronization source (SSRC) ID.",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "sent.rtt",
+                                    "description": "The audio sending direction round-trip time (RTT) taken.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "sent.rtt.current",
+                                    "description": "The current audio sending direction RTT in seconds.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "sent.codec",
+                                    "description": "The selected audio sending direction codec information.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "sent.codec.name",
+                                    "description": "The audio sending direction codec name.",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "sent.codec.payloadType",
+                                    "description": "The audio sending direction codec payload number.",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "sent.codec.implementation",
+                                    "description": "The audio sending direction codec implementation.",
+                                    "type": "String",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "sent.codec.channels",
+                                    "description": "The audio sending direction codec channels.",
+                                    "type": "Number"
+                                },
+                                {
+                                    "name": "sent.codec.clockRate",
+                                    "description": "The audio sending direction codec sampling rate in hertz (Hz).",
+                                    "type": "Number"
+                                },
+                                {
+                                    "name": "sent.codec.params",
+                                    "description": "The audio sending direction codec parameters.",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "sent.level",
+                                    "description": "The current audio sending stream input level.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "sent.echoReturnLoss",
+                                    "description": "The current audio sending stream echo return loss in decibels (db).",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "sent.echoReturnLossEnhancement",
+                                    "description": "The current audio sending stream echo return loss\n  enhancement in decibels (db).",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "received",
+                                    "description": "The audio stats received.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "received.bytes",
+                                    "description": "The audio bytes received information.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "received.bytes.current",
+                                    "description": "The current audio bytes received.",
+                                    "type": "Number"
+                                },
+                                {
+                                    "name": "received.bytes.total",
+                                    "description": "The total audio bytes received.",
+                                    "type": "Number"
+                                },
+                                {
+                                    "name": "received.packets",
+                                    "description": "The audio packets received information.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "received.packets.current",
+                                    "description": "The current audio packets received.",
+                                    "type": "Number"
+                                },
+                                {
+                                    "name": "received.packets.total",
+                                    "description": "The total audio packets received.",
+                                    "type": "Number"
+                                },
+                                {
+                                    "name": "received.packetsLost",
+                                    "description": "The audio packets lost information.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "received.packetsLost.current",
+                                    "description": "The current audio packets lost.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "received.packetsLost.total",
+                                    "description": "The total audio packets lost.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "received.packetsDiscarded",
+                                    "description": "The audio packets discarded information.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "received.packetsDiscarded.current",
+                                    "description": "The current audio packets discarded.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "received.packetsDiscarded.total",
+                                    "description": "The total audio packets discarded.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "received.packetsRepaired",
+                                    "description": "The audio packets repaired information.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "received.packetsRepaired.current",
+                                    "description": "The current audio packets repaired.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "received.packetsRepaired.total",
+                                    "description": "The total audio packets repaired.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "received.fractionLost",
+                                    "description": "The audio packets fraction loss information.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "received.fractionLost.current",
+                                    "description": "The current audio packets fraction loss.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "received.jitter",
+                                    "description": "The audio packets jitter information.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "received.jitter.current",
+                                    "description": "The current audio packets jitter in seconds.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "received.jitter.currentMs",
+                                    "description": "The current audio packets jitter in miliseconds.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "received.nackCount",
+                                    "description": "The audio nacks received.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "received.nackCount.current",
+                                    "description": "The current audio nacks received.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "received.nackCount.total",
+                                    "description": "The total audio nacks received.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "received.ssrc",
+                                    "description": "The audio receiving direction RTP packets synchronization source (SSRC) ID.",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "received.codec",
+                                    "description": "The selected audio receiving direction codec information.",
+                                    "type": "JSON",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "received.codec.name",
+                                    "description": "The audio receiving direction codec name.",
+                                    "type": "String",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "received.codec.payloadType",
+                                    "description": "The audio receiving direction codec payload number.",
+                                    "type": "String",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "received.codec.implementation",
+                                    "description": "The audio receiving direction codec implementation.",
+                                    "type": "String",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "received.codec.channels",
+                                    "description": "The audio receiving direction codec channels.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "received.codec.clockRate",
+                                    "description": "The audio receiving direction codec sampling rate in hertz (Hz).",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "received.codec.params",
+                                    "description": "The audio receiving direction codec parameters.",
+                                    "type": "String",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "received.level",
+                                    "description": "The current audio receiving stream output level.",
+                                    "type": "Number",
+                                    "optional": true
+                                }
+                            ]
+                        },
+                        {
+                            "name": "video",
+                            "description": "The Peer connection video stats.",
+                            "type": "JSON",
+                            "props": [
+                                {
+                                    "name": "sent",
+                                    "description": "The video stats sent.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "sent.bytes",
+                                    "description": "The video bytes sent information.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "sent.bytes.current",
+                                    "description": "The current video bytes sent.",
+                                    "type": "Number"
+                                },
+                                {
+                                    "name": "sent.bytes.total",
+                                    "description": "The total video bytes sent.",
+                                    "type": "Number"
+                                },
+                                {
+                                    "name": "sent.packets",
+                                    "description": "The video packets sent information.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "sent.packets.current",
+                                    "description": "The current video packets sent.",
+                                    "type": "Number"
+                                },
+                                {
+                                    "name": "sent.packets.total",
+                                    "description": "The total video packets sent.",
+                                    "type": "Number"
+                                },
+                                {
+                                    "name": "sent.ssrc",
+                                    "description": "The video sending direction RTP packets synchronization source (SSRC) ID.",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "sent.rtt",
+                                    "description": "The video sending direction round-trip time (RTT) taken.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "sent.rtt.current",
+                                    "description": "The current video sending direction RTT in seconds.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "sent.nackCount",
+                                    "description": "The video nacks sent.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "sent.nackCount.current",
+                                    "description": "The current video nacks sent.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "sent.nackCount.total",
+                                    "description": "The total video nacks sent.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "sent.sliCount",
+                                    "description": "The video slis sent.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "sent.sliCount.current",
+                                    "description": "The current video slis sent.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "sent.sliCount.total",
+                                    "description": "The total video slis sent.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "sent.pliCount",
+                                    "description": "The video plis sent.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "sent.pliCount.current",
+                                    "description": "The current video plis sent.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "sent.pliCount.total",
+                                    "description": "The total video plis sent.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "sent.firCount",
+                                    "description": "The video firs sent.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "sent.firCount.current",
+                                    "description": "The current video firs sent.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "sent.firCount.total",
+                                    "description": "The total video firs sent.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "sent.codec",
+                                    "description": "The selected video sending direction codec information.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "sent.codec.name",
+                                    "description": "The selected video sending direction codec name.",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "sent.codec.payloadType",
+                                    "description": "The selected video sending direction codec payload number.",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "sent.codec.implementation",
+                                    "description": "The selected video sending direction codec implementation.",
+                                    "type": "String",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "sent.codec.clockRate",
+                                    "description": "The selected video sending direction\n  codec sampling rate in hertz (Hz).",
+                                    "type": "Number"
+                                },
+                                {
+                                    "name": "sent.codec.params",
+                                    "description": "The selected video sending direction codec parameters.",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "sent.frames",
+                                    "description": "The video frames sent information.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "sent.frames.current",
+                                    "description": "The current number of video frames sent.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "sent.frames.total",
+                                    "description": "The total number of video frames sent.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "sent.frameRate",
+                                    "description": "The video frames per second (fps) sent information.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "sent.frameRate.current",
+                                    "description": "The current video frames per second (fps) sent.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "sent.frameRate.mean",
+                                    "description": "The current mean of the current video frames per second (fps) sent.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "sent.frameRate.stdDev",
+                                    "description": "The current standard deviation\n  of the current video frames per second (fps) sent.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "sent.frameRate.input",
+                                    "description": "The current sending video stream frames per second (fps) input.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "sent.framesDropped",
+                                    "description": "The video frames dropped information.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "sent.framesDropped.current",
+                                    "description": "The current number of video frames dropped.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "sent.framesDropped.total",
+                                    "description": "The total number of video frames dropped.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "sent.framesCorrupted",
+                                    "description": "The video frames corrupted information.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "sent.framesCorrupted.current",
+                                    "description": "The current number of video frames corrupted.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "sent.framesCorrupted.total",
+                                    "description": "The total number of video frames corrupted.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "sent.framesEncoded",
+                                    "description": "The video frames encoded information.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "sent.framesEncoded.current",
+                                    "description": "The current number of video frames encoded.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "sent.framesEncoded.total",
+                                    "description": "The total number of video frames encoded.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "sent.frameSize",
+                                    "description": "The current video frame size sent information.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "sent.frameSize.width",
+                                    "description": "The current video frame width in pixels (px) sent.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "sent.frameSize.height",
+                                    "description": "The current video frame height in pixels (px) sent.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "sent.qpSum",
+                                    "description": "The sum of the QP values of frames passed.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "received",
+                                    "description": "The video stats received.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "received.bytes",
+                                    "description": "The video bytes received information.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "received.bytes.current",
+                                    "description": "The current video bytes received.",
+                                    "type": "Number"
+                                },
+                                {
+                                    "name": "received.bytes.total",
+                                    "description": "The total video bytes received.",
+                                    "type": "Number"
+                                },
+                                {
+                                    "name": "received.packets",
+                                    "description": "The video packets received information.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "received.packets.current",
+                                    "description": "The current video packets received.",
+                                    "type": "Number"
+                                },
+                                {
+                                    "name": "received.packets.total",
+                                    "description": "The total video packets received.",
+                                    "type": "Number"
+                                },
+                                {
+                                    "name": "received.ssrc",
+                                    "description": "The video sending direction RTP packets synchronization source (SSRC) ID.",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "received.jitter",
+                                    "description": "The video packets jitter information.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "received.jitter.current",
+                                    "description": "The current video packets jitter in seconds.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "received.jitter.currentMs",
+                                    "description": "The current video packets jitter in miliseconds.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "received.nackCount",
+                                    "description": "The video nacks received.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "received.nackCount.current",
+                                    "description": "The current video nacks received.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "received.nackCount.total",
+                                    "description": "The total video nacks received.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "received.sliCount",
+                                    "description": "The video slis received.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "received.sliCount.current",
+                                    "description": "The current video slis received.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "received.sliCount.total",
+                                    "description": "The total video slis received.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "received.pliCount",
+                                    "description": "The video plis received.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "received.pliCount.current",
+                                    "description": "The current video plis received.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "received.pliCount.total",
+                                    "description": "The total video plis received.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "received.firCount",
+                                    "description": "The video firs received.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "received.firCount.current",
+                                    "description": "The current video firs received.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "received.firCount.total",
+                                    "description": "The total video firs received.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "received.codec",
+                                    "description": "The selected video sending direction codec information.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "received.codec.name",
+                                    "description": "The selected video sending direction codec name.",
+                                    "type": "String",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "received.codec.payloadType",
+                                    "description": "The selected video sending direction codec payload number.",
+                                    "type": "String",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "received.codec.implementation",
+                                    "description": "The selected video sending direction codec implementation.",
+                                    "type": "String",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "received.codec.clockRate",
+                                    "description": "The selected video sending direction\n  codec sampling rate in hertz (Hz).",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "received.codec.params",
+                                    "description": "The selected video sending direction codec parameters.",
+                                    "type": "String",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "received.frames",
+                                    "description": "The video frames received information.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "received.frames.current",
+                                    "description": "The current number of video frames received.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "received.frames.total",
+                                    "description": "The total number of video frames received.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "received.frameRate",
+                                    "description": "The video frames per second (fps) received information.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "received.frameRate.current",
+                                    "description": "The current video frames per second (fps) received.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "received.frameRate.mean",
+                                    "description": "The current mean of the current video frames per second (fps) received.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "received.frameRate.stdDev",
+                                    "description": "The current standard deviation\n  of the current video frames per second (fps) received.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "received.frameRate.output",
+                                    "description": "The current sending video stream frames per second (fps) output.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "received.framesDropped",
+                                    "description": "The video frames dropped information.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "received.framesDropped.current",
+                                    "description": "The current number of video frames dropped.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "received.framesDropped.total",
+                                    "description": "The total number of video frames dropped.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "received.framesCorrupted",
+                                    "description": "The video frames corrupted information.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "received.framesCorrupted.current",
+                                    "description": "The current number of video frames corrupted.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "received.framesCorrupted.total",
+                                    "description": "The total number of video frames corrupted.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "received.framesEncoded",
+                                    "description": "The video frames decoded information.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "received.framesDecoded.current",
+                                    "description": "The current number of video frames decoded.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "received.framesDecoded.total",
+                                    "description": "The total number of video frames decoded.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "received.frameSize",
+                                    "description": "The current video frame size received information.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "received.frameSize.width",
+                                    "description": "The current video frame width in pixels (px) received.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "received.frameSize.height",
+                                    "description": "The current video frame height in pixels (px) received.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "received.e2eDelay",
+                                    "description": "The current video e2e delay.\n- This requires a {{#crossLink \"Temasys.Stream\"}}{{/crossLink}} attached to a video element.",
+                                    "type": "Number",
+                                    "optional": true
+                                }
+                            ]
+                        },
+                        {
+                            "name": "candidates",
+                            "description": "The Peer connection ICE candidates information.",
+                            "type": "JSON",
+                            "props": [
+                                {
+                                    "name": "local",
+                                    "description": "The array of local ICE candidates stats information.\n- `\"index\"` can be identified as the index item of each local ICE candidate stats object.",
+                                    "type": "Array"
+                                },
+                                {
+                                    "name": "local.index",
+                                    "description": "The local ICE candidate stats.",
+                                    "type": "String",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "local.index.ip",
+                                    "description": "The local ICE candidate IP address.",
+                                    "type": "String",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "local.index.port",
+                                    "description": "The local ICE candidate port.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "local.index.protocol",
+                                    "description": "The local ICE candidate protocol.",
+                                    "type": "String",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "local.index.turnProtocol",
+                                    "description": "The local ICE candidate protocol used to\n  communicate with TURN server.",
+                                    "type": "String",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "local.index.candidateType",
+                                    "description": "The local ICE candidate type.\n- Available values are: `\"host\"` (local network area), `\"srflx\"` (STUN) and `\"relay\"` (TURN)",
+                                    "type": "String",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "local.index.priority",
+                                    "description": "The local ICE candidate priority.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "local.index.selected",
+                                    "description": "The flag if the local ICE candidate is selected.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "remote",
+                                    "description": "The array of remote ICE candidates stats information.\n- `\"index\"` can be identified as the index item of each remote ICE candidate stats object.",
+                                    "type": "Array"
+                                },
+                                {
+                                    "name": "remote.index",
+                                    "description": "The remote ICE candidate stats.",
+                                    "type": "String",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "remote.index.ip",
+                                    "description": "The remote ICE candidate IP address.",
+                                    "type": "String",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "remote.index.port",
+                                    "description": "The remote ICE candidate port.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "remote.index.protocol",
+                                    "description": "The remote ICE candidate protocol.",
+                                    "type": "String",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "remote.index.turnProtocol",
+                                    "description": "The remote ICE candidate protocol used to\n  communicate with TURN server.",
+                                    "type": "String",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "remote.index.candidateType",
+                                    "description": "The remote ICE candidate type.\n- Available values are: `\"host\"` (local network area), `\"srflx\"` (STUN) and `\"relay\"` (TURN)",
+                                    "type": "String",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "remote.index.priority",
+                                    "description": "The remote ICE candidate priority.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "remote.index.selected",
+                                    "description": "The flag if the remote ICE candidate is selected.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "writable",
+                                    "description": "The flag if Peer has gotten ACK to an ICE request.",
+                                    "type": "Boolean",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "readable",
+                                    "description": "The flag if Peer has gotten a valid incoming ICE request.",
+                                    "type": "Boolean",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "rtt",
+                                    "description": "The current STUN connectivity checks round-trip delay (RTT) information.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "current",
+                                    "description": "The current rtt in seconds.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "total",
+                                    "description": "The total rtt in seconds.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "requests",
+                                    "description": "The ICE connectivity check requests.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "requests.received",
+                                    "description": "The ICE connectivity check requests received.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "requests.received.current",
+                                    "description": "The current number of\n  ICE connectivity check requests received.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "requests.received.total",
+                                    "description": "The total number of\n  ICE connectivity check requests received.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "requests.sent",
+                                    "description": "The ICE connectivity check requests sent.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "requests.sent.current",
+                                    "description": "The current number of\n  ICE connectivity check requests sent.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "requests.sent.total",
+                                    "description": "The total number of\n  ICE connectivity check requests sent.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "responses",
+                                    "description": "The ICE connectivity check responses.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "responses.received",
+                                    "description": "The ICE connectivity check responses received.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "responses.received.current",
+                                    "description": "The current number of\n  ICE connectivity check responses received.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "responses.received.total",
+                                    "description": "The total number of\n  ICE connectivity check responses received.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "responses.sent",
+                                    "description": "The ICE connectivity check responses sent.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "responses.sent.current",
+                                    "description": "The current number of\n  ICE connectivity check responses sent.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "responses.sent.total",
+                                    "description": "The total number of\n  ICE connectivity check responses sent.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "consentRequests",
+                                    "description": "The ICE connectivity consent requests.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "consentRequests.received",
+                                    "description": "The ICE connectivity check consent requests received.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "consentRequests.received.current",
+                                    "description": "The current number of\n  ICE connectivity consent requests received.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "consentRequests.received.total",
+                                    "description": "The total number of\n  ICE connectivity consent requests received.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "consentRequests.sent",
+                                    "description": "The ICE connectivity consent requests sent.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "consentRequests.sent.current",
+                                    "description": "The current number of\n  ICE connectivity consent requests sent.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "consentRequests.sent.total",
+                                    "description": "The total number of\n  ICE connectivity consent requests sent.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "consentResponses",
+                                    "description": "The ICE connectivity consent responses.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "consentResponses.received",
+                                    "description": "The ICE connectivity check consent responses received.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "consentResponses.received.current",
+                                    "description": "The current number of\n  ICE connectivity consent responses received.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "consentResponses.received.total",
+                                    "description": "The total number of\n  ICE connectivity consent responses received.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "consentResponses.sent",
+                                    "description": "The ICE connectivity consent responses sent.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "consentResponses.sent.current",
+                                    "description": "The current number of\n  ICE connectivity consent responses sent.",
+                                    "type": "Number",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "consentResponses.sent.total",
+                                    "description": "The total number of\n  ICE connectivity consent responses sent.",
+                                    "type": "Number",
+                                    "optional": true
+                                }
+                            ]
+                        },
+                        {
+                            "name": "certificate",
+                            "description": "The Peer connection DTLS/SRTP exchanged certificates information.",
+                            "type": "JSON",
+                            "props": [
+                                {
+                                    "name": "local",
+                                    "description": "The local certificate information.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "local.fingerprint",
+                                    "description": "The local certificate fingerprint.",
+                                    "type": "String",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "local.fingerprintAlgorithm",
+                                    "description": "The local certificate fingerprint algorithm.",
+                                    "type": "String",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "local.derBase64",
+                                    "description": "The local\n  base64 certificate in binary DER format encoded in base64.",
+                                    "type": "String",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "remote",
+                                    "description": "The remote certificate information.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "remote.fingerprint",
+                                    "description": "The remote certificate fingerprint.",
+                                    "type": "String",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "remote.fingerprintAlgorithm",
+                                    "description": "The remote certificate fingerprint algorithm.",
+                                    "type": "String",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "remote.derBase64",
+                                    "description": "The remote\n  base64 certificate in binary DER format encoded in base64.",
+                                    "type": "String",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "srtpCipher",
+                                    "description": "The certificates SRTP cipher.",
+                                    "type": "String",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "dtlsCipher",
+                                    "description": "The certificates DTLS cipher.",
+                                    "type": "String",
+                                    "optional": true
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "name": "error",
+                    "description": "The error object.\n- This is defined when `state` is `FAILED`.",
+                    "type": "Error",
+                    "optional": true
+                }
+            ],
+            "since": "0.7.0",
+            "class": "Temasys.Peer"
+        },
+        {
+            "file": "source/components/peer.js",
+            "line": 617,
             "description": "Event triggered when sending or receiving Stream object.",
             "itemtype": "event",
             "name": "stream",
@@ -1765,7 +3127,7 @@
         },
         {
             "file": "source/components/peer.js",
-            "line": 331,
+            "line": 626,
             "description": "Event triggered when receiving Datachannel object.",
             "itemtype": "event",
             "name": "datachannel",
@@ -1791,7 +3153,7 @@
         },
         {
             "file": "source/components/peer.js",
-            "line": 340,
+            "line": 635,
             "description": "Event triggered when sending or receiving message.",
             "itemtype": "event",
             "name": "message",
@@ -1799,17 +3161,24 @@
                 {
                     "name": "message",
                     "description": "The message.",
-                    "type": "Any"
-                },
-                {
-                    "name": "isPrivate",
-                    "description": "The flag if message sent is targeted or not.",
-                    "type": "Boolean"
-                },
-                {
-                    "name": "isDatachannel",
-                    "description": "The flag if message is sent from Datachannel connections.",
-                    "type": "Boolean"
+                    "type": "JSON",
+                    "props": [
+                        {
+                            "name": "data",
+                            "description": "The message object.",
+                            "type": "Any"
+                        },
+                        {
+                            "name": "isPrivate",
+                            "description": "The flag if message is targeted or not.",
+                            "type": "Boolean"
+                        },
+                        {
+                            "name": "isDatachannel",
+                            "description": "the flag if message is sent from\n  {{#crossLink \"Temasys.Datachannel\"}}{{/crossLink}} connections.",
+                            "type": "Boolean"
+                        }
+                    ]
                 },
                 {
                     "name": "isSelf",
@@ -1822,7 +3191,7 @@
         },
         {
             "file": "source/components/peer.js",
-            "line": 350,
+            "line": 647,
             "description": "Event triggered when sending or receiving data transfers.",
             "itemtype": "event",
             "name": "transfer",
@@ -1848,35 +3217,22 @@
         },
         {
             "file": "source/components/peer.js",
-            "line": 359,
-            "description": "Event triggered when stats retrieval state has changed.",
+            "line": 656,
+            "description": "Event triggered when sending DTMF.",
             "itemtype": "event",
-            "name": "getStatsStateChange",
+            "name": "dtmf",
             "params": [
                 {
-                    "name": "state",
-                    "description": "The current stats retrieval state.\n- See {{#crossLink \"Temasys.Peer/GET_STATS_STATE_ENUM:attribute\"}}{{/crossLink}} for reference.",
-                    "type": "String"
-                },
-                {
-                    "name": "stats",
-                    "description": "The stats.\n- This is defined when `state` is `SUCCESS`.",
-                    "type": "JSON",
-                    "optional": true
-                },
-                {
-                    "name": "error",
-                    "description": "The error object.\n- This is defined when `state` is `FAILED`.",
-                    "type": "Error",
-                    "optional": true
+                    "name": "dtmf",
+                    "description": "The DTMF object.",
+                    "type": "Temasys.DTMF"
                 }
             ],
-            "since": "0.7.0",
             "class": "Temasys.Peer"
         },
         {
             "file": "source/components/peer.js",
-            "line": 372,
+            "line": 661,
             "description": "Event triggered when there are exceptions thrown in this event handlers.",
             "itemtype": "event",
             "name": "domError",
@@ -1892,7 +3248,7 @@
         },
         {
             "file": "source/components/peer.js",
-            "line": 381,
+            "line": 670,
             "description": "The enum of ICE transport policies.",
             "itemtype": "attribute",
             "name": "ICE_TRANSPORT_POLICY_ENUM",
@@ -1916,7 +3272,7 @@
         },
         {
             "file": "source/components/peer.js",
-            "line": 397,
+            "line": 686,
             "description": "The enum of RTP and RTCP multiplex policies.",
             "itemtype": "attribute",
             "name": "RTCP_MUX_POLICY_ENUM",
@@ -1940,7 +3296,7 @@
         },
         {
             "file": "source/components/peer.js",
-            "line": 413,
+            "line": 702,
             "description": "The enum of media bundle policies.",
             "itemtype": "attribute",
             "name": "BUNDLE_POLICY_ENUM",
@@ -1969,7 +3325,7 @@
         },
         {
             "file": "source/components/peer.js",
-            "line": 433,
+            "line": 722,
             "description": "The enum of certificate algorithms.",
             "itemtype": "attribute",
             "name": "CERTIFICATE_ENUM",
@@ -1998,7 +3354,7 @@
         },
         {
             "file": "source/components/peer.js",
-            "line": 451,
+            "line": 740,
             "description": "The enum of TURN transport types.",
             "itemtype": "attribute",
             "name": "TURN_TRANSPORT_ENUM",
@@ -2027,7 +3383,7 @@
         },
         {
             "file": "source/components/peer.js",
-            "line": 469,
+            "line": 758,
             "description": "The enum of audio codecs.",
             "itemtype": "attribute",
             "name": "AUDIO_CODEC_ENUM",
@@ -2076,7 +3432,7 @@
         },
         {
             "file": "source/components/peer.js",
-            "line": 496,
+            "line": 785,
             "description": "The enum of video codecs.",
             "itemtype": "attribute",
             "name": "VIDEO_CODEC_ENUM",
@@ -2110,7 +3466,7 @@
         },
         {
             "file": "source/components/peer.js",
-            "line": 517,
+            "line": 806,
             "description": "The enum of Peer handshake states.",
             "itemtype": "attribute",
             "name": "HANDSHAKE_STATE_ENUM",
@@ -2123,6 +3479,11 @@
                 {
                     "name": "WELCOME",
                     "description": "The state when Peer acknowledges self has joined the Room.",
+                    "type": "String"
+                },
+                {
+                    "name": "RESTART",
+                    "description": "The state after `ENTER` or `WELCOME` when Peer wants to resend another offer\n  to switch Stream object or restart ICE connection.",
                     "type": "String"
                 },
                 {
@@ -2149,7 +3510,7 @@
         },
         {
             "file": "source/components/peer.js",
-            "line": 539,
+            "line": 831,
             "description": "The enum of Peer handshake error types.",
             "itemtype": "attribute",
             "name": "HANDSHAKE_STATE_ERROR_TYPE_ENUM",
@@ -2198,7 +3559,7 @@
         },
         {
             "file": "source/components/peer.js",
-            "line": 565,
+            "line": 857,
             "description": "The enum of Peer ICE connection states.",
             "itemtype": "attribute",
             "name": "ICE_CONNECTION_STATE_ENUM",
@@ -2242,7 +3603,7 @@
         },
         {
             "file": "source/components/peer.js",
-            "line": 589,
+            "line": 881,
             "description": "The enum of Peer ICE gathering states.",
             "itemtype": "attribute",
             "name": "ICE_GATHERING_STATE_ENUM",
@@ -2266,7 +3627,7 @@
         },
         {
             "file": "source/components/peer.js",
-            "line": 605,
+            "line": 897,
             "description": "The enum of Peer ICE gathering states.",
             "itemtype": "attribute",
             "name": "SIGNALING_STATE_ENUM",
@@ -2300,7 +3661,7 @@
         },
         {
             "file": "source/components/peer.js",
-            "line": 627,
+            "line": 919,
             "description": "The enum of {{#crossLink \"Temasys.Peer/getStats:method\"}}{{/crossLink}} states.",
             "itemtype": "attribute",
             "name": "GET_STATS_STATE_ENUM",
@@ -2328,14 +3689,172 @@
         },
         {
             "file": "source/components/peer.js",
-            "line": 644,
+            "line": 936,
+            "description": "The enum of Peer types.",
+            "itemtype": "attribute",
+            "name": "TYPE_ENUM",
+            "params": [
+                {
+                    "name": "MCU",
+                    "description": "The type when Peer is MCU Peer.",
+                    "type": "String"
+                },
+                {
+                    "name": "P2P",
+                    "description": "The type when Peer is MCU disabled Peer.",
+                    "type": "String"
+                },
+                {
+                    "name": "MCU_RELAYED",
+                    "description": "The type when Peer is MCU relayed Peer.",
+                    "type": "String"
+                }
+            ],
+            "readonly": "",
+            "final": 1,
+            "since": "0.7.0",
+            "class": "Temasys.Peer"
+        },
+        {
+            "file": "source/components/peer.js",
+            "line": 954,
+            "description": "The enum of Peer local ICE candidate (native `RTCIceCandidate` object) sending states.",
+            "itemtype": "attribute",
+            "name": "CANDIDATE_SENT_STATE_ENUM",
+            "params": [
+                {
+                    "name": "GATHERED",
+                    "description": "The state when the ICE candidate is gathered.",
+                    "type": "String"
+                },
+                {
+                    "name": "DROPPED",
+                    "description": "The state when the ICE candidate is dropped from sending.",
+                    "type": "String"
+                },
+                {
+                    "name": "SENT",
+                    "description": "The state when the ICE candidate is sent.",
+                    "type": "String"
+                }
+            ],
+            "readonly": "",
+            "final": 1,
+            "since": "0.7.0",
+            "class": "Temasys.Peer"
+        },
+        {
+            "file": "source/components/peer.js",
+            "line": 971,
+            "description": "The enum of Peer remote ICE candidate (native `RTCIceCandidate` object) processing states.",
+            "itemtype": "attribute",
+            "name": "CANDIDATE_PROCESSING_STATE_ENUM",
+            "params": [
+                {
+                    "name": "Received",
+                    "description": "The state when the ICE candidate is received.",
+                    "type": "String"
+                },
+                {
+                    "name": "DROPPED",
+                    "description": "The state when the ICE candidate is dropped from processing.",
+                    "type": "String"
+                },
+                {
+                    "name": "PROCESSING",
+                    "description": "The state when the ICE candidate is processing.",
+                    "type": "String"
+                },
+                {
+                    "name": "PROCESSED",
+                    "description": "The state when the ICE candidate has been processed\n  and added to Peer connection successfully.",
+                    "type": "String"
+                },
+                {
+                    "name": "FAILED",
+                    "description": "The state when the ICE candidate has failed to process\n  and add to Peer connection.",
+                    "type": "String"
+                }
+            ],
+            "readonly": "",
+            "final": 1,
+            "since": "0.7.0",
+            "class": "Temasys.Peer"
+        },
+        {
+            "file": "source/components/peer.js",
+            "line": 994,
+            "description": "Function to retrieve Peer ICE candidates.",
+            "itemtype": "method",
+            "name": "getCandidates",
+            "return": {
+                "description": "[test] rere",
+                "type": "JSON"
+            },
+            "since": "0.7.0",
+            "class": "Temasys.Peer"
+        },
+        {
+            "file": "source/components/peer.js",
+            "line": 1004,
+            "description": "Function to retrieve Peer {{#crossLink \"Temasys.Stream\"}}Streams{{/crossLink}}.",
+            "params": [
+                {
+                    "name": "getStreams",
+                    "description": ""
+                }
+            ],
+            "return": {
+                "description": "[test] rere",
+                "type": "JSON"
+            },
+            "since": "0.7.0",
+            "class": "Temasys.Peer"
+        },
+        {
+            "file": "source/components/peer.js",
+            "line": 1014,
+            "description": "Function to retrieve Datachannel connections.",
+            "params": [
+                {
+                    "name": "getDatachannels",
+                    "description": ""
+                }
+            ],
+            "return": {
+                "description": "[test] rere",
+                "type": "JSON"
+            },
+            "since": "0.7.0",
+            "class": "Temasys.Peer"
+        },
+        {
+            "file": "source/components/peer.js",
+            "line": 1024,
+            "description": "Function to retrieve DTMF sender.",
+            "params": [
+                {
+                    "name": "getDTMFSender",
+                    "description": ""
+                }
+            ],
+            "return": {
+                "description": "[test] rere",
+                "type": "JSON"
+            },
+            "since": "0.7.0",
+            "class": "Temasys.Peer"
+        },
+        {
+            "file": "source/components/peer.js",
+            "line": 1034,
             "description": "Function to retrieve Peer connection stats.",
             "itemtype": "method",
             "name": "getStats",
             "params": [
                 {
                     "name": "isRaw",
-                    "description": "The flag to return native `RTCStats` instead of parsed stats.",
+                    "description": "The flag to return native stats object instead of parsed stats.",
                     "type": "Boolean",
                     "optional": true,
                     "optdefault": "false"
@@ -2353,27 +3872,16 @@
         },
         {
             "file": "source/components/peer.js",
-            "line": 661,
-            "description": "Function to send a new Stream object to Peer.",
+            "line": 1051,
+            "description": "Function to set the {{#crossLink \"Temasys.Stream\"}}{{/crossLink}} object for this Peer.",
             "itemtype": "method",
-            "name": "stream",
+            "name": "setStream",
             "params": [
                 {
                     "name": "stream",
-                    "description": "The Stream object.",
-                    "type": "Temasys.Stream"
-                },
-                {
-                    "name": "options",
-                    "description": "The options.",
-                    "type": "JSON",
-                    "props": [
-                        {
-                            "name": "media",
-                            "description": "The media connection options.\n- This follows the",
-                            "type": "JSON"
-                        }
-                    ]
+                    "description": "The Stream object.\n- To not send any Stream to this Peer, set the value to `null`.",
+                    "type": "Temasys.Stream",
+                    "optional": true
                 }
             ],
             "return": {
@@ -2381,17 +3889,24 @@
                 "type": "Promise"
             },
             "example": [
-                "\n  peer.stream(stream, options).then(function () {\n    console.log(\"Send stream success ->\");\n  }).catch(function (error) {\n    console.error(\"Received error ->\", error);\n  });"
+                "\n  peer.setStream(stream).then(function () {\n    console.log(\"Set stream success.\");\n  }).catch(function (error) {\n    console.error(\"Set stream error ->\", error);\n  });"
             ],
             "since": "0.7.0",
             "class": "Temasys.Peer"
         },
         {
             "file": "source/components/peer.js",
-            "line": 681,
+            "line": 1069,
             "description": "Function to refresh Peer connection.",
             "itemtype": "method",
             "name": "refresh",
+            "params": [
+                {
+                    "name": "stream",
+                    "description": "The stream object.",
+                    "type": "Temasys.Stream"
+                }
+            ],
             "return": {
                 "description": "The Promise for function request completion.",
                 "type": "Promise"
@@ -2404,31 +3919,13 @@
         },
         {
             "file": "source/components/peer.js",
-            "line": 698,
+            "line": 1087,
             "description": "Function to send message to Peer.",
             "class": "Temasys.Peer"
         },
         {
-            "file": "source/components/peer.js",
-            "line": 706,
-            "description": "Function to send message to P",
-            "class": "Temasys.Peer"
-        },
-        {
-            "file": "source/components/peer.js",
-            "line": 710,
-            "description": "Function to start Peer connection.",
-            "class": "Temasys.Peer"
-        },
-        {
-            "file": "source/components/peer.js",
-            "line": 717,
-            "description": "Function to stop Peer connection.",
-            "class": "Temasys.Peer"
-        },
-        {
             "file": "source/components/room.js",
-            "line": 18,
+            "line": 14,
             "description": "The Auth (API) server domain.",
             "itemtype": "attribute",
             "name": "server",
@@ -2439,7 +3936,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 28,
+            "line": 24,
             "description": "The Auth (API) server protocol.",
             "itemtype": "attribute",
             "name": "protocol",
@@ -2450,7 +3947,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 38,
+            "line": 34,
             "description": "The Auth (API) server domain.",
             "itemtype": "attribute",
             "name": "server",
@@ -2461,7 +3958,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 48,
+            "line": 44,
             "description": "The Room name.",
             "itemtype": "attribute",
             "name": "name",
@@ -2472,7 +3969,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 58,
+            "line": 54,
             "description": "The Room ID.",
             "itemtype": "attribute",
             "name": "id",
@@ -2483,7 +3980,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 68,
+            "line": 64,
             "description": "The Room session start timestamp in ISO-8601 format.",
             "itemtype": "attribute",
             "name": "start",
@@ -2494,7 +3991,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 78,
+            "line": 74,
             "description": "The Room session duration in hours.",
             "itemtype": "attribute",
             "name": "duration",
@@ -2505,7 +4002,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 88,
+            "line": 84,
             "description": "The Room session hash used only for hash based authentication.",
             "itemtype": "attribute",
             "name": "hash",
@@ -2517,7 +4014,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 99,
+            "line": 95,
             "description": "The flag if Room session has auto-introduce enabled.",
             "itemtype": "attribute",
             "name": "autoIntroduce",
@@ -2528,7 +4025,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 109,
+            "line": 105,
             "description": "The Room session self Peer information.",
             "itemtype": "attribute",
             "name": "peer",
@@ -2594,7 +4091,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 143,
+            "line": 139,
             "description": "The WebRTC supports of the browser or device.",
             "itemtype": "attribute",
             "name": "webrtcSupports",
@@ -2661,7 +4158,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 171,
+            "line": 167,
             "description": "The current Room session connection status.",
             "itemtype": "attribute",
             "name": "current",
@@ -2699,7 +4196,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 214,
+            "line": 210,
             "description": "Event triggered when Room authentication state has changed.",
             "itemtype": "event",
             "name": "authState",
@@ -2737,7 +4234,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 228,
+            "line": 224,
             "description": "Event triggered when Room init state has changed.",
             "itemtype": "event",
             "name": "initState",
@@ -2770,7 +4267,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 240,
+            "line": 236,
             "description": "Event triggered when Room session state has changed.",
             "itemtype": "event",
             "name": "sessionState",
@@ -2803,7 +4300,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 252,
+            "line": 248,
             "description": "Event triggered when there are exceptions thrown in this event handlers.",
             "itemtype": "event",
             "name": "domError",
@@ -2819,7 +4316,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 260,
+            "line": 256,
             "description": "Function to subscribe to an event.",
             "itemtype": "method",
             "name": "on",
@@ -2840,7 +4337,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 270,
+            "line": 266,
             "description": "Function to subscribe to an event once.",
             "itemtype": "method",
             "name": "once",
@@ -2873,7 +4370,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 287,
+            "line": 283,
             "description": "Function to unsubscribe to events.",
             "itemtype": "method",
             "name": "off",
@@ -2896,7 +4393,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 313,
+            "line": 309,
             "description": "The Room SM protocol version supports.",
             "itemtype": "attribute",
             "name": "SM_PROTOCOL_VERSION",
@@ -2908,7 +4405,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 324,
+            "line": 320,
             "description": "The Room DT protocol version supports.",
             "itemtype": "attribute",
             "name": "DT_PROTOCOL_VERSION",
@@ -2920,7 +4417,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 335,
+            "line": 331,
             "description": "The enum of Room dependency initialising states.",
             "itemtype": "attribute",
             "name": "INIT_STATE_ENUM",
@@ -2949,7 +4446,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 353,
+            "line": 349,
             "description": "The enum of Room dependency initialising error codes.",
             "itemtype": "attribute",
             "name": "INIT_ERROR_CODE_ENUM",
@@ -2993,7 +4490,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 378,
+            "line": 374,
             "description": "The enum of Room authentication states, in which is used to validate the App Key ID before starting a session.",
             "itemtype": "attribute",
             "name": "AUTH_STATE_ENUM",
@@ -3022,7 +4519,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 396,
+            "line": 392,
             "description": "The enum of Room authentication error codes.",
             "itemtype": "attribute",
             "name": "AUTH_ERROR_CODE_ENUM",
@@ -3096,7 +4593,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 439,
+            "line": 435,
             "description": "The enum of Room connection session states.",
             "itemtype": "attribute",
             "name": "SESSION_STATE_ENUM",
@@ -3140,7 +4637,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 465,
+            "line": 461,
             "description": "The enum of Room connection session error codes.",
             "itemtype": "attribute",
             "name": "SESSION_ERROR_ENUM",
@@ -3209,7 +4706,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 508,
+            "line": 504,
             "description": "Function to get and check the connection availability.",
             "itemtype": "method",
             "name": "getConnectionAvailability",
@@ -3224,7 +4721,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 519,
+            "line": 515,
             "description": "Function to start initialising Room dependencies.",
             "itemtype": "method",
             "name": "init",
@@ -3249,7 +4746,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 623,
+            "line": 619,
             "description": "Function to start Room session connection.",
             "itemtype": "method",
             "name": "connect",
@@ -3344,19 +4841,19 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 679,
+            "line": 675,
             "description": "Internal function to update and trigger state.",
             "class": "Room"
         },
         {
             "file": "source/components/room.js",
-            "line": 707,
+            "line": 703,
             "description": "Internal function to load XHR response.",
             "class": "Room"
         },
         {
             "file": "source/components/room.js",
-            "line": 782,
+            "line": 778,
             "description": "Function to update the default stream or self Peer data.",
             "itemtype": "method",
             "name": "update",
@@ -3370,43 +4867,43 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 844,
+            "line": 840,
             "description": "Function to handle SM protocol for sending direction.",
             "class": "Room"
         },
         {
             "file": "source/components/room.js",
-            "line": 854,
+            "line": 850,
             "description": "\"joinRoom\" - Connects to the Room.",
             "class": "Room"
         },
         {
             "file": "source/components/room.js",
-            "line": 870,
+            "line": 866,
             "description": "\"enter\" - Broadcasts to existing Peers in the Room we exist.\n\"welcome\" - Respond to Peer who sent \"enter\" about who we are.\n\"restart\" - Re-negotiation request.",
             "class": "Room"
         },
         {
             "file": "source/components/room.js",
-            "line": 881,
+            "line": 877,
             "description": "Function to handle SM protocol for receiving direction.",
             "class": "Room"
         },
         {
             "file": "source/components/room.js",
-            "line": 890,
+            "line": 886,
             "description": "SM protocol: \"joinRoom\"",
             "class": "Room"
         },
         {
             "file": "source/components/room.js",
-            "line": 898,
+            "line": 894,
             "description": "SM protocol: \"inRoom\"",
             "class": "Room"
         },
         {
             "file": "source/components/room.js",
-            "line": 911,
+            "line": 907,
             "description": "SM protocol: \"enter\"",
             "class": "Room"
         },
@@ -3595,7 +5092,7 @@
         {
             "file": "source/components/socket.js",
             "line": 192,
-            "description": "Event triggered when stats retrieval state has changed.",
+            "description": "Event triggered when {{#crossLink \"Temasys.Socket/getStats:method\"}}{{/crossLink}} state has changed.",
             "itemtype": "event",
             "name": "getStatsStateChange",
             "params": [
@@ -14218,7 +15715,7 @@
     "warnings": [
         {
             "message": "param name/type/descript missing",
-            "line": " source/components/room.js:109"
+            "line": " source/components/room.js:105"
         },
         {
             "message": "replacing incorrect tag: parma with param",
@@ -14425,56 +15922,56 @@
             "line": " source/components/datachannel.js:348"
         },
         {
+            "message": "Missing item type\nFunction to retrieve Peer {{#crossLink \"Temasys.Stream\"}}Streams{{/crossLink}}.",
+            "line": " source/components/peer.js:1004"
+        },
+        {
+            "message": "Missing item type\nFunction to retrieve Datachannel connections.",
+            "line": " source/components/peer.js:1014"
+        },
+        {
+            "message": "Missing item type\nFunction to retrieve DTMF sender.",
+            "line": " source/components/peer.js:1024"
+        },
+        {
             "message": "Missing item type\nFunction to send message to Peer.",
-            "line": " source/components/peer.js:698"
-        },
-        {
-            "message": "Missing item type\nFunction to send message to P",
-            "line": " source/components/peer.js:706"
-        },
-        {
-            "message": "Missing item type\nFunction to start Peer connection.",
-            "line": " source/components/peer.js:710"
-        },
-        {
-            "message": "Missing item type\nFunction to stop Peer connection.",
-            "line": " source/components/peer.js:717"
+            "line": " source/components/peer.js:1087"
         },
         {
             "message": "Missing item type\nInternal function to update and trigger state.",
-            "line": " source/components/room.js:679"
+            "line": " source/components/room.js:675"
         },
         {
             "message": "Missing item type\nInternal function to load XHR response.",
-            "line": " source/components/room.js:707"
+            "line": " source/components/room.js:703"
         },
         {
             "message": "Missing item type\nFunction to handle SM protocol for sending direction.",
-            "line": " source/components/room.js:844"
+            "line": " source/components/room.js:840"
         },
         {
             "message": "Missing item type\n\"joinRoom\" - Connects to the Room.",
-            "line": " source/components/room.js:854"
+            "line": " source/components/room.js:850"
         },
         {
             "message": "Missing item type\n\"enter\" - Broadcasts to existing Peers in the Room we exist.\n\"welcome\" - Respond to Peer who sent \"enter\" about who we are.\n\"restart\" - Re-negotiation request.",
-            "line": " source/components/room.js:870"
+            "line": " source/components/room.js:866"
         },
         {
             "message": "Missing item type\nFunction to handle SM protocol for receiving direction.",
-            "line": " source/components/room.js:881"
+            "line": " source/components/room.js:877"
         },
         {
             "message": "Missing item type\nSM protocol: \"joinRoom\"",
-            "line": " source/components/room.js:890"
+            "line": " source/components/room.js:886"
         },
         {
             "message": "Missing item type\nSM protocol: \"inRoom\"",
-            "line": " source/components/room.js:898"
+            "line": " source/components/room.js:894"
         },
         {
             "message": "Missing item type\nSM protocol: \"enter\"",
-            "line": " source/components/room.js:911"
+            "line": " source/components/room.js:907"
         },
         {
             "message": "Missing item type\nFunction to start socket connection.",

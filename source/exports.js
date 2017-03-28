@@ -17,6 +17,8 @@
   window.BlobBuilder = window.BlobBuilder || window.WebKitBlobBuilder || window.MozBlobBuilder || window.MSBlobBuilder;
   /* jshint ignore:end */
 
+  var Temasys = {};
+
   @@include('../source/components/*.js')
   @@include('../source/skylink.js')
   @@include('../source/skylinklogs.js')

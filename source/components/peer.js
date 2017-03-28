@@ -521,7 +521,7 @@ function Peer (options, defaultOptions) {
    * @param {Number} [stats.video.received.frameSize.width] The current video frame width in pixels (px) received.
    * @param {Number} [stats.video.received.frameSize.height] The current video frame height in pixels (px) received.
    * @param {Number} [stats.video.received.e2eDelay] The current video e2e delay.
-   * - This requires a {{#crossLink "Stream"}}{{/crossLink}} attached to a video element.
+   * - This requires a {{#crossLink "Temasys.Stream"}}{{/crossLink}} attached to a video element.
    * @param {JSON} stats.candidates The Peer connection ICE candidates information.
    * @param {Array} stats.candidates.local The array of local ICE candidates stats information.
    * - `"index"` can be identified as the index item of each local ICE candidate stats object.
@@ -635,9 +635,11 @@ function Peer (options, defaultOptions) {
   /**
    * Event triggered when sending or receiving message.
    * @event message
-   * @param {Any} message The message.
-   * @param {Boolean} isPrivate The flag if message sent is targeted or not.
-   * @param {Boolean} isDatachannel The flag if message is sent from Datachannel connections.
+   * @param {JSON} message The message.
+   * @param {Any} message.data The message object.
+   * @param {Boolean} message.isPrivate The flag if message is targeted or not.
+   * @param {Boolean} message.isDatachannel the flag if message is sent from
+   *   {{#crossLink "Temasys.Datachannel"}}{{/crossLink}} connections.
    * @param {Boolean} isSelf The flag if sent from self.
    * @for Temasys.Peer
    * @since 0.7.0
@@ -650,6 +652,11 @@ function Peer (options, defaultOptions) {
    * @param {Boolean} isSelf The flag if transfer started from self.
    * @for Temasys.Peer
    * @since 0.7.0
+   */
+  /**
+   * Event triggered when sending DTMF.
+   * @event dtmf
+   * @param {Temasys.DTMF} dtmf The DTMF object.
    */
   /**
    * Event triggered when there are exceptions thrown in this event handlers.
@@ -991,11 +998,11 @@ Peer.prototype.CANDIDATE_PROCESSING_STATE_ENUM = {
  * @for Temasys.Peer
  * @since 0.7.0
  */
-Peer.prototype.getCandidate = function () {
+Peer.prototype.getCandidates = function () {
 };
 
 /**
- * Function to retrieve Peer {{#crossLink "Stream"}}Streams{{/crossLink}}.
+ * Function to retrieve Peer {{#crossLink "Temasys.Stream"}}Streams{{/crossLink}}.
  * @param getStreams
  * @return {JSON} [test] rere
  * @for Temasys.Peer
@@ -1042,28 +1049,27 @@ Peer.prototype.getStats = function (isRaw) {
 };
 
 /**
- * Function to send a new Stream object to Peer.
- * @method stream
- * @param {Temasys.Stream} stream The Stream object.
- * @param {JSON} options The options.
- * @param {JSON} options.media The media connection options.
- * - This follows the 
+ * Function to set the {{#crossLink "Temasys.Stream"}}{{/crossLink}} object for this Peer.
+ * @method setStream
+ * @param {Temasys.Stream} [stream] The Stream object.
+ * - To not send any Stream to this Peer, set the value to `null`.
  * @return {Promise} The Promise for function request completion.
  * @example
- *   peer.stream(stream, options).then(function () {
- *     console.log("Send stream success ->");
+ *   peer.setStream(stream).then(function () {
+ *     console.log("Set stream success.");
  *   }).catch(function (error) {
- *     console.error("Received error ->", error);
+ *     console.error("Set stream error ->", error);
  *   });
  * @for Temasys.Peer
- * @since 0.7.0
+ * @since 0.7.0  
  */
-Peer.prototype.stream = function (stream, options) {
+Peer.prototype.setStream = function (stream) {
 };
 
 /**
  * Function to refresh Peer connection.
  * @method refresh
+ * @param {Temasys.Stream} stream The stream object.
  * @return {Promise} The Promise for function request completion.
  * @example
  *   peer.stream(options).then(function () {

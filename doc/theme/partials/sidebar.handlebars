@@ -3,54 +3,21 @@
     <ul class="menu">
       <div class="section">
         <span class="header">Getting Started</span>    
-        <li>
-        <a href="#">1. Overview <i class="fa fa-caret-down"></i></a>
-        <ul>
-            <li><a href="#">a. Architecture</a></li>
-            <li><a href="#">b. Authentication Methods</a></li>
-            <li><a href="#">c. Persistent Rooms</a></li>
-            <li><a href="#">d. Auto-Introduce & Privileged</a></li>
-        </ul>
-        </li>
-        <li>
-        <a href="#">2. Integrating to Your Site <i class="fa fa-caret-down"></i></a>
-        <ul>
-            <li><a href="#">a. Referencing the SDK</a></li>
-            <li><a href="#">b. Code Samples</a></li>
-            <li><a href="#">c. Integrating your extensions & WebRTC plugin</a></li>
-        </ul>
-        </li>
-        <li><a href="#" class="nodropdown">3. Demos</a></li>
+        {{#sidebardefaultitems}}{{/sidebardefaultitems}}
       </div>
       <div class="section">
         <span class="header">API Documentation</span>
         <li>
-          <a href="#">Temasys <small>module</small><i class="fa fa-caret-down"></i></a>
+          <a>Temasys <small>module</small><i class="fa fa-caret-down"></i></a>
           <ul>
-            {{#classes}}
-              {{#if namespace}}
-                <li>
-                  <a href="{{../projectRoot}}classes/{{name}}.html">{{displayName}}
-                    <small>{{#if module}}module{{else}}class{{/if}}</small>
-                  </a>
-                </li>
-              {{/if}}
-            {{/classes}}
+            {{#each classes}}
+              {{#sidebaritem this true}}{{/sidebaritem}}
+            {{/each}}
           </ul>
         </li>
-        {{#classes}}
-          {{#if namespace}}
-            <!-- empty -->
-            <noscript></noscript>
-          {{else}}
-            ({{contains name "test"}})
-            <li>
-              <a href="{{../projectRoot}}classes/{{name}}.html" class="nodropdown">
-                {{displayName}} <small>{{#if module}}module{{else}}class{{/if}}</small>
-              </a>
-            </li>
-          {{/if}}
-        {{/classes}}
+        {{#each classes}}
+          {{#sidebaritem this false}}{{/sidebaritem}}
+        {{/each}}
       </div>
     </ul>
   </div>
