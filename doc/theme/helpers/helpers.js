@@ -1,3 +1,75 @@
+var t = 0;
+/**
+ * Function to print "type".
+ * @method sharedPrintTypeFn
+ * @private
+ */
+function sharedPrintTypeFn (typeItem) {
+	if (!typeItem) {
+		return '';
+	}
+	var outputStr = '';
+	var types = typeItem.split('|');
+	for (var i = 0; i < types.length; i++) {
+		if (['JSON', 'Array', 'String', 'Boolean', 'ArrayBuffer', 'Blob', 'Error',
+			'Number', 'Date', 'Promise', 'Function', 'Object', 'MediaStream'].indexOf(types[i]) > -1) {
+			outputStr += '<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/' +
+				'Reference/Global_Objects/' + types[i] + '" target="_blank"><var>' + types[i] + '</var></a>';
+		} else if (types[i] !== 'Any') {
+			outputStr += '<a class="load-template-item" template="classes/' + types[i] +
+				'" target="_blank"><var>' + types[i] + '</var></a>';
+		} else {
+			outputStr += '<var>' + types[i] + '</var>';
+		}
+		if (i !== (types.length - 1)) {
+			outputStr += '|';
+		}
+	}
+	return outputStr;
+}
+
+/**
+ * * Function to print "params".
+ * @method sharedPrintParamsFn
+ * @private
+ */
+function sharedPrintParamsFn (params, isReturn) {
+	var outputStr = '';
+	for (var i = 0; i < params.length; i++) {
+		// YUIDoc hack
+		if (params[i].name.indexOf('_return') === 0 ? !isReturn : isReturn) {
+			continue;
+		}
+		var name = params[i].name, desc = params[i].description,
+			deprecated = false, beta = false, cbfn = false;
+		if (desc.indexOf('@{beta}') > -1) {
+			beta = true;
+			desc = desc.replace(/@{beta}/gi, '');
+		}
+		if (desc.indexOf('@{depre}') > -1) {
+			deprecated = true;
+			desc = desc.replace(/@{depre}/gi, '');
+		}
+		if (desc.indexOf('@{cbfn}') > -1) {
+			cbfn = true;
+			desc = desc.replace(/@{cbfn}/gi, '');
+		}
+		if (name.indexOf('_return') === 0) {
+			name = name.replace(/_return/gi, '');
+		}
+		outputStr += '<li><p class="name"><var><b>' + name + '</b> - ' + sharedPrintTypeFn(params[i].type) + '</var>' +
+			(params[i].optdefault ? '<span class="name-default">Default: <code>' + params[i].optdefault +
+			'</code></span>' : '') + (params[i].optional ? '<span class="label default">' +
+			'<i class="fa fa-puzzle-piece"></i> optional' : '') + (beta ?
+			'<span class="label info"><i class="fa fa-flask"></i> beta</span>' : '') + (deprecated ?
+			'<span class="label danger"><i class="fa fa-exclamation-triangle"></i> deprecated</span>' : '') +
+			(cbfn ? '<span class="label primary"><i class="fa fa-mail-reply"></i> function param</span>' : '') +
+			'</p><p class="desc">' + desc + '</p>' + (Array.isArray(params[i].props) &&
+			params[i].props.length > 0 ? sharedPrintParamsFn(params[i].props, isReturn) : '') + '</li>';
+	}
+	return '<ul class="doc-params">' + outputStr + '</ul>';
+}
+
 module.exports = {
 	/**
 	 * Renders the sidebar menu item.
@@ -103,5 +175,45 @@ module.exports = {
 				!(params[i + 1] && params[i + 1].name === 'returns') ? ', ' : '');
 		}
 		return '(' + outputStr + ')';
+	},
+
+	/**
+	 * Renders the parameters items list.
+	 * @template parameters
+	 * @for classes.handlebars
+	 */
+	parameters: function (_params, _isReturn) {
+		if (!(Array.isArray(_params) && _params.length > 0)) {
+			return '<p>None</p>';
+		}
+		return sharedPrintParamsFn(_params, _isReturn);
+	},
+
+	/**
+	 * Renders the when clause item.
+	 * @template when
+	 * @for classes.handlebars
+	 */
+	when: function (whenItem) {
+		if (whenItem) {
+			var parts = whenItem.split(',');
+			return '<span class="when">Defined only when <var>.' + parts[0] + '</var> is <code>' +
+				parts[1] + '</code>.</span>';
+		}
+		return '';
+	},
+
+	/**
+	 * Renders the type item.
+	 * @template type
+	 * @for classes.handlebars
+	 */
+	type: sharedPrintTypeFn,
+
+	test: function (ref) {
+		if (t === 0) {
+			console.log(JSON.stringify(ref.is_constructor));
+		}
+		t++;
 	}
 };

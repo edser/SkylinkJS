@@ -624,6 +624,11 @@ navbar.side ul .section li:last-child a {
 
 .container .container-wrapper .body .body-wrapper .doc article .doc-params a {
   color: #aaa;
+  cursor: pointer;
+}
+
+.container .container-wrapper .body .body-wrapper .doc article .doc-params a:hover {
+  text-decoration: underline;
 }
 
 .container .container-wrapper .body .body-wrapper .doc article .doc-params .doc-params {

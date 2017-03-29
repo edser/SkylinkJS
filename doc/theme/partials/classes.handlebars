@@ -19,7 +19,7 @@
                 {{#if deprecated}}<span class="label danger">Deprecated</span>{{/if}}
                 {{#if beta}}<span class="label info">Beta</span>{{/if}}
               </td>
-              <td><var>{{#crossLink type}}{{/crossLink}}</var></td>
+              <td><var>{{#type type}}{{/type}}</var></td>
               <td>{{#tableItemDescription description}}{{/tableItemDescription}}</td>
             </tr>
           {{/if}}
@@ -49,7 +49,7 @@
         {{#methods}}
           <tr>
             <td><a href="#method_{{name}}"><code>.{{name}}</code></a>{{#tableItemParams params}}{{/tableItemParams}}</td>
-            <td><var>{{#if return}}{{#crossLink returnType}}{{/crossLink}}{{else}}-{{/if}}</var></td>
+            <td><var>{{#if return}}{{#type returnType}}{{/type}}{{else}}-{{/if}}</var></td>
             <td>{{#tableItemDescription description}}{{/tableItemDescription}}</td>
           </tr>
         {{/methods}}
