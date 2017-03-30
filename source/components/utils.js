@@ -2,6 +2,7 @@
  * Module that handles utility functionalities.
  * @class Temasys.Utils
  * @since 0.7.0
+ * @typedef module
  */
 var Utils = {};
 

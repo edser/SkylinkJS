@@ -1,0 +1,42 @@
+<h1>Overview - Persistent (Scheduled) vs Dynamic Room connection sessions</h1>
+<article class="_first">
+  <img src="content/img/overview_04.png" width="350px">
+  <p>For Persistent enabled <b>App Key</b>s, the <b>Room</b>s (in which would be called Persistent <b>Room</b>s)
+  will have a scheduled client connection sessions instead of dynamic connection sessions where a fixed
+  starting datetime and duration is set. By default, the feature is turned off.</p>
+</article>
+<article>
+  <h3>Persistent Room</h3>
+  <img src="content/img/overview_05.svg" width="650px">
+  <p>For Persistent <b>Room</b>s, the server will only accept connection sessions of starting datetime, duration
+  that matches the specified scheduled connection session (meeting) that is created with the REST API Meeting resources.</p>
+  <p>If the requested starting datetime, duration does not match any existing scheduled connection sessions (meeting),
+  the connection session will not start and will be rejected. This will only work if the requested starting datetime, duration
+  matches any existing scheduled connection sessions in the <b>Room</b>. Note that hash authentication method is required for
+  Persistent enabled <b>Room</b>s connection sessions.</p>
+  <h4>To enable Persistent Room feature:</h4>
+  <ol>
+    <li><span>Enable the <u>Persistent Room</u> feature on the <a href="https://console.temasys.io">Temasys Console</a> for
+    the <b>App Key</b>. You can also enable it via REST API by a PUT request to
+    <code class="route">PUT /rest/apps/:appkey</code> and toggle the <code>"room"</code> (boolean) property.</span></li>
+    <li><span>Create the meeting schedule via REST API by a POST request to
+    <code class="route">POST /rest/meetings/</code> and provide the <b>Room</b> name (<code>"rid"</code> property - string),
+    <b>App Key</b> (<code>"api"</code> property - string), starting datetime stamp (ISO 8601) (<code>"start"</code> - string)
+    and duration (in hours) (<code>"len"</code> - number).</span></li>
+    <li><span>Start the connection session based on the created meeting schedule with the same <b>Room</b> name,
+    <b>App Key</b>, starting datetime stamp and duration with the hash authentication method.</span></li>
+  </ol>
+
+  <p>You can also retrieve the list of scheduled meetings with the GET request to
+  <code class="route">GET /rest/meetings/:appkey</code> or delete a scheduled meeting with the DELETE request to
+  <code class="route">DELETE /rest/meetings/:meetingid</code>.</p>
+  <p>(Read more about the
+  <a href="https://temasys.atlassian.net/wiki/spaces/TPD/pages/10387490/Skylink+REST+API">Temasys REST API documentation here</a>)</p>
+</article>
+<article>
+  <h3>Dyanmic Room (non-Persistent)</h3>
+  <img src="content/img/overview_06.svg" width="650px">
+  <p>For Dynamic <b>Room</b>s (when Persistent feature is turned off), the server will accept
+  connection sessions regardless of starting datetime or duration. All it needs is to ensure that the
+  authentication passes regardless of authentication method. This is the default setting.</p>
+</article>

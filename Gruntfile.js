@@ -76,7 +76,7 @@ module.exports = function(grunt) {
         url: pkg.homepage,
         options: {
           paths: ['source/'],
-          outdir: 'doc/data/',
+          outdir: 'doc/content/data',
           parseOnly: true
           //themedir: 'doc/theme',
           //helpers: ['doc/theme/helpers/helpers.js'],
@@ -99,7 +99,7 @@ module.exports = function(grunt) {
       publish: {
         files: [{
           expand: true,
-          cwd: 'doc/output/',
+          cwd: 'doc/',
           src: ['**'],
           dest: 'release/doc/'
         }]
