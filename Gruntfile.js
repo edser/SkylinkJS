@@ -76,10 +76,11 @@ module.exports = function(grunt) {
         url: pkg.homepage,
         options: {
           paths: ['source/'],
-          outdir: 'doc/output/',
-          themedir: 'doc/theme',
-          helpers: ['doc/theme/helpers/helpers.js'],
-          linkNatives: true
+          outdir: 'doc/data/',
+          parseOnly: true
+          //themedir: 'doc/theme',
+          //helpers: ['doc/theme/helpers/helpers.js'],
+          //linkNatives: true
         }
       }
     },
