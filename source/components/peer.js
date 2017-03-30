@@ -1070,6 +1070,7 @@ Peer.prototype.setStream = function (stream) {
  * Function to refresh Peer connection.
  * @method refresh
  * @param {Temasys.Stream} stream The stream object.
+ * @param {Promise} _return Test.
  * @return {Promise} The Promise for function request completion.
  * @example
  *   peer.stream(options).then(function () {

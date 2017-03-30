@@ -3906,6 +3906,11 @@
                     "name": "stream",
                     "description": "The stream object.",
                     "type": "Temasys.Stream"
+                },
+                {
+                    "name": "_return",
+                    "description": "Test.",
+                    "type": "Promise"
                 }
             ],
             "return": {
@@ -3920,7 +3925,7 @@
         },
         {
             "file": "source/components/peer.js",
-            "line": 1087,
+            "line": 1088,
             "description": "Function to send message to Peer.",
             "class": "Temasys.Peer"
         },
@@ -15940,7 +15945,7 @@
         },
         {
             "message": "Missing item type\nFunction to send message to Peer.",
-            "line": " source/components/peer.js:1087"
+            "line": " source/components/peer.js:1088"
         },
         {
             "message": "Missing item type\nInternal function to update and trigger state.",

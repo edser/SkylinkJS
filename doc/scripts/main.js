@@ -56,7 +56,7 @@ $(document).ready(function () {
       }
       var items = type.split('|'), outputStr = '', index = 0;
       while (index < items.length) {
-        if (['Object', 'Array', 'ArrayBuffer', 'Blob', 'String', 'Number',
+        if (['Object', 'Array', 'ArrayBuffer', 'Blob', 'String', 'Number', 'Promise',
           'Boolean', 'JSON', 'Error', 'MediaStream', 'Function', 'RTCCertificate'].indexOf(items[index]) > -1) {
           outputStr += '<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/' +
 				    'Reference/Global_Objects/' + items[index] + '" target="_blank">' + items[index] + '</a>';
@@ -136,13 +136,17 @@ $(document).ready(function () {
      * @method renderItemsParams
      * @for Template
      */
-    renderItemsParams: function (params, isChild) {
+    renderItemsParams: function (params, isReturn, isChild) {
       if (!(Array.isArray(params) && params.length > 0)) {
         return isChild ? '' : '<p>None</p>';
       }
       var outputStr = '', index = 0;
 
       while (index < params.length) {
+        if (params[index].name.indexOf('_return') === 0 ? !isReturn : isReturn) {
+          index++;
+          continue;
+        }
         var desc = (params[index].description || ''), isCbParam = false, deprecated = false;
         if (desc.indexOf('@(cbparam)') > -1) {
           desc = desc.replace(/@\(cbparam\)/gi, '');
@@ -152,17 +156,17 @@ $(document).ready(function () {
           desc = desc.replace(/@\(deprecated\)/gi, '');
           deprecated = true;
         }
-        outputStr += '<li><p class="name"><var><b>' + params[index].name + '</b></var> &nbsp;:&nbsp; <var>' +
+        outputStr += '<li><p class="name"><var><b>' + params[index].name.replace('_return', 'result') + '</b></var> &nbsp;:&nbsp; <var>' +
           this.renderItemType(params[index].type) + '</var>' +
           (params[index].optdefault ? '<span class="name-default">Default: <code>' + params[index].optdefault +
           '</code></span>' : '') + (isCbParam ? '<span class="label primary"><i class="fa fa-mail-reply"></i>' + 
           ' function parameter</span>' : '') + (deprecated ? '<span class="label danger">' + 
           '<i class="fa fa-exclamation-triangle"></i> deprecated</span>' : '') +
           '</p><p class="desc">' + window.marked(desc).replace(/<(br|br\/)>/gi, '') +
-          '</p>' + this.renderItemsParams(params[index].props, true) + '</li>';
+          '</p>' + this.renderItemsParams(params[index].props, isReturn, true) + '</li>';
         index++;
       }
-      return '<ul class="doc-params">' + outputStr + '</ul>';
+      return isReturn && !outputStr ? '<p>None</p>' : '<ul class="doc-params">' + outputStr + '</ul>';
     },
 
     /**
@@ -188,7 +192,7 @@ $(document).ready(function () {
           '<h3><var>' + (item.is_constructor ? 'new ' + item.name + '()' : (item.itemtype === 'event' ?
           '"' + item.name + '"' : '.' + item.name + (item.itemtype === 'method' ? '()' : ''))) + '</var> <small>' +
           (item.itemtype === 'attribute' ? ' : &nbsp;' + ref.renderItemType(item.type) : (item.itemtype === 'method' ?
-          ' &#8594;&nbsp; ' + ref.renderItemType(item.returnType) : '')) + '</small></h3><p class="doc-supports">' +
+          ' &#8594;&nbsp; ' + ref.renderItemType(item.return ? item.return.type : '') : '')) + '</small></h3><p class="doc-supports">' +
           (requiresItem ? '<span class="when">Available / Defined when <var>' + requiresItem[0] + '</var> is <code>' +
           requiresItem[1] + '/code>.</span>' : '') + '<!--<span class="supports"><em class="title">Supports:</em>' +
 				  '<em><i class="fa fa-chrome"></i> 55</em><em><i class="fa fa-firefox"></i> 48</em>' +
@@ -196,8 +200,8 @@ $(document).ready(function () {
 				  '<em><i class="fa fa-internet-explorer"></i> 11 (0.8.870)</em><em><i class="fa fa-edge"></i> 13.457</em>' +
 				  '<em><i class="fa fa-android"></i> 8</em><em><i class="fa fa-globe"></i> 0.6.1</em></span>--></p>' +
           '<p>' + window.marked(item.description || '') + '</p><h5>' + (item.itemtype === 'attribute' ? 'Properties:' :
-          (item.itemtype === 'event' ? 'Payloads:' : 'Parameters:')) + '</h5>' + ref.renderItemsParams(item.params) +
-          '</article>';
+          (item.itemtype === 'event' ? 'Payloads:' : 'Parameters:')) + '</h5>' + ref.renderItemsParams(item.params, false) +
+          (item.itemtype === 'method' ? '<h5>Returns</h5>' + ref.renderItemsParams(item.params, true) : '') + '</article>';
       };
 
       if (type === 'constructor') {
