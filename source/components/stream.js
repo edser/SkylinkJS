@@ -12,7 +12,7 @@
  *   E.g. `sourceId: { exact: ..., ideal: ... }`.
  * - The list of available audio track sources can be obtained from
  *   {{#crossLink "Utils/Utils.Stream.getSources:method"}}{{/crossLink}}.
- * @param {Array} [options.audio.optional] @[exp] The native `getUserMedia()` API audio optional constraints.
+ * @param {Array} [options.audio.optional] @(exp) The native `getUserMedia()` API audio optional constraints.
  *   E.g. `optional: ({ xxx, xxx })`
  * @param {JSON|Boolean} [options.video] The video track options.
  * - When provided as a `Boolean`, it simply passes it as `true` as the native `getUserMedia()` API video constraint.
@@ -21,24 +21,24 @@
  *   E.g. `sourceId: { exact: ..., ideal: ... }`.
  * - The list of available video track sources can be obtained from
  *   {{#crossLink "Utils/Utils.Stream.getSources:method"}}{{/crossLink}}.
- * @param {JSON|Number} [options.video.width] @[exp] The video track expected video frame resolution width.
+ * @param {JSON|Number} [options.video.width] @(exp) The video track expected video frame resolution width.
  * - When provided as a `JSON`, it follows the native `getUserMedia()` API constraints.
  *   E.g. `width: { exact: ..., ideal: ..., min: ..., max: ... }`.
- * @param {JSON|Number} [options.video.height] @[exp] The video track expected video frame resolution height.
+ * @param {JSON|Number} [options.video.height] @(exp) The video track expected video frame resolution height.
  * - When provided as a `JSON`, it follows the native `getUserMedia()` API constraints.
  *   E.g. `height: { exact: ..., ideal: ..., min: ..., max: ... }`.
- * @param {JSON|Number} [options.video.frameRate] @[exp] The video track expected video framerate (fps).
+ * @param {JSON|Number} [options.video.frameRate] @(exp) The video track expected video framerate (fps).
  * - When provided as a `JSON`, it follows the native `getUserMedia()` API constraints.
  *   E.g. `frameRate: { exact: ..., ideal: ..., min: ..., max: ... }`.
- * @param {JSON|Number} [options.video.facingMode] @[exp] The video track expected video camera facing mode.
+ * @param {JSON|Number} [options.video.facingMode] @(exp) The video track expected video camera facing mode.
  * - When provided as a `JSON`, it follows the native `getUserMedia()` API constraints.
  *   E.g. `facingMode: { exact: ..., ideal: ..., min: ..., max: ... }`.
- * @param {Array|String|Boolean} [options.video.screenshare] @[exp] The flag if video track is screensharing source.
+ * @param {Array|String|Boolean} [options.video.screenshare] @(exp) The flag if video track is screensharing source.
  * - When provided as an `Array` or a `String`, it follows the native `getUserMedia()` API `"mediaSource"` constraints.
  *   E.g. `mediaSource: options.video.screenshare`.
  * - If this is defined (not as `false`), the native `getUserMedia()` API might be executed twice for audio track and
  *   video track separately.
- * @param {JSON} [options.custom] @[exp] The custom native `getUserMedia()` API constraints to use.
+ * @param {JSON} [options.custom] @(exp) The custom native `getUserMedia()` API constraints to use.
  *   E.g. `custom: { audio: { ... }, video: { ... } }`.
  * - If this is defined, this will override all `options.audio` and `options.video` settings.
  * @constructor

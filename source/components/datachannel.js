@@ -1,5 +1,5 @@
 /**
- * Handles the native `RTCDataChannel` object connection.
+ * Handles the Peer Datachannel connection.
  * @class Temasys.Datachannel
  * @constructor
  * @private

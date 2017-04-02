@@ -1,0 +1,567 @@
+/**
+ * Copyright: (c) Temasys Communications Pte Ltd - All Rights Reserved
+ */
+body {
+  font-family: 'Source Sans Pro', Arial, Helvetica, sans-serif;
+  font-size: 14px;
+  margin: 0;
+  padding: 0;
+}
+
+a, button {
+  cursor: pointer;
+  transition: all .15s ease-in-out;
+}
+
+code, pre, var {
+  font-family: 'Source Code Pro', consolas;
+  font-style: normal;
+}
+
+code {
+  color: #c7254e;
+  background: #f9f2f4;
+  padding: 2px 4px;
+  font-size: 90%;
+}
+
+/**
+ * For top navigation.
+ * : <navbar class="navbar-top">
+ */
+navbar.navbar-top {
+  display: block;
+  background: #2c3840;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  max-height: 42px;
+  min-height: 42px;
+  text-align: right;
+  border-bottom: solid 1px #888;
+  box-shadow: #686868 1px 1px 1px;
+}
+
+navbar.navbar-top a {
+  color: #ccc;
+  display: inline-block;
+  vertical-align: top;
+  text-align: center;
+  padding: 11px 15px 13px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+navbar.navbar-top .navbar-top-left {
+  float: left;
+}
+
+navbar.navbar-top .navbar-top-left a {
+  color: #dedede;
+  padding: 12px 15px;
+}
+
+navbar.navbar-top .navbar-top-left a img {
+  display: inline-block;
+  vertical-align: top;
+  margin: -2px 10px 0 0;
+  height: 20px;
+  width: auto;
+}
+
+navbar.navbar-top .navbar-top-right a {
+  border-left: solid 1px #686868;
+}
+
+navbar.navbar-top .navbar-top-right a .fa {
+  margin-right: 5px;
+}
+
+navbar.navbar-top .navbar-top-right a:hover {
+  background: #41525e;
+  color: #fff;
+}
+
+navbar.navbar-top .navbar-top-right a.primary {
+  background: #008CBA;
+  color: #fff;
+  margin-left: -3px;
+  border-left-color: #aaa;
+}
+
+navbar.navbar-top .navbar-top-right a.primary:hover {
+  background: #026d90;
+}
+
+navbar.navbar-top .navbar-top-right-mobile {
+  display: none;
+  vertical-align: top;
+  font-size: 19px;
+  background: none;
+  border: 0;
+  padding: 10px 13px;
+  color: #eee;
+}
+
+navbar.navbar-top .navbar-top-right-mobile:hover {
+  background: #41525e;
+  color: #fff;
+}
+
+/**
+ * For top navigation right-side related links.
+ * : <navbar class="navbar-top"> .. <div class="navbar-top-right"> .. <div class="navbar-top-right-related">
+ */
+navbar.navbar-top .navbar-top-right .navbar-top-right-related {
+  display: inline-block;
+  vertical-align: top;
+  margin: 0 8px;
+}
+
+navbar.navbar-top .navbar-top-right .navbar-top-right-related a {
+  font-size: 12px;
+  border: 0;
+  padding: 13px 8px 13px;
+}
+
+navbar.navbar-top .navbar-top-right .navbar-top-right-related a:hover {
+  background: none;
+}
+
+/**
+ * For side-right navigation.
+ * : <navbar class="navbar-right">
+ */
+navbar.navbar-right { 
+  position: fixed;
+  min-width: 220px;
+  max-width: 220px;
+  background: #444;
+  right: 0;
+  bottom: 0;
+  top: 42px;
+  z-index: 9;
+  color: #ccc;
+  border-left: solid 1px #ccc;
+  padding: 25px 15px 25px 0;
+  overflow-y: auto;
+}
+
+navbar.navbar-right ul {
+  padding: 0;
+  margin: 0;
+  list-style-type: none;
+}
+
+navbar.navbar-right a {
+  cursor: pointer;
+  display: block;
+  font-weight: 600;
+  padding: 12px 15px;
+}
+
+navbar.navbar-right .navbar-right-section {
+  margin-bottom: 25px;
+}
+
+navbar.navbar-right .navbar-right-section .section-header {
+  color: #888;
+  text-transform: uppercase;
+  font-weight: 600;
+  margin: 0 0 15px 15px;
+  font-size: 13px;
+}
+
+navbar.navbar-right .navbar-right-section > ul > li {
+  margin: 0;
+  border-left: solid 3px #444;
+}
+
+navbar.navbar-right .navbar-right-section > ul > li a {
+  font-size: 15px;
+  padding: 7px 12px;
+}
+
+navbar.navbar-right .navbar-right-section > ul > li:hover {
+  border-color: #888;
+}
+
+navbar.navbar-right .navbar-right-section > ul > li:hover a {
+  color: #fff;
+}
+
+navbar.navbar-right .navbar-right-section > ul > li.active {
+  margin: 0 0 12px;
+  border-color: #008CBA;
+}
+
+navbar.navbar-right .navbar-right-section > ul > li.active > a {
+  color: #fff;
+}
+
+navbar.navbar-right .navbar-right-section > ul > li.parent ul {
+  margin: 0;
+  padding-bottom: 7px;
+}
+
+navbar.navbar-right .navbar-right-section > ul > li.parent ul li a {
+  position: relative;
+  font-size: 13px;
+  margin-left: 26px;
+  color: #aaa;
+  padding: 5px 7px;
+  display: block;
+}
+
+navbar.navbar-right .navbar-right-section > ul > li.parent ul li a .circle,
+navbar.navbar-right .navbar-right-section > ul > li.parent ul li a .div {
+  transition: all .15s ease-in-out;
+}
+
+navbar.navbar-right .navbar-right-section > ul > li.parent ul li a .circle {
+  width: 5px;
+  height: 5px;
+  left: -15px;
+  border-color: #888;
+  position: absolute;
+  display: inline-block;
+  border-radius: 50%;
+  margin-top: 6px;
+  border: solid 2px #aaa;
+  background: #444;
+  z-index: 2;
+}
+
+navbar.navbar-right .navbar-right-section > ul > li.parent ul li a .div {
+  position: absolute;
+  bottom: -14px;
+  left: -11px;
+  top: 14px;
+  background: #888;
+  display: block;
+  width: 2px;
+  z-index: 1;
+}
+
+navbar.navbar-right .navbar-right-section > ul > li.parent ul li:last-child a .div {
+  display: none;
+}
+
+navbar.navbar-right .navbar-right-section > ul > li.parent ul li a:hover {
+  color: #eee;
+}
+
+navbar.navbar-right .navbar-right-section > ul > li.parent ul li:hover a {
+  color: #eee;
+}
+
+navbar.navbar-right .navbar-right-section > ul > li.parent ul li:hover a .circle {
+  border-color: #eee;
+  background: #eee;
+}
+
+navbar.navbar-right .navbar-right-section > ul > li.parent ul li:hover a .div {
+  background: #eee;
+}
+
+navbar.navbar-right .navbar-right-section > ul > li.parent ul li.active a {
+  color: #d2ebf3;
+}
+
+navbar.navbar-right .navbar-right-section > ul > li.parent ul li.active a .div {
+  background: #d2ebf3;
+}
+
+navbar.navbar-right .navbar-right-section > ul > li.parent ul li.active a .circle {
+  border-color: #d2ebf3;
+  background: #008CBA;
+}
+
+/**
+ * For main content.
+ * : <main class="main-content">
+ */
+main.main-content {
+  position: absolute;
+  right: 250px;
+  top: 42px;
+  left: 0;
+  padding: 25px 15px;
+}
+
+main.main-content h1,
+main.main-content h2 {
+  font-weight: 300;
+  margin-top: 0;
+  color: #008CBA;
+}
+
+main.main-content h2 {
+  border-left: solid 2px #d2ebf3;
+  padding-left: 15px;
+  font-weight: 600;
+}
+
+main.main-content h2 code {
+  background: #f9f2f4;
+  color: #008CBA;
+}
+
+main.main-content h3 {
+  color: #026d90;
+  margin-top: 0;
+}
+
+
+main.main-content .header-tabs {
+  border-bottom: solid 1px #ccc;
+  transition: all .15s ease-in-out;
+}
+
+main.main-content .header-tabs a {
+  display: inline-block;
+  vertical-align: top;
+  padding: 9px 17px;
+  background: #eee;
+  margin-right: 2px;
+  border-top-left-radius: 7px;
+  border-top-right-radius: 7px;
+  font-weight: 600;
+  color: #888;
+}
+
+main.main-content .header-tabs a:hover {
+  color: #444;
+}
+
+main.main-content .header-tabs a.active {
+  margin-bottom: -1px;
+  padding-bottom: 10px;
+  background: #fff;
+  border: solid 1px #ccc;
+  border-bottom: 0;
+  color: #444;
+}
+
+main.main-content.tabs {
+  padding-top: 75px;
+}
+
+main.main-content.tabs .header-tabs {
+  position: fixed;
+  top: 42px;
+  left: 15px;
+  right: 265px;
+  padding-top: 18px;
+  background: #fff;
+  z-index: 3;
+}
+
+main.main-content.tabs .header-tabs h1 {
+  display: inline-block;
+  vertical-align: bottom;
+  margin: 0 5px 0 0;
+  font-size: 18px;
+  font-weight: 600;
+  padding: 6px 7px;
+}
+
+main.main-content .content.doc h2 {
+  border-left: 0;
+  padding-left: 0;
+  font-size: 22px;
+}
+
+main.main-content .content.doc {
+  position: relative;
+}
+
+main.main-content .content.doc .doc-left,
+main.main-content .content.doc .doc-right {
+  display: inline-block;
+  vertical-align: top;
+}
+
+main.main-content .content.doc h3 {
+  color: #222;
+  font-size: 14px;
+  text-transform: uppercase;
+  margin-top: 25px;
+}
+
+main.main-content .content.doc h2 span {
+  font-size: 14px;
+  color: #686868;
+  font-weight: 500;
+}
+
+main.main-content .content.doc h2 .since {
+  float: right;
+}
+
+main.main-content .content.doc h2 .type {
+  margin-left: 9px;
+}
+
+main.main-content .content.doc h2 .type a {
+  margin-left: 5px;
+}
+
+main.main-content .content.doc h2 .type code {
+  color: #c7254e;
+  font-size: 14px;
+  text-decoration: underline;
+}
+
+main.main-content .content.doc h2 code small {
+  color: #696969;
+}
+  
+
+main.main-content .content.doc .doc-right {
+  position: fixed;
+  top: 110px;
+  right: 265px;
+  width: 400px;
+  padding: 0;
+  margin: 0;
+  bottom: 15px;
+  display: block;
+}
+
+main.main-content .content.doc .doc-left {
+  position: absolute;
+  left: 0;
+  right: 400px;
+  padding-right: 15px;
+}
+
+main.main-content .content.doc .doc-left .panel {
+  padding: 3px 7px;
+  border-left: solid 2px #ccc;
+  color: #888;
+  margin-bottom: 7px;
+  font-weight: 600;
+}
+
+main.main-content .content.doc .doc-left .panel b {
+  font-weight: 800;
+}
+
+main.main-content .content.doc .doc-left .panel.danger {
+  color: #ce4844;
+  border-color: #ce4844;
+}
+
+main.main-content .content.doc .doc-left .panel.warning {
+  color: #aa6708;
+  border-color: #aa6708;
+}
+
+main.main-content .content.doc .doc-left .panel.info {
+  color: #1b809e;
+  border-color: #1b809e;
+}
+
+main.main-content .content.doc .doc-params code {
+  font-size: 14px;
+}
+
+main.main-content .content.doc .doc-params > li {
+  margin-bottom: 7px;
+  list-style-type: circle;
+}
+
+main.main-content .content.doc .doc-params > li .param-name,
+main.main-content .content.doc .doc-params > li .param-desc {
+  margin: 12px 0;
+}
+
+main.main-content .content.doc .doc-params > li .param-name .typeof {
+  background: #f8f8f8;
+  color: #888;
+  font-size: 12px;
+  font-style: italic;
+  padding: 2px 7px;
+  margin-left: 9px;
+  text-decoration: underline;
+}
+
+main.main-content .content.doc .doc-params > li .param-name span {
+  color: #888;
+  border: solid 1px #ccc;
+  border-top: 0;
+  border-bottom: 0;
+  padding: 2px 7px;
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: -2px;
+  background: #eee;
+}
+
+main.main-content .content.doc .doc-params > li .param-name .optional b {
+  font-weight: 600;
+}
+
+main.main-content .content.doc .doc-params > li .param-name .optional code {
+  font-size: 12px;
+}
+
+main.main-content .content.doc .doc-params > li .param-name .beta {
+  color: #1b809e;
+  background: #d9edf7;
+}
+
+main.main-content .content.doc .doc-params > li .param-name .deprecated {
+  color: #8a6d3b;
+  background: #fcf8e3;
+}
+
+main.main-content .content.doc .doc-params > li .param-name .response {
+  background: #337ab7;
+  color: #fff;
+  font-weight: 600;
+}
+
+main.main-content .content.doc .doc-params > li .param-desc ul,
+main.main-content .content.doc .doc-params > li .param-desc ol {
+  padding-left: 19px;
+  margin-top: 15px;
+}
+
+main.main-content .content.doc .doc-params > li .param-desc ol li,
+main.main-content .content.doc .doc-params > li .param-desc ul li {
+  margin-bottom: 5px;
+}
+
+main.main-content .content.doc .doc-params > li .param-desc ul {
+  list-style-type: disc;
+}
+
+main.main-content .content.doc .doc-params .doc-params {
+  padding-left: 15px;
+}
+
+@media screen and (max-width: 996px) {
+  body {
+    font-size: 16px;
+  }
+
+  navbar.navbar-top .navbar-top-left a {
+    padding-top: 11px;
+  }
+
+  navbar.navbar-top .navbar-top-left a img {
+    margin-top: 1px;
+  }
+
+  navbar.navbar-top .navbar-top-right {
+    display: none;
+  }
+
+  navbar.navbar-top .navbar-top-right-mobile {
+    display: inline-block;
+  }
+}

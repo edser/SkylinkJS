@@ -2,10 +2,10 @@
  * Handles the Room socket.io-client connection to the Signling server.
  * @class Temasys.Socket
  * @param {JSON} [options] The options.
- * @param {String} [options.server] @[exp] The custom Signaling server domain to use.
- * @param {Array} [options.ports] @[exp] The custom list of Signaling server ports (`Number`) to use.
+ * @param {String} [options.server] @(exp) The custom Signaling server domain to use.
+ * @param {Array} [options.ports] @(exp) The custom list of Signaling server ports (`Number`) to use.
  * - The priority of port used is based on first index order starting from `0`.
- * @param {String} [options.path] @[exp] The custom Signaling server path to use.
+ * @param {String} [options.path] @(exp) The custom Signaling server path to use.
  * @param {String} [options.protocol] The protocol to use to connect to the Signaling server.
  * - When not provided, the current accessing `window.location.protocol` will be used.
  * @param {Array} [options.transports] The list of socket.io-client transports to use.
@@ -19,7 +19,7 @@
  *   reconnectionDelay: 5000, reconnectionDelayMax: 2000, randomizationFactor: 0.5, timeout: 20000 },
  *   polling: { reconnection: true, reconnectionAttempts: 4, reconnectionDelay: 2000,
  *   reconnectionDelayMax: 1000, randomizationFactor: 0.5, timeout: 20000 } }`
- * @param {JSON} options.options.index @[exp] The socket options for the `"index"` socket.io-client transport type.
+ * @param {JSON} options.options.index @(exp) The socket options for the `"index"` socket.io-client transport type.
  * - `"index"` can be identified as: `"websocket"` (Websocket) or `"polling"` (Polling).
  * @param {Boolean} [options.options.index.reconnection=true] The flag if socket connection should
  *   reconnect several attempts for the current transport or port used before switching to the next

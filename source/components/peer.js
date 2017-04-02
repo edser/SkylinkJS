@@ -2,7 +2,7 @@
  * Handles the native `RTCPeerConnection` object connection.
  * @class Temasys.Peer
  * @param {JSON} options The options.
- * @param {JSON} [options.constraints] @[exp] The native `RTCPeerConnection` object constraints settings.
+ * @param {JSON} [options.constraints] @(exp) The native `RTCPeerConnection` object constraints settings.
  * @param {String} [options.constraints.iceTransportPolicy=ALL] The ICE transport policy for gathering ICE candidates.
  * - See {{#crossLink "Temasys.Peer/ICE_TRANSPORT_POLICY_ENUM:attribute"}}{{/crossLink}} for reference.
  * @param {String} [options.constraints.rtcpMuxPolicy=REQUIRE] The RTP and RTCP multiplex policy for gathering ICE candidates.
@@ -28,11 +28,11 @@
  * @param {Boolean} [options.constraints.iceServers.stun.public] The flag if public STUN ICE servers should be used.
  * @param {Array|String} [options.constraints.iceServers.stun.urls] The list of STUN servers urls to use.
  *  E.g. `("turn.temasys.io:3478", "turn.temasys.io:19305")` or `"turn.temasys.io"`
- * @param {JSON} [options.candidates] @[exp] The ICE candidates settings.
+ * @param {JSON} [options.candidates] @(exp) The ICE candidates settings.
  * @param {Boolean} [options.candidates.host=true] The flag if "host" ICE candidates should be used.
  * @param {Boolean} [options.candidates.srflx=true] The flag if "srflx" ICE candidates should be used.
  * @param {Boolean} [options.candidates.relay=true] The flag if "relay" ICE candidates should be used.
- * @param {JSON} [options.codecs] @[exp] The codecs settings.
+ * @param {JSON} [options.codecs] @(exp) The codecs settings.
  * - This configures the Peer connection native `RTCSessionDescription` object string.
  * @param {JSON} [options.codecs.params] The media connection codecs parameters settings.
  * - When settings are not provided, the default browser configuration is used.
@@ -150,7 +150,7 @@
  * @param {Number} [options.media.video.maxBandwidth=512] The maximum range limit of sending video bandwidth in kbps.
  * - The bandwidth might be lower or higher by a few kbps than the specified range at times.
  * - Set it as `0` to remove limits.
- * @param {JSON} [options.media.video.xGoogleBandwidth] @[exp] The bitrate configuration for video codec bandwidth.
+ * @param {JSON} [options.media.video.xGoogleBandwidth] @(exp) The bitrate configuration for video codec bandwidth.
  * - When settings are not provided, the default browser configuration is used.
  * @param {Number} [options.media.video.xGoogleBandwidth.min] The `"x-google-min-bitrate"` configuration.
  * @param {Number} [options.media.video.xGoogleBandwidth.max] The `"x-google-max-bitrate"` configuration.

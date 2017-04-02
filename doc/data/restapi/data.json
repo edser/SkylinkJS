@@ -1,0 +1,21 @@
+{
+  "domain": "https://api.temasys.io",
+  "content-type": "application/json",
+  "body": "x-www-formurlencoded",
+  "version": "1.0.0",
+  "resources": [{
+    "name": "App (App Key) Resources",
+    "description": "Handles the App and its App Keys configuration.",
+    "routes": [{
+      "endpoint": "/rest/apps/",
+      "method": "GET",
+      "description": "Retrieves the list of all Routes.",
+      "params": {},
+      "response": {
+        "content": {
+          
+        }
+      }
+    }]
+  }]
+}

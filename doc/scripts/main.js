@@ -1,3 +1,6 @@
+/**
+ * Copyright: (c) Temasys Communications Pte Ltd - All Rights Reserved
+ */
 $(document).ready(function () {
   var dataStorage = {};
 
@@ -33,7 +36,7 @@ $(document).ready(function () {
     renderClass: function (className) {
       return '<section class="doc"><h1><var>' + className + '</var> ' +
         (dataStorage.classes[className].typedef || 'class') + '</h1>' +
-        '<article class="_first"><p>' + window.marked(dataStorage.classes[className].description || '') + '</p>' +
+        '<article class="_first"><p>' + this.renderCrossLink(dataStorage.classes[className].description) + '</p>' +
         this.renderSummary(className, 'properties') +
         this.renderSummary(className, 'constants') +
         this.renderSummary(className, 'methods') +
@@ -78,7 +81,7 @@ $(document).ready(function () {
      * @for Template
      */
     renderSummaryDescription: function (text) {
-      return window.marked(text || '').replace(/<(\/p|p)>|<(ul|ol)>(.|\r|\n|\s)*<\/(ul|ol)>/gi, '').replace(
+      return this.renderCrossLink(text || '').replace(/<(\/p|p)>|<(ul|ol)>(.|\r|\n|\s)*<\/(ul|ol)>/gi, '').replace(
         /<blockquote\ class\=\".*\">.*<\/blockquote>/gi, '').replace(/<(br|hr|br\/|hr\/)>/gi, '');
     },
 
@@ -132,6 +135,43 @@ $(document).ready(function () {
     },
 
     /**
+     * Render the yuidoc #crossLink.
+     * @method renderCrossLink
+     * @for Template
+     */
+    renderCrossLink: function (text) {
+      var result = (text || '').match(/{{#crossLink\ \".*\"}}.*{{\/crossLink}}/gi);
+      if (result) {
+        try {
+          var index = 0, outputStr = text;
+          while (index < result.length) {
+            var parts = result[index].split('"');
+            var href = '';
+            var title = '';
+            if (parts[1].indexOf('/') > 0) {
+              var sparts = parts[1].split('/');
+              var aparts = sparts[1].split(':');
+              href += sparts[0] + '#' + (aparts[1] === 'attribute' ? 'attr' :
+                (aparts[1] === 'event' ? 'event' : 'method')) + '_' + aparts[0];
+              title = '<code>' + sparts[0] + '.' + aparts[0] + (aparts[1] === 'method' ? '()' : '') + '</code>';
+            } else {
+              href += parts[1];
+              title = parts[1];
+            }
+            if (parts[2] && parts[2].match(/}}.*{{\/crossLink/gi)) {
+              title = parts[2].split('}}')[1].split('{{/crossLink')[0] || title;
+            }
+            outputStr = outputStr.replace(new RegExp(result[index], 'gi'), '<a template="' + href +
+              '" target="_blank" class="select-template-item">' + title + '</a>');
+            index++;
+          }
+        } catch (e) {}
+        return window.marked(outputStr || '').replace(/<(br|br\/)>/gi, '');
+      }
+      return window.marked(text || '').replace(/<(br|br\/)>/gi, '');
+    },
+
+    /**
      * Render class event/method/attr items parameters.
      * @method renderItemsParams
      * @for Template
@@ -140,29 +180,40 @@ $(document).ready(function () {
       if (!(Array.isArray(params) && params.length > 0)) {
         return isChild ? '' : '<p>None</p>';
       }
-      var outputStr = '', index = 0;
+      var outputStr = '',
+          index = 0;
 
       while (index < params.length) {
         if (params[index].name.indexOf('_return') === 0 ? !isReturn : isReturn) {
           index++;
           continue;
         }
-        var desc = (params[index].description || ''), isCbParam = false, deprecated = false;
-        if (desc.indexOf('@(cbparam)') > -1) {
-          desc = desc.replace(/@\(cbparam\)/gi, '');
-          isCbParam = true;
+        var desc = (params[index].description || ''),
+            flags = { beta: false, promise: false, deprecated: false, debug: false };
+        if (desc.indexOf('@(debug)') > -1) {
+          desc = desc.replace(/@\(exp\)/gi, '');
+          flags.debug = true;
+        }
+        if (desc.indexOf('@(beta)') > -1) {
+          desc = desc.replace(/@\(beta\)/gi, '');
+          flags.beta = true;
+        }
+        if (desc.indexOf('@(promise)') > -1) {
+          desc = desc.replace(/@\(promise\)/gi, '');
+          flags.promise = true;
         }
         if (desc.indexOf('@(deprecated)') > -1) {
           desc = desc.replace(/@\(deprecated\)/gi, '');
-          deprecated = true;
+          flags.deprecated = true;
         }
         outputStr += '<li><p class="name"><var><b>' + params[index].name.replace('_return', 'result') + '</b></var> &nbsp;:&nbsp; <var>' +
           this.renderItemType(params[index].type) + '</var>' +
           (params[index].optdefault ? '<span class="name-default">Default: <code>' + params[index].optdefault +
-          '</code></span>' : '') + (isCbParam ? '<span class="label primary"><i class="fa fa-mail-reply"></i>' + 
-          ' function parameter</span>' : '') + (deprecated ? '<span class="label danger">' + 
-          '<i class="fa fa-exclamation-triangle"></i> deprecated</span>' : '') +
-          '</p><p class="desc">' + window.marked(desc).replace(/<(br|br\/)>/gi, '') +
+          '</code></span>' : '') + (flags.promise ? '<span class="label primary"><i class="fa fa-mail-reply"></i>' + 
+          ' promise response</span>' : '') + (flags.deprecated ? '<span class="label danger">' + 
+          '<i class="fa fa-exclamation-triangle"></i> deprecated</span>' : '') + (flags.beta ? '<span class="label info"><i class="fa fa-flask"></i>' + 
+          ' beta / experimental</span>' : '') + (flags.debug ? '<span class="label warning"><i class="fa fa-gears"></i>' + 
+          ' debugging only</span>' : '') + '</p><p class="desc">' + this.renderCrossLink(desc) +
           '</p>' + this.renderItemsParams(params[index].props, isReturn, true) + '</li>';
         index++;
       }
@@ -176,11 +227,11 @@ $(document).ready(function () {
      */
     renderItems: function (className, type) {
       var outputStr = '', ref = this;
+      var firstItem = true;
       var renderFn = function (item) {
         var requiresItem = item.requires ? item.requires(':') : null;
-        outputStr += '<article class="doc-item"><p class="doc-item-type-first">' +
-          (item.is_constructor ? 'Constructor' : (item.itemtype === 'attribute' ? (item.final ? 'Constant' :
-          'Property') : (item.itemtype === 'event' ? 'Event' : 'Method'))) + '</p><div class="doc-type"><div class="doc-type-wrapper">' +
+        outputStr += '<article class="doc-item">' + (firstItem ? '<p class="doc-item-type-first">' + type + '</p>' : '') + 
+          '<div class="doc-type"><div class="doc-type-wrapper">' +
           (item.async ? '<span class="label primary"><i class="fa fa-exchange"></i> async</span>' : '') +
           (item.deprecated ? '	<span class="label danger"><i class="fa fa-exclamation-triangle"></i> deprecated</span>' : '') +
           (item.beta ? '<span class="label info"><i class="fa fa-flask"></i> beta / experimental</span>' : '') +
@@ -199,9 +250,10 @@ $(document).ready(function () {
           '<em><i class="fa fa-opera"></i> 37</em><em><i class="fa fa-safari"></i> 7 (0.8.870)</em>' +
 				  '<em><i class="fa fa-internet-explorer"></i> 11 (0.8.870)</em><em><i class="fa fa-edge"></i> 13.457</em>' +
 				  '<em><i class="fa fa-android"></i> 8</em><em><i class="fa fa-globe"></i> 0.6.1</em></span>--></p>' +
-          '<p>' + window.marked(item.description || '') + '</p><h5>' + (item.itemtype === 'attribute' ? 'Properties:' :
+          '<p>' + ref.renderCrossLink(item.description) + '</p><h5>' + (item.itemtype === 'attribute' ? 'Properties:' :
           (item.itemtype === 'event' ? 'Payloads:' : 'Parameters:')) + '</h5>' + ref.renderItemsParams(item.params, false) +
           (item.itemtype === 'method' ? '<h5>Returns</h5>' + ref.renderItemsParams(item.params, true) : '') + '</article>';
+        firstItem = false;
       };
 
       if (type === 'constructor') {
@@ -254,7 +306,7 @@ $(document).ready(function () {
     $('#populate-template').scrollTop(0);
     
     if (route.indexOf('static/') === 0) {
-      $('#populate-template').load('content/templates/' + route + '.html', function () {
+      $('#populate-template').load('content/pages/' + route.replace('static/', '') + '.html', function () {
         $('a[template].active').removeClass('active');
         $('a[template="' + route + '"]').toggleClass('active');
         prettyPrint();
@@ -262,11 +314,28 @@ $(document).ready(function () {
       return;
     }
 
+    var hash = '';
+
+    if (route.indexOf('#') > -1) {
+      hash = route.split('#')[1];
+      route = route.split('#')[0].replace(/\s/gi, '');
+    }
+
+    console.info(route);
+
     if (!dataStorage.classes[route]) {
       return;
     }
 
+    console.info(hash, route);
+
     $('#populate-template').html(Template.renderClass(route));
+
+    if (hash) {
+      setTimeout(function () {
+        window.location.hash = '#' + hash;
+      }, 1);
+    }
   });
 
   /**

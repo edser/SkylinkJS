@@ -709,3 +709,12 @@ navbar.side ul .section li:last-child a {
   border-top-right-radius: 5px;
   border-bottom-right-radius: 5px;
 }
+
+a.select-template-item {
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+a.select-template-item:hover {
+  font-weight: 600;
+}

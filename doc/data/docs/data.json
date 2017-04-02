@@ -27,6 +27,17 @@
             "fors": {},
             "namespaces": {}
         },
+        "source/components/debugger.js": {
+            "name": "source/components/debugger.js",
+            "modules": {},
+            "classes": {
+                "Temasys.Debugger": 1
+            },
+            "fors": {
+                "Temasys": 1
+            },
+            "namespaces": {}
+        },
         "source/components/peer.js": {
             "name": "source/components/peer.js",
             "modules": {},
@@ -263,7 +274,7 @@
             "extension_for": [],
             "file": "source/components/datachannel.js",
             "line": 1,
-            "description": "Handles the native `RTCDataChannel` object connection.",
+            "description": "Handles the Peer Datachannel connection.",
             "is_constructor": 1,
             "access": "private",
             "tagname": "",
@@ -289,6 +300,20 @@
             "file": "source/components/datatransfer.js",
             "line": 1,
             "description": "Handles the Datatransfer session."
+        },
+        "Temasys.Debugger": {
+            "name": "Temasys.Debugger",
+            "shortname": "Temasys.Debugger",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "file": "source/components/debugger.js",
+            "line": 1,
+            "description": "Module that handles the SDK debugging settings.",
+            "typedef": "module",
+            "since": "0.7.0"
         },
         "Temasys.Peer": {
             "name": "Temasys.Peer",
@@ -1496,6 +1521,12 @@
             "line": 348,
             "description": "Function to close connection.",
             "class": "Temasys.Datachannel"
+        },
+        {
+            "file": "source/components/debugger.js",
+            "line": 10,
+            "description": "Function to set the",
+            "class": "Temasys"
         },
         {
             "file": "source/components/peer.js",
@@ -15726,6 +15757,10 @@
     ],
     "warnings": [
         {
+            "message": "unknown tag: typedef",
+            "line": " source/components/debugger.js:1"
+        },
+        {
             "message": "param name/type/descript missing",
             "line": " source/components/room.js:105"
         },
@@ -15936,6 +15971,10 @@
         {
             "message": "Missing item type\nFunction to close connection.",
             "line": " source/components/datachannel.js:348"
+        },
+        {
+            "message": "Missing item type\nFunction to set the",
+            "line": " source/components/debugger.js:10"
         },
         {
             "message": "Missing item type\nFunction to retrieve Peer {{#crossLink \"Temasys.Stream\"}}Streams{{/crossLink}}.",
