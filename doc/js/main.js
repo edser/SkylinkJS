@@ -130,6 +130,7 @@ $(document).ready(function () {
   var externalLinks = [
     { name: 'Pricing Plans', href: 'https://temasys.io/platform', related: true },
     { name: 'SDK Github', href: 'https://github.com/Temasys/SkylinkJS', related: true },
+    { name: 'REST API', href: 'https://temasys.atlassian.net/wiki/display/TPD/Skylink+REST+API', related: true },
     { name: 'Developer Console', href: 'https://console.temasys.io' },
     { name: 'Try Demo', icon: 'play-circle', href: 'https://getaroom.io', primary: true }
   ];
@@ -179,10 +180,6 @@ $(document).ready(function () {
     docs: {
       title: 'SDK API',
       menu: {}
-    },
-    restapi: {
-      title: 'REST API',
-      menu: {}
     }
   };
   // Data dump from retrieving in ajax
@@ -211,10 +208,6 @@ $(document).ready(function () {
 
     });
 
-    fn('restapi', function (data) {
-
-    });
-
     _forEach(externalLinks, function (item) {
       if (item.related) {
         $('[populate-external-links-related]').append('<a href="' + item.href + '" target="_blank">' + item.name + '</a>');
@@ -240,9 +233,6 @@ $(document).ready(function () {
         '<p class="section-header">' + item.title + '</p>' +
         '<ul>' + subitems + '</ul></section>');
     });
-
-    
-
 
   })(function (json) {
     $.getJSON('data/' + json + '/data.json', function(data) {
