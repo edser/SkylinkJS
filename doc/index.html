@@ -37,79 +37,12 @@
   </navbar>
 
   <!-- navbar : right -->
-  <!-- <ul>
-        <li class="parent active">
-          <a><span class="circle"></span><span class="div"></span> Download <small>(event)</small></a>
-          <ul>
-            <li><a><span class="div"></span><span class="circle"></span> How it works</a></li>
-            <li><a><span class="div"></span><span class="circle"></span> App Key Authentication</a></li>
-            <li class="active"><a><span class="div"></span><span class="circle"></span> Scheduled Sessions</a></li>
-            <li class="_last"><a><span class="div"></span><span class="circle"></span> Privileged & Auto-Introduce</a></li>
-          </ul>
-        </li>
-        <li class="parent"><a><span class="circle"></span><span class="div"></span> Custom Extension & WebRTC Plugin</a></li>
-        <li class="parent"><a><span class="circle"></span><span class="div"></span> Building Blocks</a></li>
-        <li class="_last parent"><a><span class="circle"></span></i><span class="div"></span> Examples</a></li>
-      </ul>-->
   <navbar class="navbar-right" populate-sections></navbar>
 
   <!-- main : content -->
   <main class="main-content tabs">
-    <div class="header-tabs">
-      <h1>Download</h1>
-      <a class="active">Event</a>
-      <a>Test</a>
-    </div>
-    <div class="content doc">
-      <div class="doc-left">
-        <h2>
-          <code>.test(<small>[test]</small>, <small>item</small>)</code>
-          <span class="type">: <a><code>String</code></a></span>
-          <span class="since">Since: <b>0.7.0</b></span>
-        </h2>
-        <div class="panel"><b>Deprecated!</b> Please use this instead.</div>
-        <div class="panel info">This feature is current in <b>Beta</b>.</div>
-        <div class="panel danger"><b>Deprecated!</b> Please use this instead.</div>
-        <div class="panel warning"><b>Deprecated!</b> Please use this instead.</div>
-        <p>Description</p>
-        <h3>Parameters:</h3>
-        <ul class="doc-params">
-          <li>
-            <div class="param-name">
-              <code>test</code>
-              <a><var class="typeof">String</var></a>
-              <!--<span class="optional"><b>Optional</b> - defaults to <code>"test"</code></span>
-              <span class="deprecated"><b>Deprecated</b></span>
-              <span class="beta"><b>Beta</b></span>
-              <span class="response">Function parameter</span>-->
-            </div>
-            <div class="param-desc">Test <ul><li>test</li><li>test</li></ul></div>
-            <ul class="doc-params">
-              <li>test</li>
-              <li>test</li>
-            </ul>
-          </li>
-        </ul>
-      </div>
-      <pre class="doc-right prettyprint">Test</pre>
-    </div>
+    <div class="header-tabs" populate-content-header></div>
+    <div populate-content></div>
   </main>
-
-
-  <!--<navbar class="navbar-top">
-    <a class="brand"><img src="favicon.ico">Temasys Web SDK</a>
-    <div class="nav-items">
-      <a>Developer Console</a>
-      <a class="nav-select">View Documentation <i class="fa fa-arrow-right"></i></a>
-    </div>
-    <div class="nav-expand">
-      <div class="expand">
-        <div class="item expand-diagram"><img src="img/overview.svg"></div>
-        <div class="item expand-content" populate-links></div>
-      </div>
-    </div>
-  </navbar>
-  <navbar class="navbar-side" populate-links></navbar>
-  <main class="main-content" populate-content></main>-->
 </body>
 </html>

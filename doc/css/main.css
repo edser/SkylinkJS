@@ -11,6 +11,7 @@ body {
 a, button {
   cursor: pointer;
   transition: all .15s ease-in-out;
+  text-decoration: none;
 }
 
 code, pre, var {
@@ -101,7 +102,7 @@ navbar.navbar-top .navbar-top-right-mobile {
   font-size: 19px;
   background: none;
   border: 0;
-  padding: 10px 13px;
+  padding: 8px 13px;
   color: #eee;
 }
 
@@ -136,8 +137,8 @@ navbar.navbar-top .navbar-top-right .navbar-top-right-related a:hover {
  */
 navbar.navbar-right { 
   position: fixed;
-  min-width: 220px;
-  max-width: 220px;
+  min-width: 250px;
+  max-width: 250px;
   background: #444;
   right: 0;
   bottom: 0;
@@ -145,8 +146,9 @@ navbar.navbar-right {
   z-index: 9;
   color: #ccc;
   border-left: solid 1px #ccc;
-  padding: 25px 15px 25px 0;
+  padding: 25px 0 25px 0;
   overflow-y: auto;
+  transition: all .35s ease-in-out;
 }
 
 navbar.navbar-right ul {
@@ -166,6 +168,10 @@ navbar.navbar-right .navbar-right-section {
   margin-bottom: 25px;
 }
 
+navbar.navbar-right .navbar-right-section-mobile {
+  display: none;
+}
+
 navbar.navbar-right .navbar-right-section .section-header {
   color: #888;
   text-transform: uppercase;
@@ -182,6 +188,21 @@ navbar.navbar-right .navbar-right-section > ul > li {
 navbar.navbar-right .navbar-right-section > ul > li a {
   font-size: 15px;
   padding: 7px 12px;
+  color: #bababa;
+}
+
+navbar.navbar-right .navbar-right-section > ul > li a small {
+  margin-left: 5px;
+  color: #888;
+}
+
+navbar.navbar-right .navbar-right-section > ul > li > .parent-header {
+  color: #d2ebf3;
+  display: none;
+  font-size: 11px;
+  text-transform: uppercase;
+  margin: -5px 12px 5px;
+  font-weight: 700;
 }
 
 navbar.navbar-right .navbar-right-section > ul > li:hover {
@@ -192,18 +213,31 @@ navbar.navbar-right .navbar-right-section > ul > li:hover a {
   color: #fff;
 }
 
+navbar.navbar-right .navbar-right-section > ul > li:hover a small {
+  color: #aaa;
+}
+
 navbar.navbar-right .navbar-right-section > ul > li.active {
-  margin: 0 0 12px;
   border-color: #008CBA;
+  background: #565656;
 }
 
 navbar.navbar-right .navbar-right-section > ul > li.active > a {
   color: #fff;
 }
 
+navbar.navbar-right .navbar-right-section > ul > li.active > a small {
+  color: #ccc;
+}
+
+navbar.navbar-right .navbar-right-section > ul > li.active > .parent-header {
+  display: block;
+}
+
 navbar.navbar-right .navbar-right-section > ul > li.parent ul {
   margin: 0;
   padding-bottom: 7px;
+  display: none;
 }
 
 navbar.navbar-right .navbar-right-section > ul > li.parent ul li a {
@@ -279,6 +313,11 @@ navbar.navbar-right .navbar-right-section > ul > li.parent ul li.active a .circl
   background: #008CBA;
 }
 
+navbar.navbar-right .navbar-right-section > ul > li.parent.active > ul {
+  display: block;
+}
+
+
 /**
  * For main content.
  * : <main class="main-content">
@@ -289,6 +328,7 @@ main.main-content {
   top: 42px;
   left: 0;
   padding: 25px 15px;
+  transition: all .35s ease-in-out;
 }
 
 main.main-content h1,
@@ -330,6 +370,7 @@ main.main-content .header-tabs a {
   border-top-right-radius: 7px;
   font-weight: 600;
   color: #888;
+  text-transform: capitalize;
 }
 
 main.main-content .header-tabs a:hover {
@@ -362,7 +403,7 @@ main.main-content.tabs .header-tabs {
 main.main-content.tabs .header-tabs h1 {
   display: inline-block;
   vertical-align: bottom;
-  margin: 0 5px 0 0;
+  margin: 0 15px 0 0;
   font-size: 18px;
   font-weight: 600;
   padding: 6px 7px;
@@ -563,5 +604,55 @@ main.main-content .content.doc .doc-params .doc-params {
 
   navbar.navbar-top .navbar-top-right-mobile {
     display: inline-block;
+  }
+
+  navbar.navbar-right .navbar-right-section-mobile {
+    display: block;
+  }
+
+  navbar.navbar-right .navbar-right-section > ul > li.parent.active ul,
+  navbar.navbar-right .navbar-right-section > ul > li.parent.active .parent-header {
+    display: none;
+  }
+
+  navbar.navbar-right {
+    right: -250px;
+  }
+
+  main.main-content {
+    right: 0px;
+  }
+
+  main.main-content.tabs .header-tabs {
+    right: 15px;
+  }
+
+  main.main-content .content.doc .doc-right {
+    right: 15px;
+    transition: right .35s ease-in-out;
+  }
+
+  .toggled navbar.navbar-right {
+    right: 0px;
+  }
+
+  .toggled main.main-content {
+    right: 250px;
+    left: -250px;
+  }
+
+  .toggled main.main-content.tabs .header-tabs {
+    right: 265px;
+    left: -250px;
+  }
+
+  .toggled main.main-content .content.doc .doc-right {
+    right: 265px;
+  }
+}
+
+@media screen and (max-width: 800px) {
+  main.main-content .content.doc .doc-right {
+    display: none;
   }
 }
