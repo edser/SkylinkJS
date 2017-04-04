@@ -144,7 +144,7 @@ $(document).ready(function () {
       var types = [];
       utils.forEach((type || '').split('|'), function (item) {
         if (!item) {
-          return;
+          return [{ type: 'None', href: '' }];
         }
         types.push({
           type: item,
@@ -169,20 +169,28 @@ $(document).ready(function () {
 
       if (item.itemtype === 'attribute') {
         str += '<code>.' + item.name + '</code><span class="type">: ';
-      } else if (item.itemtype === 'method') {
+      } else if (item.itemtype === 'method' || item.is_constructor) {
         var paramsStr = '';
-        util.forEach(item.parameters, function (param) {
-          paramsStr += '<small>' + (param.optional ? '[' : '') + param.name + (param.optional ? ']' : '') + '</small>';
+        utils.forEach(item.parameters, function (param, paramKey) {
+          paramsStr += '<small>' + (param.optional ? '[' : '') + param.name + (param.optional ? ']' : '') + '</small>, ';
         });
-        str += '<code>.' + item.name + '(' + paramsStr + ')</code><span class="type">&#8594; ';
-      } else {
+        // Remove extra ", "
+        paramsStr = paramsStr.substr(0, paramsStr.length - 2);
+        str += '<code>' + (item.is_constructor ? 'new ' : '.') + item.name + '(' + paramsStr + ')</code><span class="type">&#8594; ';
+      } else if (item.itemtype === 'event') {
         str += '<code>"' + item.name + '"</code><span class="type">';
       }
 
-      utils.forEach(utils.parseDocType(item.type), function (type) {
-        str += '<a href="' + type.href + '"' + (type.href.indexOf('http') === 0 ? ' target="_blank"' : '') + '>' + 
-          '<code>' + type.type + '</code></a>';
-      });
+      var types = utils.parseDocType(item.type);
+
+      if (types.length > 0) {
+        utils.forEach(types, function (type) {
+          str += '<a href="' + type.href + '"' + (type.href.indexOf('http') === 0 ? ' target="_blank"' : '') + '>' + 
+            '<code>' + type.type + '</code></a>';
+        });
+      } else if (item.itemtype === 'method') {
+        str += '<var class="return-none">None</var>';
+      }
 
       str += '</span><span class="since">Since: <b>' + (item.since || '-') + '</b></span>';
       return str;
@@ -327,20 +335,7 @@ $(document).ready(function () {
    * @type JSON
    * @private
    */
-  window.cachedDocs = {};
-
-  /**
-   * Handles the window resizing views.
-   * @method onResizeEventDelegate
-   * @private
-   */
-  function onResizeEventDelegate () {
-    // Resize the example codes
-    $('main.main-content .content.doc .doc-right').width((($(window).outerWidth() - 250 - 30) / 5) *
-      ($(window).outerWidth() > 996 ? 2 : 3) + 5);
-    $('main.main-content .content.doc .doc-left').css('right',
-      $(window).outerWidth() > 800 ? $('main.main-content .content.doc .doc-right').width() : 0);
-  }
+  var cachedDocs = {};
 
   /**
    * Handles the hash change event.
@@ -419,7 +414,7 @@ $(document).ready(function () {
           });
 
           htmlStr += '<div scroll-href="#' + sectionKey + '+' + linkKey + '+' + tabItemKey + '+' + item.name + '" class="content doc">' +
-            '<div class="doc-left" ' + (exampleStr ? '[format-doc-left]' : '') + '>' +
+            '<div class="doc-left">' +
             '<h2>' + utils.parseDocHeader(item) + '</h2>' +
             (item.deprecated ? '<div class="panel danger">This is currently <b>Deprecated</b>.</div>' : '') +
             (item.beta ? '<div class="panel info">This is currently in <b>Beta</b>.</div>' : '') +
@@ -433,14 +428,17 @@ $(document).ready(function () {
           // Render "Payloads:" for events
           } else if (tabItemKey === 'events') {
             htmlStr += '<h3>Payload:</h3>' + utils.parseDocParams(item.parameters, false);
-          // Render "Returns:" and "Parameters:" for properties
-          } else {
+          // Render "Returns:" and "Parameters:" for methods
+          } else if (tabItemKey === 'methods') {
             htmlStr += '<h3>Returns:</h3>' + utils.parseDocParams(item.parameters, true) +
               '<h3>Parameters:</h3>' + utils.parseDocParams(item.parameters, false);
+          // Render "Parameters:" for constructor
+          } else if (tabItemKey === 'constructor') {
+            htmlStr += '<h3>Parameters:</h3>' + utils.parseDocParams(item.parameters, false);
           }
 
-          htmlStr += '</div>' + (exampleStr ? '<pre class="doc-right prettyprint"' +
-            (exampleStr ? '[format-doc-right]' : '') + '>' + exampleStr + '</pre></div>' : '') + '</div>';
+          htmlStr += '</div>' + (tabItemKey === 'methods' ? '<div class="doc-right">' +
+            '<pre class="prettyprint">' + exampleStr + '</pre></div>' : '') + '</div>';
         });
 
         $('[populate-content]').html(htmlStr);
@@ -462,7 +460,6 @@ $(document).ready(function () {
     $('body').toggleClass('toggled');
   }
 
-  $(window).resize(onResizeEventDelegate);
   $(window).on('hashchange', onHashchangeEventDelegate);
   $('navbar.navbar-top .navbar-top-right-mobile').click(onMobileMenuClickEventDelegate);
 
@@ -555,7 +552,6 @@ $(document).ready(function () {
         '<ul>' + externalMenuStr + '</ul></section>');
     })();
 
-    onResizeEventDelegate();
     onHashchangeEventDelegate();
   });
 

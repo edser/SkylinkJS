@@ -26,6 +26,10 @@ code {
   font-size: 90%;
 }
 
+.prettyprint {
+  padding-top: 15px;
+}
+
 /**
  * For top navigation.
  * : <navbar class="navbar-top">
@@ -324,8 +328,8 @@ navbar.navbar-right .navbar-right-section > ul > li.parent.active > ul {
  */
 main.main-content {
   position: absolute;
-  right: 250px;
-  top: 42px;
+  right: 235px;
+  top: 24px;
   left: 0;
   padding: 25px 15px;
   transition: all .35s ease-in-out;
@@ -354,17 +358,37 @@ main.main-content h3 {
   margin-top: 0;
 }
 
+main.main-content.tabs {
+  padding-top: 75px;
+}
 
-main.main-content .header-tabs {
+main.main-content.tabs .header-tabs {
+  position: fixed;
+  top: 42px;
+  left: 0;
+  right: 250px;
+  padding: 18px 15px 0;
+  background: #fff;
+  z-index: 3;
   border-bottom: solid 1px #ccc;
   transition: all .15s ease-in-out;
+  background: #eee;
+}
+
+main.main-content.tabs .header-tabs h1 {
+  display: inline-block;
+  vertical-align: bottom;
+  margin: 0 15px 0 0;
+  font-size: 16px;
+  font-weight: 600;
+  padding: 6px 7px 8px;
+  text-transform: uppercase;
 }
 
 main.main-content .header-tabs a {
   display: inline-block;
   vertical-align: top;
   padding: 9px 17px;
-  background: #eee;
   margin-right: 2px;
   border-top-left-radius: 7px;
   border-top-right-radius: 7px;
@@ -386,33 +410,11 @@ main.main-content .header-tabs a.active {
   color: #444;
 }
 
-main.main-content.tabs {
-  padding-top: 75px;
-}
-
-main.main-content.tabs .header-tabs {
-  position: fixed;
-  top: 42px;
-  left: 15px;
-  right: 265px;
-  padding-top: 18px;
-  background: #fff;
-  z-index: 3;
-}
-
-main.main-content.tabs .header-tabs h1 {
-  display: inline-block;
-  vertical-align: bottom;
-  margin: 0 15px 0 0;
-  font-size: 18px;
-  font-weight: 600;
-  padding: 6px 7px;
-}
-
 main.main-content .content.doc {
   position: relative;
   border-bottom: solid 1px #dadada;
-  margin-bottom: 20px;
+  display: table;
+  width: 100%;
 }
 
 main.main-content .content.doc h2 {
@@ -436,8 +438,13 @@ main.main-content .content.doc h2 .type {
   margin-left: 9px;
 }
 
-main.main-content .content.doc h2 .type a {
+main.main-content .content.doc h2 .type a,
+main.main-content .content.doc h2 .type .return-none {
   margin-left: 5px;
+}
+
+main.main-content .content.doc h2 .type .return-none {
+  color: #aaa;
 }
 
 main.main-content .content.doc h2 .type code {
@@ -460,24 +467,26 @@ main.main-content .content.doc h3 {
 
 main.main-content .content.doc .doc-left,
 main.main-content .content.doc .doc-right {
-  display: inline-block;
+  display: table-cell;
   vertical-align: top;
-}
-
-main.main-content .content.doc .doc-right {
-  position: fixed;
-  top: 110px;
-  right: 265px;
-  width: 400px;
-  padding: 0;
-  margin: 0;
-  bottom: 15px;
-  display: block;
+  padding: 25px 15px 25px 0;
 }
 
 main.main-content .content.doc .doc-left {
-  padding: 12px 0 15px;
   width: 100%;
+}
+
+main.main-content .content.doc .doc-right {
+  min-width: 400px;
+  max-width: 400px;
+  margin: 0;
+  background: #f7f3f7;
+  overflow-x: auto;
+}
+
+main.main-content .content.doc .doc-right pre {
+  width: 100%;
+  font-size: 13px;
 }
 
 main.main-content .content.doc .doc-left .panel {
@@ -638,11 +647,7 @@ main.main-content .content.doc .doc-params > li .param-desc ul {
   }
 
   main.main-content.tabs .header-tabs {
-    right: 15px;
-  }
-
-  main.main-content .content.doc .doc-right {
-    right: 15px;
+    right: 0;
     transition: right .35s ease-in-out;
   }
 
@@ -656,12 +661,8 @@ main.main-content .content.doc .doc-params > li .param-desc ul {
   }
 
   .toggled main.main-content.tabs .header-tabs {
-    right: 265px;
+    right: 250px;
     left: -250px;
-  }
-
-  .toggled main.main-content .content.doc .doc-right {
-    right: 265px;
   }
 }
 
