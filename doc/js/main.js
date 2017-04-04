@@ -60,6 +60,10 @@ $(document).ready(function () {
      * @private
      */
     parseDocDescription: function (item) {
+      if (typeof item.description !== 'string') {
+        return item;
+      }
+
       var desc = window.marked(item.description).replace(/<(br|br\/)>/gi, '');
 
       // Parse for beta tags
@@ -79,6 +83,40 @@ $(document).ready(function () {
         desc = desc.replace(/@\(deprecated\)/gi, '');
         item.deprecated = true;
       }
+
+      // Parse #crossLink
+      (function () {
+        var result = desc.match(/{{#crossLink\ \".*\"}}.*{{\/crossLink}}/gi);
+        var index = 0;
+
+        if (result) {
+          try {
+            while (index < result.length) {
+              var parts = result[index].split('"');
+              var href = '';
+              var title = '';
+
+              if (parts[1].indexOf('/') > 0) {
+                var sparts = parts[1].split('/');
+                var aparts = sparts[1].split(':');
+                href += sparts[0] + '#' + (aparts[1] === 'attribute' ? 'attr' :
+                  (aparts[1] === 'event' ? 'event' : 'method')) + '_' + aparts[0];
+                title = '<code>' + sparts[0] + '.' + aparts[0] + (aparts[1] === 'method' ? '()' : '') + '</code>';
+              } else {
+                href += parts[1];
+                title = parts[1];
+              }
+
+              if (parts[2] && parts[2].match(/}}.*{{\/crossLink/gi)) {
+                title = parts[2].split('}}')[1].split('{{/crossLink')[0] || title;
+              }
+
+              desc = desc.replace(new RegExp(result[index], 'gi'), '<a href="#' + href + '" target="_blank">' + title + '</a>');
+              index++;
+            }
+          } catch (e) {}
+        }
+      })();
 
       item.description = desc;
       item.parameters = [];
@@ -105,6 +143,9 @@ $(document).ready(function () {
     parseDocType: function (type) {
       var types = [];
       utils.forEach((type || '').split('|'), function (item) {
+        if (!item) {
+          return;
+        }
         types.push({
           type: item,
           href: ['String', 'JSON', 'Boolean', 'Number', 'ArrayBuffer', 'Blob',
@@ -112,7 +153,8 @@ $(document).ready(function () {
             'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/' + item :
             '#docs-' + type
         });
-      })
+      });
+      return types;
     },
 
     /**
@@ -128,21 +170,18 @@ $(document).ready(function () {
       if (item.itemtype === 'attribute') {
         str += '<code>.' + item.name + '</code><span class="type">: ';
       } else if (item.itemtype === 'method') {
-        str += '<code>.' + item.name + '(' + (function () {
-          var paramsStr = '';
-
-          util.forEach(item.parameters, function (param) {
-            paramsStr += '<small>' + (param.optional ? '[' : '') + param.name + (param.optional ? ']' : '') + '</small>';
-          });
-
-          return paramsStr;
-        })() + ')</code><span class="type">&#8594; ';
+        var paramsStr = '';
+        util.forEach(item.parameters, function (param) {
+          paramsStr += '<small>' + (param.optional ? '[' : '') + param.name + (param.optional ? ']' : '') + '</small>';
+        });
+        str += '<code>.' + item.name + '(' + paramsStr + ')</code><span class="type">&#8594; ';
       } else {
-        str += '<code>"' + item.name + + '"></code><span class="type">';
+        str += '<code>"' + item.name + '"</code><span class="type">';
       }
 
       utils.forEach(utils.parseDocType(item.type), function (type) {
-        str += '<a href="' + type.href + '"><code>' + type.type + '</code></a>';
+        str += '<a href="' + type.href + '"' + (type.href.indexOf('http') === 0 ? ' target="_blank"' : '') + '>' + 
+          '<code>' + type.type + '</code></a>';
       });
 
       str += '</span><span class="since">Since: <b>' + (item.since || '-') + '</b></span>';
@@ -156,7 +195,7 @@ $(document).ready(function () {
      * @return {String} The parsed docs param HTML string.
      * @private
      */
-    parseDocParams: function (params, isReturn) {
+    parseDocParams: function (params, isReturn, isChild) {
       var htmlStr = '';
 
       utils.forEach(params, function (item) {
@@ -167,7 +206,8 @@ $(document).ready(function () {
         htmlStr += '<li><div class="param-name"><code>' + item.name + '</code>';
 
         utils.forEach(utils.parseDocType(item.type), function (type) {
-          htmlStr += '<a href="' + type.href + '"><var class="typeof">' + type.type + '</var></a>';
+          htmlStr += '<a href="' + type.href + '"' + (type.href.indexOf('http') === 0 ?' target="_blank"' : '') + '>' + 
+            '<var class="typeof">' + type.type + '</var></a>';
         });
 
         if (item.optional) {
@@ -191,11 +231,11 @@ $(document).ready(function () {
           htmlStr += '<span class="response"><b>Function parameter</b></span>';
         }
 
-        htmlStr += '<div class="param-desc">' + utils.parseDocDescription(item.description) + '</div>' +
-          utils.parseDocParams(item.parameters, isReturn) + '</li>';
+        htmlStr += '</div><div class="param-desc">' + utils.parseDocDescription(item.description) + '</div>' +
+          utils.parseDocParams(item.parameters, isReturn, true) + '</li>';
       });
 
-      return '<ul class="doc-params">' + htmlStr + '</ul>';
+      return (!htmlStr && !isChild ? '<p>None</p>' : '<ul class="doc-params">' + htmlStr + '</ul>');
     }
   };
 
@@ -287,7 +327,7 @@ $(document).ready(function () {
    * @type JSON
    * @private
    */
-  var cachedDocs = {};
+  window.cachedDocs = {};
 
   /**
    * Handles the window resizing views.
@@ -368,30 +408,43 @@ $(document).ready(function () {
       });
 
       // Render and populate the docs
-      var htmlStr = '';
+      (function () {
+        var htmlStr = '';
 
-      utils.forEach(cachedDocs[linkKey][tabItemKey], function (item) {
-        htmlStr += '<div class="content doc"><div class="doc-left">' +
-          '<h2>' + utils.parseDocHeader(item) + '</h2>' +
-          (item.deprecated ? '<div class="panel danger">This is currently <b>Deprecated</b>.</div>' : '') +
-          (item.beta ? '<div class="panel info">This is currently in <b>Beta</b>.</div>' : '') +
-          (item.requires ? '<div class="panel">This is defined only when <code>.' + item.requires.split(',')[0] +
-            '</code> is <code>' + item.requires.split(',')[1] + '</code>.</div>' : '') +
-          '<p>' + utils.parseDocDescription(item.description) + '</p>';
-        
-        if (tabItemKey === 'properties' || tabItemKey === 'constants') {
-          htmlStr += '<h3>Keys:</h3>' + utils.parseDocParams(item.parameters, false);
-        } else if (tabItemKey === 'events') {
-          htmlStr += '<h3>Payload:</h3>' + utils.parseDocParams(item.parameters, false);
-        } else {
-          htmlStr += '<h3>Returns:</h3>' + utils.parseDocParams(item.parameters, true) +
-            '<h3>Parameters:</h3>' + utils.parseDocParams(item.parameters, false);
-        }
+        utils.forEach(cachedDocs[linkKey][tabItemKey], function (item) {
+          var exampleStr = '';
 
-        htmlStr += '</div><pre class="doc-right prettyprint">' + item.example + '</pre></div>';
-      });
+          utils.forEach(item.example, function (example) {
+            exampleStr += example;
+          });
 
-      $('[populate-content]').html(htmlStr);
+          htmlStr += '<div scroll-href="#' + sectionKey + '+' + linkKey + '+' + tabItemKey + '+' + item.name + '" class="content doc">' +
+            '<div class="doc-left" ' + (exampleStr ? '[format-doc-left]' : '') + '>' +
+            '<h2>' + utils.parseDocHeader(item) + '</h2>' +
+            (item.deprecated ? '<div class="panel danger">This is currently <b>Deprecated</b>.</div>' : '') +
+            (item.beta ? '<div class="panel info">This is currently in <b>Beta</b>.</div>' : '') +
+            (item.requires ? '<div class="panel">This is defined only when <code>.' + item.requires.split(',')[0] +
+              '</code> is <code>' + item.requires.split(',')[1] + '</code>.</div>' : '') +
+            '<p>' + item.description + '</p>';
+          
+          // Render "Keys:" for properties / constants
+          if (tabItemKey === 'properties' || tabItemKey === 'constants') {
+            htmlStr += '<h3>Keys:</h3>' + utils.parseDocParams(item.parameters, false);
+          // Render "Payloads:" for events
+          } else if (tabItemKey === 'events') {
+            htmlStr += '<h3>Payload:</h3>' + utils.parseDocParams(item.parameters, false);
+          // Render "Returns:" and "Parameters:" for properties
+          } else {
+            htmlStr += '<h3>Returns:</h3>' + utils.parseDocParams(item.parameters, true) +
+              '<h3>Parameters:</h3>' + utils.parseDocParams(item.parameters, false);
+          }
+
+          htmlStr += '</div>' + (exampleStr ? '<pre class="doc-right prettyprint"' +
+            (exampleStr ? '[format-doc-right]' : '') + '>' + exampleStr + '</pre></div>' : '') + '</div>';
+        });
+
+        $('[populate-content]').html(htmlStr);
+      })();
     }
 
     $('[active-href]').removeClass('active');
@@ -420,7 +473,7 @@ $(document).ready(function () {
     utils.forEach(data.classes, function (item, className) {
       cachedDocs[className] = {
         name: className,
-        typedef: item.typedef,
+        typedef: item.typedef || 'class',
         since: item.since,
         methods: {},
         events: {},
@@ -437,7 +490,7 @@ $(document).ready(function () {
       };
       
       if (item.is_constructor) {
-        cachedDocs[className].constructor = utils.parseDocDescription(item);
+        cachedDocs[className].constructor[item.name] = utils.parseDocDescription(item);
         navbarRight.docs.menu[className].default = 'constructor';
         navbarRight.docs.menu[className].tabs.constructor = { name: 'constructor' };
         navbarRight.docs.menu[className].items.constructor = [{
@@ -484,22 +537,23 @@ $(document).ready(function () {
         '</section>');
     });
 
-    var externalMenuStr = '';
+    (function () {
+      var externalMenuStr = '';
+      utils.forEach(navbarTop, function (item) {
+        externalMenuStr += '<li><a href="' + item.href + '" target="_blank">' + item.name + '</a></li>';
 
-    utils.forEach(navbarTop, function (item) {
-      externalMenuStr += '<li><a href="' + item.href + '" target="_blank">' + item.name + '</a></li>';
+        if (item.related) {
+          $('[populate-external-links-related]').append('');
+        } else {
+          $('[populate-external-links]').append('<a href="' + item.href + '" target="_blank" class="' + (item.primary ? 'primary' : '') + '">' +
+            (item.icon ? '<i class="fa fa-' + item.icon + '"></i> ' : '') + item.name + '</a>');
+        }
+      });
 
-      if (item.related) {
-        $('[populate-external-links-related]').append('');
-      } else {
-        $('[populate-external-links]').append('<a href="' + item.href + '" target="_blank" class="' + (item.primary ? 'primary' : '') + '">' +
-          (item.icon ? '<i class="fa fa-' + item.icon + '"></i> ' : '') + item.name + '</a>');
-      }
-    });
-
-    $('[populate-sections]').append('<section class="navbar-right-section navbar-right-section-mobile">' +
-      '<p class="section-header">Related links</p>' +
-      '<ul>' + externalMenuStr + '</ul></section>');
+      $('[populate-sections]').append('<section class="navbar-right-section navbar-right-section-mobile">' +
+        '<p class="section-header">Related links</p>' +
+        '<ul>' + externalMenuStr + '</ul></section>');
+    })();
 
     onResizeEventDelegate();
     onHashchangeEventDelegate();
