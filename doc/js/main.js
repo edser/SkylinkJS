@@ -66,55 +66,67 @@ $(document).ready(function () {
 
       var desc = window.marked(item.description).replace(/<(br|br\/)>/gi, '');
 
-      // Parse for beta tags
+      // Parse for beta tags @(beta)
+      // YUIDoc workaround for properties additional flags
       if (desc.indexOf(/@\(beta\)/gi, '') > -1) {
         desc = desc.replace(/@\(beta\)/gi, '');
         item.beta = true;
       }
 
-      // Parse for experimental tags
+      // Parse for experimental tags @(experimental)
+      // YUIDoc workaround for properties additional flags
       if (desc.indexOf(/@\(experimental\)/gi, '') > -1) {
         desc = desc.replace(/@\(experimental\)/gi, '');
         item.experimental = true;
       }
 
-      // Parse for deprecated tags
+      // Parse for deprecated tags @(deprecated)
+      // YUIDoc workaround for properties additional flags
       if (desc.indexOf(/@\(deprecated\)/gi, '') > -1) {
         desc = desc.replace(/@\(deprecated\)/gi, '');
         item.deprecated = true;
       }
 
-      // Parse #crossLink
+      // Parse @(link=.*)
+      // YUIDoc replacement for {{#crossLink}} to work in this app
       (function () {
-        var result = desc.match(/{{#crossLink\ \".*\"}}.*{{\/crossLink}}/gi);
-        var index = 0;
-
+        var result = desc.match(/@\(link=.*\)/gi);
         if (result) {
-          try {
-            while (index < result.length) {
-              var parts = result[index].split('"');
-              var href = '';
-              var title = '';
-
-              if (parts[1].indexOf('/') > 0) {
-                var sparts = parts[1].split('/');
-                var aparts = sparts[1].split(':');
-                href += sparts[0] + '#' + (aparts[1] === 'attribute' ? 'attr' :
-                  (aparts[1] === 'event' ? 'event' : 'method')) + '_' + aparts[0];
-                title = '<code>' + sparts[0] + '.' + aparts[0] + (aparts[1] === 'method' ? '()' : '') + '</code>';
-              } else {
-                href += parts[1];
-                title = parts[1];
+          var index = 0;
+          while (index < result.length) {
+            var linkData = (result[index].split('(link=')[1] || '').split(')')[0] || '';
+            if (linkData) {
+              var parts = linkData.split('|');
+              var href = parts[0];
+              var title = parts[1];
+              if (!(href.indexOf('http') === 0)) {
+                // E.g. Temasys.DataChannel:getStats:method
+                var hrefParts = href.split(':');
+                if (hrefParts.length > 0) {
+                  title = !title ? '<code>' + hrefParts[0] + '</code> - ' +
+                    '<code>' + hrefParts[1] + '</code> ' + hrefParts[2] : title;
+                  href = '#docs+' + hrefParts[0] + '+';
+                  if (hrefParts[2] === 'event') {
+                    href += 'events';
+                  } else if (hrefParts[2] === 'method') {
+                    href += 'methods';
+                  } else if (hrefParts[2] === 'constant') {
+                    href += 'constants';
+                  } else if (hrefParts[2] === 'property') {
+                    href += 'properties';
+                  } else {
+                    href += hrefParts[2];
+                  }
+                  href += '+' + hrefParts[1]; 
+                } else {
+                  title = !title ? '<code>' + hrefParts[0] + '</code>' : title;
+                  href = '#docs+' + hrefParts[0];
+                }
               }
-
-              if (parts[2] && parts[2].match(/}}.*{{\/crossLink/gi)) {
-                title = parts[2].split('}}')[1].split('{{/crossLink')[0] || title;
-              }
-
-              desc = desc.replace(new RegExp(result[index], 'gi'), '<a href="#' + href + '" target="_blank">' + title + '</a>');
-              index++;
+              desc = desc.replace(new RegExp(href, 'gi'), '<a href="' + href + '"' +
+                (href.indexOf('http') === 0 ? ' target="_blank"' : '') + '>' + title + '</a>');
             }
-          } catch (e) {}
+          }
         }
       })();
 
@@ -176,7 +188,8 @@ $(document).ready(function () {
         });
         // Remove extra ", "
         paramsStr = paramsStr.substr(0, paramsStr.length - 2);
-        str += '<code>' + (item.is_constructor ? 'new ' : '.') + item.name + '(' + paramsStr + ')</code><span class="type">&#8594; ';
+        str += '<code>' + (item.is_constructor ? 'new ' : '.') + item.name + '(' + paramsStr + ')</code><span class="type">' +
+          (item.is_constructor ? '' : '&#8594; ');
       } else if (item.itemtype === 'event') {
         str += '<code>"' + item.name + '"</code><span class="type">';
       }
@@ -371,21 +384,26 @@ $(document).ready(function () {
 
     // Populate for "as tabs" items
     if (navbarRight[sectionKey].asTabs) {
-      $('[populate-content-header]').html('<h1>' + navbarRight[sectionKey].name + '</h1>');
+      var tabsHtmlStr = '';
 
       utils.forEach(navbarRight[sectionKey].menu, function (item, key) {
-        $('[populate-content-header]').append(
-          '<a href="#' + sectionKey + '+' + key + '" class="' + (linkKey === key ? 'active' : '') + '">' + item.name + '</a>');
+        tabsHtmlStr += '<a href="#' + sectionKey + '+' + key + '" class="' + (linkKey === key ? 'active' : '') + '">' + item.name + '</a>';
       });
+      
+
+      $('[populate-content-header]').html(navbarRight[sectionKey].name);
+      $('[populate-content-tabs]').html(tabsHtmlStr);
 
     // Populate normal tabs items
     } else {
-      $('[populate-content-header]').html('<h1>' + navbarRight[sectionKey].menu[linkKey].name + '</h1>');
-
+      var tabsHtmlStr = '';
+      
       utils.forEach(navbarRight[sectionKey].menu[linkKey].tabs, function (item, key) {
-        $('[populate-content-header]').append(
-          '<a href="#' + sectionKey + '+' + linkKey + '+' + key + '" class="' + (tabItemKey === key ? 'active' : '') + '">' + item.name + '</a>');
+        tabsHtmlStr += '<a href="#' + sectionKey + '+' + linkKey + '+' + key + '" class="' + (tabItemKey === key ? 'active' : '') + '">' + item.name + '</a>';
       });
+
+      $('[populate-content-header]').html(navbarRight[sectionKey].menu[linkKey].name);
+      $('[populate-content-tabs]').html(tabsHtmlStr);
     }
 
     // For static templating
@@ -460,8 +478,19 @@ $(document).ready(function () {
     $('body').toggleClass('toggled');
   }
 
+  /**
+   * Handles the mobile tabs menu toggle button event.
+   * @method onMobileTabsMenuClickEventDelegate
+   * @private
+   */
+  function onMobileTabsMenuClickEventDelegate () {
+    $('main.main-content.tabs .header-tabs').toggleClass('toggled');
+    //$('main.main-content.tabs .header-tabs .header-tabs-mobile').show();
+  }
+
   $(window).on('hashchange', onHashchangeEventDelegate);
   $('navbar.navbar-top .navbar-top-right-mobile').click(onMobileMenuClickEventDelegate);
+  $('main.main-content.tabs .header-tabs .header-tabs-mobile-selection').click(onMobileTabsMenuClickEventDelegate);
 
   /**
    * Fetches for the docs/data.json

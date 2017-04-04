@@ -41,7 +41,7 @@ navbar.navbar-top {
   top: 0;
   left: 0;
   right: 0;
-  z-index: 10;
+  z-index: 99;
   max-height: 42px;
   min-height: 42px;
   text-align: right;
@@ -103,10 +103,10 @@ navbar.navbar-top .navbar-top-right a.primary:hover {
 navbar.navbar-top .navbar-top-right-mobile {
   display: none;
   vertical-align: top;
-  font-size: 19px;
+  font-size: 25px;
   background: none;
   border: 0;
-  padding: 8px 13px;
+  padding: 10px 13px 9px;
   color: #eee;
 }
 
@@ -328,10 +328,10 @@ navbar.navbar-right .navbar-right-section > ul > li.parent.active > ul {
  */
 main.main-content {
   position: absolute;
-  right: 235px;
-  top: 24px;
+  right: 250px;
+  top: 0;
   left: 0;
-  padding: 25px 15px;
+  padding: 0;
   transition: all .35s ease-in-out;
 }
 
@@ -367,22 +367,33 @@ main.main-content.tabs .header-tabs {
   top: 42px;
   left: 0;
   right: 250px;
-  padding: 18px 15px 0;
+  padding: 7px 25px 0 25px;
   background: #fff;
   z-index: 3;
   border-bottom: solid 1px #ccc;
   transition: all .15s ease-in-out;
   background: #eee;
+  text-align: right;
+}
+
+main.main-content.tabs .header-tabs .header-tabs-mobile {
+  display: block;
 }
 
 main.main-content.tabs .header-tabs h1 {
   display: inline-block;
   vertical-align: bottom;
   margin: 0 15px 0 0;
-  font-size: 16px;
+  font-size: 18px;
+  padding: 8px 0 3px;
   font-weight: 600;
-  padding: 6px 7px 8px;
-  text-transform: uppercase;
+  float: left;
+}
+
+main.main-content.tabs .header-tabs h1 small {
+  color: #888;
+  margin-left: 2px;
+  font-size: 13px;
 }
 
 main.main-content .header-tabs a {
@@ -390,8 +401,6 @@ main.main-content .header-tabs a {
   vertical-align: top;
   padding: 9px 17px;
   margin-right: 2px;
-  border-top-left-radius: 7px;
-  border-top-right-radius: 7px;
   font-weight: 600;
   color: #888;
   text-transform: capitalize;
@@ -402,12 +411,30 @@ main.main-content .header-tabs a:hover {
 }
 
 main.main-content .header-tabs a.active {
-  margin-bottom: -1px;
   padding-bottom: 10px;
-  background: #fff;
-  border: solid 1px #ccc;
-  border-bottom: 0;
+  border-bottom: solid 2px #008CBA;
   color: #444;
+}
+
+main.main-content.tabs .header-tabs .header-tabs-mobile-selection {
+  font-size: 25px;
+  margin-top: 5px;
+  cursor: pointer;
+  display: none;
+}
+
+main.main-content.tabs .header-tabs .header-tabs-mobile-selection .toggled-icon {
+ display: none;
+}
+
+main.main-content .content,
+main.main-content .content .prettyprint {
+  word-break: break-word;
+}
+
+main.main-content .content .prettyprint {
+  max-width: 100%;
+  overflow-y: auto;
 }
 
 main.main-content .content.doc {
@@ -420,7 +447,7 @@ main.main-content .content.doc {
 main.main-content .content.doc h2 {
   border-left: 0;
   padding-left: 0;
-  font-size: 22px;
+  font-size: 18px;
   font-weight: 500;
 }
 
@@ -469,11 +496,11 @@ main.main-content .content.doc .doc-left,
 main.main-content .content.doc .doc-right {
   display: table-cell;
   vertical-align: top;
-  padding: 25px 15px 25px 0;
 }
 
 main.main-content .content.doc .doc-left {
   width: 100%;
+  padding: 35px 25px 25px 25px;
 }
 
 main.main-content .content.doc .doc-right {
@@ -482,6 +509,7 @@ main.main-content .content.doc .doc-right {
   margin: 0;
   background: #f7f3f7;
   overflow-x: auto;
+  padding: 5px 25px 25px 25px;
 }
 
 main.main-content .content.doc .doc-right pre {
@@ -526,7 +554,7 @@ main.main-content .content.doc .doc-params .doc-params {
 }
 
 main.main-content .content.doc .doc-params code {
-  font-size: 14px;
+  font-size: 12px;
 }
 
 main.main-content .content.doc .doc-params > li {
@@ -544,12 +572,15 @@ main.main-content .content.doc .doc-params > li .param-desc {
   margin: 7px 0 0;
 }
 
+main.main-content .content.doc .doc-params > li .param-name code {
+  font-size: 13px;
+}
+
 main.main-content .content.doc .doc-params > li .param-name .typeof {
   background: #f8f8f8;
   color: #888;
   font-size: 12px;
-  font-style: italic;
-  padding: 2px 7px;
+  padding: 2px 9px;
   margin-left: 9px;
   text-decoration: underline;
 }
@@ -564,6 +595,7 @@ main.main-content .content.doc .doc-params > li .param-name span {
   vertical-align: middle;
   margin-right: -2px;
   background: #eee;
+  font-size: 12px;
 }
 
 main.main-content .content.doc .doc-params > li .param-name .optional b {
@@ -613,12 +645,20 @@ main.main-content .content.doc .doc-params > li .param-desc ul {
     font-size: 16px;
   }
 
+  navbar.navbar-top {
+    min-height: 51px;
+    max-height: 51px;
+  }
+
   navbar.navbar-top .navbar-top-left a {
-    padding-top: 11px;
+    padding-top: 12px;
+    font-size: 19px;
   }
 
   navbar.navbar-top .navbar-top-left a img {
     margin-top: 1px;
+    height: 25px;
+    width: auto;
   }
 
   navbar.navbar-top .navbar-top-right {
@@ -629,8 +669,23 @@ main.main-content .content.doc .doc-params > li .param-desc ul {
     display: inline-block;
   }
 
+  navbar.navbar-right {
+    min-width: 300px;
+    max-width: 300px;
+  }
+
   navbar.navbar-right .navbar-right-section-mobile {
     display: block;
+  }
+
+  navbar.navbar-right .navbar-right-section .section-header {
+    font-size: 14px;
+    margin-left: 20px;
+  }
+
+  navbar.navbar-right .navbar-right-section > ul > li a {
+    font-size: 18px;
+    padding: 12px 15px;
   }
 
   navbar.navbar-right .navbar-right-section > ul > li.parent.active ul,
@@ -639,7 +694,7 @@ main.main-content .content.doc .doc-params > li .param-desc ul {
   }
 
   navbar.navbar-right {
-    right: -250px;
+    right: -300px;
   }
 
   main.main-content {
@@ -649,6 +704,19 @@ main.main-content .content.doc .doc-params > li .param-desc ul {
   main.main-content.tabs .header-tabs {
     right: 0;
     transition: right .35s ease-in-out;
+    top: 51px;
+  }
+
+  main.main-content.tabs .header-tabs h1 {
+    font-size: 20px;
+  }
+
+  main.main-content.tabs .header-tabs h1 small {
+    font-size: 15px;
+  }
+
+  .toggled {
+    overflow: hidden;
   }
 
   .toggled navbar.navbar-right {
@@ -656,18 +724,62 @@ main.main-content .content.doc .doc-params > li .param-desc ul {
   }
 
   .toggled main.main-content {
-    right: 250px;
-    left: -250px;
+    right: 300px;
+    left: -300px;
   }
 
   .toggled main.main-content.tabs .header-tabs {
-    right: 250px;
-    left: -250px;
+    right: 300px;
+    left: -300px;
   }
 }
 
 @media screen and (max-width: 800px) {
   main.main-content .content.doc .doc-right {
+    display: none;
+  }
+
+  main.main-content.tabs .header-tabs {
+    padding-bottom: 7px;
+  }
+
+  main.main-content.tabs .header-tabs .header-tabs-mobile {
+    display: none;
+    top: 103px;
+    position: fixed;
+    left: 0;
+    right: 0;
+    background: #ddd;
+    border-bottom: solid 1px #ccc;
+    z-index: 10;
+  }
+
+  main.main-content.tabs .header-tabs .header-tabs-mobile-selection {
+    display: inline-block;
+  }
+
+  main.main-content.tabs .header-tabs .header-tabs-mobile a {
+    display: block;
+    padding: 12px 25px;
+    text-align: left;
+    margin: 0;
+  }
+
+  main.main-content.tabs .header-tabs .header-tabs-mobile a.active {
+    border: 0;
+    background: #008CBA;
+    color: #fff;
+  }
+
+  main.main-content.tabs .header-tabs.toggled .header-tabs-mobile {
+    display: block;
+  }
+
+  main.main-content.tabs .header-tabs.toggled .header-tabs-mobile-selection .toggled-icon {
+    display: inline;
+  }
+
+  main.main-content.tabs .header-tabs.toggled .header-tabs-mobile-selection .untoggled-icon {
     display: none;
   }
 }

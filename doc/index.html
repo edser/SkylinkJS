@@ -41,7 +41,14 @@
 
   <!-- main : content -->
   <main class="main-content tabs">
-    <div class="header-tabs" populate-content-header></div>
+    <div class="header-tabs">
+      <h1 populate-content-header></h1>
+      <div class="header-tabs-mobile" populate-content-tabs></div>
+      <div class="header-tabs-mobile-selection">
+        <i class="fa fa-caret-down untoggled-icon"></i>
+        <i class="fa fa-caret-up toggled-icon"></i>
+      </div>
+    </div>
     <div populate-content></div>
   </main>
 </body>
