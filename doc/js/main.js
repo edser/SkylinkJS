@@ -415,15 +415,6 @@ $(document).ready(function () {
         (!navbarRight[sectionKey].asTabs ? '-' + tabItemKey : '') + '.html');
       $(window).scrollTop(0);
     } else {
-      $('[populate-menu-header]').html(tabItemKey !== 'null' ? tabItemKey : '');
-      $('[populate-menu]').html('');
-
-      utils.forEach(navbarRight[sectionKey].menu[linkKey].items[tabItemKey], function (item, key) {
-        $('[populate-menu]').append('<li active-href="' + sectionKey + '+' + linkKey + '+' + tabItemKey + '+' + item.name + '">' +
-          '<a href="#' + sectionKey + '+' + linkKey + '+' + tabItemKey + '+' + item.name + '">' +
-          '<span class="circle"></span><span class="div"></span>' + item.name + '</a></li>');
-      });
-
       // Render and populate the docs
       (function () {
         var htmlStr = '';
@@ -561,38 +552,46 @@ $(document).ready(function () {
       });
     });
 
-    utils.forEach(navbarRight, function (item, key) {
-      var menuStr = '';
+    utils.forEach(navbarRight, function (sectionItem, sectionKey) {
+      var sectionHtmlStr = '';
 
-      utils.forEach(item.menu, function (subitem, subkey) {
-        menuStr += '<li active-href="' + key + '+' + subkey + '" class="' + (subitem.items ? 'parent' : '') + '">' +
-          '<a href="#' + key + '+' + subkey + '">' + subitem.name + '</a>' +  
-          (subitem.items ? '<span class="parent-header" populate-menu-header></span><ul populate-menu></ul>' : '') +
-          '</li>';
+      utils.forEach(item.menu, function (linkItem, linkKey) {
+        sectionHtmlStr += '<li active-href="' + sectionKey + '+' + linkKey + '" class="' + (linkItem.items ? 'parent' : '') + '">' +
+          '<a href="#' + sectionKey + '+' + linkKey + '">' + linkItem.name + '</a>';
+
+        utils.forEach(navbarRight[sectionKey].menu, function (tabItem, tabKey) {
+          var tabsHtmlStr = '';
+          utils.forEach(navbarRight[key].menu[linkKey].items[tabKey], function (methodNameItem, methodNameKey) {
+            tabsHtmlStr += '<li active-href="' + sectionKey + '+' + linkKey + '+' + tabKey + '+' + methodNameKey + '">' +
+              '<a href="#' + sectionKey + '+' + linkKey + '+' + tabKey + '+' + methodNameKey + '">' +
+              '<span class="circle"></span><span class="div"></span>' + methodNameItem.name + '</a></li>';
+          });
+          sectionHtmlStr += '<span class="parent-header">' + tabItem.name + '</span><ul>' + tabsHtmlStr + '</ul>';
+        });
       });
 
-      $('[populate-sections]').append('<section class="navbar-right-section" active-href="' +  key + '">' +
-        '<p class="section-header">' + item.name + '</p>' +
-        '<ul>' + menuStr + '</ul>' +
+      $('[populate-sections]').append('<section class="navbar-right-section" active-href="' +  sectionKey + '">' +
+        '<p class="section-header">' + sectionItem.name + '</p>' +
+        '<ul>' + sectionHtmlStr + '</ul>' +
         '</section>');
     });
 
     (function () {
-      var externalMenuStr = '';
-      utils.forEach(navbarTop, function (item) {
-        externalMenuStr += '<li><a href="' + item.href + '" target="_blank">' + item.name + '</a></li>';
+      var externalMenuHtmlStr = '';
+      utils.forEach(navbarTop, function (menuItem) {
+        externalMenuHtmlStr += '<li><a href="' + menuItem.href + '" target="_blank">' + menuItem.name + '</a></li>';
 
-        if (item.related) {
+        if (menuItem.related) {
           $('[populate-external-links-related]').append('');
         } else {
-          $('[populate-external-links]').append('<a href="' + item.href + '" target="_blank" class="' + (item.primary ? 'primary' : '') + '">' +
-            (item.icon ? '<i class="fa fa-' + item.icon + '"></i> ' : '') + item.name + '</a>');
+          $('[populate-external-links]').append('<a href="' + menuItem.href + '" target="_blank" class="' + (menuItem.primary ? 'primary' : '') + '">' +
+            (menuItem.icon ? '<i class="fa fa-' + menuItem.icon + '"></i> ' : '') + menuItem.name + '</a>');
         }
       });
 
       $('[populate-sections]').append('<section class="navbar-right-section navbar-right-section-mobile">' +
         '<p class="section-header">Related links</p>' +
-        '<ul>' + externalMenuStr + '</ul></section>');
+        '<ul>' + externalMenuHtmlStr + '</ul></section>');
     })();
 
     if (window.location.hash && window.location.hash.indexOf('+') > 0) {
