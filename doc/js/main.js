@@ -199,8 +199,9 @@ $(document).ready(function () {
       if (types.length > 0) {
         utils.forEach(types, function (type) {
           str += '<a href="' + type.href + '"' + (type.href.indexOf('http') === 0 ? ' target="_blank"' : '') + '>' + 
-            '<code>' + type.type + '</code></a>';
+            '<code>' + type.type + '</code></a>/';
         });
+        str = str.substr(0, str.length - 1);
       } else if (item.itemtype === 'method') {
         str += '<var class="return-none">None</var>';
       }
@@ -228,8 +229,10 @@ $(document).ready(function () {
 
         utils.forEach(utils.parseDocType(item.type), function (type) {
           htmlStr += '<a href="' + type.href + '"' + (type.href.indexOf('http') === 0 ?' target="_blank"' : '') + '>' + 
-            '<var class="typeof">' + type.type + '</var></a>';
+            '<var class="typeof">' + type.type + '</var></a>/';
         });
+
+        htmlStr = htmlStr.substr(0, htmlStr.length - 1);
 
         if (item.optional) {
           htmlStr += '<span class="optional"><b>Optional</b>' + (item.optdefault ? '- defaults to <code>' +
@@ -410,6 +413,7 @@ $(document).ready(function () {
     if (navbarRight[sectionKey].static) {
       $('[populate-content]').html('').load('data/pages/' + sectionKey + '-' + linkKey +
         (!navbarRight[sectionKey].asTabs ? '-' + tabItemKey : '') + '.html');
+      $(window).scrollTop(0);
     } else {
       $('[populate-menu-header]').html(tabItemKey !== 'null' ? tabItemKey : '');
       $('[populate-menu]').html('');
@@ -455,17 +459,27 @@ $(document).ready(function () {
             htmlStr += '<h3>Parameters:</h3>' + utils.parseDocParams(item.parameters, false);
           }
 
-          htmlStr += '</div>' + (tabItemKey === 'methods' ? '<div class="doc-right">' +
+          htmlStr += '</div>' + (['methods', 'constructor'].indexOf(tabItemKey) > -1 ? '<div class="doc-right">' +
             '<pre class="prettyprint">' + exampleStr + '</pre></div>' : '') + '</div>';
         });
 
         $('[populate-content]').html(htmlStr);
+        $(window).scrollTop(0);
       })();
     }
 
     $('[active-href]').removeClass('active');
     $('[active-href="' + sectionKey + '+' + linkKey + '"]').addClass('active');
     $('[active-href="' + parts.join('+') + '"]').addClass('active');
+
+    if ($(window).outerWidth() > 800) {
+      $('navbar.navbar-right').animate({
+        scrollTop: (window.location.hash.indexOf('#docs+') === 0 ?
+          $('[active-href="' + sectionKey + '+' + linkKey + '"]').offset().top :
+          $('[active-href="' + sectionKey + '"]').offset().top) +
+          $('navbar.navbar-right').scrollTop() - 75
+      }, 100);
+    }
     prettyPrint();
   }
 
@@ -557,7 +571,7 @@ $(document).ready(function () {
           '</li>';
       });
 
-      $('[populate-sections]').append('<section class="navbar-right-section">' +
+      $('[populate-sections]').append('<section class="navbar-right-section" active-href="' +  key + '">' +
         '<p class="section-header">' + item.name + '</p>' +
         '<ul>' + menuStr + '</ul>' +
         '</section>');
@@ -581,7 +595,11 @@ $(document).ready(function () {
         '<ul>' + externalMenuStr + '</ul></section>');
     })();
 
-    onHashchangeEventDelegate();
+    if (window.location.hash && window.location.hash.indexOf('+') > 0) {
+      onHashchangeEventDelegate();
+    } else {
+      window.location.hash = '#gettingstarted+download+cdn';
+    }
   });
 
 });

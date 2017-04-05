@@ -359,7 +359,7 @@ main.main-content h3 {
 }
 
 main.main-content.tabs {
-  padding-top: 75px;
+  padding-top: 88px;
 }
 
 main.main-content.tabs .header-tabs {
@@ -500,7 +500,7 @@ main.main-content .content.doc .doc-right {
 
 main.main-content .content.doc .doc-left {
   width: 100%;
-  padding: 35px 25px 25px 25px;
+  padding: 15px 25px 25px 25px;
 }
 
 main.main-content .content.doc .doc-right {
