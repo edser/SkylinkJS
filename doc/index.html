@@ -40,16 +40,16 @@
   <navbar class="navbar-right" populate-sections></navbar>
 
   <!-- main : content -->
-  <main class="main-content tabs">
+  <main class="main-content tabs" style="position:relative;z-index:1;">
     <div class="header-tabs">
       <h1 populate-content-header></h1>
-      <div class="header-tabs-mobile" populate-content-tabs></div>
       <div class="header-tabs-mobile-selection">
         <i class="fa fa-caret-down untoggled-icon"></i>
         <i class="fa fa-caret-up toggled-icon"></i>
       </div>
+      <div class="header-tabs-mobile" populate-content-tabs></div>
     </div>
-    <div populate-content></div>
+    <!--<div populate-content></div>-->
   </main>
 </body>
 </html>
