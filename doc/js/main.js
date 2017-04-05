@@ -55,211 +55,228 @@ $(document).ready(function () {
     /**
      * Function to parse the docs item description.
      * @method utils.parseDocDescription
-     * @param {JSON} item The docs item.
+     * @param {JSON} methodItem The docs method/event/property/constant item.
      * @return {JSON} The parsed docs item.
      * @private
      */
-    parseDocDescription: function (item) {
-      if (typeof item.description !== 'string') {
-        return item;
+    parseDocDescription: function (methodItem) {
+      if (typeof methodItem.description !== 'string') {
+        return methodItem;
       }
 
-      var desc = window.marked(item.description).replace(/<(br|br\/)>/gi, '');
+      var desc = window.marked(methodItem.description).replace(/<(br|br\/)>/gi, '');
 
-      // Parse for beta tags @(beta)
-      // YUIDoc workaround for properties additional flags
-      if (desc.indexOf(/@\(beta\)/gi, '') > -1) {
-        desc = desc.replace(/@\(beta\)/gi, '');
-        item.beta = true;
-      }
+      /**
+       * Function to parse item flags
+       * YUIDoc workaround for properties additional flags.
+       * @method parseFlagsFn
+       * @private
+       */
+      var parseFlagsFn = function (flagKey) {
+        var regexp = new RegExp('@\(' + flagKey + '\)', 'gi');
+        if (desc.indexOf(regexp) > -1) {
+          desc = desc.replace(regexp, '');
+          methodItem[flagKey] = true;
+        }
+      };
 
-      // Parse for experimental tags @(experimental)
-      // YUIDoc workaround for properties additional flags
-      if (desc.indexOf(/@\(experimental\)/gi, '') > -1) {
-        desc = desc.replace(/@\(experimental\)/gi, '');
-        item.experimental = true;
-      }
+      parseFlagsFn('beta');
+      parseFlagsFn('experimental');
+      parseFlagsFn('deprecated');
 
-      // Parse for deprecated tags @(deprecated)
-      // YUIDoc workaround for properties additional flags
-      if (desc.indexOf(/@\(deprecated\)/gi, '') > -1) {
-        desc = desc.replace(/@\(deprecated\)/gi, '');
-        item.deprecated = true;
-      }
-
-      // Parse @(link=.*)
-      // YUIDoc replacement for {{#crossLink}} to work in this app
+      /**
+       * Parse @(link=.*)
+       * YUIDoc replacement for {{#crossLink}} to work in this app
+       */
       (function () {
         var result = desc.match(/@\(link=.*\)/gi);
+        var index = 0;
+
         if (result) {
-          var index = 0;
           while (index < result.length) {
-            var linkData = (result[index].split('(link=')[1] || '').split(')')[0] || '';
-            if (linkData) {
-              var parts = linkData.split('|');
-              var href = parts[0];
-              var title = parts[1];
-              if (!(href.indexOf('http') === 0)) {
-                // E.g. Temasys.DataChannel:getStats:method
-                var hrefParts = href.split(':');
-                if (hrefParts.length > 0) {
-                  title = !title ? '<code>' + hrefParts[0] + '</code> - ' +
-                    '<code>' + hrefParts[1] + '</code> ' + hrefParts[2] : title;
-                  href = '#docs+' + hrefParts[0] + '+';
-                  if (hrefParts[2] === 'event') {
-                    href += 'events';
-                  } else if (hrefParts[2] === 'method') {
-                    href += 'methods';
-                  } else if (hrefParts[2] === 'constant') {
-                    href += 'constants';
-                  } else if (hrefParts[2] === 'property') {
-                    href += 'properties';
-                  } else {
-                    href += hrefParts[2];
-                  }
-                  href += '+' + hrefParts[1]; 
+            var linkParts = ((result[index].split('(link=')[1] || '').split(')')[0] || '').split('|');
+            var linkHref = parts[0];
+            var linkTitle = parts[1];
+
+            if (!(linkHref.indexOf('http') === 0)) {
+              // E.g. Temasys.DataChannel:getStats:method
+              var hrefParts = linkHref.split(':');
+
+              if (hrefParts.length > 0) {
+                linkTitle = !linkTitle ? '<code>' + hrefParts[0] + '</code> - ' +
+                  '<code>' + hrefParts[1] + '</code> ' + hrefParts[2] : linkTitle;
+                linkHref = '#docs+' + hrefParts[0] + '+';
+
+                if (hrefParts[2] === 'event') {
+                  linkHref += 'events';
+                } else if (hrefParts[2] === 'method') {
+                  linkHref += 'methods';
+                } else if (hrefParts[2] === 'constant') {
+                  linkHref += 'constants';
+                } else if (hrefParts[2] === 'property') {
+                  linkHref += 'properties';
                 } else {
-                  title = !title ? '<code>' + hrefParts[0] + '</code>' : title;
-                  href = '#docs+' + hrefParts[0];
+                  linkHref += hrefParts[2];
                 }
+                linkHref += '+' + hrefParts[1]; 
+
+              } else {
+                title = !title ? '<code>' + hrefParts[0] + '</code>' : linkTitle;
+                linkHref = '#docs+' + hrefParts[0];
               }
-              desc = desc.replace(new RegExp(href, 'gi'), '<a href="' + href + '"' +
-                (href.indexOf('http') === 0 ? ' target="_blank"' : '') + '>' + title + '</a>');
             }
+            desc = desc.replace(new RegExp(linkHref, 'gi'), '<a href="' + linkHref + '"' +
+              (linkHref.indexOf('http') === 0 ? ' target="_blank"' : '') + '>' + linkTitle + '</a>');
           }
         }
       })();
 
-      item.description = desc;
-      item.parameters = [];
+      methodItem.description = desc;
+      methodItem.parameters = [];
 
-      var prop = Array.isArray(item.params) ? 'params' : (Array.isArray(item.props) ? 'props' : '');
+      /**
+       * Parse sub-parameters.
+       */
+      (function () {
+        var prop = Array.isArray(methodItem.params) ? 'params' : (Array.isArray(methodItem.props) ? 'props' : '');
 
-      // Parse sub parameters.
-      if (prop) {
-        utils.forEach(item[prop], function (subitem) {
-          item.parameters.push(utils.parseDocDescription(subitem));
-        });
-        delete item[prop];
-      }
-      return item;
+        // Parse sub parameters.
+        if (prop) {
+          utils.forEach(methodItem[prop], function (paramItem) {
+            methodItem.parameters.push(utils.parseDocDescription(paramItem));
+          });
+          delete methodItem[prop];
+        }
+      })();
+
+      return methodItem;
     },
 
     /**
      * Function to parse the docs type.
      * @method utils.parseDocType
-     * @param {String} type The docs item types.
+     * @param {String} type The docs method/event/property/constant item ".type".
      * @return {Array} The parsed docs item types.
      * @private
      */
     parseDocType: function (type) {
-      var types = [];
-      utils.forEach((type || '').split('|'), function (item) {
-        if (!item) {
+      var parsedItems = [];
+
+      utils.forEach((type || '').split('|'), function (typeItem) {
+        if (!typeItem) {
           return [{ type: 'None', href: '' }];
         }
-        types.push({
-          type: item,
+
+        parsedItems.push({
+          type: typeItem,
           href: ['String', 'JSON', 'Boolean', 'Number', 'ArrayBuffer', 'Blob',
-            'Array', 'Object', 'MediaStream', 'RTCCertificate', 'Function', 'Promise'].indexOf(item) > -1 ?
-            'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/' + item :
-            '#docs-' + type
+            'Array', 'Object', 'MediaStream', 'RTCCertificate', 'Function', 'Promise'].indexOf(typeItem) > -1 ?
+            'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/' + typeItem :
+            '#docs-' + typeItem
         });
       });
-      return types;
+
+      return parsedItems;
     },
 
     /**
      * Function to parse the docs item header.
      * @method utils.parseDocHeader
-     * @param {JSON} item The docs item.
+     * @param {JSON} methodItem The docs method/event/property/constant item.
      * @return {JSON} The parsed docs item.
      * @private
      */
-    parseDocHeader: function (item) {
-      var str = '';
+    parseDocHeader: function (methodItem) {
+      var headerHtmlStr = '';
 
-      if (item.itemtype === 'attribute') {
-        str += '<code>.' + item.name + '</code><span class="type">: ';
-      } else if (item.itemtype === 'method' || item.is_constructor) {
-        var paramsStr = '';
-        utils.forEach(item.parameters, function (param, paramKey) {
-          paramsStr += '<small>' + (param.optional ? '[' : '') + param.name + (param.optional ? ']' : '') + '</small>, ';
+      if (methodItem.itemtype === 'attribute') {
+        headerHtmlStr += '<code>.' + methodItem.name + '</code><span class="type">: ';
+
+      } else if (methodItem.itemtype === 'method' || methodItem.is_constructor) {
+        var paramsHtmlStr = '';
+
+        utils.forEach(methodItem.parameters, function (param, paramKey) {
+          paramsHtmlStr += '<small>' + (param.optional ? '[' : '') + param.name + (param.optional ? ']' : '') + '</small>, ';
         });
+
         // Remove extra ", "
-        paramsStr = paramsStr.substr(0, paramsStr.length - 2);
-        str += '<code>' + (item.is_constructor ? 'new ' : '.') + item.name + '(' + paramsStr + ')</code><span class="type">' +
-          (item.is_constructor ? '' : '&#8594; ');
-      } else if (item.itemtype === 'event') {
-        str += '<code>"' + item.name + '"</code><span class="type">';
+        paramsHtmlStr = paramsHtmlStr.substr(0, paramsHtmlStr.length - 2);
+        headerHtmlStr += methodItem.is_constructor ? '<code>new ' + methodItem.name + '(' + paramsHtmlStr + ')</code><span class="type">' :
+          '.' + methodItem.name + '(' + paramsHtmlStr + ')</code><span class="type">&#8594; ';
+
+      } else if (methodItem.itemtype === 'event') {
+        headerHtmlStr += '<code>"' + methodItem.name + '"</code><span class="type">';
       }
 
-      var types = utils.parseDocType(item.type);
+      var parsedTypes = utils.parseDocType(methodItem.type);
 
-      if (types.length > 0) {
-        utils.forEach(types, function (type) {
-          str += '<a href="' + type.href + '"' + (type.href.indexOf('http') === 0 ? ' target="_blank"' : '') + '>' + 
-            '<code>' + type.type + '</code></a>/';
+      if (parsedTypes.length > 0) {
+        utils.forEach(parsedTypes, function (typeItem) {
+          headerHtmlStr += '<a href="' + typeItem.href + '"' + (typeItem.href.indexOf('http') === 0 ? ' target="_blank"' : '') + '>' + 
+            '<code>' + typeItem.type + '</code></a>/';
         });
-        str = str.substr(0, str.length - 1);
-      } else if (item.itemtype === 'method') {
-        str += '<var class="return-none">None</var>';
+
+        headerHtmlStr = headerHtmlStr.substr(0, headerHtmlStr.length - 1);
+
+      } else if (methodItem.itemtype === 'method') {
+        headerHtmlStr += '<var class="return-none">None</var>';
       }
 
-      str += '</span><span class="since">Since: <b>' + (item.since || '-') + '</b></span>';
-      return str;
+      headerHtmlStr += '</span><span class="since">Since: <b>' + (methodItem.since || '-') + '</b></span>';
+      return headerHtmlStr;
     },
 
     /**
      * Function to parse the parameters.
      * @method utils.parseDocParams
-     * @param {JSON} params The docs params.
+     * @param {JSON} params The docs method/event/property/constant item params.
      * @return {String} The parsed docs param HTML string.
      * @private
      */
     parseDocParams: function (params, isReturn, isChild) {
-      var htmlStr = '';
+      var paramsHtmlStr = '';
 
-      utils.forEach(params, function (item) {
-        if (item.name.indexOf('return') === 0 ? !isReturn : isReturn) {
+      utils.forEach(params, function (paramItem) {
+        // Return for parsing "return" items
+        if (paramItem.name.indexOf('return') === 0 ? !isReturn : isReturn) {
           return;
         }
 
-        htmlStr += '<li><div class="param-name"><code>' + item.name + '</code>';
+        paramsHtmlStr += '<li><div class="param-name"><code>' + paramItem.name + '</code>';
 
-        utils.forEach(utils.parseDocType(item.type), function (type) {
-          htmlStr += '<a href="' + type.href + '"' + (type.href.indexOf('http') === 0 ?' target="_blank"' : '') + '>' + 
-            '<var class="typeof">' + type.type + '</var></a>/';
+        utils.forEach(utils.parseDocType(paramItem.type), function (typeItem) {
+          paramsHtmlStr += '<a href="' + typeItem.href + '"' + (typeItem.href.indexOf('http') === 0 ?' target="_blank"' : '') + '>' + 
+            '<var class="typeof">' + typeItem.type + '</var></a>/';
         });
 
-        htmlStr = htmlStr.substr(0, htmlStr.length - 1);
+        paramsHtmlStr = paramsHtmlStr.substr(0, paramsHtmlStr.length - 1);
 
-        if (item.optional) {
-          htmlStr += '<span class="optional"><b>Optional</b>' + (item.optdefault ? '- defaults to <code>' +
-            item.optdefault + '</code>' : '') + '</span>';
+        if (paramItem.optional) {
+          paramsHtmlStr += '<span class="optional"><b>Optional</b>' + (paramItem.optdefault ? '- defaults to <code>' +
+            paramItem.optdefault + '</code>' : '') + '</span>';
         }
 
-        if (item.deprecated) {
-          htmlStr += '<span class="deprecated"><b>Deprecated</b></span>';
+        if (paramItem.deprecated) {
+          paramsHtmlStr += '<span class="deprecated"><b>Deprecated</b></span>';
         }
 
-        if (item.beta) {
-          htmlStr += '<span class="beta"><b>beta</b></span>';
+        if (paramItem.beta) {
+          paramsHtmlStr += '<span class="beta"><b>beta</b></span>';
         }
 
-        if (item.experimental) {
-          htmlStr += '<span class="beta"><b>experimental</b></span>';
+        if (paramItem.experimental) {
+          paramsHtmlStr += '<span class="beta"><b>experimental</b></span>';
         }
 
-        if (item.response) {
-          htmlStr += '<span class="response"><b>Function parameter</b></span>';
+        if (paramItem.response) {
+          paramsHtmlStr += '<span class="response"><b>Function parameter</b></span>';
         }
 
-        htmlStr += '</div><div class="param-desc">' + utils.parseDocDescription(item.description) + '</div>' +
-          utils.parseDocParams(item.parameters, isReturn, true) + '</li>';
+        paramsHtmlStr += '</div><div class="param-desc">' + utils.parseDocDescription(paramItem.description) + '</div>' +
+          utils.parseDocParams(paramItem.parameters, isReturn, true) + '</li>';
       });
 
-      return (!htmlStr && !isChild ? '<p>None</p>' : '<ul class="doc-params">' + htmlStr + '</ul>');
+      return (!paramsHtmlStr && !isChild ? '<p>None</p>' : '<ul class="doc-params">' + paramsHtmlStr + '</ul>');
     }
   };
 
@@ -359,117 +376,129 @@ $(document).ready(function () {
    * @private
    */
   function onHashchangeEventDelegate () {
-    var parts = (window.location.hash.split('#')[1] || '').split('+');
-    var sectionKey = parts[0];
-    var linkKey = parts[1];
-    var tabItemKey = parts[2];
-    var methodNameKey = parts[3];
+    var winHashParts = (window.location.hash.split('#')[1] || '').split('+');
+    var sectionKey = winHashParts[0];
+    var pageKey = winHashParts[1];
+    var tabKey = winHashParts[2];
+    var methodKey = winHashParts[3];
 
     // Select nothing if unknown hash is provided
     if (!navbarRight[sectionKey]) {
       return;
+
     // Fallback to the default item if not available
-    } else if (!(linkKey && navbarRight[sectionKey].menu[linkKey])) {
-      return window.location.hash = '#' + sectionKey + '+' + navbarRight[linkKey].default;
+    } else if (!(pageKey && navbarRight[sectionKey].menu[pageKey])) {
+      return window.location.hash = '#' + sectionKey + '+' + navbarRight[pageKey].default;
 
     // Fallback to the next default item if not available
-    } else if (!tabItemKey && !navbarRight[sectionKey].asTabs) {
-      return window.location.hash = '#' + sectionKey + '+' + linkKey + '+' +
-        (utils.getKeys(navbarRight[sectionKey].menu[linkKey].tabs)[0] || 'null');
+    } else if (!tabKey && !navbarRight[sectionKey].asTabs) {
+      return window.location.hash = '#' + sectionKey + '+' + pageKey + '+' +
+        (utils.getKeys(navbarRight[sectionKey].menu[pageKey].tabs)[0] || 'null');
 
     // Fallback to the first item available
-    } else if (navbarRight[sectionKey].menu[linkKey].items && !methodNameKey) {
-      return window.location.hash = '#' + sectionKey + '+' + linkKey + '+' + tabItemKey + '+' +
-        ((navbarRight[sectionKey].menu[linkKey].items[tabItemKey] &&
-        navbarRight[sectionKey].menu[linkKey].items[tabItemKey][0] &&
-        navbarRight[sectionKey].menu[linkKey].items[tabItemKey][0].name) || 'null');
+    } else if (navbarRight[sectionKey].menu[pageKey].items && !methodKey) {
+      return window.location.hash = '#' + sectionKey + '+' + pageKey + '+' + tabKey + '+' +
+        ((navbarRight[sectionKey].menu[pageKey].items[tabKey] &&
+        navbarRight[sectionKey].menu[pageKey].items[tabKey][0] &&
+        navbarRight[sectionKey].menu[pageKey].items[tabKey][0].name) || 'null');
     }
 
-    // Populate for "as tabs" items
-    if (navbarRight[sectionKey].asTabs) {
+    // Populate menu items for per section
+    (function () {
       var tabsHtmlStr = '';
 
-      utils.forEach(navbarRight[sectionKey].menu, function (item, key) {
-        tabsHtmlStr += '<a href="#' + sectionKey + '+' + key + '" class="' + (linkKey === key ? 'active' : '') + '">' + item.name + '</a>';
-      });
+      // Populate for "as tabs" items
+      if (navbarRight[sectionKey].asTabs) {
+        utils.forEach(navbarRight[sectionKey].menu, function (pageItem, pageItemKey) {
+          tabsHtmlStr += '<a href="#' + sectionKey + '+' + pageItemKey + '" class="' + (pageKey === pageItemKey ? 'active' : '') + '">' + pageItem.name + '</a>';
+        });
+
+        $('[populate-content-header]').html(navbarRight[sectionKey].name);
       
+      } else {
+        utils.forEach(navbarRight[sectionKey].menu[pageKey].tabs, function (tabItem, tabItemKey) {
+          tabsHtmlStr += '<a href="#' + sectionKey + '+' + pageKey + '+' + tabItemKey + '" class="' + (tabKey === tabItemKey ? 'active' : '') + '">' + tabItem.name + '</a>';
+        });
 
-      $('[populate-content-header]').html(navbarRight[sectionKey].name);
+        $('[populate-content-header]').html(navbarRight[sectionKey].menu[pageKey].name);
+      }
       $('[populate-content-tabs]').html(tabsHtmlStr);
-
-    // Populate normal tabs items
-    } else {
-      var tabsHtmlStr = '';
-      
-      utils.forEach(navbarRight[sectionKey].menu[linkKey].tabs, function (item, key) {
-        tabsHtmlStr += '<a href="#' + sectionKey + '+' + linkKey + '+' + key + '" class="' + (tabItemKey === key ? 'active' : '') + '">' + item.name + '</a>';
-      });
-
-      $('[populate-content-header]').html(navbarRight[sectionKey].menu[linkKey].name);
-      $('[populate-content-tabs]').html(tabsHtmlStr);
-    }
+    })();
 
     // For static templating
     if (navbarRight[sectionKey].static) {
-      $('[populate-content]').html('').load('data/pages/' + sectionKey + '-' + linkKey +
-        (!navbarRight[sectionKey].asTabs ? '-' + tabItemKey : '') + '.html');
+      $('[populate-content]').html('').load('data/pages/' + sectionKey + '-' + pageKey +
+        (!navbarRight[sectionKey].asTabs ? '-' + tabKey : '') + '.html');
       $(window).scrollTop(0);
+
+    // For docs templating
     } else {
       // Render and populate the docs
-      (function () {
-        var htmlStr = '';
+      var contentHtmlStr = '';
 
-        utils.forEach(cachedDocs[linkKey][tabItemKey], function (item) {
-          var exampleStr = '';
+      utils.forEach(cachedDocs[pageKey][tabKey], function (methodItem) {
+        var exampleCodeHtmlStr = '';
 
-          utils.forEach(item.example, function (example) {
-            exampleStr += example;
-          });
-
-          htmlStr += '<div scroll-href="#' + sectionKey + '+' + linkKey + '+' + tabItemKey + '+' + item.name + '" class="content doc">' +
-            '<div class="doc-left">' +
-            '<h2>' + utils.parseDocHeader(item) + '</h2>' +
-            (item.deprecated ? '<div class="panel danger">This is currently <b>Deprecated</b>.</div>' : '') +
-            (item.beta ? '<div class="panel info">This is currently in <b>Beta</b>.</div>' : '') +
-            (item.requires ? '<div class="panel">This is defined only when <code>.' + item.requires.split(',')[0] +
-              '</code> is <code>' + item.requires.split(',')[1] + '</code>.</div>' : '') +
-            '<p>' + item.description + '</p>';
-          
-          // Render "Keys:" for properties / constants
-          if (tabItemKey === 'properties' || tabItemKey === 'constants') {
-            htmlStr += '<h3>Keys:</h3>' + utils.parseDocParams(item.parameters, false);
-          // Render "Payloads:" for events
-          } else if (tabItemKey === 'events') {
-            htmlStr += '<h3>Payload:</h3>' + utils.parseDocParams(item.parameters, false);
-          // Render "Returns:" and "Parameters:" for methods
-          } else if (tabItemKey === 'methods') {
-            htmlStr += '<h3>Returns:</h3>' + utils.parseDocParams(item.parameters, true) +
-              '<h3>Parameters:</h3>' + utils.parseDocParams(item.parameters, false);
-          // Render "Parameters:" for constructor
-          } else if (tabItemKey === 'constructor') {
-            htmlStr += '<h3>Parameters:</h3>' + utils.parseDocParams(item.parameters, false);
-          }
-
-          htmlStr += '</div>' + (['methods', 'constructor'].indexOf(tabItemKey) > -1 ? '<div class="doc-right">' +
-            '<pre class="prettyprint">' + exampleStr + '</pre></div>' : '') + '</div>';
+        utils.forEach(methodItem.example, function (exampleItem) {
+          exampleCodeHtmlStr += exampleItem;
         });
 
-        $('[populate-content]').html(htmlStr);
-        $(window).scrollTop(0);
-      })();
+        contentHtmlStr += '<div active-href="' + sectionKey + '+' + pageKey + '+' + tabKey + '+' + methodItem.name + '" class="content doc">' +
+          '<div class="doc-left">' +
+          '<h2>' + utils.parseDocHeader(methodItem) + '</h2>' +
+          (methodItem.deprecated ? '<div class="panel danger">This is currently <b>Deprecated</b>.</div>' : '') +
+          (methodItem.beta ? '<div class="panel info">This is currently in <b>Beta</b>.</div>' : '') +
+          (methodItem.requires ? '<div class="panel">This is defined only when <code>.' + methodItem.requires.split(',')[0] +
+            '</code> is <code>' + methodItem.requires.split(',')[1] + '</code>.</div>' : '') +
+          '<p>' + methodItem.description + '</p>';
+
+        // Render "Keys:" for properties / constants
+        if (tabKey === 'properties' || tabKey === 'constants') {
+          contentHtmlStr += '<h3>Keys:</h3>' + utils.parseDocParams(methodItem.parameters, false);
+
+        // Render "Payloads:" for events
+        } else if (tabKey === 'events') {
+          contentHtmlStr += '<h3>Payload:</h3>' + utils.parseDocParams(methodItem.parameters, false);
+
+        // Render "Returns:" and "Parameters:" for methods
+        } else if (tabKey === 'methods') {
+          contentHtmlStr += '<h3>Returns:</h3>' + utils.parseDocParams(methodItem.parameters, true) +
+            '<h3>Parameters:</h3>' + utils.parseDocParams(methodItem.parameters, false);
+
+        // Render "Parameters:" for constructor
+        } else if (tabKey === 'constructor') {
+          contentHtmlStr += '<h3>Parameters:</h3>' + utils.parseDocParams(methodItem.parameters, false);
+        }
+
+        contentHtmlStr += '</div>' + (['methods', 'constructor'].indexOf(tabKey) > -1 ? '<div class="doc-right">' +
+          '<pre class="prettyprint">' + exampleCodeHtmlStr + '</pre></div>' : '') + '</div>';
+      });
+
+      $('[populate-content]').html(contentHtmlStr);
+      $(window).scrollTop(0);
     }
 
-    $('[active-href]').removeClass('active');
-    $('[active-href="' + sectionKey + '+' + linkKey + '"]').addClass('active');
-    $('[active-href="' + parts.join('+') + '"]').addClass('active');
+    $('li[active-href]').removeClass('active');
+    $('li[active-href="' + sectionKey + '+' + pageKey + '"]').addClass('active');
+    $('li[active-href="' + winHashParts.join('+') + '"]').addClass('active');
 
     if ($(window).outerWidth() > 800) {
       $('navbar.navbar-right').animate({
         scrollTop: (window.location.hash.indexOf('#docs+') === 0 ?
-          $('[active-href="' + sectionKey + '+' + linkKey + '"]').offset().top :
-          $('[active-href="' + sectionKey + '"]').offset().top) +
+          $('li[active-href="' + sectionKey + '+' + pageKey + '+' + tabKey + '+' + methodKey + '"]').offset().top :
+          $('section[active-href="' + sectionKey + '"]').offset().top) +
           $('navbar.navbar-right').scrollTop() - 75
       }, 100);
+
+      if (methodKey) {
+        $('main.main-content').find('.content.doc').each(function () {
+          if ($(this).attr('active-href') === winHashParts.join('+')) {
+            $('body').animate({
+              scrollTop: $(this).offset().top + $('body').scrollTop() - 88
+            }, 100);
+          }
+        });
+      }
     }
     prettyPrint();
   }
@@ -493,19 +522,61 @@ $(document).ready(function () {
     //$('main.main-content.tabs .header-tabs .header-tabs-mobile').show();
   }
 
+  /**
+   * Handles the mobile tabs menu toggle button event.
+   * @method onMobileTabsMenuClickEventDelegate
+   * @private
+   */
+  function onMobileTabsMenuClickEventDelegate () {
+    $('main.main-content.tabs .header-tabs').toggleClass('toggled');
+    //$('main.main-content.tabs .header-tabs .header-tabs-mobile').show();
+  }
+
+  /**
+   * Handles the window scroll event.
+   * @method onScrollEventDelegate
+   * @private
+   */
+  function onScrollEventDelegate () {
+    if ($(window).outerWidth() > 800 && window.location.hash.indexOf('#docs+') === 0) {
+      $('main.main-content').find('.content.doc').each(function () {
+        var offsetTop = $('body').scrollTop() + 88 + 55;
+        var rangeFrom = $(this).offset().top;
+        var rangeTo = rangeFrom + $(this).height();
+
+        var winHashParts = ($(this).attr('active-href') || '').split('+');
+        var sectionKey = winHashParts[0];
+        var pageKey = winHashParts[1];
+
+        if (offsetTop > rangeFrom && offsetTop < rangeTo) {
+          //window.location.hash = $(this).attr('active-href');
+          $('li[active-href]').removeClass('active');
+          $('li[active-href="' + sectionKey + '+' + pageKey + '"]').addClass('active');
+          $('li[active-href="' + winHashParts.join('+') + '"]').addClass('active');
+          $('navbar.navbar-right').animate({
+            scrollTop: $('li[active-href="' + winHashParts.join('+') + '"]').offset().top +
+              $('navbar.navbar-right').scrollTop() - 75
+          }, 50);
+        }
+      });
+    }
+  }
+
   $(window).on('hashchange', onHashchangeEventDelegate);
   $('navbar.navbar-top .navbar-top-right-mobile').click(onMobileMenuClickEventDelegate);
   $('main.main-content.tabs .header-tabs .header-tabs-mobile-selection').click(onMobileTabsMenuClickEventDelegate);
+  $(window).scroll(onScrollEventDelegate);
 
   /**
    * Fetches for the docs/data.json
    */
   $.getJSON('data/docs/data.json', function(data) {
-    utils.forEach(data.classes, function (item, className) {
-      cachedDocs[className] = {
-        name: className,
-        typedef: item.typedef || 'class',
-        since: item.since,
+    // Populate the cached docs
+    utils.forEach(data.classes, function (docItem, docItemKey) {
+      cachedDocs[docItemKey] = {
+        name: docItemKey,
+        typedef: docItem.typedef || 'class',
+        since: docItem.since,
         methods: {},
         events: {},
         properties: {},
@@ -513,73 +584,80 @@ $(document).ready(function () {
         constructor: {}
       };
 
-      navbarRight.docs.menu[className] = {
-        name: className + ' <small>' + (item.typedef || 'class') + '</small>',
+      navbarRight.docs.menu[docItemKey] = {
+        name: docItemKey + ' <small>' + (docItem.typedef || 'class') + '</small>',
         tabs: {},
         items: {},
         default: ''
       };
-      
-      if (item.is_constructor) {
-        cachedDocs[className].constructor[item.name] = utils.parseDocDescription(item);
-        navbarRight.docs.menu[className].default = 'constructor';
-        navbarRight.docs.menu[className].tabs.constructor = { name: 'constructor' };
-        navbarRight.docs.menu[className].items.constructor = [{
-          name: item.name,
-          target: 'constructor'
-        }];
+
+      if (docItem.is_constructor) {
+        cachedDocs[docItemKey].constructor[docItem.name] = utils.parseDocDescription(docItem);
+        navbarRight.docs.menu[docItemKey].default = 'constructor';
+        navbarRight.docs.menu[docItemKey].tabs.constructor = { name: 'constructor' };
+        navbarRight.docs.menu[docItemKey].items.constructor = [{ name: docItem.name }];
       }
 
-      utils.forEach(data.classitems, function (subitem) {
-        if (!subitem.name) {
+      utils.forEach(data.classitems, function (docMethodItem) {
+        if (!docMethodItem.name) {
           return;
-        } else if (subitem['class'] === className) {
-          var prop = subitem.itemtype === 'attribute' ? (subitem.final ? 'constants' : 'properties') :
-            (subitem.itemtype === 'event' ? 'events' : 'methods');
-          cachedDocs[className][prop][subitem.name] = utils.parseDocDescription(subitem);
+        } else if (docMethodItem['class'] === docItemKey) {
+          var tabKey = docMethodItem.itemtype === 'attribute' ? (docMethodItem.final ? 'constants' : 'properties') :
+            (docMethodItem.itemtype === 'event' ? 'events' : 'methods');
+          cachedDocs[docItemKey][tabKey][docMethodItem.name] = utils.parseDocDescription(docMethodItem);
 
-          if (!navbarRight.docs.menu[className].default) {
-            navbarRight.docs.menu[className].default = prop;
+          if (!navbarRight.docs.menu[docItemKey].default) {
+            navbarRight.docs.menu[docItemKey].default = tabKey;
           }
 
-          if (!navbarRight.docs.menu[className].items[prop]) {
-            navbarRight.docs.menu[className].items[prop] = [];
+          if (!navbarRight.docs.menu[docItemKey].items[tabKey]) {
+            navbarRight.docs.menu[docItemKey].items[tabKey] = [];
           }
 
-          navbarRight.docs.menu[className].tabs[prop] = { name: prop };
-          navbarRight.docs.menu[className].items[prop].push({ name: subitem.name });
+          navbarRight.docs.menu[docItemKey].tabs[tabKey] = { name: tabKey };
+          navbarRight.docs.menu[docItemKey].items[tabKey].push({ name: docMethodItem.name });
         }
       });
     });
 
-    utils.forEach(navbarRight, function (sectionItem, sectionKey) {
+    // Populate navbar-right sections
+    utils.forEach(navbarRight, function (sectionItem, sectionItemKey) {
       var sectionHtmlStr = '';
 
-      utils.forEach(item.menu, function (linkItem, linkKey) {
-        sectionHtmlStr += '<li active-href="' + sectionKey + '+' + linkKey + '" class="' + (linkItem.items ? 'parent' : '') + '">' +
-          '<a href="#' + sectionKey + '+' + linkKey + '">' + linkItem.name + '</a>';
+      utils.forEach(sectionItem.menu, function (pageItem, pageItemKey) {
+        sectionHtmlStr += '<li active-href="' + sectionItemKey + '+' + pageItemKey + '" class="' + (pageItem.items ? 'parent' : '') + '">' +
+          '<a href="#' + sectionItemKey + '+' + pageItemKey + '">' + pageItem.name + '</a>';
 
-        utils.forEach(navbarRight[sectionKey].menu, function (tabItem, tabKey) {
-          var tabsHtmlStr = '';
-          utils.forEach(navbarRight[key].menu[linkKey].items[tabKey], function (methodNameItem, methodNameKey) {
-            tabsHtmlStr += '<li active-href="' + sectionKey + '+' + linkKey + '+' + tabKey + '+' + methodNameKey + '">' +
-              '<a href="#' + sectionKey + '+' + linkKey + '+' + tabKey + '+' + methodNameKey + '">' +
-              '<span class="circle"></span><span class="div"></span>' + methodNameItem.name + '</a></li>';
+        if (!sectionItem.static) {
+          utils.forEach(pageItem.tabs, function (tabItem, tabItemKey) {
+            var tabsHtmlStr = '';
+
+            utils.forEach(cachedDocs[pageItemKey][tabItemKey], function (methodItem, methodItemKey) {
+              tabsHtmlStr += '<li active-href="' + sectionItemKey + '+' + pageItemKey + '+' + tabItemKey + '+' + methodItemKey + '">' +
+                '<a href="#' + sectionItemKey + '+' + pageItemKey + '+' + tabItemKey + '+' + methodItemKey + '">' +
+                '<span class="circle"></span><span class="div"></span>' +
+                (tabItemKey === 'events' ? '"' + methodItem.name + '"' :
+                (tabItemKey === 'methods' ? '.' + methodItem.name + '()' :
+                (tabItemKey === 'constructor' ? 'new ' + methodItem.name + '()' : '.' + methodItem.name))) + '</a></li>';
+            });
+
+            sectionHtmlStr += '<span class="parent-header">' + tabItem.name + '</span><ul>' + tabsHtmlStr + '</ul>';
           });
-          sectionHtmlStr += '<span class="parent-header">' + tabItem.name + '</span><ul>' + tabsHtmlStr + '</ul>';
-        });
+        }
       });
 
-      $('[populate-sections]').append('<section class="navbar-right-section" active-href="' +  sectionKey + '">' +
+      $('[populate-sections]').append('<section class="navbar-right-section" active-href="' +  sectionItemKey + '">' +
         '<p class="section-header">' + sectionItem.name + '</p>' +
         '<ul>' + sectionHtmlStr + '</ul>' +
         '</section>');
     });
 
+    // Populate navbar-top items
     (function () {
-      var externalMenuHtmlStr = '';
+      var topMenuHtmlStr = '';
+
       utils.forEach(navbarTop, function (menuItem) {
-        externalMenuHtmlStr += '<li><a href="' + menuItem.href + '" target="_blank">' + menuItem.name + '</a></li>';
+        topMenuHtmlStr += '<li><a href="' + menuItem.href + '" target="_blank">' + menuItem.name + '</a></li>';
 
         if (menuItem.related) {
           $('[populate-external-links-related]').append('');
@@ -589,9 +667,10 @@ $(document).ready(function () {
         }
       });
 
+      // Append for appearing in mobile view
       $('[populate-sections]').append('<section class="navbar-right-section navbar-right-section-mobile">' +
         '<p class="section-header">Related links</p>' +
-        '<ul>' + externalMenuHtmlStr + '</ul></section>');
+        '<ul>' + topMenuHtmlStr + '</ul></section>');
     })();
 
     if (window.location.hash && window.location.hash.indexOf('+') > 0) {

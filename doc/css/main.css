@@ -201,13 +201,12 @@ navbar.navbar-right .navbar-right-section > ul > li a small {
 }
 
 navbar.navbar-right .navbar-right-section > ul > li > .parent-header {
-  color: #d2ebf3;
+  color: #869296;
   display: none;
   font-size: 11px;
   text-transform: uppercase;
-  margin: -5px 12px 5px;
+  margin: 3px 12px 5px;
   font-weight: 700;
-  float: right;
 }
 
 navbar.navbar-right .navbar-right-section > ul > li:hover {
