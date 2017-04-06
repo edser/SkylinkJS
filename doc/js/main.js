@@ -371,6 +371,18 @@ $(document).ready(function () {
   var cachedDocs = {};
 
   /**
+   * Stores the lock for scrolling states.
+   * @attribute scrollStates
+   * @type JSON
+   * @private
+   */
+  var scrollStates = {
+    navbar: false,
+    timeout: null,
+    href: ''
+  };
+
+  /**
    * Handles the hash change event.
    * @method onHashchangeEventDelegate
    * @private
@@ -382,102 +394,104 @@ $(document).ready(function () {
     var tabKey = winHashParts[2];
     var methodKey = winHashParts[3];
 
-    // Select nothing if unknown hash is provided
-    if (!navbarRight[sectionKey]) {
-      return;
+    if (scrollStates.navbar) {
+      // Select nothing if unknown hash is provided
+      if (!navbarRight[sectionKey]) {
+        return;
 
-    // Fallback to the default item if not available
-    } else if (!(pageKey && navbarRight[sectionKey].menu[pageKey])) {
-      return window.location.hash = '#' + sectionKey + '+' + navbarRight[pageKey].default;
+      // Fallback to the default item if not available
+      } else if (!(pageKey && navbarRight[sectionKey].menu[pageKey])) {
+        return window.location.hash = '#' + sectionKey + '+' + navbarRight[pageKey].default;
 
-    // Fallback to the next default item if not available
-    } else if (!tabKey && !navbarRight[sectionKey].asTabs) {
-      return window.location.hash = '#' + sectionKey + '+' + pageKey + '+' +
-        (utils.getKeys(navbarRight[sectionKey].menu[pageKey].tabs)[0] || 'null');
+      // Fallback to the next default item if not available
+      } else if (!tabKey && !navbarRight[sectionKey].asTabs) {
+        return window.location.hash = '#' + sectionKey + '+' + pageKey + '+' +
+          (utils.getKeys(navbarRight[sectionKey].menu[pageKey].tabs)[0] || 'null');
 
-    // Fallback to the first item available
-    } else if (navbarRight[sectionKey].menu[pageKey].items && !methodKey) {
-      return window.location.hash = '#' + sectionKey + '+' + pageKey + '+' + tabKey + '+' +
-        ((navbarRight[sectionKey].menu[pageKey].items[tabKey] &&
-        navbarRight[sectionKey].menu[pageKey].items[tabKey][0] &&
-        navbarRight[sectionKey].menu[pageKey].items[tabKey][0].name) || 'null');
-    }
-
-    // Populate menu items for per section
-    (function () {
-      var tabsHtmlStr = '';
-
-      // Populate for "as tabs" items
-      if (navbarRight[sectionKey].asTabs) {
-        utils.forEach(navbarRight[sectionKey].menu, function (pageItem, pageItemKey) {
-          tabsHtmlStr += '<a href="#' + sectionKey + '+' + pageItemKey + '" class="' + (pageKey === pageItemKey ? 'active' : '') + '">' + pageItem.name + '</a>';
-        });
-
-        $('[populate-content-header]').html(navbarRight[sectionKey].name);
-      
-      } else {
-        utils.forEach(navbarRight[sectionKey].menu[pageKey].tabs, function (tabItem, tabItemKey) {
-          tabsHtmlStr += '<a href="#' + sectionKey + '+' + pageKey + '+' + tabItemKey + '" class="' + (tabKey === tabItemKey ? 'active' : '') + '">' + tabItem.name + '</a>';
-        });
-
-        $('[populate-content-header]').html(navbarRight[sectionKey].menu[pageKey].name);
+      // Fallback to the first item available
+      } else if (navbarRight[sectionKey].menu[pageKey].items && !methodKey) {
+        return window.location.hash = '#' + sectionKey + '+' + pageKey + '+' + tabKey + '+' +
+          ((navbarRight[sectionKey].menu[pageKey].items[tabKey] &&
+          navbarRight[sectionKey].menu[pageKey].items[tabKey][0] &&
+          navbarRight[sectionKey].menu[pageKey].items[tabKey][0].name) || 'null');
       }
-      $('[populate-content-tabs]').html(tabsHtmlStr);
-    })();
 
-    // For static templating
-    if (navbarRight[sectionKey].static) {
-      $('[populate-content]').html('').load('data/pages/' + sectionKey + '-' + pageKey +
-        (!navbarRight[sectionKey].asTabs ? '-' + tabKey : '') + '.html');
-      $(window).scrollTop(0);
+      // Populate menu items for per section
+      (function () {
+        var tabsHtmlStr = '';
 
-    // For docs templating
-    } else {
-      // Render and populate the docs
-      var contentHtmlStr = '';
+        // Populate for "as tabs" items
+        if (navbarRight[sectionKey].asTabs) {
+          utils.forEach(navbarRight[sectionKey].menu, function (pageItem, pageItemKey) {
+            tabsHtmlStr += '<a href="#' + sectionKey + '+' + pageItemKey + '" class="' + (pageKey === pageItemKey ? 'active' : '') + '">' + pageItem.name + '</a>';
+          });
 
-      utils.forEach(cachedDocs[pageKey][tabKey], function (methodItem) {
-        var exampleCodeHtmlStr = '';
+          $('[populate-content-header]').html(navbarRight[sectionKey].name);
+        
+        } else {
+          utils.forEach(navbarRight[sectionKey].menu[pageKey].tabs, function (tabItem, tabItemKey) {
+            tabsHtmlStr += '<a href="#' + sectionKey + '+' + pageKey + '+' + tabItemKey + '" class="' + (tabKey === tabItemKey ? 'active' : '') + '">' + tabItem.name + '</a>';
+          });
 
-        utils.forEach(methodItem.example, function (exampleItem) {
-          exampleCodeHtmlStr += exampleItem;
+          $('[populate-content-header]').html(navbarRight[sectionKey].menu[pageKey].name);
+        }
+        $('[populate-content-tabs]').html(tabsHtmlStr);
+      })();
+
+      // For static templating
+      if (navbarRight[sectionKey].static) {
+        $('[populate-content]').html('').load('data/pages/' + sectionKey + '-' + pageKey +
+          (!navbarRight[sectionKey].asTabs ? '-' + tabKey : '') + '.html');
+        $(window).scrollTop(0);
+
+      // For docs templating
+      } else {
+        // Render and populate the docs
+        var contentHtmlStr = '';
+
+        utils.forEach(cachedDocs[pageKey][tabKey], function (methodItem) {
+          var exampleCodeHtmlStr = '';
+
+          utils.forEach(methodItem.example, function (exampleItem) {
+            exampleCodeHtmlStr += exampleItem;
+          });
+
+          contentHtmlStr += '<div active-href="' + sectionKey + '+' + pageKey + '+' + tabKey + '+' + methodItem.name + '" class="content doc">' +
+            '<div class="doc-left">' +
+            '<h2>' + utils.parseDocHeader(methodItem) + '</h2>' +
+            (methodItem.deprecated ? '<div class="panel danger">This is currently <b>Deprecated</b>.</div>' : '') +
+            (methodItem.beta ? '<div class="panel info">This is currently in <b>Beta</b>.</div>' : '') +
+            (methodItem.requires ? '<div class="panel">This is defined only when <code>.' + methodItem.requires.split(',')[0] +
+              '</code> is <code>' + methodItem.requires.split(',')[1] + '</code>.</div>' : '') +
+            '<p>' + methodItem.description + '</p>';
+
+          // Render "Keys:" for properties / constants
+          if (tabKey === 'properties' || tabKey === 'constants') {
+            contentHtmlStr += '<h3>Keys:</h3>' + utils.parseDocParams(methodItem.parameters, false);
+
+          // Render "Payloads:" for events
+          } else if (tabKey === 'events') {
+            contentHtmlStr += '<h3>Payload:</h3>' + utils.parseDocParams(methodItem.parameters, false);
+
+          // Render "Returns:" and "Parameters:" for methods
+          } else if (tabKey === 'methods') {
+            contentHtmlStr += '<h3>Returns:</h3>' + utils.parseDocParams(methodItem.parameters, true) +
+              '<h3>Parameters:</h3>' + utils.parseDocParams(methodItem.parameters, false);
+
+          // Render "Parameters:" for constructor
+          } else if (tabKey === 'constructor') {
+            contentHtmlStr += '<h3>Parameters:</h3>' + utils.parseDocParams(methodItem.parameters, false);
+          }
+
+          contentHtmlStr += '<p><button class="content-doc-mobile"' + (!exampleCodeHtmlStr ? ' disabled="true"' : '') + '>' +
+            '<i class="fa fa-ellipsis-h"></i></button></p></div>' +
+            (['methods', 'constructor'].indexOf(tabKey) > -1 ? '<div class="doc-right">' +
+            '<pre class="prettyprint">' + exampleCodeHtmlStr + '</pre></div>' : '') + '</div>';
         });
 
-        contentHtmlStr += '<div active-href="' + sectionKey + '+' + pageKey + '+' + tabKey + '+' + methodItem.name + '" class="content doc">' +
-          '<div class="doc-left">' +
-          '<h2>' + utils.parseDocHeader(methodItem) + '</h2>' +
-          (methodItem.deprecated ? '<div class="panel danger">This is currently <b>Deprecated</b>.</div>' : '') +
-          (methodItem.beta ? '<div class="panel info">This is currently in <b>Beta</b>.</div>' : '') +
-          (methodItem.requires ? '<div class="panel">This is defined only when <code>.' + methodItem.requires.split(',')[0] +
-            '</code> is <code>' + methodItem.requires.split(',')[1] + '</code>.</div>' : '') +
-          '<p>' + methodItem.description + '</p>';
-
-        // Render "Keys:" for properties / constants
-        if (tabKey === 'properties' || tabKey === 'constants') {
-          contentHtmlStr += '<h3>Keys:</h3>' + utils.parseDocParams(methodItem.parameters, false);
-
-        // Render "Payloads:" for events
-        } else if (tabKey === 'events') {
-          contentHtmlStr += '<h3>Payload:</h3>' + utils.parseDocParams(methodItem.parameters, false);
-
-        // Render "Returns:" and "Parameters:" for methods
-        } else if (tabKey === 'methods') {
-          contentHtmlStr += '<h3>Returns:</h3>' + utils.parseDocParams(methodItem.parameters, true) +
-            '<h3>Parameters:</h3>' + utils.parseDocParams(methodItem.parameters, false);
-
-        // Render "Parameters:" for constructor
-        } else if (tabKey === 'constructor') {
-          contentHtmlStr += '<h3>Parameters:</h3>' + utils.parseDocParams(methodItem.parameters, false);
-        }
-
-        contentHtmlStr += '<p><button class="content-doc-mobile"' + (!exampleCodeHtmlStr ? ' disabled="true"' : '') + '>' +
-          '<i class="fa fa-ellipsis-h"></i></button></p></div>' +
-          (['methods', 'constructor'].indexOf(tabKey) > -1 ? '<div class="doc-right">' +
-          '<pre class="prettyprint">' + exampleCodeHtmlStr + '</pre></div>' : '') + '</div>';
-      });
-
-      $('[populate-content]').html(contentHtmlStr);
-      $(window).scrollTop(0);
+        $('[populate-content]').html(contentHtmlStr);
+        $(window).scrollTop(0);
+      }
     }
 
     $('li[active-href]').removeClass('active');
@@ -492,7 +506,7 @@ $(document).ready(function () {
           $('navbar.navbar-left').scrollTop() - 75
       }, 100);
 
-      if (methodKey) {
+      if (methodKey && scrollStates.navbar) {
         $('main.main-content').find('.content.doc').each(function () {
           if ($(this).attr('active-href') === winHashParts.join('+')) {
             $('body').animate({
@@ -541,8 +555,10 @@ $(document).ready(function () {
    */
   function onScrollEventDelegate () {
     if ($(window).outerWidth() > 800 && window.location.hash.indexOf('#docs+') === 0) {
+      var scrollToHref = '';
+
       $('main.main-content').find('.content.doc').each(function () {
-        var offsetTop = $('body').scrollTop() + 88 + 55;
+        var offsetTop = $('body').scrollTop() + 88;// + 55;
         var rangeFrom = $(this).offset().top;
         var rangeTo = rangeFrom + $(this).height();
 
@@ -551,12 +567,17 @@ $(document).ready(function () {
         var pageKey = winHashParts[1];
 
         if (offsetTop > rangeFrom && offsetTop < rangeTo) {
-          //window.location.hash = $(this).attr('active-href');
-          $('li[active-href]').removeClass('active');
-          $('li[active-href="' + sectionKey + '+' + pageKey + '"]').addClass('active');
-          $('li[active-href="' + winHashParts.join('+') + '"]').addClass('active');
+          scrollToHref = $(this).attr('active-href');
         }
       });
+
+      if (scrollToHref && scrollToHref !== scrollStates.href) {
+        scrollStates.href = scrollToHref;
+
+        if (window.location.hash !== '#' + scrollToHref && !scrollStates.navbar) {
+          window.location.hash = '#' + scrollToHref;
+        }
+      }
     }
   }
 
@@ -569,11 +590,24 @@ $(document).ready(function () {
     $(this).closest('.content.doc').toggleClass('toggled');
   }
 
+  /**
+   * Handles the a[href] click event.
+   * @method onHashClickEventDelegate
+   * @private
+   */
+  function onHashClickEventDelegate () {
+    scrollStates.navbar = true;
+    setTimeout(function () {
+      scrollStates.navbar = false
+    }, 100);
+  }
+
   $(window).on('hashchange', onHashchangeEventDelegate);
   $('navbar.navbar-top .navbar-top-mobile').click(onMobileMenuClickEventDelegate);
   $('main.main-content.tabs .header-tabs .header-tabs-mobile-selection').click(onMobileTabsMenuClickEventDelegate);
   $(window).scroll(onScrollEventDelegate);
   $('main.main-content').on('click', '.content.doc .content-doc-mobile', onExampleExpandClickEventDelegate);
+  $('body').on('click', 'a[href]', onHashClickEventDelegate);
 
   /**
    * Fetches for the docs/data.json
@@ -682,6 +716,7 @@ $(document).ready(function () {
     })();
 
     if (window.location.hash && window.location.hash.indexOf('+') > 0) {
+      onHashClickEventDelegate();
       onHashchangeEventDelegate();
     } else {
       window.location.hash = '#gettingstarted+download+cdn';
