@@ -202,7 +202,7 @@ $(document).ready(function () {
         // Remove extra ", "
         paramsHtmlStr = paramsHtmlStr.substr(0, paramsHtmlStr.length - 2);
         headerHtmlStr += methodItem.is_constructor ? '<code>new ' + methodItem.name + '(' + paramsHtmlStr + ')</code><span class="type">' :
-          '.' + methodItem.name + '(' + paramsHtmlStr + ')</code><span class="type">&#8594; ';
+          '<code>.' + methodItem.name + '(' + paramsHtmlStr + ')</code><span class="type">&#8594; ';
 
       } else if (methodItem.itemtype === 'event') {
         headerHtmlStr += '<code>"' + methodItem.name + '"</code><span class="type">';
@@ -470,7 +470,9 @@ $(document).ready(function () {
           contentHtmlStr += '<h3>Parameters:</h3>' + utils.parseDocParams(methodItem.parameters, false);
         }
 
-        contentHtmlStr += '</div>' + (['methods', 'constructor'].indexOf(tabKey) > -1 ? '<div class="doc-right">' +
+        contentHtmlStr += '<p><button class="content-doc-mobile"' + (!exampleCodeHtmlStr ? ' disabled="true"' : '') + '>' +
+          '<i class="fa fa-ellipsis-h"></i></button></p></div>' +
+          (['methods', 'constructor'].indexOf(tabKey) > -1 ? '<div class="doc-right">' +
           '<pre class="prettyprint">' + exampleCodeHtmlStr + '</pre></div>' : '') + '</div>';
       });
 
@@ -483,11 +485,11 @@ $(document).ready(function () {
     $('li[active-href="' + winHashParts.join('+') + '"]').addClass('active');
 
     if ($(window).outerWidth() > 800) {
-      $('navbar.navbar-right').animate({
+      $('navbar.navbar-left').animate({
         scrollTop: (window.location.hash.indexOf('#docs+') === 0 ?
           $('li[active-href="' + sectionKey + '+' + pageKey + '+' + tabKey + '+' + methodKey + '"]').offset().top :
           $('section[active-href="' + sectionKey + '"]').offset().top) +
-          $('navbar.navbar-right').scrollTop() - 75
+          $('navbar.navbar-left').scrollTop() - 75
       }, 100);
 
       if (methodKey) {
@@ -553,19 +555,25 @@ $(document).ready(function () {
           $('li[active-href]').removeClass('active');
           $('li[active-href="' + sectionKey + '+' + pageKey + '"]').addClass('active');
           $('li[active-href="' + winHashParts.join('+') + '"]').addClass('active');
-          $('navbar.navbar-right').animate({
-            scrollTop: $('li[active-href="' + winHashParts.join('+') + '"]').offset().top +
-              $('navbar.navbar-right').scrollTop() - 75
-          }, 50);
         }
       });
     }
   }
 
+  /**
+   * Handles the doc item content expand example clicked event.
+   * @method onExampleExpandClickEventDelegate
+   * @private
+   */
+  function onExampleExpandClickEventDelegate () {
+    $(this).closest('.content.doc').toggleClass('toggled');
+  }
+
   $(window).on('hashchange', onHashchangeEventDelegate);
-  $('navbar.navbar-top .navbar-top-right-mobile').click(onMobileMenuClickEventDelegate);
+  $('navbar.navbar-top .navbar-top-mobile').click(onMobileMenuClickEventDelegate);
   $('main.main-content.tabs .header-tabs .header-tabs-mobile-selection').click(onMobileTabsMenuClickEventDelegate);
   $(window).scroll(onScrollEventDelegate);
+  $('main.main-content').on('click', '.content.doc .content-doc-mobile', onExampleExpandClickEventDelegate);
 
   /**
    * Fetches for the docs/data.json
@@ -646,7 +654,7 @@ $(document).ready(function () {
         }
       });
 
-      $('[populate-sections]').append('<section class="navbar-right-section" active-href="' +  sectionItemKey + '">' +
+      $('[populate-sections]').append('<section class="navbar-left-section" active-href="' +  sectionItemKey + '">' +
         '<p class="section-header">' + sectionItem.name + '</p>' +
         '<ul>' + sectionHtmlStr + '</ul>' +
         '</section>');
@@ -668,7 +676,7 @@ $(document).ready(function () {
       });
 
       // Append for appearing in mobile view
-      $('[populate-sections]').append('<section class="navbar-right-section navbar-right-section-mobile">' +
+      $('[populate-sections]').append('<section class="navbar-left-section navbar-left-section-mobile">' +
         '<p class="section-header">Related links</p>' +
         '<ul>' + topMenuHtmlStr + '</ul></section>');
     })();
