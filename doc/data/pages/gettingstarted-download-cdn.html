@@ -1,24 +1,21 @@
 <div class="content">
-	<h3>Bundled (Complete) version</h3>
-	<p>For the bundled versions that contains the required <a href="https://github.com/socketio/socket.io-client">
-	socket.io-client</a> and <a href="https://github.com/Temasys/AdapterJS">Temasys AdapterJS</a> dependencies:</p>
-	<pre class="prettyprint">
-	// Compressed version
-	&lt;script src="https://cdn.temasys.io/skylink/skylinkjs/0.7.x/skylink.complete.min.js" type="text/javascript"&gt;&lt;/script&gt;
-	// Uncompressed version
-	&lt;script src="https://cdn.temasys.io/skylink/skylinkjs/0.7.x/skylink.complete.js" type="text/javascript"&gt;&lt;/script&gt;
-	</pre>
-
-	<p>For just the SDK where you require to reference the required dependencies manually:</p>
-	<pre class="prettyprint">
-	// Compressed version
-	&lt;script src="https://cdn.temasys.io/skylink/skylinkjs/0.7.x/skylink.min.js" type="text/javascript"&gt;&lt;/script&gt;
-	// Uncompressed version
-	&lt;script src="https://cdn.temasys.io/skylink/skylinkjs/0.7.x/skylink.min.js" type="text/javascript"&gt;&lt;/script&gt;
-
-	// AdapterJS CDN
-	&lt;script src="https://cdn.temasys.io/adapterjs/latest/adapter.screenshare.min.js" type="text/javascript"&gt;&lt;/script&gt;
-	// socket.io-client CDN
-	&lt;script src="https://cdn.socket.io/socket.io-x.x.x.js" type="text/javascript"&gt;&lt;/script&gt;
-	</pre>
+	<p>Referencing Temasys Web SDK is available in Temasys CDN. The <code>/0.7.x/</code> URI folder references the latest <code>/0.7.x/</code> SDK versions, and <code>/latest/</code> references the
+	latest SDK release version. You may replace the <code>/0.7.x/</code> in the examples below <i>(e.g. <code>/0.7.1/</code>)</i> to reference the specific version of the SDK you would like.</p>
+	<p>Uncompressed files are best for debugging issues and Compressed files are useful for production by reducing bandwidth downloads.</p>
+	<h3>Bundled (Complete) files</h3>
+	<p>This bundled files contains the required <a href="https://github.com/socketio/socket.io-client" target="_blank">
+	socket.io-client</a> and <a href="https://github.com/Temasys/AdapterJS" target="_blank">Temasys AdapterJS</a> dependencies together with the SDK.</p>
+	<p><b>Compressed:</b><pre class="prettyprint">
+&lt;script src="https://cdn.temasys.io/skylink/skylinkjs/0.7.x/skylink.complete.min.js" type="text/javascript"&gt;&lt;/script&gt;</pre></p>
+	<p><b>Uncompressed:</b><pre class="prettyprint">
+&lt;script src="https://cdn.temasys.io/skylink/skylinkjs/0.7.x/skylink.complete.js" type="text/javascript"&gt;&lt;/script&gt;</pre></p>
+	<hr>
+	<h3>SDK only files</h3>
+	<p>This is useful for cases where you have to reference the other required <a href="https://github.com/socketio/socket.io-client" target="_blank">
+	socket.io-client</a> and <a href="https://github.com/Temasys/AdapterJS" target="_blank">Temasys AdapterJS</a> manually in the instance for customized
+	AdapterJS dependency for custom <a href="https://temasys.io/plugin" target="_blank">Temasys WebRTC plugin</a> or Screensharing extensions.</p>
+	<p><b>Compressed:</b><pre class="prettyprint">
+&lt;script src="https://cdn.temasys.io/skylink/skylinkjs/0.7.x/skylink.min.js" type="text/javascript"&gt;&lt;/script&gt;</pre></p>
+	<p><b>Uncompressed:</b><pre class="prettyprint">
+&lt;script src="https://cdn.temasys.io/skylink/skylinkjs/0.7.x/skylink.debug.js" type="text/javascript"&gt;&lt;/script&gt;</pre></p>
 </div>

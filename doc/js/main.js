@@ -316,11 +316,11 @@ $(document).ready(function () {
           }
         },
         custom: {
-          name: 'Custom Extensions & WebRTC Plugin',
+          name: 'Integrating Extension & Plugin',
           default: 'extension',
           tabs: {
-            extension: { name: 'Integrating Extension' },
-            plugin: { name: 'Integrating WebRTC Plugin' }
+            extension: { name: 'Screensharing Extension' },
+            plugin: { name: 'Temasys WebRTC Plugin' }
           }
         },
         blocks: {
@@ -441,8 +441,10 @@ $(document).ready(function () {
       // For static templating
       if (navbarRight[sectionKey].static) {
         $('[populate-content]').html('').load('data/pages/' + sectionKey + '-' + pageKey +
-          (!navbarRight[sectionKey].asTabs ? '-' + tabKey : '') + '.html');
-        $(window).scrollTop(0);
+          (!navbarRight[sectionKey].asTabs ? '-' + tabKey : '') + '.html', function () {
+          prettyPrint();
+          $(window).scrollTop(0);
+        });
 
       // For docs templating
       } else {
@@ -491,6 +493,7 @@ $(document).ready(function () {
 
         $('[populate-content]').html(contentHtmlStr);
         $(window).scrollTop(0);
+        prettyPrint();
       }
     }
 
@@ -502,8 +505,8 @@ $(document).ready(function () {
       $('navbar.navbar-left').animate({
         scrollTop: (window.location.hash.indexOf('#docs+') === 0 ?
           $('li[active-href="' + sectionKey + '+' + pageKey + '+' + tabKey + '+' + methodKey + '"]').offset().top :
-          $('section[active-href="' + sectionKey + '"]').offset().top) +
-          $('navbar.navbar-left').scrollTop() - 75
+          $('section[active-href="' + sectionKey + '"]').offset().top) - 75 +
+          $('navbar.navbar-left').scrollTop()
       }, 100);
 
       if (methodKey && scrollStates.navbar) {
@@ -516,7 +519,6 @@ $(document).ready(function () {
         });
       }
     }
-    prettyPrint();
   }
 
   /**

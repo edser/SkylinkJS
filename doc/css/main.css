@@ -6,6 +6,7 @@ body {
   font-size: 14px;
   margin: 0;
   padding: 0;
+  overflow: hidden;
 }
 
 a, button {
@@ -17,6 +18,11 @@ a, button {
 a {
   color: #008CBA;
   text-decoration: underline;
+}
+
+hr {
+  margin: 25px 0 -2px;
+  border: solid 1px #eee;
 }
 
 code, pre, var {
@@ -344,7 +350,9 @@ main.main-content {
   top: 0;
   right: 0;
   padding: 0;
+  bottom: 0;
   transition: all .35s ease-in-out;
+  overflow-y: auto;
 }
 
 main.main-content .main-content-mobile-cover {
@@ -456,12 +464,18 @@ main.main-content .content .prettyprint {
 }
 
 main.main-content .content {
-  padding: 15px 25px;
+  padding: 15px 25px 35px;
 }
 
 main.main-content .content .prettyprint {
   max-width: 100%;
   overflow-y: auto;
+  padding: 15px;
+  font-size: 13px;
+}
+
+main.main-content .content h3 {
+  margin-top: 25px;
 }
 
 main.main-content .content.doc {

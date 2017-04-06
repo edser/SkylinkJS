@@ -1,0 +1,21 @@
+<div class="content">
+  <p>Temasys SDK is also available on <a href="https://www.npmjs.com/package/skylinkjs" target="_blank">npm</a> and
+  <a href="https://bower.io" target="_blank">bower</a>. Append the <code>@0.7.x</code> tag (e.g. <code>skylinkjs@0.7.x</code>)
+  to install the latest <code>0.7.x</code> version, or the version number (e.g. <code>skylinkjs@0.7.1</code>) to install custom SDK version.</p>
+  <p>For <b>npm</b> usage:
+<pre class="prettyprint">npm install skylinkjs</pre></p>
+  <p>For <b>bower</b> usage:
+<pre class="prettyprint">bower install skylinkjs</pre></p>
+  <h3>Code Usage Example:</h3>
+  <pre class="prettyprint">
+var AdapterJS = require("adapterjs");
+var io = require("socket.io-client");
+var Temasys = require("skylinkjs").Temasys;
+
+// Deprecated Usage
+var Skylink = require("skylinkjs").Skylink;
+var SkylinkLogs = require("skylinkjs").SkylinkLogs;</pre>
+  <p>Replace the <code>require("adapterjs")</code> to reference to any customized
+  <a href="https://github.com/Temasys/AdapterJS" target="_blank">Temasys AdapterJS</a> for integrating customized
+  <a href="https://temasys.io/plugin" target="_blank">Temasys WebRTC plugin</a> and Screensharing extensions.
+</div>
