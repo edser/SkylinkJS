@@ -717,12 +717,11 @@ $(document).ready(function () {
         '<ul>' + topMenuHtmlStr + '</ul></section>');
     })();
 
-    if (window.location.hash && window.location.hash.indexOf('+') > 0) {
-      onHashClickEventDelegate();
-      onHashchangeEventDelegate();
-    } else {
+    if (!(window.location.hash && window.location.hash.indexOf('+') > 0)) {
       window.location.hash = '#gettingstarted+download+cdn';
     }
+    onHashClickEventDelegate();
+    onHashchangeEventDelegate();
   });
 
 });
