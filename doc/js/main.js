@@ -316,7 +316,7 @@ $(document).ready(function () {
           }
         },
         custom: {
-          name: 'Integrating Extension & Plugin',
+          name: 'Integrating Screensharing Extension & WebRTC Plugin',
           default: 'extension',
           tabs: {
             extension: { name: 'Screensharing Extension' },
