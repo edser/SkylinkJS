@@ -6,11 +6,105 @@
 	Temasys Web SDK extensions which is enabled for the Temasys Web SDK demo domains (e.g. <code>getaroom.io</code>) and the localhost server (so it works on <code>localhost</code> domain).
 	To generate and integrate your own extensions, you may follow the steps below, and skip any steps when necessary.</p>
 	<h3>1. Generating and Downloading the Screensharing extensions</h3>
-	<p>For <b>Firefox</b> browsers, you may access the <a href="https://console.temasys.io" target="_blank">Developer Console</a>
+	<h4>Firefox extension</h4>
+	<p>For Firefox browsers, you may access the <a href="https://console.temasys.io" target="_blank">Developer Console</a>
 	and generate the Screensharing extension under the App Key settings "Extension" tab.
 	Do note that by default, it takes into account of the CORS domains configured for the App Key and sets it as the
 	domains to enable Screensharing functionalities.</p>
 	<img src="img/gettingstarted-custom-extension-01.png" width="600px" height="auto">
-	<p>For <b>Chrome</b> or <b>Opera</b> browsers, you might have to contact <a href="http://support.temasys.io" target="_blank">the Support Portal</a> to obtain the Screensharing extension files.</p>
+	<h4>Chrome / Opera extension</h4>
+	<p>For Chrome or Opera browsers, you might have to contact <a href="http://support.temasys.io" target="_blank">the Support Portal</a> to obtain the Screensharing extension files.</p>
+	<hr>
 	<h3>2. Modifying the Screensharing extensions</h3>
+	<h4>Firefox extension</h4>
+	<p>N/A <!-- TBD when new AdapterJS with more settings comes up --></p>
+	<h4>Chrome / Opera extension</h4>
+	<p>N/A <!-- TBD when new AdapterJS with more settings comes up --></p>
+	<hr>
+	<h3>3. Signing the Screensharing extensions</h3>
+	<h4>Firefox extension</h4>
+	<p>The below steps are for signing the extension manually. Skip this step if the extension will just be uploaded to the Mozilla Add-on directory.
+		For more guidance on Add-on distribution, <a href="https://developer.mozilla.org/en-US/Add-ons/Distribution" target="_blank">please read here</a>.</p>
+	<ol>
+		<li>Register for a Firefox add-ons account on <a href="https://addons.mozilla.org">Add-ons MDN</a>.</li>
+		<li>Generate a new API key under <b>Tools > Manage API Keys</b>, click on the <b>Generate new credential</b> button.</li>
+		<li>Install the 
+	</ol>
+	<p>Sign the extension with Mozilla to enable the extension. Firstly, sign up for a Mozilla Add-ons account in
+    <a href="https://addons.mozilla.org">here</a> and be able to generate credentials to sign the extension. Once done, you
+    can use <a href="https://github.com/mozilla-jetpack/jpm">the Firefox jpm tool (version <code>1.0.5</code> only)</a> to
+    sign the extension.<br>You can also upload the extension to the Add-ons store instead of signing.<</p>
+	<h4>Chrome extension</h4>
+	<p>N/A <!-- TBD when new AdapterJS with more settings comes up --></p>
+	<h4>Opera extension</h4>
+	<p>N/A <!-- TBD when new AdapterJS with more settings comes up --></p>
 </div>
+
+<h1>Integrating to Your Site - Customising Screensharing extensions and Temasys WebRTC plugin</h1>
+<article class="_first">
+<p>To integrate your custom screensharing functionalities or adding your own custom Temasys WebRTC plugin, you may have to
+modify the <b>AdapterJS</b> dependency. Before integrating the extensions and your WebRTC plugin, ensure you have downloaded
+the <b>AdapterJS</b> dependency which can be done by <a href="https://cdn.temasys.io/adapterjs/0.14.x/adapter.screenshare.js" target="_blank">here</a>.</p>
+</article>
+<article>
+<h3>Integrating your Firefox extension</h3>
+<img src="content/img/integrate_01.png" width="550px">
+<ol>
+  <li><span>As the extension generation relies on the CORS domains configured as the list of domains to enable screensharing,
+    configure the CORS domain setting for the <b>App Key</b> settings. To do so, simply access the
+    <a href="https://console.temasys.io">Temasys Console</a> and set the <u>CORS URL</u> configuration setting
+    for the <b>App Key</b> used. This can also be done by REST API by a PUT request <code class="route">PUT /rest/apps</code>
+    and setting the <code>"corsurl"</code> (string) property.<br>To generate an extension for multiple domains, you can
+    create a dummy <b>App Key</b> and set the list of CORS domains as the list of domains to enable screensharing.<br>
+    Once done, you can generate the  by clicking the <u>Generate Extension</u> button on the <u>Extensions</u> tab for the <b>App Key</b> used.</span>
+  </li>
+  <li><span>To modify the extensions details, unzip the <u>.xpi</u> file, which is actually a <u>.zip</u> file.
+  For mac users, you can use the terminal command <code>"unzip yourext.xpi"</code>. For windows users, you can use 7zip or a similar application to unzip the file.<br>
+  The modifications for the domains are in the <var>bootstrap.js</var> file, the generic icon is the <var>icon.png</var>, and the
+  extension information is in the <var>install.rdf</var>.<br>
+  Once done, you can zip the extension folder and rename the <var>.zip</var> extension name to <var>.xpi</var>.</span></li>
+  <li><span>Sign the extension with Mozilla to enable the extension. Firstly, sign up for a Mozilla Add-ons account in
+    <a href="https://addons.mozilla.org">here</a> and be able to generate credentials to sign the extension. Once done, you
+    can use <a href="https://github.com/mozilla-jetpack/jpm">the Firefox jpm tool (version <code>1.0.5</code> only)</a> to
+    sign the extension.<br>You can also upload the extension to the Add-ons store instead of signing.</span></li>
+  <li><span>Integrate the extension in the <b>AdapterJS</b> dependency by modifying the segement of the line
+    <code>"https://addons.mozilla.org/en-US/firefox/addon/skylink-webrtc-tools/"</code> and replace with your Firefox screensharing
+    add-on link:
+    <pre class="prettyprint">
+      AdapterJS.renderNotificationBar(AdapterJS.TEXT.EXTENSION.REQUIRE_INSTALLATION_FF,
+        AdapterJS.TEXT.EXTENSION.BUTTON_FF, function (e) {
+        window.open("https://addons.mozilla.org/en-US/firefox/addon/skylink-webrtc-tools/", "_blank");
+        if (e.target && e.target.parentElement && e.target.nextElementSibling &&
+          e.target.nextElementSibling.click) {
+          e.target.nextElementSibling.click();
+        }
+    </pre> Note that the Firefox add-on extension detection works by detection if screensharing is enabled for the site domain.</span></li>
+  </ol>
+</article>
+<article>
+<h3>Integrating your Chrome / Opera extension</h3>
+<p>Currently, to generate the extension and modify it, contact <a href="http://support.temasys.io">support.temasys.io</a>.</p>
+</article>
+<article>
+<h3>Integrating your WebRTC Plugin</h3>
+<ol>
+  <li><span>Integrate the plugin in the <b>AdapterJS</b> dependency by modifying the segement of the line
+  <code>AdapterJS.WebRTCPlugin.pluginInfo</code> and update the details with your plugin details:
+  <pre class="prettyprint">
+    AdapterJS.WebRTCPlugin.pluginInfo = AdapterJS.WebRTCPlugin.pluginInfo || {
+      prefix : 'Tem',
+      plugName : 'TemWebRTCPlugin',
+      pluginId : 'plugin0',
+      type : 'application/x-temwebrtcplugin',
+      onload : '__TemWebRTCReady0',
+      portalLink : 'https://skylink.io/plugin/',
+      downloadLink : null, //set below
+      companyName: 'Temasys',
+      downloadLinks : {
+        mac: 'https://bit.ly/webrtcpluginpkg',
+        win: 'https://bit.ly/webrtcpluginmsi'
+      }
+    };
+  </pre> For plugin fresh installs or plugin updates on client browsers, IE and Safari requires a restart, except for Safari on fresh installation on client browser.</span></li>
+</ol>
+</article>
