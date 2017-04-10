@@ -1514,6 +1514,7 @@ Skylink.prototype._addPeer = function(targetMid, cert, peerBrowser, receiveOnly,
     return;
   }
 
+  self._dataChannels[targetMid] = {};
   self._peerConnStatus[targetMid] = {
     connected: false,
     init: false
