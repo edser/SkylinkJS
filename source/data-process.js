@@ -141,7 +141,7 @@ Skylink.prototype._blobToArrayBuffer = function(data, callback) {
     // IE and Safari uses Int8Array for now
     callback(['IE', 'safari'].indexOf(window.webrtcDetectedBrowser) > -1 ? new Int8Array(fr.result) : fr.result);
   };
-  fileReader.readAsArrayBuffer(data);
+  fr.readAsArrayBuffer(data);
 };
 
 /**
