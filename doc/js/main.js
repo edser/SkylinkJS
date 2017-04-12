@@ -73,9 +73,8 @@ $(document).ready(function () {
        * @private
        */
       var parseFlagsFn = function (flagKey) {
-        var regexp = new RegExp('@\(' + flagKey + '\)', 'gi');
-        if (desc.indexOf(regexp) > -1) {
-          desc = desc.replace(regexp, '');
+        if (desc.indexOf('@(' + flagKey + ')') > -1) {
+          desc = desc.replace('@(' + flagKey + ')', '');
           methodItem[flagKey] = true;
         }
       };
@@ -83,6 +82,7 @@ $(document).ready(function () {
       parseFlagsFn('beta');
       parseFlagsFn('experimental');
       parseFlagsFn('deprecated');
+      parseFlagsFn('function');
 
       /**
        * Parse @(link=.*)
@@ -196,6 +196,9 @@ $(document).ready(function () {
         var paramsHtmlStr = '';
 
         utils.forEach(methodItem.parameters, function (param, paramKey) {
+          if (param.name === 'return') {
+            return;
+          }
           paramsHtmlStr += '<small>' + (param.optional ? '[' : '') + param.name + (param.optional ? ']' : '') + '</small>, ';
         });
 
@@ -238,11 +241,12 @@ $(document).ready(function () {
 
       utils.forEach(params, function (paramItem) {
         // Return for parsing "return" items
-        if (paramItem.name.indexOf('return') === 0 ? !isReturn : isReturn) {
+        if (!isChild && (paramItem.name === 'return' ? !isReturn : isReturn)) {
           return;
         }
 
-        paramsHtmlStr += '<li><div class="param-name"><code>' + paramItem.name + '</code>';
+        paramsHtmlStr += '<li class="' + (paramItem.name === 'return' ? 'return' : (paramItem.type === 'Function' ? 'function' : '')) + '">' +
+          '<div class="param-name">' + (paramItem.name === 'return' ? '' : '<code>' + paramItem.name + '</code>');
 
         utils.forEach(utils.parseDocType(paramItem.type), function (typeItem) {
           paramsHtmlStr += '<a href="' + typeItem.href + '"' + (typeItem.href.indexOf('http') === 0 ?' target="_blank"' : '') + '>' + 
@@ -251,28 +255,27 @@ $(document).ready(function () {
 
         paramsHtmlStr = paramsHtmlStr.substr(0, paramsHtmlStr.length - 1);
 
-        if (paramItem.optional) {
-          paramsHtmlStr += '<span class="optional"><b>Optional</b>' + (paramItem.optdefault ? '- defaults to <code>' +
-            paramItem.optdefault + '</code>' : '') + '</span>';
+        if (paramItem.name !== 'return') {
+          if (paramItem.optional) {
+            paramsHtmlStr += '<span class="optional"><b>Optional</b>' + (paramItem.optdefault ? ' - Defaults to <code>' +
+              paramItem.optdefault + '</code>' : '') + '</span>';
+          }
+
+          if (paramItem.deprecated) {
+            paramsHtmlStr += '<span class="deprecated" title="This parameter is deprecated."><b>Deprecated</b></span>';
+          }
+
+          if (paramItem.beta) {
+            paramsHtmlStr += '<span class="beta" title="This parameter is in beta."><b>Beta</b></span>';
+          }
+
+          if (paramItem.experimental) {
+            paramsHtmlStr += '<span class="experimental" title="This parameter is experimental and may cause connectivity issues. Use it at your own risk."><i class="fa fa-flask"></i></span>';
+          }
         }
 
-        if (paramItem.deprecated) {
-          paramsHtmlStr += '<span class="deprecated"><b>Deprecated</b></span>';
-        }
-
-        if (paramItem.beta) {
-          paramsHtmlStr += '<span class="beta"><b>beta</b></span>';
-        }
-
-        if (paramItem.experimental) {
-          paramsHtmlStr += '<span class="beta"><b>experimental</b></span>';
-        }
-
-        if (paramItem.response) {
-          paramsHtmlStr += '<span class="response"><b>Function parameter</b></span>';
-        }
-
-        paramsHtmlStr += '</div><div class="param-desc">' + utils.parseDocDescription(paramItem.description) + '</div>' +
+        paramsHtmlStr += '</div><div class="param-desc">' + paramItem.description +
+          (paramItem.type === 'Function' && paramItem.parameters.length > 0 ? '<h3>Function Parameters:</h3>' : '') + '</div>' +
           utils.parseDocParams(paramItem.parameters, isReturn, true) + '</li>';
       });
 

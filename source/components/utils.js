@@ -1,78 +1,79 @@
 /**
- * Module that handles utility functionalities.
+ * Handles the utility functionalities.
  * @class Temasys.Utils
  * @since 0.7.0
  * @typedef module
  */
-var Utils = {};
-
-
+Temasys.Utils = {
   /**
-   * Function that loops through an Array or JSON object.
-   * @method forEach
-   * @param {Array|JSON} object The object.
-   * @param {Function} The callback function.
-   * @for Temasys.Utils
-   * @since 0.7.0
-   */
-  forEach: function (obj, fn) {
-    if (Array.isArray(obj)) {
-      var index = 0;
-      while (index < obj.length) {
-        var res = fn(obj[index]);
-        if (res === true) {
-          break;
-        } else if (typeof res === 'number') {
-          index += res;
-        }
-        index++;
-      }
-    } else if (obj && typeof obj === 'object') {
-      for (var key in obj) {
-        if (obj.hasOwnProperty(key)) {
-          var res = fn(obj[index]);
-          if (res === true) {
-            break;
-          }
-        }
-      }
-    }
-  },
-
-  /**
-   * Function that creates an event emitter manager to handle event triggers and subscription.
+   * Function that creates an event emitter manager.
    * @method createEventManager
-   * @return {JSON} Returns a list of event tools.
+   * @param {JSON} return The event manager functions.
+   * @param {Function} return.once Function to subscribe a callback function to an event once.
+   * @param {String} return.once.eventName The event name.
+   * @param {Function} return.once.fn The callback function.
+   * @param {Function} [return.once.fnCondition] The condition function that is invoked
+   *   each time event is emitted, and once the condition function returns `true`, the callback function is invoked.
+   * - When not provided, the value is `function () { return true; }`.
+   * @param {Boolean} [return.once.persistent=false] The flag if callback function should be invoked
+   *   each time the condition function is met.
+   * - When not provided as `true`, the callback function will only be invoked once the condition is met.
+   * @param {Function} return.on Function to subscribe a callback function to an event.
+   * @param {String} return.on.eventName The event name.
+   * @param {Function} return.on.fn The callback function.
+   * @param {Function} return.off Function to unsubscribe a callback function to an event.
+   * @param {String} [return.off.eventName] The event name.
+   * - When not provided, every callback functions will be unsubscribe to every events.
+   * @param {Function} [return.off.fn] The callback function.
+   * - When not provided, every callback functions related to the event will be unsubscribed.
+   * @param {Function} [return.catch] Function to catch any errors thrown in callback functions.
+   * @param {Function} [return.catch.fn]  The exception function that is invoked
+   *   each time an exception is caught.
+   * - When not provided as a type of `Function`, any exceptions will be thrown in the callback functions
+   *   and not be caught.
+   * @param {Function} return.emit Function to emit an event.
+   * @param {String} return.emit.eventName The event name.
+   * - Parameters after it would be considered the event callback function parameter payloads.
+   *   E.g. `.emit("test", a, b, c)` would result in `.on("test", function (a, b, c) { .. })`
+   * @return {JSON}
+   * @example
+   *   // Create the event manager
+   *   var manager = Temasys.Utils.createEventManager;
+   *   
+   *   // Subscribe to an event
+   *   manager.on("test", function () { console.log("A"); });
+   *   manager.once("test", function () { console.log("B"); });
+   *   manager.on("test", function () { console.log("C"); });
+   *   
+   *   // Emit the event - Results: A, B, C
+   *   manager.emit("test");
+   * 
+   *   // Emit the event (2) - Results: A, C
+   *   manager.emit("test");
    * @for Temasys.Utils
    * @since 0.7.0
    */
   createEventManager: function () {
-    var listeners = {
-      once: [],
-      on: []
-    };
-    var catcher = {
-      fn: null,
-      fnHandle: function (error) {
-        if (typeof catcher.fn === 'function') {
-          return catcher.fn(error);
-        }
-        throw error;
+    // Attributes
+    var listeners = { once: [], on: [], catch: null };
+
+    /**
+     * Function that handles caught errors.
+     */
+    var fnCatch = function (error) {
+      if (typeof listeners.catch === 'function') {
+        return listeners.catch(error);
       }
+      throw error;
     };
 
     return {
       /**
-       * Function to subscribe to an event.
-       * @method createEventManager.on
-       * @param {String} event The event to subscribe to.
-       * @param {Function} callback The callback listener function.
-       * @for Temasys.Utils
-       * @since 0.7.0
+       * Function that returns the documented `.on()` method.
        */
       on: function (eventName, fn) {
         if (typeof fn !== 'function') {
-          return catcher.fnHandle(new Error('Please provide a valid callback'));
+          return fnCatch(new Error('Please provide a valid callback'));
         }
 
         if (!Array.isArray(listeners.on[eventName])) {
@@ -83,47 +84,28 @@ var Utils = {};
       },
 
       /**
-       * Function to subscribe to an event once.
-       * @method createEventManager.once
-       * @param {String} event The event to subscribe to once.
-       * @param {Function} callback The callback listener function.
-       * @param {Function} [condition] The condition function that is called when
-       *   event is triggered. If condition is met (when function returns `true`), the
-       *   callback listener function is triggered.
-       *   The defaults is `function () { return true; }`.
-       * @param {Boolean} [fireAlways] The flag if callback listener function should always
-       *   be triggered regardless as long as condition function is met.
-       *   The defaults is `false`.
-       * @for Temasys.Utils
-       * @since 0.7.0
+       * Function that returns the documented `.once()` method.
        */
-      once: function (eventName, fn, conditionFn, fireAlways) {
+      once: function (eventName, fn, fnCondition, persistent) {
         if (typeof fn !== 'function') {
-          return catcher.fnHandle(new Error('Please provide a valid callback'));
+          return fnCatch(new Error('Please provide a valid callback'));
         }
 
         if (!Array.isArray(listeners.once[eventName])) {
           listeners.once[eventName] = [];
         }
 
-        listeners.once[eventName].push([fn, typeof conditionFn === 'function' ?
-          conditionFn : function () { return true; }, fireAlways === true]);
+        listeners.once[eventName].push([fn, typeof fnCondition === 'function' ?
+          fnCondition : function () { return true; }, persistent === true]);
       },
 
       /**
-       * Function to unsubscribe to an event.
-       * @method createEventManager.off
-       * @param {String} [event] The event to unsubscribe.
-       *   When not provided, it will unsubscribe all event callback listener functions.
-       * @param {Function} [callback] The callback listener function to unsubscribe only.
-       *   When not provided, it will unsubscribe all callback listener functions subscribed to the event.
-       * @for Temasys.Utils
-       * @since 0.7.0
+       * Function that returns the documented `.off()` method.
        */
       off: function (eventName, fn) {
         if (typeof eventName === 'string') {
+          // Unsubscribe single callback listener
           if (typeof fn === 'function') {
-            // Unsubscribe `on()` event handlers
             if (Array.isArray(listeners.on[eventName])) {
               Utils.forEach(listeners.on[eventName], function (fnItem, i) {
                 if (fnItem === fn) {
@@ -132,7 +114,7 @@ var Utils = {};
                 }
               });
             }
-            // Unsubscribe `once()` event handlers
+
             if (Array.isArray(listeners.once[eventName])) {
               Utils.forEach(listeners.once[eventName], function (fnItem, i) {
                 if (fnItem[0] === fn) {
@@ -141,10 +123,12 @@ var Utils = {};
                 }
               });
             }
+          // Unsubscribe all callback listeners tied to event
           } else {
             listeners.on[eventName] = [];
             listeners.once[eventName] = [];
           }
+        // Unsubscribe all callback listeners from all events
         } else {
           listeners.on = {};
           listeners.once = {};
@@ -152,24 +136,14 @@ var Utils = {};
       },
 
       /**
-       * Function that when provided catches errors instead of throwing them during event subscription or triggers.
-       * @method createEventManager.catch
-       * @param {Function} fn The listener to errors during trigger.
-       * @param {Error} fn.error The error object caught.
-       * @for Temasys.Utils
-       * @since 0.7.0
+       * Function that returns the documented `.catch()` method.
        */
       catch: function (fn) {
-        catcher.fn = typeof fn === 'function' ? fn : null;
+        listeners.catch = typeof fn === 'function' ? fn : null;
       },
 
       /**
-       * Function to trigger an event.
-       * @method createEventManager.emit
-       * @param {String} event The event to trigger.
-       *   The subsequent parameters are the event payload parameters.
-       * @for Temasys.Utils
-       * @since 0.7.0
+       * Function that returns the documented `.emit()` method.
        */
       emit: function (eventName) {
         try {
@@ -177,7 +151,7 @@ var Utils = {};
           params.shift();
 
           // Trigger `on()` event handler
-          if (Array.isArray(listeners.on[eventName])) {
+          if (Aray.isArray(listeners.on[eventName])) {
             Utils.forEach(listeners.on[eventName], function (fnItem) {
               fnItem.apply(this, params);
             });
@@ -196,31 +170,9 @@ var Utils = {};
             });
           }
         } catch (error) {
-          catcher.fnHandle(error);
+          fnCatch(error);
         }
       }
     };
-  },
-
-  /**
-   * Function that gets byte length of string.
-   */
-  getStringByteLength: function (str) {
-    // Follow RFC3629 (where UTF-8 characters are at most 4-bytes long)
-    var s = str.length;
-    for (var i = str.length - 1; i >= 0; i--) {
-      var code = str.charCodeAt(i);
-      if (code > 0x7f && code <= 0x7ff) {
-        s++;
-      } else if (code > 0x7ff && code <= 0xffff) {
-        s+=2;
-      }
-      if (code >= 0xDC00 && code <= 0xDFFF) {
-        i--;
-      }
-    }
-    return s;
-  },
-
-
+  }
 };

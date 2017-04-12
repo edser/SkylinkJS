@@ -636,6 +636,11 @@ main.main-content .content.doc .doc-params > li {
   list-style-type: circle;
 }
 
+main.main-content .content.doc .doc-params > li.return {
+  list-style-type: none;
+  margin-left: -17px;
+}
+
 main.main-content .content.doc .doc-params > li p {
   margin: 0;
   padding: 2px 0;
@@ -646,6 +651,26 @@ main.main-content .content.doc .doc-params > li .param-desc {
   margin: 7px 0 0;
 }
 
+main.main-content .content.doc .doc-params > li.return > .param-name,
+main.main-content .content.doc .doc-params > li.return > .param-desc {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+main.main-content .content.doc .doc-params > li.return > .param-name {
+  margin-left: -7px;
+  margin-right: 12px;
+  color: #aaa;
+}
+
+main.main-content .content.doc .doc-params > li.return > .param-name::before {
+  content: "<<";
+}
+
+main.main-content .content.doc .doc-params > li.return > .param-name::after {
+  content: ">>";
+}
+    
 main.main-content .content.doc .doc-params > li .param-name code {
   font-size: 13px;
 }
@@ -657,6 +682,13 @@ main.main-content .content.doc .doc-params > li .param-name .typeof {
   padding: 2px 9px;
   margin-left: 9px;
   text-decoration: underline;
+}
+
+main.main-content .content.doc .doc-params > li.return > .param-name .typeof {
+  margin: 0 5px;
+  padding: 0;
+  font-size: 13px;
+  color: #014961;
 }
 
 main.main-content .content.doc .doc-params > li .param-name span {
@@ -672,12 +704,14 @@ main.main-content .content.doc .doc-params > li .param-name span {
   font-size: 12px;
 }
 
-main.main-content .content.doc .doc-params > li .param-name .optional b {
+main.main-content .content.doc .doc-params > li .param-name span b {
   font-weight: 600;
 }
 
-main.main-content .content.doc .doc-params > li .param-name .optional code {
+main.main-content .content.doc .doc-params > li .param-name span code {
   font-size: 12px;
+  background: none;
+  color: #014961;
 }
 
 main.main-content .content.doc .doc-params > li .param-name .beta {
@@ -690,10 +724,9 @@ main.main-content .content.doc .doc-params > li .param-name .deprecated {
   background: #fcf8e3;
 }
 
-main.main-content .content.doc .doc-params > li .param-name .response {
-  background: #337ab7;
-  color: #fff;
-  font-weight: 600;
+main.main-content .content.doc .doc-params > li .param-name .experimental {
+  color: #1b809e;
+  background: none;
 }
 
 main.main-content .content.doc .doc-params > li .param-desc ul,
@@ -707,11 +740,44 @@ main.main-content .content.doc .doc-params > li .param-desc ul li {
   margin-bottom: 5px;
 }
 
+main.main-content .content.doc .doc-params > li .param-desc code {
+  background: #f8f8f8;
+  color: #014961;
+  border: solid 1px #ddd;
+  border-radius:3px;
+  margin:0 2px;
+}
+
+main.main-content .content.doc .doc-params > li .param-desc h3 {
+  margin: 15px 0 7px;
+  font-size: 12px;
+  color: rgba(1, 73, 97, 0.65);
+}
+
 main.main-content .content.doc .doc-params > li .param-desc ul {
   list-style-type: disc;
   color: #888;
   font-size: 13px;
   margin-top: 5px;
+}
+
+main.main-content .content.doc .doc-params > li .param-desc ul code {
+  font-size: 11px;
+}
+
+main.main-content .content.doc .doc-params > li.function .doc-params > li {
+  list-style-type: disc;
+  color: rgba(1, 73, 97, 0.75);
+}
+
+main.main-content .content.doc .doc-params > li.function .doc-params > li > div,
+main.main-content .content.doc .doc-params > li.function .doc-params > li > p,
+main.main-content .content.doc .doc-params > li.function .doc-params > li > ul {
+  color: #444;
+}
+
+main.main-content .content.doc .doc-params > li.function .doc-params > li .param-desc ul {
+  list-style-type: circle;
 }
 
 @media screen and (max-width: 996px) {

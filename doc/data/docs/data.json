@@ -847,7 +847,7 @@
             "extension_for": [],
             "file": "source/components/room.js",
             "line": 1,
-            "description": "Handles the client Room connection session.",
+            "description": "Handles the client Room connection session in App space.",
             "params": [
                 {
                     "name": "options",
@@ -856,12 +856,12 @@
                     "props": [
                         {
                             "name": "appKey",
-                            "description": "The App Key ID for authenticate.",
+                            "description": "The App key ID.",
                             "type": "String"
                         },
                         {
                             "name": "name",
-                            "description": "The App space Room name.\n- When not provided, the value of the App Key ID is used.",
+                            "description": "The Room name in App space.\n- When not provided, the value of the App key ID is used.",
                             "type": "String",
                             "optional": true
                         }
@@ -1114,7 +1114,7 @@
             "extension_for": [],
             "file": "source/components/utils.js",
             "line": 1,
-            "description": "Module that handles utility functionalities.",
+            "description": "Handles the utility functionalities.",
             "since": "0.7.0",
             "typedef": "module"
         },
@@ -3968,51 +3968,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 14,
-            "description": "The Auth (API) server domain.",
-            "itemtype": "attribute",
-            "name": "server",
-            "type": "String",
-            "readonly": "",
-            "since": "0.7.0",
-            "class": "Room"
-        },
-        {
-            "file": "source/components/room.js",
-            "line": 24,
-            "description": "The Auth (API) server protocol.",
-            "itemtype": "attribute",
-            "name": "protocol",
-            "type": "String",
-            "readonly": "",
-            "since": "0.7.0",
-            "class": "Room"
-        },
-        {
-            "file": "source/components/room.js",
-            "line": 34,
-            "description": "The Auth (API) server domain.",
-            "itemtype": "attribute",
-            "name": "server",
-            "type": "String",
-            "readonly": "",
-            "since": "0.7.0",
-            "class": "Room"
-        },
-        {
-            "file": "source/components/room.js",
-            "line": 44,
-            "description": "The Room name.",
-            "itemtype": "attribute",
-            "name": "name",
-            "type": "String",
-            "readonly": "",
-            "since": "0.7.0",
-            "class": "Room"
-        },
-        {
-            "file": "source/components/room.js",
-            "line": 54,
+            "line": 13,
             "description": "The Room ID.",
             "itemtype": "attribute",
             "name": "id",
@@ -4023,7 +3979,51 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 64,
+            "line": 23,
+            "description": "The Room name.",
+            "itemtype": "attribute",
+            "name": "name",
+            "type": "String",
+            "readonly": "",
+            "since": "0.7.0",
+            "class": "Room"
+        },
+        {
+            "file": "source/components/room.js",
+            "line": 33,
+            "description": "The App key ID.",
+            "itemtype": "attribute",
+            "name": "appKey",
+            "type": "String",
+            "readonly": "",
+            "since": "0.7.0",
+            "class": "Room"
+        },
+        {
+            "file": "source/components/room.js",
+            "line": 47,
+            "description": "The Auth (API) server domain.",
+            "itemtype": "attribute",
+            "name": "server",
+            "type": "String",
+            "readonly": "",
+            "since": "0.7.0",
+            "class": "Room"
+        },
+        {
+            "file": "source/components/room.js",
+            "line": 57,
+            "description": "The Auth (API) server protocol.",
+            "itemtype": "attribute",
+            "name": "protocol",
+            "type": "String",
+            "readonly": "",
+            "since": "0.7.0",
+            "class": "Room"
+        },
+        {
+            "file": "source/components/room.js",
+            "line": 67,
             "description": "The Room session start timestamp in ISO-8601 format.",
             "itemtype": "attribute",
             "name": "start",
@@ -4034,7 +4034,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 74,
+            "line": 77,
             "description": "The Room session duration in hours.",
             "itemtype": "attribute",
             "name": "duration",
@@ -4045,7 +4045,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 84,
+            "line": 87,
             "description": "The Room session hash used only for hash based authentication.",
             "itemtype": "attribute",
             "name": "hash",
@@ -4057,7 +4057,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 95,
+            "line": 98,
             "description": "The flag if Room session has auto-introduce enabled.",
             "itemtype": "attribute",
             "name": "autoIntroduce",
@@ -4068,7 +4068,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 105,
+            "line": 108,
             "description": "The Room session self Peer information.",
             "itemtype": "attribute",
             "name": "peer",
@@ -4134,7 +4134,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 139,
+            "line": 142,
             "description": "The WebRTC supports of the browser or device.",
             "itemtype": "attribute",
             "name": "webrtcSupports",
@@ -4201,7 +4201,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 167,
+            "line": 170,
             "description": "The current Room session connection status.",
             "itemtype": "attribute",
             "name": "current",
@@ -4239,7 +4239,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 210,
+            "line": 213,
             "description": "Event triggered when Room authentication state has changed.",
             "itemtype": "event",
             "name": "authState",
@@ -4277,7 +4277,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 224,
+            "line": 227,
             "description": "Event triggered when Room init state has changed.",
             "itemtype": "event",
             "name": "initState",
@@ -4310,7 +4310,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 236,
+            "line": 239,
             "description": "Event triggered when Room session state has changed.",
             "itemtype": "event",
             "name": "sessionState",
@@ -4343,7 +4343,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 248,
+            "line": 251,
             "description": "Event triggered when there are exceptions thrown in this event handlers.",
             "itemtype": "event",
             "name": "domError",
@@ -4359,7 +4359,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 256,
+            "line": 259,
             "description": "Function to subscribe to an event.",
             "itemtype": "method",
             "name": "on",
@@ -4380,7 +4380,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 266,
+            "line": 269,
             "description": "Function to subscribe to an event once.",
             "itemtype": "method",
             "name": "once",
@@ -4413,7 +4413,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 283,
+            "line": 286,
             "description": "Function to unsubscribe to events.",
             "itemtype": "method",
             "name": "off",
@@ -4436,7 +4436,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 309,
+            "line": 319,
             "description": "The Room SM protocol version supports.",
             "itemtype": "attribute",
             "name": "SM_PROTOCOL_VERSION",
@@ -4448,7 +4448,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 320,
+            "line": 330,
             "description": "The Room DT protocol version supports.",
             "itemtype": "attribute",
             "name": "DT_PROTOCOL_VERSION",
@@ -4460,7 +4460,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 331,
+            "line": 341,
             "description": "The enum of Room dependency initialising states.",
             "itemtype": "attribute",
             "name": "INIT_STATE_ENUM",
@@ -4489,7 +4489,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 349,
+            "line": 359,
             "description": "The enum of Room dependency initialising error codes.",
             "itemtype": "attribute",
             "name": "INIT_ERROR_CODE_ENUM",
@@ -4533,7 +4533,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 374,
+            "line": 384,
             "description": "The enum of Room authentication states, in which is used to validate the App Key ID before starting a session.",
             "itemtype": "attribute",
             "name": "AUTH_STATE_ENUM",
@@ -4562,7 +4562,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 392,
+            "line": 402,
             "description": "The enum of Room authentication error codes.",
             "itemtype": "attribute",
             "name": "AUTH_ERROR_CODE_ENUM",
@@ -4636,7 +4636,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 435,
+            "line": 445,
             "description": "The enum of Room connection session states.",
             "itemtype": "attribute",
             "name": "SESSION_STATE_ENUM",
@@ -4680,7 +4680,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 461,
+            "line": 471,
             "description": "The enum of Room connection session error codes.",
             "itemtype": "attribute",
             "name": "SESSION_ERROR_ENUM",
@@ -4749,7 +4749,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 504,
+            "line": 514,
             "description": "Function to get and check the connection availability.",
             "itemtype": "method",
             "name": "getConnectionAvailability",
@@ -4764,7 +4764,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 515,
+            "line": 525,
             "description": "Function to start initialising Room dependencies.",
             "itemtype": "method",
             "name": "init",
@@ -4789,7 +4789,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 619,
+            "line": 629,
             "description": "Function to start Room session connection.",
             "itemtype": "method",
             "name": "connect",
@@ -4884,19 +4884,19 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 675,
+            "line": 685,
             "description": "Internal function to update and trigger state.",
             "class": "Room"
         },
         {
             "file": "source/components/room.js",
-            "line": 703,
+            "line": 713,
             "description": "Internal function to load XHR response.",
             "class": "Room"
         },
         {
             "file": "source/components/room.js",
-            "line": 778,
+            "line": 788,
             "description": "Function to update the default stream or self Peer data.",
             "itemtype": "method",
             "name": "update",
@@ -4910,43 +4910,43 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 840,
+            "line": 850,
             "description": "Function to handle SM protocol for sending direction.",
             "class": "Room"
         },
         {
             "file": "source/components/room.js",
-            "line": 850,
+            "line": 860,
             "description": "\"joinRoom\" - Connects to the Room.",
             "class": "Room"
         },
         {
             "file": "source/components/room.js",
-            "line": 866,
+            "line": 876,
             "description": "\"enter\" - Broadcasts to existing Peers in the Room we exist.\n\"welcome\" - Respond to Peer who sent \"enter\" about who we are.\n\"restart\" - Re-negotiation request.",
             "class": "Room"
         },
         {
             "file": "source/components/room.js",
-            "line": 877,
+            "line": 887,
             "description": "Function to handle SM protocol for receiving direction.",
             "class": "Room"
         },
         {
             "file": "source/components/room.js",
-            "line": 886,
+            "line": 896,
             "description": "SM protocol: \"joinRoom\"",
             "class": "Room"
         },
         {
             "file": "source/components/room.js",
-            "line": 894,
+            "line": 904,
             "description": "SM protocol: \"inRoom\"",
             "class": "Room"
         },
         {
             "file": "source/components/room.js",
-            "line": 907,
+            "line": 917,
             "description": "SM protocol: \"enter\"",
             "class": "Room"
         },
@@ -5887,158 +5887,155 @@
         },
         {
             "file": "source/components/utils.js",
-            "line": 10,
-            "description": "Function that loops through an Array or JSON object.",
-            "itemtype": "method",
-            "name": "forEach",
-            "params": [
-                {
-                    "name": "object",
-                    "description": "The object.",
-                    "type": "Array|JSON"
-                },
-                {
-                    "name": "The",
-                    "description": "callback function.",
-                    "type": "Function"
-                }
-            ],
-            "since": "0.7.0",
-            "class": "Temasys.Utils"
-        },
-        {
-            "file": "source/components/utils.js",
-            "line": 42,
-            "description": "Function that creates an event emitter manager to handle event triggers and subscription.",
+            "line": 8,
+            "description": "Function that creates an event emitter manager.",
             "itemtype": "method",
             "name": "createEventManager",
-            "return": {
-                "description": "Returns a list of event tools.",
-                "type": "JSON"
-            },
-            "since": "0.7.0",
-            "class": "Temasys.Utils"
-        },
-        {
-            "file": "source/components/utils.js",
-            "line": 65,
-            "description": "Function to subscribe to an event.",
-            "itemtype": "method",
-            "name": "createEventManager.on",
             "params": [
                 {
-                    "name": "event",
-                    "description": "The event to subscribe to.",
-                    "type": "String"
-                },
-                {
-                    "name": "callback",
-                    "description": "The callback listener function.",
-                    "type": "Function"
-                }
-            ],
-            "since": "0.7.0",
-            "class": "Temasys.Utils"
-        },
-        {
-            "file": "source/components/utils.js",
-            "line": 85,
-            "description": "Function to subscribe to an event once.",
-            "itemtype": "method",
-            "name": "createEventManager.once",
-            "params": [
-                {
-                    "name": "event",
-                    "description": "The event to subscribe to once.",
-                    "type": "String"
-                },
-                {
-                    "name": "callback",
-                    "description": "The callback listener function.",
-                    "type": "Function"
-                },
-                {
-                    "name": "condition",
-                    "description": "The condition function that is called when\n  event is triggered. If condition is met (when function returns `true`), the\n  callback listener function is triggered.\n  The defaults is `function () { return true; }`.",
-                    "type": "Function",
-                    "optional": true
-                },
-                {
-                    "name": "fireAlways",
-                    "description": "The flag if callback listener function should always\n  be triggered regardless as long as condition function is met.\n  The defaults is `false`.",
-                    "type": "Boolean",
-                    "optional": true
-                }
-            ],
-            "since": "0.7.0",
-            "class": "Temasys.Utils"
-        },
-        {
-            "file": "source/components/utils.js",
-            "line": 113,
-            "description": "Function to unsubscribe to an event.",
-            "itemtype": "method",
-            "name": "createEventManager.off",
-            "params": [
-                {
-                    "name": "event",
-                    "description": "The event to unsubscribe.\n  When not provided, it will unsubscribe all event callback listener functions.",
-                    "type": "String",
-                    "optional": true
-                },
-                {
-                    "name": "callback",
-                    "description": "The callback listener function to unsubscribe only.\n  When not provided, it will unsubscribe all callback listener functions subscribed to the event.",
-                    "type": "Function",
-                    "optional": true
-                }
-            ],
-            "since": "0.7.0",
-            "class": "Temasys.Utils"
-        },
-        {
-            "file": "source/components/utils.js",
-            "line": 154,
-            "description": "Function that when provided catches errors instead of throwing them during event subscription or triggers.",
-            "itemtype": "method",
-            "name": "createEventManager.catch",
-            "params": [
-                {
-                    "name": "fn",
-                    "description": "The listener to errors during trigger.",
-                    "type": "Function",
+                    "name": "return",
+                    "description": "The event manager functions.",
+                    "type": "JSON",
                     "props": [
                         {
-                            "name": "error",
-                            "description": "The error object caught.",
-                            "type": "Error"
+                            "name": "once",
+                            "description": "Function to subscribe a callback function to an event once.",
+                            "type": "Function",
+                            "props": [
+                                {
+                                    "name": "eventName",
+                                    "description": "The event name.",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "fn",
+                                    "description": "The callback function.",
+                                    "type": "Function"
+                                },
+                                {
+                                    "name": "fnCondition",
+                                    "description": "The condition function that is invoked\n  each time event is emitted, and once the condition function returns `true`, the callback function is invoked.\n- When not provided, the value is `function () { return true; }`.",
+                                    "type": "Function",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "persistent",
+                                    "description": "The flag if callback function should be invoked\n  each time the condition function is met.\n- When not provided as `true`, the callback function will only be invoked once the condition is met.",
+                                    "type": "Boolean",
+                                    "optional": true,
+                                    "optdefault": "false"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "on",
+                            "description": "Function to subscribe a callback function to an event.",
+                            "type": "Function",
+                            "props": [
+                                {
+                                    "name": "eventName",
+                                    "description": "The event name.",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "fn",
+                                    "description": "The callback function.",
+                                    "type": "Function"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "off",
+                            "description": "Function to unsubscribe a callback function to an event.",
+                            "type": "Function",
+                            "props": [
+                                {
+                                    "name": "eventName",
+                                    "description": "The event name.\n- When not provided, every callback functions will be unsubscribe to every events.",
+                                    "type": "String",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "fn",
+                                    "description": "The callback function.\n- When not provided, every callback functions related to the event will be unsubscribed.",
+                                    "type": "Function",
+                                    "optional": true
+                                }
+                            ]
+                        },
+                        {
+                            "name": "catch",
+                            "description": "Function to catch any errors thrown in callback functions.",
+                            "type": "Function",
+                            "optional": true,
+                            "props": [
+                                {
+                                    "name": "fn",
+                                    "description": "The exception function that is invoked\n  each time an exception is caught.\n- When not provided as a type of `Function`, any exceptions will be thrown in the callback functions\n  and not be caught.",
+                                    "type": "Function",
+                                    "optional": true
+                                }
+                            ]
+                        },
+                        {
+                            "name": "emit",
+                            "description": "Function to emit an event.",
+                            "type": "Function",
+                            "props": [
+                                {
+                                    "name": "eventName",
+                                    "description": "The event name.\n- Parameters after it would be considered the event callback function parameter payloads.\n  E.g. `.emit(\"test\", a, b, c)` would result in `.on(\"test\", function (a, b, c) { .. })`",
+                                    "type": "String"
+                                }
+                            ]
                         }
                     ]
                 }
             ],
-            "since": "0.7.0",
-            "class": "Temasys.Utils"
-        },
-        {
-            "file": "source/components/utils.js",
-            "line": 166,
-            "description": "Function to trigger an event.",
-            "itemtype": "method",
-            "name": "createEventManager.emit",
-            "params": [
-                {
-                    "name": "event",
-                    "description": "The event to trigger.\n  The subsequent parameters are the event payload parameters.",
-                    "type": "String"
-                }
+            "return": {
+                "description": "",
+                "type": "JSON"
+            },
+            "example": [
+                "\n  // Create the event manager\n  var manager = Temasys.Utils.createEventManager;\n  \n  // Subscribe to an event\n  manager.on(\"test\", function () { console.log(\"A\"); });\n  manager.once(\"test\", function () { console.log(\"B\"); });\n  manager.on(\"test\", function () { console.log(\"C\"); });\n  \n  // Emit the event - Results: A, B, C\n  manager.emit(\"test\");\n\n  // Emit the event (2) - Results: A, C\n  manager.emit(\"test\");"
             ],
             "since": "0.7.0",
             "class": "Temasys.Utils"
         },
         {
             "file": "source/components/utils.js",
-            "line": 205,
-            "description": "Function that gets byte length of string.",
+            "line": 60,
+            "description": "Function that handles caught errors.",
+            "class": "Temasys.Utils"
+        },
+        {
+            "file": "source/components/utils.js",
+            "line": 71,
+            "description": "Function that returns the documented `.on()` method.",
+            "class": "Temasys.Utils"
+        },
+        {
+            "file": "source/components/utils.js",
+            "line": 86,
+            "description": "Function that returns the documented `.once()` method.",
+            "class": "Temasys.Utils"
+        },
+        {
+            "file": "source/components/utils.js",
+            "line": 102,
+            "description": "Function that returns the documented `.off()` method.",
+            "class": "Temasys.Utils"
+        },
+        {
+            "file": "source/components/utils.js",
+            "line": 138,
+            "description": "Function that returns the documented `.catch()` method.",
+            "class": "Temasys.Utils"
+        },
+        {
+            "file": "source/components/utils.js",
+            "line": 145,
+            "description": "Function that returns the documented `.emit()` method.",
             "class": "Temasys.Utils"
         },
         {
@@ -15762,7 +15759,7 @@
         },
         {
             "message": "param name/type/descript missing",
-            "line": " source/components/room.js:105"
+            "line": " source/components/room.js:108"
         },
         {
             "message": "unknown tag: typedef",
@@ -15994,39 +15991,39 @@
         },
         {
             "message": "Missing item type\nInternal function to update and trigger state.",
-            "line": " source/components/room.js:675"
+            "line": " source/components/room.js:685"
         },
         {
             "message": "Missing item type\nInternal function to load XHR response.",
-            "line": " source/components/room.js:703"
+            "line": " source/components/room.js:713"
         },
         {
             "message": "Missing item type\nFunction to handle SM protocol for sending direction.",
-            "line": " source/components/room.js:840"
-        },
-        {
-            "message": "Missing item type\n\"joinRoom\" - Connects to the Room.",
             "line": " source/components/room.js:850"
         },
         {
+            "message": "Missing item type\n\"joinRoom\" - Connects to the Room.",
+            "line": " source/components/room.js:860"
+        },
+        {
             "message": "Missing item type\n\"enter\" - Broadcasts to existing Peers in the Room we exist.\n\"welcome\" - Respond to Peer who sent \"enter\" about who we are.\n\"restart\" - Re-negotiation request.",
-            "line": " source/components/room.js:866"
+            "line": " source/components/room.js:876"
         },
         {
             "message": "Missing item type\nFunction to handle SM protocol for receiving direction.",
-            "line": " source/components/room.js:877"
+            "line": " source/components/room.js:887"
         },
         {
             "message": "Missing item type\nSM protocol: \"joinRoom\"",
-            "line": " source/components/room.js:886"
+            "line": " source/components/room.js:896"
         },
         {
             "message": "Missing item type\nSM protocol: \"inRoom\"",
-            "line": " source/components/room.js:894"
+            "line": " source/components/room.js:904"
         },
         {
             "message": "Missing item type\nSM protocol: \"enter\"",
-            "line": " source/components/room.js:907"
+            "line": " source/components/room.js:917"
         },
         {
             "message": "Missing item type\nFunction to start socket connection.",
@@ -16105,8 +16102,28 @@
             "line": " source/components/socket.js:622"
         },
         {
-            "message": "Missing item type\nFunction that gets byte length of string.",
-            "line": " source/components/utils.js:205"
+            "message": "Missing item type\nFunction that handles caught errors.",
+            "line": " source/components/utils.js:60"
+        },
+        {
+            "message": "Missing item type\nFunction that returns the documented `.on()` method.",
+            "line": " source/components/utils.js:71"
+        },
+        {
+            "message": "Missing item type\nFunction that returns the documented `.once()` method.",
+            "line": " source/components/utils.js:86"
+        },
+        {
+            "message": "Missing item type\nFunction that returns the documented `.off()` method.",
+            "line": " source/components/utils.js:102"
+        },
+        {
+            "message": "Missing item type\nFunction that returns the documented `.catch()` method.",
+            "line": " source/components/utils.js:138"
+        },
+        {
+            "message": "Missing item type\nFunction that returns the documented `.emit()` method.",
+            "line": " source/components/utils.js:145"
         },
         {
             "message": "Missing item type\nGlobal function that clones an object.",

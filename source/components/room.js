@@ -1,55 +1,14 @@
 /**
- * Handles the client Room connection session.
+ * Handles the client Room connection session in App space.
  * @class Temasys.Room
  * @param {JSON} options The options.
- * @param {String} options.appKey The App Key ID for authenticate.
- * @param {String} [options.name] The App space Room name.
- * - When not provided, the value of the App Key ID is used.
+ * @param {String} options.appKey The App key ID.
+ * @param {String} [options.name] The Room name in App space.
+ * - When not provided, the value of the App key ID is used.
  * @constructor
  * @since 0.7.0
  */
 Temasys.Room = function (options) {
-  options = options && typeof options === 'object' ? options : {};
-
-  /**
-   * The Auth (API) server domain.
-   * @attribute server
-   * @type String
-   * @readOnly
-   * @for Room
-   * @since 0.7.0
-   */
-  this.server = 'api.temasys.io';
-
-  /**
-   * The Auth (API) server protocol.
-   * @attribute protocol
-   * @type String
-   * @readOnly
-   * @for Room
-   * @since 0.7.0
-   */
-  this.protocol = null;
-
-  /**
-   * The Auth (API) server domain.
-   * @attribute server
-   * @type String
-   * @readOnly
-   * @for Room
-   * @since 0.7.0
-   */
-  this.appKey = options.appKey && typeof options.appKey === 'string' ? options.appKey : null;
-
-  /**
-   * The Room name.
-   * @attribute name
-   * @type String
-   * @readOnly
-   * @for Room
-   * @since 0.7.0
-   */
-  this.name = options.name && typeof options.name === 'string' ? options.name : this.appKey;
 
   /**
    * The Room ID.
@@ -60,6 +19,50 @@ Temasys.Room = function (options) {
    * @since 0.7.0
    */
   this.id = null;
+
+  /**
+   * The Room name.
+   * @attribute name
+   * @type String
+   * @readOnly
+   * @for Room
+   * @since 0.7.0
+   */
+  this.name = null;
+
+  /**
+   * The App key ID.
+   * @attribute appKey
+   * @type String
+   * @readOnly
+   * @for Room
+   * @since 0.7.0
+   */
+  this.appKey = null;
+
+  
+
+
+
+  /**
+   * The Auth (API) server domain.
+   * @attribute server
+   * @type String
+   * @readOnly
+   * @for Room
+   * @since 0.7.0
+   */
+  this.server = null;
+
+  /**
+   * The Auth (API) server protocol.
+   * @attribute protocol
+   * @type String
+   * @readOnly
+   * @for Room
+   * @since 0.7.0
+   */
+  this.protocol = null;
 
   /**
    * The Room session start timestamp in ISO-8601 format.
@@ -304,6 +307,13 @@ Temasys.Room = function (options) {
       }, 1);
     }
   })(this);
+
+  options = options && typeof options === 'object' ? options : {};
+
+  //
+  if (!(options.appKey && typeof options.appKey === 'string')) {
+    throw new Error('')
+  }
 };
 
 /**
