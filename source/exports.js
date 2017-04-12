@@ -18,6 +18,8 @@
   /* jshint ignore:end */
 
   var Temasys = {};
+  // Global shared variables. See Temasys.Debugger.
+  var _log = null;
 
   @@include('../source/components/*.js')
   @@include('../source/skylink.js')

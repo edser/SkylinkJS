@@ -654,7 +654,7 @@ main.main-content .content.doc .doc-params > li .param-desc {
 main.main-content .content.doc .doc-params > li.return > .param-name,
 main.main-content .content.doc .doc-params > li.return > .param-desc {
   display: inline-block;
-  vertical-align: middle;
+  vertical-align: top;
 }
 
 main.main-content .content.doc .doc-params > li.return > .param-name {

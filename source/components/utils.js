@@ -54,7 +54,7 @@ Temasys.Utils = {
    * @since 0.7.0
    */
   createEventManager: function () {
-    // Attributes
+    // Listeners
     var listeners = { once: [], on: [], catch: null };
 
     /**
@@ -174,5 +174,36 @@ Temasys.Utils = {
         }
       }
     };
+  },
+
+  /**
+   * Function that loops an object.
+   * @method forEach
+   * @param {Array|JSON} object The object.
+   * @param {Function} fn The callback function invoked for each object item looped.
+   * - To break the function loop, return `true`.
+   * @param {Any} fn.item The object item.
+   * @param {Number|String} fn.index The object item index or property key.
+   * @for Temasys.Utils.
+   * @since 0.7.0
+   */
+  forEach: function (object, fn) {
+    if (Array.isArray(object)) {
+      var index = 0;
+      while (index < object.length) {
+        if (fn(object[index], index) === true) {
+          break;
+        }
+        index++;
+      }
+    } else if (object && typeof object === 'object') {
+      for (var prop in object) {
+        if (object.hasOwnProperty(prop)) {
+          if (fn(object[prop], prop) === true) {
+            break;
+          }
+        }
+      }
+    }
   }
 };

@@ -89,22 +89,26 @@ $(document).ready(function () {
        * YUIDoc replacement for {{#crossLink}} to work in this app
        */
       (function () {
-        var result = desc.match(/@\(link=.*\)/gi);
+        var result = desc.match(/\@\(link=.*\)/gi);
         var index = 0;
 
         if (result) {
           while (index < result.length) {
+            console.info(result[index]);
+            /*if (result[index].indexOf('\<(p|ul|ol|br|hr|blockquote)\>') > -1) {
+              index++;
+              continue;
+            }*/
             var linkParts = ((result[index].split('(link=')[1] || '').split(')')[0] || '').split('|');
-            var linkHref = parts[0];
-            var linkTitle = parts[1];
+            var linkHref = linkParts[0];
+            var linkTitle = linkParts[1];
 
             if (!(linkHref.indexOf('http') === 0)) {
               // E.g. Temasys.DataChannel:getStats:method
               var hrefParts = linkHref.split(':');
 
               if (hrefParts.length > 0) {
-                linkTitle = !linkTitle ? '<code>' + hrefParts[0] + '</code> - ' +
-                  '<code>' + hrefParts[1] + '</code> ' + hrefParts[2] : linkTitle;
+                linkTitle = !linkTitle ? '<var>' + hrefParts[0] + '::' + hrefParts[1] + '</var> &nbsp;' + hrefParts[2] : linkTitle;
                 linkHref = '#docs+' + hrefParts[0] + '+';
 
                 if (hrefParts[2] === 'event') {
@@ -121,13 +125,15 @@ $(document).ready(function () {
                 linkHref += '+' + hrefParts[1]; 
 
               } else {
-                title = !title ? '<code>' + hrefParts[0] + '</code>' : linkTitle;
+                title = !title ? hrefParts[0] : linkTitle;
                 linkHref = '#docs+' + hrefParts[0];
               }
             }
-            desc = desc.replace(new RegExp(linkHref, 'gi'), '<a href="' + linkHref + '"' +
+            desc = desc.replace(result[index], '<a href="' + linkHref + '"' +
               (linkHref.indexOf('http') === 0 ? ' target="_blank"' : '') + '>' + linkTitle + '</a>');
+            index++;
           }
+          
         }
       })();
 
@@ -246,7 +252,8 @@ $(document).ready(function () {
         }
 
         paramsHtmlStr += '<li class="' + (paramItem.name === 'return' ? 'return' : (paramItem.type === 'Function' ? 'function' : '')) + '">' +
-          '<div class="param-name">' + (paramItem.name === 'return' ? '' : '<code>' + paramItem.name + '</code>');
+          '<div class="param-name">' + (paramItem.name === 'return' ? '' : '<code>' +
+          (paramItem.name.indexOf('_') === 0 ? paramItem.name.replace('_', '#') : paramItem.name) + '</code>');
 
         utils.forEach(utils.parseDocType(paramItem.type), function (typeItem) {
           paramsHtmlStr += '<a href="' + typeItem.href + '"' + (typeItem.href.indexOf('http') === 0 ?' target="_blank"' : '') + '>' + 
@@ -371,7 +378,7 @@ $(document).ready(function () {
    * @type JSON
    * @private
    */
-  var cachedDocs = {};
+  window.cachedDocs = {};
 
   /**
    * Stores the lock for scrolling states.
