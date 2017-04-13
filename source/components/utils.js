@@ -91,6 +91,10 @@ Temasys.Utils = {
           return fnCatch(new Error('Please provide a valid callback'));
         }
 
+        if (typeof fnCondition === 'boolean') {
+          persistent = fnCondition;
+        }
+
         if (!Array.isArray(listeners.once[eventName])) {
           listeners.once[eventName] = [];
         }
@@ -161,10 +165,10 @@ Temasys.Utils = {
             Temasys.Utils.forEach(listeners.once[eventName], function (fnItem, i) {
               if (fnItem[1].apply(this, params)) {
                 fnItem[0].apply(this, params);
-                // Check if `fireAlways`
+                // Check if `persistent`
                 if (fnItem[2] !== true) {
                   listeners.once[eventName].splice(i, 1);
-                  return -1;
+                  return 0;
                 }
               }
             });
@@ -182,6 +186,7 @@ Temasys.Utils = {
    * @param {Array|JSON} object The object.
    * @param {Function} fn The callback function invoked for each object item looped.
    * - To break the function loop, return `true`.
+   * - To increment or decrement loop, return the `Number`, and be careful of using it to prevent infinite loops.
    * @param {Any} fn.item The object item.
    * @param {Number|String} fn.index The object item index or property key.
    * @for Temasys.Utils.
@@ -191,10 +196,14 @@ Temasys.Utils = {
     if (Array.isArray(object)) {
       var index = 0;
       while (index < object.length) {
-        if (fn(object[index], index) === true) {
+        var res = fn(object[index], index);
+        if (res === true) {
           break;
+        } else if (typeof res === 'number') {
+          index += res;
+        } else {
+          index++;
         }
-        index++;
       }
     } else if (object && typeof object === 'object') {
       for (var prop in object) {

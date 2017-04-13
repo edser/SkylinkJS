@@ -104,6 +104,11 @@ module.exports = function(grunt) {
           dest: 'release/doc/'
         }]
       }
+    },
+    karma: {
+      test: {
+        configFile: 'tests/karma.conf.js'
+      }
     }
   });
 
@@ -125,4 +130,8 @@ module.exports = function(grunt) {
    * - Compiles source/ files to doc/ folder for documentation. This uses the doc-style for the theme layout.
    */
   grunt.registerTask('doc', ['yuidoc:publish']);
+  /**
+   * Task for testing.
+   */
+  grunt.registerTask('test', ['dev', 'karma']);
 };
