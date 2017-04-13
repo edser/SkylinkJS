@@ -31,7 +31,7 @@ Temasys.Debugger = (function () {
   var logs = [];
 
   // Stores the listener functions.
-  var listeners = { watch: null, components: [] };
+  window.listeners = { catch: null, watch: null, components: [] };
 
   /**
    * Function that logs message to Web console.
@@ -41,30 +41,30 @@ Temasys.Debugger = (function () {
     // 1: Message
     // 2+: Meta data
     var componentId = args[0];
-    var timestamp = new Date();
+    var timestamp = (new Date()).toISOString();
     // E.g. Peer :: 34234234234 | 2017-04-12T12:41:55.563Z [RID: werwer][PID: xxx-werwer-][CID: test] - Test log is here -> null
-    var message = Array.isArray(args[1]) ? args[1][0] + ' ' + (settings.printComponentId ? ':: ' + componentId : '') +
-      (settings.printTimestamp ? '| ' + timestamp.toISOString() + ' ' : '') +
+    var message = Array.isArray(args[1]) ? args[1][0] + ' ' + (settings.printComponentId ? ':: ' + componentId + ' ' : '') +
+      (settings.printTimestamp ? '| ' + timestamp + ' ' : '') +
       (args[1][1] ? '[RID: ' + args[1][1] + ']' : '') +
-      (args[1][2] ? '[PID: ' + args[1][2] : ']' : '') +
-      (args[1][3] ? '[CID: ' + args[1][3] + ']' : '')) + ' - ' + args[1][4] : args[1];
+      (args[1][2] ? '[PID: ' + args[1][2] + ']' : '') +
+      (args[1][3] ? '[CID: ' + args[1][3] + ']' : '') + ' - ' + args[1][4] : args[1];
     // Remove the first 2 arguments and leave the meta data
     args.splice(0, 2);
 
-    var logItem = [level, componentId, timestamp, message, args];
+    var logItem = [level, componentId, timestamp, message, args.concat([])];
 
     if (settings.cacheLogs) {
       logs.push(logItem);
     }
 
     if (typeof listeners.watch === 'function') {
-      listeners.watch(logItem);
+      listeners.watch(logItem, componentId);
     }
 
-    args.splice(0, 0, (settings.trace ? '[' + level + '] ' : '') + message);
+    args.splice(0, 0, (settings.traceLogs ? '[' + level + '] ' : '') + message);
 
-    if (LOG_LEVEL[level] <= settings.level) {
-      var method = settings.trace ? 'trace' : level.toLowerCase();
+    if (LOG_LEVEL_ENUM[level] <= settings.level) {
+      var method = settings.traceLogs ? 'trace' : level.toLowerCase();
       method = typeof console[method] !== 'function' ? 'log' : method;
       console[method].apply(console, args);
     }
@@ -124,6 +124,7 @@ Temasys.Debugger = (function () {
         exceptions: []
       };
       listeners.components.push(fn);
+      fn(listeners.catch);
       return componentId;
     }
   };
@@ -249,11 +250,12 @@ Temasys.Debugger = (function () {
      * - When not provided, it unsubscribes any existing callback function watching for logs.
      * @param {Array} fn.log The log item.
      * - Object signature matches the returned log item in @(link=Temasys.Debugger:logs:method).
+     * @param {String} fn.componentId The component ID.
      * @for Temasys.Debugger
      * @since 0.7.0
      */
     watch: function (fn) {
-      listeners.watch = typeof fn === 'object' ? fn : null;
+      listeners.watch = typeof fn === 'function' ? fn : null;
     },
 
     /**
@@ -267,11 +269,13 @@ Temasys.Debugger = (function () {
      * @since 0.7.0
      */
     catch: function (fn) {
+      listeners.catch = typeof fn === 'function' ? function (componentId, error) {
+        stats[componentId].exceptions.push(error);
+        fn(error, componentId);
+      } : null;
+
       Temasys.Utils.forEach(listeners.components, function (fnComponentItem) {
-        fnComponentItem(typeof fn === 'object' ? function (componentId, error) {
-          stats[componentId].exceptions.push(error);
-          fn(error, componentId);
-        } : null);
+        fnComponentItem(listeners.catch);
       });
     },
 
@@ -296,17 +300,22 @@ Temasys.Debugger = (function () {
      * @since 0.7.0
      */
     logs: function (options) {
-      var result = [];
-
+      // Check if `options` is defined, and return is following checks fails
       if (!(options && typeof options === 'object' &&
-        (options.componentId && typeof options.componentId === 'string') ||
-        (typeof options.level === 'number' && options.level <= 4 && options.level >= -1))) {
+      // Check also if `options.componentId` is defined
+        ((options.componentId && typeof options.componentId === 'string') ||
+      // Check also if `options.level` is defined
+        (typeof options.level === 'number' && options.level <= 4 && options.level >= -1)))) {
         return logs;
       }
 
-      Temasys.Utils.forEach(function (logItem) {
+      var result = [];
+
+      Temasys.Utils.forEach(logs, function (logItem) {
+        // Check if `options.level` is defined, valid and matches.
         if ((typeof options.level === 'number' && options.level <= 4 && options.level >= -1 ?
           LOG_LEVEL_ENUM[logItem[0]] <= options.level : true) &&
+        // Check if `options.componentId` is defined, valid and matches.
           (options.componentId && typeof options.componentId ? options.componentId === logItem[1] : true)) {
           result.push(logItem);
         }
@@ -319,7 +328,6 @@ Temasys.Debugger = (function () {
      * Function that prints the cached logs.
      * @method print
      * @param {JSON} [options] The options.
-     * - When provided, this may cause performance issues when cached logs size is huge.
      * @param {String} [options.componentId] The component ID of logs to print only.
      * @param {Number} [options.level] The level  of logs to print only.
      * - This references the @(link=Temasys.Debugger:LOG_LEVEL:constant).
@@ -327,11 +335,15 @@ Temasys.Debugger = (function () {
      * @since 0.7.0
      */
     print: function (options) {
-      Temasys.Utils.forEach(function (logItem) {
-        if ((typeof options.level === 'number' && options.level <= 4 && options.level >= -1 ?
+      Temasys.Utils.forEach(logs, function (logItem) {
+        // Check if `options` is defined first if not print all.
+        if (options && typeof options === 'object' ?
+        // Check if `options.level` is defined, valid and matches.
+          (typeof options.level === 'number' && options.level <= 4 && options.level >= -1 ?
           LOG_LEVEL_ENUM[logItem[0]] <= options.level : true) &&
-          (options.componentId && typeof options.componentId ? options.componentId === logItem[1] : true)) {
-          var method = typeof console[logItem[0].toLowerCase()] !== 'function' ? 'log' : method;
+        // Check if `options.componentId` is defined and matches.
+          (options.componentId && typeof options.componentId ? options.componentId === logItem[1] : true) : true) {
+          var method = typeof console[logItem[0].toLowerCase()] !== 'function' ? 'log' : logItem[0].toLowerCase();
           console[method].apply(console, [logItem[3]].concat(logItem[4]));
         }
       });

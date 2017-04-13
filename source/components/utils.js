@@ -107,7 +107,7 @@ Temasys.Utils = {
           // Unsubscribe single callback listener
           if (typeof fn === 'function') {
             if (Array.isArray(listeners.on[eventName])) {
-              Utils.forEach(listeners.on[eventName], function (fnItem, i) {
+              Temasys.Utils.forEach(listeners.on[eventName], function (fnItem, i) {
                 if (fnItem === fn) {
                   listeners.on[eventName].splice(i, 1);
                   return -1;
@@ -116,7 +116,7 @@ Temasys.Utils = {
             }
 
             if (Array.isArray(listeners.once[eventName])) {
-              Utils.forEach(listeners.once[eventName], function (fnItem, i) {
+              Temasys.Utils.forEach(listeners.once[eventName], function (fnItem, i) {
                 if (fnItem[0] === fn) {
                   listeners.once[eventName].splice(i, 1);
                   return -1;
@@ -151,14 +151,14 @@ Temasys.Utils = {
           params.shift();
 
           // Trigger `on()` event handler
-          if (Aray.isArray(listeners.on[eventName])) {
-            Utils.forEach(listeners.on[eventName], function (fnItem) {
+          if (Array.isArray(listeners.on[eventName])) {
+            Temasys.Utils.forEach(listeners.on[eventName], function (fnItem) {
               fnItem.apply(this, params);
             });
           }
           // Trigger `once()` event handler
           if (Array.isArray(listeners.once[eventName])) {
-            Utils.forEach(listeners.once[eventName], function (fnItem, i) {
+            Temasys.Utils.forEach(listeners.once[eventName], function (fnItem, i) {
               if (fnItem[1].apply(this, params)) {
                 fnItem[0].apply(this, params);
                 // Check if `fireAlways`
