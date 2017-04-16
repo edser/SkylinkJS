@@ -566,6 +566,11 @@ main.main-content .content.doc h3 {
   font-weight: 600;
 }
 
+main.main-content .content.doc .prettyprint {
+  max-width: none;
+  overflow-y: initial;
+}
+
 main.main-content .content.doc .doc-left,
 main.main-content .content.doc .doc-right {
   display: table-cell;

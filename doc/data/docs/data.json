@@ -93,8 +93,7 @@
                 "Temasys.Utils": 1
             },
             "fors": {
-                "Temasys.Utils": 1,
-                "Temasys.Utils.": 1
+                "Temasys.Utils": 1
             },
             "namespaces": {}
         },
@@ -1115,18 +1114,9 @@
             "extension_for": [],
             "file": "source/components/utils.js",
             "line": 1,
-            "description": "Handles the utility functionalities.",
+            "description": "Handles the utility functionalities used internally.",
             "since": "0.7.0",
             "typedef": "module"
-        },
-        "Temasys.Utils.": {
-            "name": "Temasys.Utils.",
-            "shortname": "Temasys.Utils.",
-            "classitems": [],
-            "plugins": [],
-            "extensions": [],
-            "plugin_for": [],
-            "extension_for": []
         },
         "Skylink": {
             "name": "Skylink",
@@ -1534,55 +1524,67 @@
         },
         {
             "file": "source/components/debugger.js",
-            "line": 36,
+            "line": 49,
             "description": "Function that logs message to Web console.",
             "class": "Temasys.Debugger"
         },
         {
             "file": "source/components/debugger.js",
-            "line": 73,
+            "line": 94,
+            "description": "Function that checks the `options` provided and loops the log items. \n- Returns `true` if there's not a need to loop.",
+            "class": "Temasys.Debugger"
+        },
+        {
+            "file": "source/components/debugger.js",
+            "line": 118,
             "description": "Overrides the global _log function.",
             "class": "Temasys.Debugger"
         },
         {
             "file": "source/components/debugger.js",
-            "line": 77,
+            "line": 122,
             "description": "Function to log \"debug\" level message.",
             "class": "Temasys.Debugger"
         },
         {
             "file": "source/components/debugger.js",
-            "line": 84,
+            "line": 129,
             "description": "Function to log \"log\" level message.",
             "class": "Temasys.Debugger"
         },
         {
             "file": "source/components/debugger.js",
-            "line": 91,
+            "line": 136,
             "description": "Function to log \"info\" level message.",
             "class": "Temasys.Debugger"
         },
         {
             "file": "source/components/debugger.js",
-            "line": 98,
+            "line": 143,
             "description": "Function to log \"warn\" level message.",
             "class": "Temasys.Debugger"
         },
         {
             "file": "source/components/debugger.js",
-            "line": 105,
+            "line": 150,
             "description": "Function to log \"error\" level message.",
             "class": "Temasys.Debugger"
         },
         {
             "file": "source/components/debugger.js",
-            "line": 112,
+            "line": 157,
             "description": "Function to configure component.\n- Returns the component ID.",
             "class": "Temasys.Debugger"
         },
         {
             "file": "source/components/debugger.js",
-            "line": 132,
+            "line": 178,
+            "description": "Function to push stats to API.",
+            "class": "Temasys.Debugger"
+        },
+        {
+            "file": "source/components/debugger.js",
+            "line": 186,
             "description": "The enum of debugger log levels.",
             "itemtype": "attribute",
             "name": "LOG_LEVEL_ENUM",
@@ -1594,27 +1596,27 @@
                 },
                 {
                     "name": "ERROR",
-                    "description": "The level to print \"error\" logs.",
+                    "description": "The level to print Web `console.error()` logs.",
                     "type": "Number"
                 },
                 {
                     "name": "WARN",
-                    "description": "The level to print \"error\", \"warn\" logs.",
+                    "description": "The level to print Web `console.error()`, `console.warn()` logs.",
                     "type": "Number"
                 },
                 {
                     "name": "INFO",
-                    "description": "The level to print \"error\", \"warn\", \"info\" logs.",
+                    "description": "The level to print Web `console.error()`, `console.warn()`, `console.info()` logs.",
                     "type": "Number"
                 },
                 {
                     "name": "LOG",
-                    "description": "The level to print \"error\", \"warn\", \"info\", \"log\" logs.",
+                    "description": "The level to print Web `console.error()`, `console.warn()`,\n  `console.info()`, `console.log()` logs.",
                     "type": "Number"
                 },
                 {
                     "name": "DEBUG",
-                    "description": "The level to print \"error\", \"warn\", \"info\", \"log\", \"debug\" logs.",
+                    "description": "The level to print Web `console.error()`, `console.warn()`\n  `console.info()`, `console.log()`, `console.debug()` logs.",
                     "type": "Number"
                 }
             ],
@@ -1626,20 +1628,19 @@
         },
         {
             "file": "source/components/debugger.js",
-            "line": 149,
-            "description": "Function that sets or returns the debugger configuration.",
+            "line": 205,
+            "description": "Function that sets the debugger configuration.",
             "itemtype": "method",
-            "name": "config",
+            "name": "setConfig",
             "params": [
                 {
                     "name": "options",
-                    "description": "The options.\n- When not provided, the current configured options is returned.",
+                    "description": "The options.\n- When provided as `null` with `componentId` provided, it unsets the specific component\n  configuration to use the global configuration.",
                     "type": "JSON",
-                    "optional": true,
                     "props": [
                         {
                             "name": "level",
-                            "description": "The log level.\n- When not provided, the value is set to `LOG_LEVEL_ENUM.ERROR`.\n- This references the @(link=Temasys.Debugger:LOG_LEVEL:constant).",
+                            "description": "The log level.\n- When not provided, the value is set to `LOG_LEVEL_ENUM.ERROR`.\n- This references the @(link=Temasys.Debugger:LOG_LEVEL_ENUM:constant).",
                             "type": "Number",
                             "optional": true
                         },
@@ -1652,7 +1653,7 @@
                         },
                         {
                             "name": "cacheLogs",
-                            "description": "The flag if Web console logs should be cached for\n  fetching in @(link=Temasys.Debugger:getCachedLogs:method) or @(link=Temasys.Debugger:printCachedLogs:method).",
+                            "description": "The flag if Web console logs should be cached for\n  fetching in @(link=Temasys.Debugger:getCachedLogs:method).",
                             "type": "Boolean",
                             "optional": true,
                             "optdefault": "false"
@@ -1674,8 +1675,34 @@
                     ]
                 },
                 {
+                    "name": "componentId",
+                    "description": "The component ID.\n- When provided, it configures the configuration for the specific component.",
+                    "type": "String",
+                    "optional": true
+                }
+            ],
+            "example": [
+                "\n// Example 1: Set global configuration\nTemasys.Debugger.setConfig({\n  level: Temasys.Debugger.LOG_LEVEL_ENUM.DEBUG\n});\n\n// Example 2: Set component configuration\nTemasys.Debugger.setConfig({\n  level: Temasys.Debugger.LOG_LEVEL_ENUM.LOG\n}, componentId);\n\n// Example 3: Unset component configuration and use global configuration instead for component\nTemasys.Debugger.setConfig(null, componentId);"
+            ],
+            "since": "0.7.0",
+            "class": "Temasys.Debugger"
+        },
+        {
+            "file": "source/components/debugger.js",
+            "line": 276,
+            "description": "Function that returns the debugger configuration.",
+            "itemtype": "method",
+            "name": "getConfig",
+            "params": [
+                {
+                    "name": "componentId",
+                    "description": "The component ID.\n- When provided, it returns the configuration only for the specific component.",
+                    "type": "String",
+                    "optional": true
+                },
+                {
                     "name": "return",
-                    "description": "The configured options.\n- This is only returned when `options` parameter is not provided.\n- Object signature matches the `options` parameter provided.",
+                    "description": "The configured options.\n- Object signature matches the `options` parameter in @(link=Temasys.Debugger:setConfig:method).",
                     "type": "JSON"
                 }
             ],
@@ -1683,86 +1710,106 @@
                 "description": "",
                 "type": "JSON"
             },
-            "since": "0.7.0",
-            "class": "Temasys.Debugger"
-        },
-        {
-            "file": "source/components/debugger.js",
-            "line": 200,
-            "description": "Function that returns the debugger stats.",
-            "itemtype": "method",
-            "name": "stats",
-            "params": [
-                {
-                    "name": "return",
-                    "description": "The stats.",
-                    "type": "JSON",
-                    "props": [
-                        {
-                            "name": "total",
-                            "description": "The total stats.",
-                            "type": "JSON",
-                            "props": [
-                                {
-                                    "name": "debug",
-                                    "description": "The total \"debug\" logs received.",
-                                    "type": "Number"
-                                },
-                                {
-                                    "name": "log",
-                                    "description": "The total number of \"log\" logs received.",
-                                    "type": "Number"
-                                },
-                                {
-                                    "name": "info",
-                                    "description": "The total number of \"info\" logs received.",
-                                    "type": "Number"
-                                },
-                                {
-                                    "name": "warn",
-                                    "description": "The total number of \"warn\" logs received.",
-                                    "type": "Number"
-                                },
-                                {
-                                    "name": "error",
-                                    "description": "The total number of \"error\" logs received.",
-                                    "type": "Number"
-                                },
-                                {
-                                    "name": "exceptions",
-                                    "description": "The total exceptions caught.\n- Each array item is an `Error` object.",
-                                    "type": "Array"
-                                }
-                            ]
-                        },
-                        {
-                            "name": "components",
-                            "description": "The total stats for each component.",
-                            "type": "JSON",
-                            "props": [
-                                {
-                                    "name": "_componentId",
-                                    "description": "The total stats for the component.\n- `\"componentId\"` property key can be identified as the component ID.\n- Object signature matches returned object `total`.",
-                                    "type": "JSON"
-                                }
-                            ]
-                        }
-                    ]
-                }
+            "example": [
+                "\n// Example 1: Get global configuration\nvar config = Temasys.Debugger.getConfig();\n\n// Example 2: Get only component configuration\nvar config = Temasys.Debugger.getConfig(componentId);"
             ],
             "since": "0.7.0",
             "class": "Temasys.Debugger"
         },
         {
             "file": "source/components/debugger.js",
-            "line": 245,
-            "description": "Function that watches for any logs.",
+            "line": 305,
+            "description": "Function that returns the total debugger stats.",
             "itemtype": "method",
-            "name": "watch",
+            "name": "getStats",
+            "params": [
+                {
+                    "name": "componentId",
+                    "description": "The component ID.\n- When provided, it returns the stats only for the specific component.",
+                    "type": "String",
+                    "optional": true
+                },
+                {
+                    "name": "return",
+                    "description": "The stats.",
+                    "type": "JSON",
+                    "props": [
+                        {
+                            "name": "debug",
+                            "description": "The total \"debug\" logs received.",
+                            "type": "Number"
+                        },
+                        {
+                            "name": "log",
+                            "description": "The total number of \"log\" logs received.",
+                            "type": "Number"
+                        },
+                        {
+                            "name": "info",
+                            "description": "The total number of \"info\" logs received.",
+                            "type": "Number"
+                        },
+                        {
+                            "name": "warn",
+                            "description": "The total number of \"warn\" logs received.",
+                            "type": "Number"
+                        },
+                        {
+                            "name": "error",
+                            "description": "The total number of \"error\" logs received.",
+                            "type": "Number"
+                        },
+                        {
+                            "name": "exceptions",
+                            "description": "The total exceptions caught.\n- Note that for tabulation for this, it this requires",
+                            "type": "Array"
+                        }
+                    ]
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "JSON"
+            },
+            "example": [
+                "\n// Example 1: Get total stats\nvar stats = Temasys.Debugger.getStats();\n\n// Example 2: Get only component total stats\nvar stats = Temasys.Debugger.getStats(componentId);"
+            ],
+            "since": "0.7.0",
+            "class": "Temasys.Debugger"
+        },
+        {
+            "file": "source/components/debugger.js",
+            "line": 335,
+            "description": "Function that returns the list of components.",
+            "itemtype": "method",
+            "name": "getComponents",
+            "params": [
+                {
+                    "name": "return",
+                    "description": "The list of components.",
+                    "type": "Array"
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "Array"
+            },
+            "example": [
+                "\n// Example: Get the list of components\nvar components = Temasys.Debugger.getComponents();"
+            ],
+            "since": "0.7.0",
+            "class": "Temasys.Debugger"
+        },
+        {
+            "file": "source/components/debugger.js",
+            "line": 350,
+            "description": "Function that watches for logs logged.",
+            "itemtype": "method",
+            "name": "watchForLogs",
             "params": [
                 {
                     "name": "fn",
-                    "description": "The callback function.\n- When not provided, it unsubscribes any existing callback function watching for logs.",
+                    "description": "The callback function.\n- When not provided as `Function`, it unsubscribes any existing configured callback function.",
                     "type": "Function",
                     "optional": true,
                     "props": [
@@ -1770,23 +1817,31 @@
                             "name": "log",
                             "description": "The log item.\n- Object signature matches the returned log item in @(link=Temasys.Debugger:logs:method).",
                             "type": "Array"
+                        },
+                        {
+                            "name": "componentId",
+                            "description": "The component ID.",
+                            "type": "String"
                         }
                     ]
                 }
+            ],
+            "example": [
+                "\n// Example 1: Watch for logs\nTemasys.Debugger.watchForLogs(function (log, componentId) {\n  ..\n});\n\n// Example 2: Unwatch for logs\nTemasys.Debugger.watchForLogs();"
             ],
             "since": "0.7.0",
             "class": "Temasys.Debugger"
         },
         {
             "file": "source/components/debugger.js",
-            "line": 259,
-            "description": "Function that catches any exceptions in event callback function handlers.",
+            "line": 373,
+            "description": "Function that catches the SDK exceptions.",
             "itemtype": "method",
-            "name": "catch",
+            "name": "catchExceptions",
             "params": [
                 {
                     "name": "fn",
-                    "description": "The callback function.\n- When not provided, it unsubscribes any existing callback function watching for logs.",
+                    "description": "The callback function.\n- When not provided as `Function`, it unsubscribes any existing configured callback function.",
                     "type": "Function",
                     "optional": true,
                     "props": [
@@ -1803,15 +1858,18 @@
                     ]
                 }
             ],
+            "example": [
+                "\n// Example 1: Catch SDK exceptions\nTemasys.Debugger.catchExceptions(function (error, componentId) {\n  ..\n});\n\n// Example 2: Uncatch SDK exceptions\nTemasys.Debugger.catchExceptions();"
+            ],
             "since": "0.7.0",
             "class": "Temasys.Debugger"
         },
         {
             "file": "source/components/debugger.js",
-            "line": 278,
+            "line": 402,
             "description": "Function that gets the cached logs.",
             "itemtype": "method",
-            "name": "logs",
+            "name": "getCachedLogs",
             "params": [
                 {
                     "name": "options",
@@ -1827,7 +1885,7 @@
                         },
                         {
                             "name": "level",
-                            "description": "The level  of logs to return only.\n- This references the @(link=Temasys.Debugger:LOG_LEVEL:constant).",
+                            "description": "The specific level of logs to return only.\n- This references the @(link=Temasys.Debugger:LOG_LEVEL_ENUM:constant).",
                             "type": "Number",
                             "optional": true
                         }
@@ -1845,7 +1903,7 @@
                             "props": [
                                 {
                                     "name": "_0",
-                                    "description": "The log item level property key.\n- This references the @(link=Temasys.Debugger:LOG_LEVEL:constant).",
+                                    "description": "The log item level property key.\n- This references the @(link=Temasys.Debugger:LOG_LEVEL_ENUM:constant).",
                                     "type": "String"
                                 },
                                 {
@@ -1878,19 +1936,56 @@
                 "description": "",
                 "type": "Array"
             },
+            "example": [
+                "\n// Example 1: Get cached logs for specific component and log level\nvar debugLogsForComponentA = Temasys.Debugger.getCachedLogs({\n  level: Temasys.Debugger.LOG_LEVEL.DEBUG,\n  componentId: \"A\"\n});\n\n// Example 2: Get cached logs for specific log level only\nvar debugLogsForLogError = Temasys.Debugger.getCachedLogs({\n  level: Temasys.Debugger.LOG_LEVEL.ERROR\n});\n\n// Example 3: Get cached logs for specific component only\nvar debugLogsForComponentB = Temasys.Debugger.getCachedLogs({\n  componentId: \"B\"\n});\n\n// Example 4: Get cached logs for all\nvar debugLogsForAll = Temasys.Debugger.getCachedLogs();"
+            ],
             "since": "0.7.0",
             "class": "Temasys.Debugger"
         },
         {
             "file": "source/components/debugger.js",
-            "line": 318,
-            "description": "Function that prints the cached logs.",
+            "line": 453,
+            "description": "Function that clears the cached logs.",
             "itemtype": "method",
-            "name": "print",
+            "name": "clearCachedLogs",
             "params": [
                 {
                     "name": "options",
-                    "description": "The options.\n- When provided, this may cause performance issues when cached logs size is huge.",
+                    "description": "The options.\n- When `options.componentId` and `options.level` is not provided, it clears all the cached logs.",
+                    "type": "JSON",
+                    "optional": true,
+                    "props": [
+                        {
+                            "name": "componentId",
+                            "description": "The component ID of logs to clear only.",
+                            "type": "String",
+                            "optional": true
+                        },
+                        {
+                            "name": "level",
+                            "description": "The specific level of logs to clear only.\n- This references the @(link=Temasys.Debugger:LOG_LEVEL_ENUM:constant).",
+                            "type": "Number",
+                            "optional": true
+                        }
+                    ]
+                }
+            ],
+            "example": [
+                "\n// Example 1: Clear cached logs for specific component and log level\nTemasys.Debugger.clearCachedLogs({\n  level: Temasys.Debugger.LOG_LEVEL.LOG,\n  componentId: \"A\"\n});\n\n// Example 2: Clear cached logs for specific log level only\nTemasys.Debugger.clearCachedLogs({\n  level: Temasys.Debugger.LOG_LEVEL.DEBUG\n});\n\n// Example 3: Clear cached logs for specific component only\nTemasys.Debugger.clearCachedLogs({\n  componentId: \"B\"\n});\n\n// Example 4: Clear cached logs for all\nTemasys.Debugger.clearCachedLogs();"
+            ],
+            "since": "0.7.0",
+            "class": "Temasys.Debugger"
+        },
+        {
+            "file": "source/components/debugger.js",
+            "line": 492,
+            "description": "Function that prints the cached logs.",
+            "itemtype": "method",
+            "name": "printCachedLogs",
+            "params": [
+                {
+                    "name": "options",
+                    "description": "The options.",
                     "type": "JSON",
                     "optional": true,
                     "props": [
@@ -1902,12 +1997,15 @@
                         },
                         {
                             "name": "level",
-                            "description": "The level  of logs to print only.\n- This references the @(link=Temasys.Debugger:LOG_LEVEL:constant).",
+                            "description": "The specific level of logs to print only.\n- This references the @(link=Temasys.Debugger:LOG_LEVEL_ENUM:constant).",
                             "type": "Number",
                             "optional": true
                         }
                     ]
                 }
+            ],
+            "example": [
+                "\n// Example 1: Print cached logs for specific component and log level\nTemasys.Debugger.printCachedLogs({\n  level: Temasys.Debugger.LOG_LEVEL.ERROR,\n  componentId: \"A\"\n});\n\n// Example 2: Print cached logs for specific log level only\nTemasys.Debugger.printCachedLogs({\n  level: Temasys.Debugger.LOG_LEVEL.DEBUG\n});\n\n// Example 3: Print cached logs for specific component only\nTemasys.Debugger.printCachedLogs({\n  componentId: \"B\"\n});\n\n// Example 4: Print cached logs for all\nTemasys.Debugger.printCachedLogs();"
             ],
             "since": "0.7.0",
             "class": "Temasys.Debugger"
@@ -6348,7 +6446,7 @@
                             ]
                         },
                         {
-                            "name": "catch",
+                            "name": "catchExceptions",
                             "description": "Function to catch any errors thrown in callback functions.",
                             "type": "Function",
                             "optional": true,
@@ -6381,50 +6479,50 @@
                 "type": "JSON"
             },
             "example": [
-                "\n  // Create the event manager\n  var manager = Temasys.Utils.createEventManager;\n  \n  // Subscribe to an event\n  manager.on(\"test\", function () { console.log(\"A\"); });\n  manager.once(\"test\", function () { console.log(\"B\"); });\n  manager.on(\"test\", function () { console.log(\"C\"); });\n  \n  // Emit the event - Results: A, B, C\n  manager.emit(\"test\");\n\n  // Emit the event (2) - Results: A, C\n  manager.emit(\"test\");"
+                "\n// Create the event manager\nvar manager = Temasys.Utils.createEventManager;\nvar offCbFn = function () {\n  console.log(\"D\");\n};\n\n// Subscribe to an event\nmanager.on(\"test\", function () {\n  console.log(\"A\");\n});\nmanager.once(\"test\", function () {\n  console.log(\"B\");\n});\nmanager.on(\"test\", function () {\n  console.log(\"C\");\n});\nmanager.on(\"test\", offCbFn);\n\n// Emit the event - Results: A, B, C, D\nmanager.emit(\"test\");\n\n// Emit the event (2) - Results: A, C, D\nmanager.emit(\"test\");\n\n// Unsubscribe to an event for a specific callback function\nmanager.on(\"test\", offCbFn);\n\n// Emit the event - Results: A, C\nmanager.emit(\"test\");\n\n// Subscribe to various events\nmanager.on(\"test2\", function () {\n  console.log(\"E\");\n});\nmanager.on(\"test2\", function () {\n  console.log(\"F\");\n});\nmanager.on(\"test3\", function () {\n  console.log(\"G\");\n});\nmanager.on(\"test4\", function () {\n  console.log(\"H\");\n});\n\n// Emit the events - Results: A, C, E, F, G, H\nmanager.emit(\"test\");\nmanager.emit(\"test2\");\nmanager.emit(\"test3\");\nmanager.emit(\"test4\");\n\n// Unsubscribe to an event\nmanager.off(\"test\");\n\n// Emit the events - Results: E, F, G, H\nmanager.emit(\"test\");\nmanager.emit(\"test2\");\nmanager.emit(\"test3\");\nmanager.emit(\"test4\");\n\n// Unsubscribe to all events\nmanager.off();\n\n// Emit the events - Results: None\nmanager.emit(\"test\");\nmanager.emit(\"test2\");\nmanager.emit(\"test3\");\nmanager.emit(\"test4\");\n\n// Catch exceptions in event handlers\nmanager.on(\"error\", function () {\n  throw new Error(\"test\");\n});\nmanager.catchExceptions(function (error) {\n  console.log(error);\n});\n\n// Emit the event - Results: \"test\"\nmanager.emit(\"error\");\n\n// Subscribe with condition that invokes once condition is met\nmanager.once(\"test\", function () {\n  console.log(\"I\");\n}, function (current) {\n  return current > 3;\n});\n\n// Subscribe with condition that invokes every time condition is met\nmanager.once(\"test\", function () {\n  console.log(\"J\");\n}, function (current) {\n  return current > 2;\n}, true);\n\n// Emit the event > current: 0 - Results: None\nmanager.emit(\"test\", 0);\n\n// Emit the event > current: 3 - Results: J\nmanager.emit(\"test\", 3);\n\n// Emit the event > current: 4 - Results: I, J\nmanager.emit(\"test\", 4);\n\n// Emit the event > current: 5 - Results: J\nmanager.emit(\"test\", 5);"
             ],
             "since": "0.7.0",
             "class": "Temasys.Utils"
         },
         {
             "file": "source/components/utils.js",
-            "line": 60,
+            "line": 151,
             "description": "Function that handles caught errors.",
             "class": "Temasys.Utils"
         },
         {
             "file": "source/components/utils.js",
-            "line": 71,
+            "line": 162,
             "description": "Function that returns the documented `.on()` method.",
             "class": "Temasys.Utils"
         },
         {
             "file": "source/components/utils.js",
-            "line": 86,
+            "line": 177,
             "description": "Function that returns the documented `.once()` method.",
             "class": "Temasys.Utils"
         },
         {
             "file": "source/components/utils.js",
-            "line": 102,
+            "line": 197,
             "description": "Function that returns the documented `.off()` method.",
             "class": "Temasys.Utils"
         },
         {
             "file": "source/components/utils.js",
-            "line": 138,
+            "line": 233,
             "description": "Function that returns the documented `.catch()` method.",
             "class": "Temasys.Utils"
         },
         {
             "file": "source/components/utils.js",
-            "line": 145,
+            "line": 240,
             "description": "Function that returns the documented `.emit()` method.",
             "class": "Temasys.Utils"
         },
         {
             "file": "source/components/utils.js",
-            "line": 179,
+            "line": 274,
             "description": "Function that loops an object.",
             "itemtype": "method",
             "name": "forEach",
@@ -6436,7 +6534,7 @@
                 },
                 {
                     "name": "fn",
-                    "description": "The callback function invoked for each object item looped.\n- To break the function loop, return `true`.",
+                    "description": "The callback function invoked for each object item looped.\n- To break the function loop, return `true`.\n- To increment or decrement loop, return the `Number`, and be careful of using it to prevent infinite loops.",
                     "type": "Function",
                     "props": [
                         {
@@ -6452,8 +6550,39 @@
                     ]
                 }
             ],
+            "example": [
+                "\n// Example 1: Loop Array - Results: a 1, b 2, c 3\nTemasys.Utils.forEach([\"a\", \"b\", \"c\"], function (item, index) {\n  console.log(item, index);\n});\n\n// Example 2: Loop JSON - Results: 1 a, 2 b, 3 c\nTemasys.Utils.forEach({ a: 1, b: 2, c: 3 }, function (item, prop) {\n  console.log(item, prop);\n});"
+            ],
             "since": "0.7.0",
-            "class": "Temasys.Utils."
+            "class": "Temasys.Utils"
+        },
+        {
+            "file": "source/components/utils.js",
+            "line": 320,
+            "description": "Function that copies an object to remove pointer reference.",
+            "itemtype": "method",
+            "name": "copy",
+            "params": [
+                {
+                    "name": "object",
+                    "description": "The object.",
+                    "type": "Array|JSON"
+                },
+                {
+                    "name": "return",
+                    "description": "The copied object.",
+                    "type": "Array|JSON"
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "Array|JSON"
+            },
+            "example": [
+                "\n// Example 1: Copy an Array - Results: [1, 2, 3]\nvar copyArray = Temasys.Utils.copy([1,2,3]);\n\n// Example 2: Copy a JSON - Results: { a: \"0\", b: \"1\", c: \"2\" }\nvar copyJSON = Temasys.Utils.copy({\n  a: \"0\",\n  b: \"1\",\n  c: \"2\"\n});"
+            ],
+            "since": "0.7.0",
+            "class": "Temasys.Utils"
         },
         {
             "file": "source/template/header.js",
@@ -16388,35 +16517,43 @@
         },
         {
             "message": "Missing item type\nFunction that logs message to Web console.",
-            "line": " source/components/debugger.js:36"
+            "line": " source/components/debugger.js:49"
+        },
+        {
+            "message": "Missing item type\nFunction that checks the `options` provided and loops the log items. \n- Returns `true` if there's not a need to loop.",
+            "line": " source/components/debugger.js:94"
         },
         {
             "message": "Missing item type\nOverrides the global _log function.",
-            "line": " source/components/debugger.js:73"
+            "line": " source/components/debugger.js:118"
         },
         {
             "message": "Missing item type\nFunction to log \"debug\" level message.",
-            "line": " source/components/debugger.js:77"
+            "line": " source/components/debugger.js:122"
         },
         {
             "message": "Missing item type\nFunction to log \"log\" level message.",
-            "line": " source/components/debugger.js:84"
+            "line": " source/components/debugger.js:129"
         },
         {
             "message": "Missing item type\nFunction to log \"info\" level message.",
-            "line": " source/components/debugger.js:91"
+            "line": " source/components/debugger.js:136"
         },
         {
             "message": "Missing item type\nFunction to log \"warn\" level message.",
-            "line": " source/components/debugger.js:98"
+            "line": " source/components/debugger.js:143"
         },
         {
             "message": "Missing item type\nFunction to log \"error\" level message.",
-            "line": " source/components/debugger.js:105"
+            "line": " source/components/debugger.js:150"
         },
         {
             "message": "Missing item type\nFunction to configure component.\n- Returns the component ID.",
-            "line": " source/components/debugger.js:112"
+            "line": " source/components/debugger.js:157"
+        },
+        {
+            "message": "Missing item type\nFunction to push stats to API.",
+            "line": " source/components/debugger.js:178"
         },
         {
             "message": "Missing item type\nFunction to retrieve Peer {{#crossLink \"Temasys.Stream\"}}Streams{{/crossLink}}.",
@@ -16548,27 +16685,27 @@
         },
         {
             "message": "Missing item type\nFunction that handles caught errors.",
-            "line": " source/components/utils.js:60"
+            "line": " source/components/utils.js:151"
         },
         {
             "message": "Missing item type\nFunction that returns the documented `.on()` method.",
-            "line": " source/components/utils.js:71"
+            "line": " source/components/utils.js:162"
         },
         {
             "message": "Missing item type\nFunction that returns the documented `.once()` method.",
-            "line": " source/components/utils.js:86"
+            "line": " source/components/utils.js:177"
         },
         {
             "message": "Missing item type\nFunction that returns the documented `.off()` method.",
-            "line": " source/components/utils.js:102"
+            "line": " source/components/utils.js:197"
         },
         {
             "message": "Missing item type\nFunction that returns the documented `.catch()` method.",
-            "line": " source/components/utils.js:138"
+            "line": " source/components/utils.js:233"
         },
         {
             "message": "Missing item type\nFunction that returns the documented `.emit()` method.",
-            "line": " source/components/utils.js:145"
+            "line": " source/components/utils.js:240"
         },
         {
             "message": "Missing item type\nGlobal function that clones an object.",

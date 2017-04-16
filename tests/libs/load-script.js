@@ -1,6 +1,7 @@
 // From npm "load-script" but converted not to be module.exports
 // See: https://www.npmjs.com/package/load-script
 // Version: 1.0.0
+// Note that the script has been modified for the tests
 var loadScript = (function () {
 	function load (src, opts, cb) {
 		var head = document.head || document.getElementsByTagName('head')[0]
@@ -66,5 +67,28 @@ var loadScript = (function () {
 			cb(null, script) // there is no way to catch loading errors in IE8
 		}
 	}
-	return load;
+
+	return function (list, fn) {
+		list = list && typeof list === 'string' ? [list] : list;
+
+		if (!Array.isArray(list)) {
+			throw new Error('Invalid "list" provided.');
+		}
+
+		var index = 0;
+		var nextFn = function () {
+			load(list[index], function (err, success) {
+				if (err) {
+					return fn(err);
+				}
+				index++;
+				if (index < list.length) {
+					nextFn();
+				} else {
+					fn(null, success);
+				}
+			});
+		};
+		nextFn();
+	};
 })();

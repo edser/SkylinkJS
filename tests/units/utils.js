@@ -99,19 +99,22 @@ describe('Temasys.Utils', function() {
 		var manager = null;
 
 		// Ensure that the return is defined correctly
-		it('createEventManager()', function () {
+		it('createEventManager()', function (done) {
 			manager = Temasys.Utils.createEventManager();
+
 			assert.typeOf(manager.on, 'function', 'typeof on()');
 			assert.typeOf(manager.once, 'function', 'typeof once()');
 			assert.typeOf(manager.off, 'function', 'typeof off()');
 			assert.typeOf(manager.emit, 'function', 'typeof emit()');
-			assert.typeOf(manager.catch, 'function', 'typeof catch()');
+			assert.typeOf(manager.catchExceptions, 'function', 'typeof catchExceptions()');
+
+			done();
 		});
 
 		// Ensure that `.on()` is functioning correctly
 		it('createEventManager() -> .on()', function (done) {
 			manager.on('test', function () {
-				assert.isOk('on() is triggered.');
+				assert.isOk('on() is triggered');
 				done();
 			});
 
@@ -228,7 +231,7 @@ describe('Temasys.Utils', function() {
 
 		// Ensure that `.emit()` is functioning correctly
 		it('createEventManager() -> .emit()', function (done) {
-			var fn = function () {
+			var fnEmitTest = function () {
 				var args1 = Array.prototype.slice.call(arguments);
 				var expectArgs = args1.concat([]);
 				expectArgs.shift();
@@ -239,18 +242,18 @@ describe('Temasys.Utils', function() {
 				manager.emit.apply(args1);
 			};
 
-			fn('test', true, 1, null);
-			fn('test2', { x: 1, y: 2 }, 'test123213', -123123);
-			fn('test3', { x: 1, y: 2 }, ['ok',1,2]);
+			fnEmitTest('test', true, 1, null);
+			fnEmitTest('test2', { x: 1, y: 2 }, 'test123213', -123123);
+			fnEmitTest('test3', { x: 1, y: 2 }, ['ok',1,2]);
 
 			done();
 		});
 
-		// Ensure that `.catch()` is functioning correctly
-		it('createEventManager() -> .catch()', function (done) {
-			manager.catch(function (error) {
-				assert.instanceOf(error, Error, 'Error object is returned.');
-				assert.isDefined(error.message, 'Error object has message.');
+		// Ensure that `.catchExceptions()` is functioning correctly
+		it('createEventManager() -> .catchExceptions()', function (done) {
+			manager.catchExceptions(function (error) {
+				assert.instanceOf(error, Error, 'Error object is returned');
+				assert.isString(error.message, 'Error object has message');
 			});
 
 			expect(function () {
@@ -258,19 +261,49 @@ describe('Temasys.Utils', function() {
 					throw new Error('test');
 				});
 				manager.emit('test');
-			}, 'Error should be caught.').to.not.throw(Error);
+			}, 'Error should be caught').to.not.throw(Error);
 
-			manager.catch(null);
+			manager.catchExceptions(null);
 
 			expect(function () {
 				manager.once('test', function () {
 					throw new Error('test');
 				});
 				manager.emit('test');
-			}, 'Error should not be caught.').to.throw(Error);
+			}, 'Error should not be caught').to.throw(Error);
 
 			done();
 		});
 	})();
 
+	/**
+	 * Tests the `copy` method.
+	 */
+	it('copy()', function (done) {
+		var fnCopyTest = function (item) {
+			expect(Temasys.Utils.copy(item), JSON.stringify(item) + ' should be copied correctly').to.deep.equal(item);
+		};
+
+		fnCopyTest('Test');
+		fnCopyTest([0,1,2,'4',true,'test', {a:1, b:2}]);
+		fnCopyTest({ x:1, y:'erer' });
+		fnCopyTest(12321489140123);
+		fnCopyTest(true);
+		fnCopyTest(false);
+		fnCopyTest(null);
+
+		done();
+	});
+
+	/**
+	 * Tests the `generateUUID` method.
+	 */
+	it('generateUUID()', function (done) {
+		var uuid = Temasys.Utils.generateUUID();
+
+		assert.typeOf(uuid, 'string', 'typeof');
+		expect(uuid, 'Matches RFC 4122').match(/^[0-9|a-z]{8}\-[0-9|a-z]{4}\-[0-9|a-z]{4}\-[0-9|a-z]{4}\-[0-9|a-z]{12}$/gi);
+
+		done();
+	});
 });
