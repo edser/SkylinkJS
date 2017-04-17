@@ -101,7 +101,7 @@ Skylink.prototype._createDataChannel = function(peerId, dataChannel, bufferThres
   var self = this;
 
   // Invalid Room session state
-  if (!(self._user || self._room)) {
+  if (!(self._user && self._room)) {
     log.error([peerId, 'Datachannel', null, 'Invalid Room session state for initialising ->'], dataChannel);
     return;
   // Invalid Peer connection state
@@ -114,7 +114,6 @@ Skylink.prototype._createDataChannel = function(peerId, dataChannel, bufferThres
 
   var channelName = self._user.sid + '_' + peerId;
   var channelType = self.DATA_CHANNEL_TYPE.DATA;
-  var channelProp = channelType === self.DATA_CHANNEL_TYPE.MESSAGING ? 'main' : channelName;
 
   if (dataChannel) {
     if (typeof dataChannel === 'object') {
@@ -129,9 +128,10 @@ Skylink.prototype._createDataChannel = function(peerId, dataChannel, bufferThres
   //   default messaging Datachannel if channel ID matches the current "main"
   if (self._dataChannels[peerId] && self._dataChannels[peerId].main ?
     self._dataChannels[peerId].main.channel.label === channelName : true) {
-    channelProp = 'main';
     channelType = self.DATA_CHANNEL_TYPE.MESSAGING;
   }
+
+  var channelProp = channelType === self.DATA_CHANNEL_TYPE.MESSAGING ? 'main' : channelName;
 
   if (!dataChannel) {
     var constraints = {
@@ -183,6 +183,9 @@ Skylink.prototype._createDataChannel = function(peerId, dataChannel, bufferThres
    * RTCDataChannel.onopen event.
    */
   (function () {
+    /**
+     * Function that handles the RTCDataChannel open event.
+     */
     var onOpenHandlerFn = function () {
       log.debug([peerId, 'Datachannel', channelProp, 'Connection has opened.']);
       dataChannel.bufferedAmountLowThreshold = bufferThreshold || 0;
@@ -206,6 +209,9 @@ Skylink.prototype._createDataChannel = function(peerId, dataChannel, bufferThres
    * RTCDataChannel.onclose event.
    */
   (function () {
+    /**
+     * Function that handles the RTCDataChannel close event.
+     */
     var onCloseHandlerFn = function () {
       log.debug([peerId, 'Datachannel', channelProp, 'Connection has closed.']);
       self._trigger('dataChannelState', self.DATA_CHANNEL_STATE.CLOSED, peerId, null, channelName,
@@ -270,7 +276,7 @@ Skylink.prototype._createDataChannel = function(peerId, dataChannel, bufferThres
     }
   })();
 
-  self._dataChannels[peerId][channelType === self.DATA_CHANNEL_TYPE.MESSAGING ? 'main' : channelName] = {
+  self._dataChannels[peerId][channelProp] = {
     channelName: channelName,
     channelType: channelType,
     transferId: null,
@@ -288,8 +294,9 @@ Skylink.prototype._createDataChannel = function(peerId, dataChannel, bufferThres
  * @since 0.6.18
  */
 Skylink.prototype._getDataChannelBuffer = function (peerId, channelProp) {
-  var dataChannel = typeof peerId === 'object' ? peerId : (this._dataChannels[peerId] &&
-    this._dataChannels[peerId][channelProp] ? this._dataChannels[peerId][channelProp].channel || {} : {});
+  var self = this;
+  var dataChannel = typeof peerId === 'object' ? peerId : (self._dataChannels[peerId] &&
+    self._dataChannels[peerId][channelProp] ? self._dataChannels[peerId][channelProp].channel || {} : {});
 
   return {
     bufferedAmountLow: typeof dataChannel.bufferedAmountLow === 'number' ?
@@ -319,7 +326,7 @@ Skylink.prototype._sendMessageToDataChannel = function(peerId, data, channelProp
     log.error([peerId, 'Datachannel', channelProp, 'Invalid data for sending data ->'], data);
     return;
   // Invalid Room session state
-  } else if (!(self._user || self._room)) {
+  } else if (!(self._user && self._room)) {
     log.error([peerId, 'Datachannel', null, 'Invalid Room session state for sending data ->'], data);
     return;
   // Invalid Peer connection state
@@ -379,17 +386,20 @@ Skylink.prototype._closeDataChannel = function(peerId, channelProp) {
   var self = this;
 
   // Invalid Room session state
-  if (!(self._user || self._room)) {
-    log.error([peerId, 'Datachannel', null, 'Invalid Room session state for closing ->'], data);
+  if (!(self._user && self._room)) {
+    log.error([peerId, 'Datachannel', null, 'Invalid Room session state for closing.']);
     return;
   // Invalid Peer connection state
   } else if (!(self._peerConnections[peerId] &&
     self._peerConnections[peerId].signalingState !== self.PEER_CONNECTION_STATE.CLOSED)) {
     log.error([peerId, 'Datachannel', null, 'Invalid Peer connection state "' + ((self._peerConnections[peerId] &&
-      self._peerConnections[peerId].signalingState) || 'null') + '" for closing ->'], data);
+      self._peerConnections[peerId].signalingState) || 'null') + '" for closing.']);
     return;
   }
 
+  /**
+   * Function that closes the RTCDataChannel connection.
+   */
   var closeFn = function (channelItemProp) {
     var channelName = self._dataChannels[peerId][channelItemProp].channelName;
     var channelType = self._dataChannels[peerId][channelItemProp].channelType;
