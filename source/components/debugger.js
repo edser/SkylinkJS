@@ -29,7 +29,7 @@ Temasys.Debugger = (function () {
 
   // Stores the stats.
   var stats = {
-    global: {
+    total: {
       debug: 0,
       log: 0,
       info: 0,
@@ -58,13 +58,23 @@ Temasys.Debugger = (function () {
     var useSettings = settings.components[componentId] ? settings.components[componentId] : settings.global;
 
     // E.g. Peer :: 34234234234 | 2017-04-12T12:41:55.563Z [RID: werwer][PID: xxx-werwer-][CID: test] - Test log is here -> null
-    var message = (Array.isArray(args[1]) && args[1][0] ? args[1][0] + ' ' : '') +
-      (useSettings.printComponentId ? ':: ' + componentId + ' ' : '') +
-      (useSettings.printTimestamp ? '| ' + timestamp + ' ' : '') +
-      (Array.isArray(args[1]) && args[1][1] ? '[RID: ' + args[1][1] + ']' : '') +
-      (Array.isArray(args[1]) && args[1][2] ? '[PID: ' + args[1][2] + ']' : '') +
-      (Array.isArray(args[1]) && args[1][3] ? '[CID: ' + args[1][3] + ']' : '') + ' - ' +
-      (Array.isArray(args[1]) ? args[1][4] : args[1]);
+    var message = '';
+    
+    // message: array - [component,roomId,peerId,anyId,message]
+    if (Array.isArray(args[1])) {
+      message += args[1][0] ? args[1][0] + ' ' : '';
+      message += useSettings.printComponentId ? ':: ' + componentId + ' ' : '';
+      message += useSettings.printTimestamp ? '| ' + timestamp + ' ' : '';
+      message += args[1][1] ? '[RID: ' + args[1][1] + ']' : '';
+      message += args[1][2] ? '[PID: ' + args[1][2] + ']' : '';
+      message += args[1][3] ? '[CID: ' + args[1][3] + ']' : '';
+      message += (message[message.length - 1] === ' ' ? '- ' : (message ? ' - ' : '')) + args[1][4];
+    // message: string - message
+    } else {
+      message += useSettings.printComponentId ? ':: ' + componentId + ' ' : '';
+      message += useSettings.printTimestamp ? '| ' + timestamp + ' ' : '';
+      message += (message[message.length - 1] === ' ' ? ' - ' : '') + args[1];
+    }
 
     // Remove the first 2 arguments and leave the meta data
     args.splice(0, 2);
@@ -87,7 +97,7 @@ Temasys.Debugger = (function () {
       console[method].apply(console, args);
     }
 
-    stats.global[level.toLowerCase()]++;
+    stats.total[level.toLowerCase()]++;
     stats.components[componentId][level.toLowerCase()]++;
 
     // TODO: Push logs to remote server when requested.
@@ -173,6 +183,7 @@ Temasys.Debugger = (function () {
       listeners.components.push(fn);
       // Configure the current `catch` listener
       fn(listeners.catch);
+      // For listeners.catch, invoke it as (componentId, error)
       return componentId;
     },
 
@@ -330,7 +341,7 @@ Temasys.Debugger = (function () {
      */
     getStats: function (componentId) {
       return componentId && typeof componentId === 'string' && stats.components[componentId] ?
-        stats.components[componentId] : stats.global;
+        stats.components[componentId] : stats.total;
     },
 
     /**
@@ -391,7 +402,8 @@ Temasys.Debugger = (function () {
      */
     catchExceptions: function (fn) {
       listeners.catch = typeof fn === 'function' ? function (componentId, error) {
-        stats[componentId].exceptions.push(error);
+        stats.components[componentId].exceptions.push(error);
+        stats.total.exceptions.push(error);
         fn(error, componentId);
       } : null;
 

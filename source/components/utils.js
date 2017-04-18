@@ -353,6 +353,38 @@ Temasys.Utils = {
   },
 
   /**
+   * Function that extends an object to another object.
+   * - Note that conflicting properties will be overwritten.
+   * @method extend
+   * @param {JSON} object The object.
+   * @param {JSON} extendObject The object to extend.
+   * @param {JSON} return The extended object.
+   * @return {JSON}
+   * @example
+   * // Example: Extend a JSON - Results: { a: 1, b: 2, c: 3 }
+   * var extended = Temasys.Utils.extend({
+   *   a: 1,
+   *   b: 2
+   * }, {
+   *   c: 3
+   * });
+   * @for Temasys.Utils
+   * @since 0.7.0
+   */
+  extend: function (object, extendObject) {
+    if (typeof object === 'object' && object !== null) {
+      var result = Temasys.Utils.copy(object);
+      if (typeof extendObject === 'object' && extendObject !== null) {
+        Temasys.Utils.forEach(Temasys.Utils.copy(extendObject), function (item, prop) {
+          result[prop] = item;
+        });
+      }
+      return result;
+    }
+    return {};
+  },
+
+  /**
    * Function that generates an unique identifier (UUID).
    * @method generateUUID
    * @example

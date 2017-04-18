@@ -306,4 +306,27 @@ describe('Temasys.Utils', function() {
 
 		done();
 	});
+
+	/**
+	 * Tests the `extend` method.
+	 */
+	it('extend()', function (done) {
+		Temasys.Utils.forEach([
+			[[null], {}],
+			[[{}], {}],
+			[[true], {}],
+			[[1], {}],
+			[[undefined], {}],
+			[[{}, {}], {}],
+			[[{a:1}], {a:1}],
+			[[{a:1, b:'test',x:true, y: {t:1,y:23}}, {}], {a:1, b:'test',x:true, y: {t:1,y:23}}],
+			[[{x:true, y: {t:1,y:23}}, { test: ['a',1,2]}], {x:true, y: {t:1,y:23}, test: ['a',1,2] }],
+			[[{x:true, y: {t:1,y:23}}, { x: 1 }], {x:1, y: {t:1,y:23} }],
+			[[{a:1, b: 2}, { a: 'test'}], {a:'test', b: 2}]
+		], function (item, itemProp) {
+			expect(Temasys.Utils.extend.apply(this, item[0]), JSON.stringify(item[0]) + ': extends').to.deep.equal(item[1]);
+		});
+
+		done();
+	});
 });
