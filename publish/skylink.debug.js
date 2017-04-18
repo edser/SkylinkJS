@@ -1,4 +1,4 @@
-/*! skylinkjs - v0.6.19 - Wed Apr 19 2017 04:45:25 GMT+0800 (SGT) */
+/*! skylinkjs - v0.6.19 - Wed Apr 19 2017 05:04:05 GMT+0800 (SGT) */
 (function (globals) {
 
   'use strict';
@@ -417,8 +417,14 @@ Temasys.Datatransfer = function () {
  * @typedef module
  */
 Temasys.Debugger = (function () {
+  var ref = {};
+
+  // Stores the logs.
+  // Use a separate variable since logs can be huge
+  var refLogs = [];
+
   // Enum for LOG_LEVEL_ENUM.
-  var LOG_LEVEL_ENUM = {
+  ref.LOG_LEVEL_ENUM = {
     NONE: -1,
     ERROR: 0,
     WARN: 1,
@@ -428,9 +434,9 @@ Temasys.Debugger = (function () {
   };
 
   // Stores the debugger settings.
-  var settings = {
+  ref.settings = {
     global: {
-      level: LOG_LEVEL_ENUM.ERROR,
+      level: ref.LOG_LEVEL_ENUM.ERROR,
       traceLogs: false,
       cacheLogs: false,
       printTimestamp: false,
@@ -440,7 +446,7 @@ Temasys.Debugger = (function () {
   };
 
   // Stores the stats.
-  var stats = {
+  ref.stats = {
     total: {
       debug: 0,
       log: 0,
@@ -452,22 +458,19 @@ Temasys.Debugger = (function () {
     components: {}
   };
 
-  // Stores the logs.
-  var logs = [];
-
   // Stores the listener functions.
-  var listeners = { catch: null, watch: null, components: [] };
+  ref.listeners = { catch: null, watch: null, components: [] };
 
   /**
    * Function that logs message to Web console.
    */
-  var fnLog = function (level, args) {
+  ref.fnLog = function (level, args) {
     // 0: Component ID
     // 1: Message
     // 2+: Meta data
     var componentId = args[0];
     var timestamp = (new Date()).toISOString();
-    var useSettings = settings.components[componentId] ? settings.components[componentId] : settings.global;
+    var useSettings = ref.settings.components[componentId] ? ref.settings.components[componentId] : ref.settings.global;
 
     // E.g. Peer :: 34234234234 | 2017-04-12T12:41:55.563Z [RID: werwer][PID: xxx-werwer-][CID: test] - Test log is here -> null
     var message = '';
@@ -494,23 +497,23 @@ Temasys.Debugger = (function () {
     var logItem = [level, componentId, timestamp, message, args.concat([])];
 
     if (useSettings.cacheLogs) {
-      logs.push(logItem);
+      refLogs.push(logItem);
     }
 
-    if (typeof listeners.watch === 'function') {
-      listeners.watch(logItem, componentId);
+    if (typeof ref.listeners.watch === 'function') {
+      ref.listeners.watch(logItem, componentId);
     }
 
     args.splice(0, 0, (useSettings.traceLogs ? '[' + level + '] ' : '') + message);
 
-    if (LOG_LEVEL_ENUM[level] <= useSettings.level) {
+    if (ref.LOG_LEVEL_ENUM[level] <= useSettings.level) {
       var method = useSettings.traceLogs ? 'trace' : level.toLowerCase();
       method = typeof console[method] !== 'function' ? 'log' : method;
       console[method].apply(console, args);
     }
 
-    stats.total[level.toLowerCase()]++;
-    stats.components[componentId][level.toLowerCase()]++;
+    ref.stats.total[level.toLowerCase()]++;
+    ref.stats.components[componentId][level.toLowerCase()]++;
 
     // TODO: Push logs to remote server when requested.
   };
@@ -519,7 +522,7 @@ Temasys.Debugger = (function () {
    * Function that checks the `options` provided and loops the log items. 
    * - Returns `true` if there's not a need to loop.
    */
-  var fnLoop = function (options, fn) {
+  ref.fnLoop = function (options, fn) {
     // Check if `options` is defined, and return is following checks fails
     if (!(options && typeof options === 'object' &&
     // Check also if `options.componentId` is defined
@@ -529,9 +532,9 @@ Temasys.Debugger = (function () {
       return true;
     }
 
-    Temasys.Utils.forEach(logs, function (logItem, index) {
+    Temasys.Utils.forEach(refLogs, function (logItem, index) {
       // Check if `options.level` is defined, valid and matches.
-      if ((typeof options.level === 'number' ? LOG_LEVEL_ENUM[logItem[0]] === options.level : true) &&
+      if ((typeof options.level === 'number' ? ref.LOG_LEVEL_ENUM[logItem[0]] === options.level : true) &&
       // Check if `options.componentId` is defined, valid and matches.
         (options.componentId && typeof options.componentId ? options.componentId === logItem[1] : true)) {
         return fn(logItem, index);
@@ -547,35 +550,35 @@ Temasys.Debugger = (function () {
      * Function to log "debug" level message.
      */
     debug: function (componentId, message) {
-      fnLog('DEBUG', Array.prototype.slice.call(arguments));
+      ref.fnLog('DEBUG', Array.prototype.slice.call(arguments));
     },
 
     /**
      * Function to log "log" level message.
      */
     log: function (componentId, message) {
-      fnLog('LOG', Array.prototype.slice.call(arguments));
+      ref.fnLog('LOG', Array.prototype.slice.call(arguments));
     },
 
     /**
      * Function to log "info" level message.
      */
     info: function (componentId, message) {
-      fnLog('INFO', Array.prototype.slice.call(arguments));
+      ref.fnLog('INFO', Array.prototype.slice.call(arguments));
     },
 
     /**
      * Function to log "warn" level message.
      */
     warn: function (componentId, message) {
-      fnLog('WARN', Array.prototype.slice.call(arguments));
+      ref.fnLog('WARN', Array.prototype.slice.call(arguments));
     },
 
     /**
      * Function to log "error" level message.
      */
     error: function (componentId, message) {
-      fnLog('ERROR', Array.prototype.slice.call(arguments));
+      ref.fnLog('ERROR', Array.prototype.slice.call(arguments));
     },
 
     /**
@@ -584,7 +587,7 @@ Temasys.Debugger = (function () {
      */
     configure: function (componentId, fn) {
       componentId = componentId && typeof componentId === 'string' ? componentId : Temasys.Utils.generateUUID();
-      stats.components[componentId] = {
+      ref.stats.components[componentId] = {
         debug: 0,
         log: 0,
         info: 0,
@@ -592,9 +595,9 @@ Temasys.Debugger = (function () {
         error: 0,
         exceptions: []
       };
-      listeners.components.push(fn);
+      ref.listeners.components.push(fn);
       // Configure the current `catch` listener
-      fn(listeners.catch);
+      fn(ref.listeners.catch);
       // For listeners.catch, invoke it as (componentId, error)
       return componentId;
     },
@@ -624,7 +627,7 @@ Temasys.Debugger = (function () {
      * @for Temasys.Debugger
      * @since 0.7.0
      */
-    LOG_LEVEL_ENUM: LOG_LEVEL_ENUM,
+    LOG_LEVEL_ENUM: ref.LOG_LEVEL_ENUM,
 
     /**
      * Function that sets the debugger configuration.
@@ -663,7 +666,7 @@ Temasys.Debugger = (function () {
      */
     setConfig: function (options, componentId) {
       var useSettings = {
-        level: LOG_LEVEL_ENUM.ERROR,
+        level: ref.LOG_LEVEL_ENUM.ERROR,
         traceLogs: false,
         cacheLogs: false,
         printTimestamp: false,
@@ -687,13 +690,13 @@ Temasys.Debugger = (function () {
       if (componentId && typeof componentId === 'string') {
         // Unset the component configuration : config(null, componentId)
         if (options === null) {
-          delete settings.components[componentId];
+          delete ref.settings.components[componentId];
         } else {
-          settings.components[componentId] = useSettings;
+          ref.settings.components[componentId] = useSettings;
         }
       // Set the global configuration : config(options)
       } else {
-        settings.global = useSettings;
+        ref.settings.global = useSettings;
       }
     },
 
@@ -715,8 +718,8 @@ Temasys.Debugger = (function () {
      * @since 0.7.0
      */
     getConfig: function (componentId) {
-      var useSettings = componentId && typeof componentId === 'string' && settings.components[componentId] ?
-        settings.components[componentId] : settings.global;
+      var useSettings = componentId && typeof componentId === 'string' && ref.settings.components[componentId] ?
+        ref.settings.components[componentId] : ref.settings.global;
       return {
         level: useSettings.level,
         traceLogs: useSettings.traceLogs,
@@ -752,8 +755,8 @@ Temasys.Debugger = (function () {
      * @since 0.7.0
      */
     getStats: function (componentId) {
-      return componentId && typeof componentId === 'string' && stats.components[componentId] ?
-        stats.components[componentId] : stats.total;
+      return componentId && typeof componentId === 'string' && ref.stats.components[componentId] ?
+        ref.stats.components[componentId] : ref.stats.total;
     },
 
     /**
@@ -768,7 +771,7 @@ Temasys.Debugger = (function () {
      * @since 0.7.0
      */
     getComponents: function () {
-      return Object.keys(stats.components);
+      return Object.keys(ref.stats.components);
     },
 
     /**
@@ -791,7 +794,7 @@ Temasys.Debugger = (function () {
      * @since 0.7.0
      */
     watchForLogs: function (fn) {
-      listeners.watch = typeof fn === 'function' ? fn : null;
+      ref.listeners.watch = typeof fn === 'function' ? fn : null;
     },
 
     /**
@@ -813,14 +816,14 @@ Temasys.Debugger = (function () {
      * @since 0.7.0
      */
     catchExceptions: function (fn) {
-      listeners.catch = typeof fn === 'function' ? function (componentId, error) {
-        stats.components[componentId].exceptions.push(error);
-        stats.total.exceptions.push(error);
+      ref.listeners.catch = typeof fn === 'function' ? function (componentId, error) {
+        ref.stats.components[componentId].exceptions.push(error);
+        ref.stats.total.exceptions.push(error);
         fn(error, componentId);
       } : null;
 
-      Temasys.Utils.forEach(listeners.components, function (fnComponentItem) {
-        fnComponentItem(listeners.catch);
+      Temasys.Utils.forEach(ref.listeners.components, function (fnComponentItem) {
+        fnComponentItem(ref.listeners.catch);
       });
     },
 
@@ -866,10 +869,10 @@ Temasys.Debugger = (function () {
     getCachedLogs: function (options) {
       var result = [];
 
-      if (fnLoop(options, function (logItem, index) {
+      if (ref.fnLoop(options, function (logItem, index) {
         result.push(logItem);
       })) {
-        return logs;
+        return refLogs;
       }
 
       return result;
@@ -906,11 +909,11 @@ Temasys.Debugger = (function () {
      * @since 0.7.0
      */
     clearCachedLogs: function (options) {
-      if (fnLoop(options, function (logItem, index) {
-        logs.splice(index, 1);
+      if (ref.fnLoop(options, function (logItem, index) {
+        refLogs.splice(index, 1);
         return 0;
       })) {
-        logs = [];
+        refLogs = [];
       }
     },
      
@@ -949,8 +952,8 @@ Temasys.Debugger = (function () {
         console[method].apply(console, [logItem[3]].concat(logItem[4]));
       };
 
-      if (fnLoop(options, fn)) {
-        Temasys.Utils.forEach(logs, fn);
+      if (ref.fnLoop(options, fn)) {
+        Temasys.Utils.forEach(refLogs, fn);
       }
     }
   };

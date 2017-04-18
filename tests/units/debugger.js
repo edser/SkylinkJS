@@ -590,7 +590,7 @@ describe('Temasys.Debugger', function() {
           level: levelProp ? Temasys.Debugger.LOG_LEVEL_ENUM[levelProp] : undefined
         };
 
-        expect(Temasys.Debugger.getCachedLogs(options), '(' + _componentId + ',' + levelProp + '): to have length first').to.have.length.above(1);
+        expect(Temasys.Debugger.getCachedLogs(options), '(' + _componentId + ',' + levelProp + '): to have length first').to.have.length.above(0);
 
         Temasys.Debugger.clearCachedLogs(options);
 
