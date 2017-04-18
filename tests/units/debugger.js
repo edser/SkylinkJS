@@ -7,6 +7,15 @@ var Temasys = {};
 var _log = null;
 
 describe('Temasys.Debugger', function() {
+  var cachedConsole = {
+    debug: console.debug,
+    log: console.log,
+    info: console.info,
+    warn: console.warn,
+    error: console.error,
+    trace: console.trace
+  };
+
 	// Load the scripts first for each test item to refresh state
 	beforeEach(function (done) {
     loadScript([
@@ -20,35 +29,329 @@ describe('Temasys.Debugger', function() {
 		});
 	});
 
-  /**
-   * Tests the global `_log` module.
-   */
-  it('_log', function (done) {
-    var componentIdA = _log.configure(null, function () {});
-    var componentIdB = _log.configure('test', function () {});
-
-    assert.typeOf(componentIdA, 'string', 'typeof string');
-    assert.isDefined(componentIdA, 'Is defined');
-    expect(componentIdB, 'To match as specified').to.equal('test');
-
-    // TODO: _log tests
+  after(function (done) {
+    console.debug = cachedConsole.debug;
+    console.log = cachedConsole.log;
+    console.info = cachedConsole.info;
+    console.warn = cachedConsole.warn;
+    console.error = cachedConsole.error;
+    console.trace = cachedConsole.trace;
 
     done();
   });
 
   /**
+   * Tests the global `_log` module.
+   */
+  it('_log', function (done) {
+    assert.typeOf(_log.debug, 'function', 'typeof .debug is function');
+    assert.typeOf(_log.log, 'function', 'typeof .log is function');
+    assert.typeOf(_log.info, 'function', 'typeof .info is function');
+    assert.typeOf(_log.warn, 'function', 'typeof .warn is function');
+    assert.typeOf(_log.error, 'function', 'typeof .error is function');
+    assert.typeOf(_log.configure, 'function', 'typeof .configure is function');
+    assert.typeOf(_log.stat, 'function', 'typeof .stat is function');
+
+    done();
+  });
+
+  it('_log -> .configure()', function (done) {
+    var componentIdA = _log.configure(null, function () {});
+    var componentIdBLabel = 'test';
+    var componentIdB = _log.configure(componentIdBLabel, function () {});
+
+    assert.typeOf(componentIdA, 'string', 'A: typeof string');
+    assert.typeOf(componentIdB, 'string', 'B: typeof string');
+    expect(componentIdB).to.equal(componentIdBLabel, 'B: matches defined label');
+
+    // Test if configured callback function matches
+    var catchFnArr = [];
+    var catchFn = function () {};
+
+    _log.configure(null, function (fn) {
+      catchFnArr.push(fn ? typeof fn : fn);
+    });
+
+    Temasys.Debugger.catchExceptions(catchFn);
+
+    _log.configure(null, function (fn) {
+      catchFnArr.push(fn ? typeof fn : fn);
+    });
+
+    Temasys.Debugger.catchExceptions(null);
+
+    _log.configure(null, function (fn) {
+      catchFnArr.push(fn ? typeof fn : fn);
+    });
+
+    expect(catchFnArr, 'catchExceptions() function is updated').to.deep.equal(
+      [null, 'function', 'function', null, null, null]);
+
+    done();
+  });
+
+  // Test if the console exists or not
+  it('_log -> Fallback when console method is not available', function (done) {
+    var componentId = _log.configure(null, function () {});
+
+    Temasys.Debugger.setConfig({ level: Temasys.Debugger.LOG_LEVEL_ENUM.DEBUG });
+    Temasys.Utils.forEach(['debug', 'info', 'warn', 'error', 'trace'], function (method) {
+      var expectMessage = [null, null];
+      console[method] = function () {
+        expectMessage[0] = typeof Array.prototype.slice.call(arguments)[0];
+      };
+      console.log = function () {
+        expectMessage[1] = typeof Array.prototype.slice.call(arguments)[0];
+      };
+      console[method] = null;
+      _log[method === 'trace' ? 'debug' : method](componentId, 'test');
+      expect(expectMessage, method + ': fallbacks to .log()').to.deep.equal([null, 'string']);
+    });
+  });
+
+  // Test log levels to not print when not requested
+  it('_log -> Prints based on set level', function (done) {
+    var componentId = _log.configure(null, function () {});
+
+    Temasys.Utils.forEach(Temasys.Debugger.LOG_LEVEL_ENUM, function (level, levelProp) {
+      var messagesCounter = {
+        debug: [],
+        log: [],
+        info: [],
+        warn: [],
+        error: [],
+        trace: []
+      };
+      var expectMessagesCounter = {
+        debug: [],
+        log: [],
+        info: [],
+        warn: [],
+        error: [],
+        trace: []
+      };
+
+      Temasys.Utils.forEach(['debug', 'log', 'info', 'warn', 'error'], function (method) {
+        Temasys.Debugger.setConfig({ level: level });
+        console[method] = function () {
+          messagesCounter[method].push(typeof Array.prototype.slice.call(arguments)[0]);
+        };
+        _log[method]('test');
+
+        // Test traceLogs setting
+        Temasys.Debugger.setConfig({ level: level, traceLogs: true });
+        console.trace = function () {
+          messagesCounter.trace.push(Array.prototype.slice.call(arguments)[0].indexOf('[' + method.toUpperCase() + '] '));
+        };
+        _log[method]('test2');
+
+        if (level >= Temasys.Debugger.LOG_LEVEL_ENUM[method.toUpperCase()]) {
+          expectMessagesCounter[method].push('string');
+          expectMessagesCounter.trace.push(0);
+        }
+      });
+
+      expect(messagesCounter, levelProp + ': prints when set').to.deep.equal(expectMessagesCounter);
+    });
+
+    done();
+  });
+  
+  // Test caching of logs
+  it('_log -> Caches log when required', function (done) {
+    var componentId = _log.configure(null, function () {});
+    var output = [];
+
+    Temasys.Debugger.setConfig({ cacheLogs: true });
+    Temasys.Utils.forEach(['debug', 'log', 'info', 'warn', 'error'], function (method) {
+      Temasys.Utils.forEach([
+        undefined, [1,2], [{ x: 1, y: 3}], [true, 'test'], [['1','2'],[0,1,true]]
+      ], function (args) {
+        output.push([method.toUpperCase(), 'string', args || []]);
+        _log[method]([componentId, 'test_' + method].concat(args || []));
+      });
+    });
+
+    var cachedLogs = Temasys.Debugger.getCachedLogs();
+
+    expect(cachedLogs, 'Correct length').to.have.lengthOf(output.length);
+
+    Temasys.Utils.forEach(cachedLogs, function (item, index) {
+      expect(item[1], item[0] + '(' + JSON.stringify(item[4]) + '): have correct componentId').to.equal(componentId);
+      assert.typeOf(typeof (new Date(item[2])).getTime(), 'number',
+        item[0] + '(' + JSON.stringify(item[4]) + '): have valid timestamp');
+      expect(output[index], item[0] + '(' + JSON.stringify(item[4]) + '): matches'
+        ).to.deep.equal([item[0], typeof item[3], item[4]]);
+    });
+
+    done();
+  });
+
+  // Test printed messages
+  it('_log -> Prints message format based on settings', function (done) {
+    var componentId = _log.configure(null, function () {});
+
+    Temasys.Debugger.setConfig({ level: Temasys.Debugger.LOG_LEVEL_ENUM.DEBUG });
+    Temasys.Utils.forEach([
+      ['test', ' - test'],
+      [[null, null, null, null, 'test'], ' - test'],
+      [['a', null, null, null, 'test'], 'a - test'],
+      [[null, 'a', null, null, 'test'], '[RID: a] - test'],
+      [[null, null, 'a', null, 'test'], '[PID: a] - test'],
+      [[null, null, null, 'a', 'test'], '[CID: a] - test'],
+      [['a', 'b', null, null, 'test'], 'a [RID: b] - test'],
+      [['a', 'b', 'c', null, 'test'], 'a [RID: a][PID: c] - test'],
+      [['a', 'b', 'c', 'd', 'test'], 'a [RID: a][PID: c][CID: d] - test']
+    ], function (item) {
+      var output = null;
+      console.debug = function () {
+        output = Array.prototype.slice.call(arguments)[0];
+      };
+      _log.debug(componentId, item[0]);
+      expect(output, JSON.stringify(item[0]) + ': matches string').to.equal(item[1]);
+    });
+
+    Temasys.Debugger.setConfig({ level: Temasys.Debugger.LOG_LEVEL_ENUM.DEBUG, printComponentId: true });
+    Temasys.Utils.forEach(['test', ['a', null, null, null, 'test']], function (item) {
+      var output = null;
+      console.debug = function () {
+        output = Array.prototype.slice.call(arguments)[0];
+      };
+      _log.debug(componentId, item);
+      expect(output, JSON.stringify(item) + ': component ID is printed').to.contain(' :: ' + componentId);
+    });
+
+    Temasys.Debugger.setConfig({ level: Temasys.Debugger.LOG_LEVEL_ENUM.DEBUG, printTimestamp: true });
+    Temasys.Utils.forEach(['test', ['a', null, null, null, 'test']], function (item) {
+      var output = null;
+      console.debug = function () {
+        output = Array.prototype.slice.call(arguments)[0];
+      };
+      _log.debug(componentId, item);
+      expect(output, JSON.stringify(item) + ': timestamp is printed').match(
+        /\|\ [0-9]{4}\-[0-9]{2}\-[0-9]{2}\T[0-9]{2}\:[0-9]{2}\:[0-9]{2}\.[0-9]{1,4}[A-Za-z]{1}\ /gi);
+    });
+
+    Temasys.Debugger.setConfig({ level: Temasys.Debugger.LOG_LEVEL_ENUM.DEBUG });
+    Temasys.Utils.forEach([undefined, [1, 2], [{x:1,y:2}], ['test'], [true, true], [[1,2], '1']], function (item) {
+      var output = null;
+      console.debug = function () {
+        output = Array.prototype.slice.call(arguments)[0];
+        output.shift();
+      };
+      _log.debug.apply(this, [componentId, 'test'].concat(item || []));
+      expect(output, JSON.stringify(item) + ': parameters are printed').to.deep.equal(item || []);
+    });
+
+    done();
+  });
+
+  // Test different component settings being used
+  it('_log -> Honors different component settings being used', function (done) {
+    var componentIdA = _log.configure(null, function () {});
+    var componentIdB = _log.configure(null, function () {});
+    var componentIdC = _log.configure(null, function () {});
+    var expectOutput = {
+      a: [0,0,0],
+      b: [0,0,0],
+      c: [0,0,0]
+    };
+    console.debug = function () {
+      if (Array.prototype.slice.call(arguments)[0].indexOf('a') > -1) {
+        expectOutput.a[0]++;
+      } else if (Array.prototype.slice.call(arguments)[0].indexOf('b') > -1) {
+        expectOutput.b[0]++;
+      } else {
+        expectOutput.c[0]++;
+      }
+    };
+    console.error = function () {
+      if (Array.prototype.slice.call(arguments)[0].indexOf('a') > -1) {
+        expectOutput.a[1]++;
+      } else if (Array.prototype.slice.call(arguments)[0].indexOf('b') > -1) {
+        expectOutput.b[1]++;
+      } else {
+        expectOutput.c[1]++;
+      }
+    };
+    console.info = function () {
+      if (Array.prototype.slice.call(arguments)[0].indexOf('a') > -1) {
+        expectOutput.a[2]++;
+      } else if (Array.prototype.slice.call(arguments)[0].indexOf('b') > -1) {
+        expectOutput.b[2]++;
+      } else {
+        expectOutput.c[2]++;
+      }
+    };
+
+    Temasys.Debugger.setConfig({ level: Temasys.Debugger.LOG_LEVEL_ENUM.ERROR }, componentIdA);
+    Temasys.Debugger.setConfig({ level: Temasys.Debugger.LOG_LEVEL_ENUM.INFO }, componentIdB);
+    Temasys.Debugger.setConfig({ level: Temasys.Debugger.LOG_LEVEL_ENUM.DEBUG });
+
+    _log.debug(componentIdA, 'a');
+    _log.debug(componentIdB, 'b');
+    _log.debug(componentIdC, 'c');
+    _log.error(componentIdA, 'a');
+    _log.error(componentIdB, 'b');
+    _log.error(componentIdC, 'c');
+    _log.info(componentIdA, 'a');
+    _log.info(componentIdB, 'b');
+    _log.info(componentIdC, 'c');
+
+    expect(expectOutput.a, 'A: Expected configuration').to.deep.equal([0,1,0]);
+    expect(expectOutput.b, 'B: Expected configuration').to.deep.equal([0,1,1]);
+    expect(expectOutput.c, 'C: Expected configuration').to.deep.equal([1,1,1]);
+
+    done();
+  });
+
+  // Test the stats tabulated
+  it('_log -> Tabulate stats', function (done) {
+    var componentIdB = _log.configure(null, function () {});
+    var componentIdC = _log.configure(null, function () {});
+    var statsCounter = {
+      total: { debug: 0, log: 0, info: 0, warn: 0, error: 0 },
+      components: {}
+    };
+    var fnPushStats = function (componentId, method) {
+      _log[method](componentId, 'test');
+      statsCounter[method]++;
+      statsCounter.components[componentId] = statsCounter.components[componentId] ||
+        { debug: 0, log: 0, info: 0, warn: 0, error: 0 };
+    };
+    var index = 0;
+
+    while (index < 5) {
+      var componentId = _log.configure(null, function () {});
+
+      _log.debug(componentId, 'test');
+      _log.debug(componentId, 'test');
+      _log.debug(componentId, 'test');
+      _log.debug(componentId, 'test');
+      _log.debug(componentId, 'test');
+    }
+
+    Temasys.Utils.forEach(['a','b','c'], function () {
+
+    })
+    var fnLog = function (method, args) {
+      _log[method].apply(this, [componentId].concat(args));
+      statsCounter.components[componentId][method]++;
+      statsCounter.total[method]++;
+    };
+
+    statsCounter.components[componentId] = { debug: 0, log: 0, info: 0, warn: 0, error: 0 };*/
+  })
+
+  /**
    * Tests the `LOG_LEVEL_ENUM` constant.
    */
   it('LOG_LEVEL_ENUM', function (done) {
-    assert.typeOf(Temasys.Debugger.LOG_LEVEL_ENUM, 'object', 'typeof');
+    assert.typeOf(Temasys.Debugger.LOG_LEVEL_ENUM, 'object', 'typeof is object');
     assert.isNotNull(Temasys.Debugger.LOG_LEVEL_ENUM, 'Is not null');
-    expect(Temasys.Debugger.LOG_LEVEL_ENUM).to.deep.equal({
-      DEBUG: 4,
-      LOG: 3,
-      INFO: 2,
-      WARN: 1,
-      ERROR: 0,
-      NONE: -1
+    
+    Temasys.Utils.forEach(Temasys.Debugger.LOG_LEVEL_ENUM, function (item, itemProp) {
+      assert.typeOf(item, 'number', itemProp + ': typeof is number');
     });
 
     done();
@@ -57,7 +360,7 @@ describe('Temasys.Debugger', function() {
 	/**
    * Tests the `setConfig()` and `getConfig()` method.
    */
-  it('setConfig() + getConfig()', function (done) {
+  it('setConfig(), getConfig()', function (done) {
     // Check the config settings
     var fnConfigTest = function (config, componentId) {
       var expectConfig = {

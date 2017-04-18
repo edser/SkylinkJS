@@ -102,11 +102,11 @@ describe('Temasys.Utils', function() {
 		it('createEventManager()', function (done) {
 			manager = Temasys.Utils.createEventManager();
 
-			assert.typeOf(manager.on, 'function', 'typeof on()');
-			assert.typeOf(manager.once, 'function', 'typeof once()');
-			assert.typeOf(manager.off, 'function', 'typeof off()');
-			assert.typeOf(manager.emit, 'function', 'typeof emit()');
-			assert.typeOf(manager.catchExceptions, 'function', 'typeof catchExceptions()');
+			assert.typeOf(manager.on, 'function', 'typeof .on is function');
+			assert.typeOf(manager.once, 'function', 'typeof .once is function');
+			assert.typeOf(manager.off, 'function', 'typeof .off is function');
+			assert.typeOf(manager.emit, 'function', 'typeof .emit is function');
+			assert.typeOf(manager.catchExceptions, 'function', 'typeof .catchExceptions is function');
 
 			done();
 		});
@@ -301,7 +301,7 @@ describe('Temasys.Utils', function() {
 	it('generateUUID()', function (done) {
 		var uuid = Temasys.Utils.generateUUID();
 
-		assert.typeOf(uuid, 'string', 'typeof');
+		assert.typeOf(uuid, 'string', 'return(): typeof is string');
 		expect(uuid, 'Matches RFC 4122').match(/^[0-9|a-z]{8}\-[0-9|a-z]{4}\-[0-9|a-z]{4}\-[0-9|a-z]{4}\-[0-9|a-z]{12}$/gi);
 
 		done();
