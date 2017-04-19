@@ -1,4 +1,4 @@
-/*! skylinkjs - v0.6.19 - Wed Apr 19 2017 20:35:02 GMT+0800 (SGT) */
+/*! skylinkjs - v0.6.19 - Wed Apr 19 2017 20:45:58 GMT+0800 (SGT) */
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.io = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
 
 /**
@@ -11591,7 +11591,7 @@ if (typeof window.require !== 'function') {
   AdapterJS.defineMediaSourcePolyfill();
 }
 
-/*! skylinkjs - v0.6.19 - Wed Apr 19 2017 20:35:02 GMT+0800 (SGT) */
+/*! skylinkjs - v0.6.19 - Wed Apr 19 2017 20:45:58 GMT+0800 (SGT) */
 (function (globals) {
 
   'use strict';
@@ -11612,8 +11612,6 @@ if (typeof window.require !== 'function') {
   /* jshint ignore:end */
 
   var Temasys = {};
-  // Global shared variables. See Temasys.Debugger.
-  var _log = null;
 
   /**
  * Handles the Peer Datachannel connection.
@@ -12287,6 +12285,8 @@ Temasys.Debugger = new (function () {
    * @param {String} return._index._2 The log item timestamp (in ISO-8601 format).
    * @param {String} return._index._3 The log item message.
    * @param {Array} [return._index._4] The log item meta data.
+   * @param {Number} return._index._5 The log item performance timestamp.
+   * - This is formed with `performance.now()` API.
    * @return {Array}
    * @example
    * // Example 1: Get cached logs for specific component and log level
@@ -12523,7 +12523,7 @@ Temasys.Debugger = new (function () {
     // Remove the first 2 arguments and leave the meta data
     args.splice(0, 2);
 
-    var logItem = [level, componentId, timestamp, message, args.concat([])];
+    var logItem = [level, componentId, timestamp, message, args.concat([]), performance.now()];
 
     if (useSettings.cacheLogs) {
       refLogs.push(logItem);

@@ -184,6 +184,7 @@ describe('Temasys.Debugger', function() {
         item[0] + '(' + JSON.stringify(item[4]) + '): have valid timestamp');
       expect(output[index], item[0] + '(' + JSON.stringify(item[4]) + '): matches'
         ).to.deep.equal([item[0], typeof item[3], item[4]]);
+      expect(item[5], item[0] + '(' + JSON.stringify(item[4]) + '): have valid performance timestamp').to.be.above(0);
     });
 
     done();

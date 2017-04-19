@@ -282,6 +282,8 @@ Temasys.Debugger = new (function () {
    * @param {String} return._index._2 The log item timestamp (in ISO-8601 format).
    * @param {String} return._index._3 The log item message.
    * @param {Array} [return._index._4] The log item meta data.
+   * @param {Number} return._index._5 The log item performance timestamp.
+   * - This is formed with `performance.now()` API.
    * @return {Array}
    * @example
    * // Example 1: Get cached logs for specific component and log level
@@ -518,7 +520,7 @@ Temasys.Debugger = new (function () {
     // Remove the first 2 arguments and leave the meta data
     args.splice(0, 2);
 
-    var logItem = [level, componentId, timestamp, message, args.concat([])];
+    var logItem = [level, componentId, timestamp, message, args.concat([]), performance.now()];
 
     if (useSettings.cacheLogs) {
       refLogs.push(logItem);
