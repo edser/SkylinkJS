@@ -51,6 +51,7 @@ describe('Temasys.Debugger', function() {
     assert.typeOf(_log.error, 'function', 'typeof .error is function');
     assert.typeOf(_log.configure, 'function', 'typeof .configure is function');
     assert.typeOf(_log.stat, 'function', 'typeof .stat is function');
+    assert.typeOf(_log.throw, 'function', 'typeof .throw is function');
 
     done();
   });
@@ -368,6 +369,8 @@ describe('Temasys.Debugger', function() {
       var error3 = new Error('test3');
       var error4 = new Error('test4');
       var error5 = new Error('test5');
+      var throwError1 = new Error('test6');
+      var throwError2 = new Error('test7');
 
       expect(function () {
         fnCatcher(componentId, error1);
@@ -376,18 +379,28 @@ describe('Temasys.Debugger', function() {
         statsCounter.total.exceptions.push(error2);
         statsCounter.components[componentId].exceptions.push(error1);
         statsCounter.components[componentId].exceptions.push(error2);
+        _log.throw(componentId, throwError1);
+        statsCounter.total.exceptions.push(throwError1);
+        statsCounter.components[componentId].exceptions.push(throwError1);
+
       }, index + ': catchExceptions(fn) should not throw errors').to.not.throw(Error);
 
       Temasys.Debugger.catchExceptions(null);
-
       assert.isNull(fnCatcher, index + ': catchExceptions(fn) is null');
+
       expect(function () {
         fnCatcher(componentId, error3);
         fnCatcher(componentId, error4);
         fnCatcher(componentId, error5);
-      }, index + ': catchExceptions() should throw errors').to.throw(Error);
+        _log.throw(componentId, throwError2);
+      }, index + ': catchExceptions() should throw errors on event handlers errors').to.throw(Error);
+
+      expect(function () {
+        _log.throw(componentId, throwError2);
+      }, index + ': catchExceptions() should throw errors on _log.throw()').to.throw(Error);
+
       expect(expectExceptions, index + ': trigger correct exceptions').to.deep.equal([
-        [error1, componentId], [error2, componentId]]);
+        [error1, componentId], [error2, componentId], [throwError1, componentId]]);
       expect(Temasys.Debugger.getStats(componentId), index + ': tabulate correct component stats'
         ).to.deep.equal(statsCounter.components[componentId]);
 
@@ -397,7 +410,7 @@ describe('Temasys.Debugger', function() {
     expect(Temasys.Debugger.getStats(), 'Tabulate correct total stats').to.deep.equal(statsCounter.total);
 
     done();
-  })
+  });
 
   /**
    * Tests the `LOG_LEVEL_ENUM` constant.

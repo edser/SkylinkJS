@@ -1,4 +1,4 @@
-(function (globals) {
+(function (_globals) {
 
   'use strict';
 
@@ -33,9 +33,9 @@
       }
     };
   } else {
-    globals.Skylink = Skylink;
-    globals.SkylinkLogs = SkylinkLogs;
-    globals.Temasys = {
+    _globals.Skylink = Skylink;
+    _globals.SkylinkLogs = SkylinkLogs;
+    _globals.Temasys = {
       Room: Room,
       Utils: Utils
     };

@@ -5,6 +5,7 @@ var should = chai.should;
 // Part of test
 var Temasys = {};
 var _log = null;
+var _globals = this;
 
 describe('Temasys.Utils', function() {
 	// Load the script first
@@ -326,6 +327,39 @@ describe('Temasys.Utils', function() {
 		], function (item, itemProp) {
 			expect(Temasys.Utils.extend.apply(this, item[0]), JSON.stringify(item[0]) + ': extends').to.deep.equal(item[1]);
 		});
+
+		done();
+	});
+
+	/**
+	 * Tests the `checkDependencies` method.
+	 */
+	it('checkDependencies()', function (done) {
+		var fnCheckSupports = function (name, expectCurrentResult) {
+			var result = Temasys.Utils.checkDependencies();
+			expect(result.current.adapterjs, name + ': current.adapterjs should not be defined').to.equal(expectCurrentResult.adapterjs);
+			expect(result.current.io, name + ': current.io to be true').to.equal(expectCurrentResult.io);
+			expect(result.current.xmlhttprequest, name + ': current.io to be true').to.equal(expectCurrentResult.xmlhttprequest);
+			assert.isDefined(result.recommended.adapterjs, name + ': recommended.adapterjs to be defined');
+			assert.typeOf(result.recommended.adapterjs, 'string', name + ': recommended.adapterjs typeof string');
+			assert.isDefined(result.recommended.io, name + ': recommended.io to be defined');
+			assert.typeOf(result.recommended.io, 'string', name + ': recommended.io typeof string');
+		};
+
+		window._AdapterJS = window.AdapterJS;
+		window.AdapterJS = null;
+		fnCheckSupports('Missing AdapterJS', { adapterjs: null, io: true, xmlhttprequest: true });
+		window.AdapterJS = window._AdapterJS;
+
+		window._io = window.io;
+		window.io = null;
+		fnCheckSupports('Missing socket.io-client', { adapterjs: window.AdapterJS.VERSION, io: false, xmlhttprequest: true });
+		window.io = window._io;
+
+		window._XMLHttpRequest = window.XMLHttpRequest;
+		window.XMLHttpRequest = null;
+		fnCheckSupports('Missing XMLHttpRequest', { adapterjs: window.AdapterJS.VERSION, io: true, xmlhttprequest: false });
+		window.XMLHttpRequest = window._XMLHttpRequest;
 
 		done();
 	});

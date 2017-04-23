@@ -1,4 +1,4 @@
-/*! skylinkjs - v0.6.19 - Wed Apr 19 2017 20:45:58 GMT+0800 (SGT) */
+/*! skylinkjs - v0.6.19 - Mon Apr 24 2017 00:52:31 GMT+0800 (SGT) */
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.io = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
 
 /**
@@ -11591,8 +11591,8 @@ if (typeof window.require !== 'function') {
   AdapterJS.defineMediaSourcePolyfill();
 }
 
-/*! skylinkjs - v0.6.19 - Wed Apr 19 2017 20:45:58 GMT+0800 (SGT) */
-(function (globals) {
+/*! skylinkjs - v0.6.19 - Mon Apr 24 2017 00:52:31 GMT+0800 (SGT) */
+(function (_globals) {
 
   'use strict';
 
@@ -12031,6 +12031,7 @@ Temasys.Debugger = new (function () {
    * @since 0.7.0
    */
   ref.LOG_LEVEL_ENUM = {
+    // Brought over values from Skylink object LOG_LEVEL
     NONE: -1,
     ERROR: 0,
     WARN: 1,
@@ -12079,11 +12080,11 @@ Temasys.Debugger = new (function () {
    *   configuration to use the global configuration.
    * @param {Number} [options.level] The log level.
    * - When not provided, the value is set to `LOG_LEVEL_ENUM.ERROR`.
-   * - This references the @(link=Temasys.Debugger:LOG_LEVEL_ENUM:constant).
+   * - This references the `LOG_LEVEL_ENUM` constant.
    * @param {Boolean} [options.traceLogs=false] The flag if Web console logs should be traced.
    * - This uses the `console.trace` function when available.
    * @param {Boolean} [options.cacheLogs=false] The flag if Web console logs should be cached for
-   *   fetching in @(link=Temasys.Debugger:getCachedLogs:method).
+   *   fetching in `getCachedLogs()` method.
    * @param {Boolean} [options.printTimestamp=false] The flag if timestamps (ISO-8601) should be
    *   printed on Web console logs.
    * @param {Boolean} [options.printComponentId=false] The flag if component ID should be
@@ -12148,7 +12149,7 @@ Temasys.Debugger = new (function () {
    * @param {String} [componentId] The component ID.
    * - When provided, it returns the configuration only for the specific component.
    * @param {JSON} return The configured options.
-   * - Object signature matches the `options` parameter in @(link=Temasys.Debugger:setConfig:method).
+   * - Object signature matches the `options` parameter in `setConfig()` method.
    * @return {JSON}
    * @example
    * // Example 1: Get global configuration
@@ -12183,8 +12184,7 @@ Temasys.Debugger = new (function () {
    * @param {Number} return.warn The total number of "warn" logs received.
    * @param {Number} return.error The total number of "error" logs received.
    * @param {Array} return.exceptions The total exceptions caught.
-   * - Note that for tabulation for this, it this requires
-   *   @(link=Temasys.Debugger:catchExceptions:method) to be configured.
+   * - Note that for tabulation for this, it this requires `catchExceptions()` to be configured.
    * - Each array item is an `Error` object.
    * @return {JSON}
    * @example
@@ -12222,7 +12222,7 @@ Temasys.Debugger = new (function () {
    * @param {Function} [fn] The callback function.
    * - When not provided as `Function`, it unsubscribes any existing configured callback function.
    * @param {Array} fn.log The log item.
-   * - Object signature matches the returned log item in @(link=Temasys.Debugger:logs:method).
+   * - Object signature matches the returned log item in `getCachedLogs()` method.
    * @param {String} fn.componentId The component ID.
    * @example
    * // Example 1: Watch for logs
@@ -12276,11 +12276,11 @@ Temasys.Debugger = new (function () {
    * - When provided, this may cause performance issues when cached logs size is huge.
    * @param {String} [options.componentId] The component ID of logs to return only.
    * @param {Number} [options.level] The specific level of logs to return only.
-   * - This references the @(link=Temasys.Debugger:LOG_LEVEL_ENUM:constant).
+   * - This references the `LOG_LEVEL_ENUM` constant.
    * @param {Array} return The array of log items.
    * @param {Array} return._index The log item.
    * @param {String} return._index._0 The log item level property key.
-   * - This references the @(link=Temasys.Debugger:LOG_LEVEL_ENUM:constant).
+   * - This references the `LOG_LEVEL_ENUM` constant.
    * @param {String} return._index._1 The log item component ID.
    * @param {String} return._index._2 The log item timestamp (in ISO-8601 format).
    * @param {String} return._index._3 The log item message.
@@ -12329,7 +12329,7 @@ Temasys.Debugger = new (function () {
    * - When `options.componentId` and `options.level` is not provided, it clears all the cached logs.
    * @param {String} [options.componentId] The component ID of logs to clear only.
    * @param {Number} [options.level] The specific level of logs to clear only.
-   * - This references the @(link=Temasys.Debugger:LOG_LEVEL_ENUM:constant).
+   * - This references the `LOG_LEVEL_ENUM` constant.
    * @example
    * // Example 1: Clear cached logs for specific component and log level
    * Temasys.Debugger.clearCachedLogs({
@@ -12367,7 +12367,7 @@ Temasys.Debugger = new (function () {
    * @param {JSON} [options] The options.
    * @param {String} [options.componentId] The component ID of logs to print only.
    * @param {Number} [options.level] The specific level of logs to print only.
-   * - This references the @(link=Temasys.Debugger:LOG_LEVEL_ENUM:constant).
+   * - This references the `LOG_LEVEL_ENUM` constant.
    * @example
    * // Example 1: Print cached logs for specific component and log level
    * Temasys.Debugger.printCachedLogs({
@@ -12490,6 +12490,17 @@ Temasys.Debugger = new (function () {
        * Function to push stats to API.
        */
       stat: function (appKey, roomId, peerId, type, data) {
+      },
+
+      /**
+       * Function to catch custom errors to be thrown. 
+       */
+      throw: function (componentId, error) {
+        if (typeof ref._listeners.catch === 'function') {
+          ref._listeners.catch(componentId, error);
+        } else {
+          throw error;
+        }
       }
     }
   })(function (level, args) {
@@ -13651,10 +13662,254 @@ Peer.prototype.send = function (message, isP2P, fn) {
  * @param {String} options.appKey The App key ID.
  * @param {String} [options.name] The Room name in App space.
  * - When not provided, the value of the App key ID is used.
+ * @param {Number} [options.initTimeout=1000] The timeout to wait before `Temasys.Room.init()` method
+ *   should be invoked when `Temasys.Room` object is constructed.
+ * - When provided as `-1`, the `Temasys.Room.init()` method will not be invoked, and the method has
+ *   to be invoked first by app first before invoking `Temasys.Room.connect()` method.
+ * @param {Boolean} [options.requireWebRTC=true] The flag if client requires WebRTC to be supported in
+ *   order to start a Room connection session.
+ * @param {String} [componentId] The unique component ID to use for `Temasys.Debugger` module or as
+ *   for object identification.
+ * - Please ensure that this value is unique from other class objects.
  * @constructor
+ * @example
+ * // Example 1: Create a Room object
+ * var room = new Temasys.Room({
+ *   appKey: myAppKey
+ * });
+ * room.on("initStateChange", function (state) {
+ *   console.log("init() state ->", state);
+ * });
+ * 
+ * // Example 2: Create a Room object but invoke `init()` manually.
+ * var room = new Temasys.Room({
+ *   appKey: myAppKey,
+ *   initTimeout: -1
+ * });
+ * room.on("initStateChange", function (state) {
+ *   console.log("init() state ->", state);
+ * });
+ * room.init();
  * @since 0.7.0
  */
-Temasys.Room = function (options) {
+Temasys.Room = function (options, componentId) {
+  var ref = this;
+  // The event manager
+  ref._eventManager = Temasys.Utils.createEventManager();
+  // The component ID.
+  ref._componentId = Temasys.Debugger(componentId || null, function (fn) {
+    ref._eventManager.catch(fn);
+  });
+  // The session received from API server.
+  ref._session = {};
+  // The user information
+  ref._user = {};
+  // The peers
+  ref._peers = {};
+  // The config set.
+  ref._config = {
+    appKey: null,
+    name: null,
+    requireWebRTC: options && typeof options === 'object' && options.requireWebRTC !== false
+  };
+  // The supports.
+  ref._supports = {};
+  // The current states.
+  ref._states = {};
+
+  if (!(options && typeof options === 'object' && options.appKey && typeof options.appKey === 'string')) {
+    return _log.throw(ref._componentId, new Error('Temasys.Room: options.appKey is not provided when required'));
+  }
+
+  ref._config.appKey = options.appKey;
+  ref._config.name = options.name && typeof options.name === 'string' ? options.name : options.appKey;
+
+  /**
+   * Function to subscribe a callback function to an event once.
+   * - Parameters follows `.once()` method in returned object of `Temasys.Utils.createEventManager()` method.
+   * @method once
+   * @for Temasys.Room
+   * @since 0.7.0
+   */
+  ref.once = ref._eventManager.once;
+
+  /**
+   * Function to subscribe a callback function to an event.
+   * - Parameters follows `.on()` method in returned object of `Temasys.Utils.createEventManager()` method.
+   * @method on
+   * @for Temasys.Room
+   * @since 0.7.0
+   */
+  ref.on = ref._eventManager.on;
+
+  /**
+   * Function to unsubscribe a callback function to an event.
+   * - Parameters follows `.off()` method in returned object of `Temasys.Utils.createEventManager()` method.
+   * @method off
+   * @for Temasys.Room
+   * @since 0.7.0
+   */
+  ref.off = ref._eventManager.off;
+
+  if (!(typeof options.initTimeout === 'number' && options.initTimeout === -1)) {
+    setTimeout(function () {
+      ref.init();
+    }, typeof options.initTimeout === 'number' ? options.initTimeout : 1000);
+  }
+
+  /**
+   * Event triggered when invoked `init()` method state has changed.
+   * @event initStateChange
+   * @param {Number} state The current state.
+   * - This references the `INIT_STATE_ENUM` constant.
+   * @param {JSON} [error] The error result.
+   * - This is only defined when `state` is `INIT_STATE_ENUM.ERROR`.
+   * @param {Error} [error.error] The error object.
+   * @param {Number} [error.code] The error code.
+   * - This references the `INIT_ERROR_CODE_ENUM` constant.
+   * @for Temasys.Room
+   * @since 0.7.0
+   */
+};
+
+/**
+ * The enum of invoked `init()` method states.
+ * @attribute INIT_STATE_ENUM
+ * @param {Number} LOADING The state when starting dependencies and supports requirements checks.
+ * @param {Number} COMPLETED The state when dependencies and supports requirements have been checked and initialised.
+ * @param {Number} ERROR The state when required dependencies or supports is missing, or initialisation has errors.
+ * @type JSON
+ * @readOnly
+ * @final
+ * @for Temasys.Room
+ * @since 0.7.0
+ */
+Temasys.Room.prototype.SESSION_STATE_ENUM = {
+  // Brought over values from Skylink object READY_STATE_CHANGE
+  LOADING: 0,
+  COMPLETED: 1,
+  ERROR: -1
+};
+
+/**
+ * The enum of Room dependency initialising error codes.
+ * @attribute INIT_ERROR_CODE_ENUM
+ * @param {Number} MISSING_SOCKETIO The error code when required socket.io-client dependency is not loaded.
+ * @param {Number} MISSING_ADAPTERJS The error code when required AdapterJS dependency is not loaded.
+ * @param {Number} XMLHTTPREQUEST_NOT_AVAILABLE The error code when XMLHttpRequest (or
+ *   XDomainRequest for IE 8-9) API is not available when required.
+ * @param {Number} WEBRTC_NOT_AVAILABLE The error code when WebRTC is not supported for browser or device.
+ * - This state should only happen if `options.requireWebRTC` is enabled when constructing `Temasys.Room` object.
+ * @param {Number} PLUGIN_NOT_AVAILABLE The error code when WebRTC plugin is not available
+ *   (or inactive) when required.
+ * - This state should only happen if `options.requireWebRTC` is enabled when constructing `Temasys.Room` object.
+ * @param {Number} PARSE_SUPPORTS_ERROR The error code when retrieving of WebRTC supports fails
+ *   hence initialisation fails.
+ * - This state should only happen if `options.requireWebRTC` is enabled when constructing `Temasys.Room` object.
+ * @param {Number} WEBRTC_MIN_SUPPORTS_ERROR The error code when browser version is lower than required
+ *   minimum support.
+ * - This state should only happen if `options.requireWebRTC` is enabled when constructing `Temasys.Room` object.
+ * @type JSON
+ * @readOnly
+ * @final
+ * @for Temasys.Room
+ * @since 0.7.0
+ */
+Temasys.Room.prototype.INIT_ERROR_CODE_ENUM = {
+  // Brought over values from Skylink object READY_STATE_CHANGE_ERROR
+  NO_SOCKET_IO: 1,
+  NO_XMLHTTPREQUEST_SUPPORT: 2,
+  NO_WEBRTC_SUPPORT: 3,
+  PLUGIN_NOT_AVAILABLE: 4,
+  ADAPTER_NO_LOADED: 7,
+  PARSE_CODECS: 8,
+  WEBRTC_MIN_SUPPORTS_ERROR: 9
+};
+
+/**
+ * Function to initialise dependencies and check for supports.
+ * @method init
+ * @param {Promise} return The promise for request completion.
+ * @return {Promise}
+ * @for Temasys.Room
+ * @since 0.7.0
+ */
+Temasys.Room.prototype.init = function () {
+  var ref = this;
+
+  var fnEmitInitState = function (state, error) {
+    log.debug(['Room', ref._config.name, null, null, 'Init state ->'], state, error || null);
+    ref._states.init = state;
+    ref._eventManager.emit('initStateChange', state, error || null);
+    return error || null;
+  };
+
+  ref._supports = {
+    webrtc: false,
+    codecs: {
+      audio: {},
+      video: {}
+    }
+  };
+
+  return new Promise(function (resolve, reject) {
+    // Check for socket.io-client supports
+    if (!(_globals.io || window.io)) {
+      return reject(fnEmitInitState(ref.INIT_STATE_ENUM.ERROR, {
+        error: new Error('init(): socket.io-client dependency is not loaded'),
+        code: ref.INIT_ERROR_CODE_ENUM.MISSING_SOCKETIO
+      }));
+    }
+
+    // Check for AdapterJS supports
+    if (!(_globals.AdapterJS || window.AdapterJS)) {
+      return reject(fnEmitInitState(ref.INIT_STATE_ENUM.ERROR, {
+        error: new Error('init(): AdapterJS dependency is not loaded'),
+        code: ref.INIT_ERROR_CODE_ENUM.MISSING_ADAPTERJS
+      }));
+    }
+
+    // Check for XMLHttpRequest API supports
+    if (!(window.webrtcDetectedBrowser === 'IE' && [8,9].indexOf(window.webrtcDetectedVersion) > -1 ?
+      ['object', 'function'].indexOf(typeof window.XDomainRequest) > -1 :
+      typeof window.XMLHttpRequest === 'function')) {
+      return reject(fnEmitInitState(ref.INIT_STATE_ENUM.ERROR, {
+        error: new Error('init(): XMLHttpRequest (or XDomainRequest for IE 8-9) API is not available'),
+        code: ref.INIT_ERROR_CODE_ENUM.XMLHTTPREQUEST_NOT_AVAILABLE
+      }));
+    }
+
+    (_globals.AdapterJS || window.AdapterJS).webRTCReady(function () {
+      if (!window.RTCPeerConnection && ref._config.requireWebRTC) {
+        return reject(fnEmitInitState(ref.INIT_STATE_ENUM.ERROR, {
+          error: new Error('init(): WebRTC is not supported or available when requested'),
+          code: ref.INIT_ERROR_CODE_ENUM.WEBRTC_NOT_AVAILABLE
+        }));
+      }
+
+      if (window.RTCPeerConnection) {
+        // Check if plugin is active and available
+        if (['IE', 'safari'].indexOf(window.webrtcDetectedBrowser) > -1) {
+          try {
+            var pc = new window.RTCPeerConnection(null);
+            // IE returns as typeof object
+            ref._supports.webrtc = pc.createOffer !== null &&
+              ['object', 'function'].indexOf(typeof pc.createOffer) > -1;
+
+            if (ref._config.requireWebRTC) {
+              return reject(fnEmitInitState(ref.INIT_STATE_ENUM.ERROR, {
+                error: new Error('init(): WebRTC plugin is not available or active'),
+                code: ref.INIT_ERROR_CODE_ENUM.PLUGIN_NOT_AVAILABLE
+              }));
+            }
+          } catch (e) {}
+        }
+      }
+
+
+    });
+  });
+};
 
   /**
    * The Room ID.
@@ -13984,48 +14239,7 @@ Temasys.Room.prototype.SM_PROTOCOL_VERSION = '0.1.2.3';
  */
 Room.prototype.DT_PROTOCOL_VERSION = '0.1.3';
 
-/**
- * The enum of Room dependency initialising states.
- * @attribute INIT_STATE_ENUM
- * @param {Number} LOADING The state when Room is initialising.
- * @param {Number} COMPLETED The state when Room has initialised.
- * @param {Number} ERROR The state when Room failed to initialise.
- * @type JSON
- * @readOnly
- * @final
- * @for Room
- * @since 0.7.0
- */
-Room.prototype.INIT_STATE_ENUM = {
-  LOADING: 0,
-  COMPLETED: 1,
-  ERROR: -1
-};
 
-/**
- * The enum of Room dependency initialising error codes.
- * @attribute INIT_ERROR_CODE_ENUM
- * @param {Number} NO_SOCKET_IO The error code when the required socket.io-client dependency is not loaded.
- * @param {Number} ADAPTER_NO_LOADED The error code when the required AdapterJS dependency is not loaded.
- * @param {Number} NO_XMLHTTPREQUEST_SUPPORT The error code when XMLHttpRequest or XDomainRequest API is not supported.
- * @param {Number} PLUGIN_NOT_AVAILABLE The error code when WebRTC plugin is not active.
- * @param {Number} NO_WEBRTC_SUPPORT The error code when WebRTC is not supported for browser or device.
- * @param {Number} PARSE_CODECS The error code when parsing of WebRTC supports fails.
- * @type JSON
- * @readOnly
- * @final
- * @for Room
- * @since 0.7.0
- */
-Room.prototype.INIT_ERROR_CODE_ENUM = {
-  NO_SOCKET_IO: 1,
-  NO_XMLHTTPREQUEST_SUPPORT: 2,
-  NO_WEBRTC_SUPPORT: 3,
-  PLUGIN_NOT_AVAILABLE: 4,
-  //NO_PATH: 4,
-  ADAPTER_NO_LOADED: 7,
-  PARSE_CODECS: 8
-};
 
 /**
  * The enum of Room authentication states, in which is used to validate the App Key ID before starting a session.
@@ -16010,8 +16224,182 @@ Temasys.Utils = {
       d = Math.floor(d / 16);
       return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
     });
-  }
+  },
   /* jshint ignore:end */
+
+  /**
+   * Function that checks if the required dependencies or API is loaded.
+   * @method checkDependencies
+   * @param {JSON} return The result.
+   * @param {JSON} return.current The current supports.
+   * @param {String} [return.current.adapterjs] The AdapterJS dependency version.
+   * - When AdapterJS dependency is not loaded, the value returned is `null`.
+   * - Note that only `0.13.0` versions and above will be detected.
+   * @param {Boolean} [return.current.io] The flag if socket.io-client dependency is loaded.
+   * @param {Boolean} [return.current.xmlhttprequest] The flag if XMLHttpRequest API is available.
+   * @param {JSON} return.recommended The recommended dependencies versions.
+   * @param {String} return.recommended.adapterjs The recommended AdapterJS dependency version.
+   * @param {String} return.recommended.io The recommended socket.io-client dependency version.
+   * @return {JSON}
+   * @example
+   * // Example: Get the current dependencies and recommended versions
+   * var result = Temasys.Utils.checkDependencies();
+   * console.log("Current ->", result.current);
+   * console.log("Recommended ->", result.recommended);
+   * @for Temasys.Utils
+   * @since 0.7.0
+   */
+  checkDependencies: function () {
+    return {
+      current: {
+        adapterjs: _globals.AdapterJS && typeof _globals.AdapterJS === 'object' &&
+          typeof _globals.AdapterJS.webRTCReady === 'function' ? _globals.AdapterJS.VERSION :
+          (window.AdapterJS && typeof window.AdapterJS === 'object' &&
+          typeof window.AdapterJS.webRTCReady === 'function' ? window.AdapterJS.VERSION : null),
+        io: !!((_globals.io && typeof _globals.io === 'function') || (window.io && typeof window.io === 'function')),
+        xmlhttprequest: typeof window.XMLHttpRequest === 'function'
+      },
+      recommended: {
+        adapterjs: '@@adapterjsVersion',
+        io: '@@socketIoVersion'
+      }
+    };
+  },
+
+  /**
+   * Function that gets the client browser supports.
+   * @method getBrowserSupports
+   * @param {Promise} return The Promise for the request result.
+   * @param {Function} return.then Function to subscribe to when request result is successful.
+   * @param {Function} return.then.fn The callback function.
+   * @param {JSON} return.then.fn.supports The supports.
+   * @param {Boolean} 
+   * @param {Function} return.catch Function to subscribe to when request result had failed.
+   * @param {Function} return.catch.fn The callback function.
+   * @param {Error} return.catch.fn.error The error object.
+   * @example
+   * // Example: Get the supports
+   * Temasys.Utils.getBrowserSupports().then(function (supports) {
+   *   console.log("Browser supports ->", supports);
+   * }).catch(function (error) {
+   *   console.log("Browser supports retrieval error ->", error);
+   * });
+   * @for Temasys.Utils
+   * @since 0.7.0
+   */
+  getBrowserSupports: function () {
+    /*return new Promise(function (resolve, reject) {
+      if (!Temasys.Utils.checkDependencies().current.adapterjs) {
+        return reject(new Error('Unable to retrieve WebRTC supports as AdapterJS dependency is not loaded'));
+      }
+
+      (_globals.AdapterJS || window.AdapterJS).webRTCReady(function () {
+        var result = {
+          current: {},
+          recommended: {}
+        };
+
+        // Set the browser information
+        result.current.browser = {
+          name: window.webrtcDetectedBrowser,
+          version: (window.webrtcDetectedVersion || 0).toString(),
+          platform: navigator.platform,
+          mobilePlatformVersion: null
+        };
+
+        // Set the WebRTC plugin information later..
+        result.current.webrtcPlugin = {
+          required: false,
+          active: false,
+          version: null,
+          company: null,
+          expirationDate: null,
+          screensharing: false
+        };
+
+        
+
+          current: {
+            browser: {
+              
+            },
+            webrtcPlugin: {
+              
+            },
+            supports: {
+              webrtc: {
+                connection: false,
+                datachannel: window.webrtcDetectedBrowser !== 'edge',
+                iceRestart: !((window.webrtcDetectedBrowser === 'firefox' && window.webrtcDetectedVersion < 48) ||
+                  window.webrtcDetectedBrowser === 'edge'),
+                screensharing: ['chrome', 'firefox'].indexOf(window.webrtcDetectedBrowser) > -1,
+                maxBandwidth: !((window.webrtcDetectedBrowser === 'firefox' && window.webrtcDetectedVersion < 49) ||
+                  window.webrtcDetectedBrowser === 'edge'),
+                turns: ['IE', 'safari', 'chrome', 'opera'].indexOf(window.webrtcDetectedBrowser) > -1,
+                codecs: {
+                  send: { audio: {}, video: {} },
+                  recv: { audio: {}, video: {} }
+                }
+              },
+              corsRequest: window.webrtcDetectedBrowser === 'IE' && [8,9].indexOf(window.webrtcDetectedVersion) > -1 ?
+                ['object', 'function'].indexOf(typeof window.XDomainRequest) > -1 :
+                typeof window.XMLHttpRequest === 'function'
+            }
+          },
+          requirements: {
+            browsers: {
+              chrome: {
+                minVersion: '52',
+                maxVersion: null,
+                minMobilePlatformVersion: null,
+                maxMobilePlatformVersion: null
+              },
+              firefox: {
+                minVersion: '48',
+                maxVersion: null,
+                minMobilePlatformVersion: null,
+                maxMobilePlatformVersion: null
+              },
+              opera: {
+                minVersion: '38',
+                maxVersion: null,
+                minMobilePlatformVersion: null,
+                maxMobilePlatformVersion: null
+              },
+              IE: {
+                minVersion: '9',
+                maxVersion: null,
+                minMobilePlatformVersion: null,
+                maxMobilePlatformVersion: null
+              },
+              safari: {
+                minVersion: '7',
+                maxVersion: null,
+                minMobilePlatformVersion: null,
+                maxMobilePlatformVersion: null
+              },
+              edge: {
+                minVersion: '14.14352',
+                maxVersion: null,
+                minMobilePlatformVersion: null,
+                maxMobilePlatformVersion: null
+              },
+              bowser: {
+                minVersion: '0.6.1',
+                maxVersion: null,
+                minMobilePlatformVersion: null,
+                maxMobilePlatformVersion: '0.9'
+              }
+            },
+            webrtcPlugin: {
+              minVersion: '0.8.869',
+              maxVersion: null
+            }
+          }
+        }
+      });
+    });*/
+  }
 };
   
   
@@ -16026,9 +16414,9 @@ Temasys.Utils = {
       }
     };
   } else {
-    globals.Skylink = Skylink;
-    globals.SkylinkLogs = SkylinkLogs;
-    globals.Temasys = {
+    _globals.Skylink = Skylink;
+    _globals.SkylinkLogs = SkylinkLogs;
+    _globals.Temasys = {
       Room: Room,
       Utils: Utils
     };

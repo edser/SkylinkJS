@@ -5,10 +5,254 @@
  * @param {String} options.appKey The App key ID.
  * @param {String} [options.name] The Room name in App space.
  * - When not provided, the value of the App key ID is used.
+ * @param {Number} [options.initTimeout=1000] The timeout to wait before `Temasys.Room.init()` method
+ *   should be invoked when `Temasys.Room` object is constructed.
+ * - When provided as `-1`, the `Temasys.Room.init()` method will not be invoked, and the method has
+ *   to be invoked first by app first before invoking `Temasys.Room.connect()` method.
+ * @param {Boolean} [options.requireWebRTC=true] The flag if client requires WebRTC to be supported in
+ *   order to start a Room connection session.
+ * @param {String} [componentId] The unique component ID to use for `Temasys.Debugger` module or as
+ *   for object identification.
+ * - Please ensure that this value is unique from other class objects.
  * @constructor
+ * @example
+ * // Example 1: Create a Room object
+ * var room = new Temasys.Room({
+ *   appKey: myAppKey
+ * });
+ * room.on("initStateChange", function (state) {
+ *   console.log("init() state ->", state);
+ * });
+ * 
+ * // Example 2: Create a Room object but invoke `init()` manually.
+ * var room = new Temasys.Room({
+ *   appKey: myAppKey,
+ *   initTimeout: -1
+ * });
+ * room.on("initStateChange", function (state) {
+ *   console.log("init() state ->", state);
+ * });
+ * room.init();
  * @since 0.7.0
  */
-Temasys.Room = function (options) {
+Temasys.Room = function (options, componentId) {
+  var ref = this;
+  // The event manager
+  ref._eventManager = Temasys.Utils.createEventManager();
+  // The component ID.
+  ref._componentId = Temasys.Debugger(componentId || null, function (fn) {
+    ref._eventManager.catch(fn);
+  });
+  // The session received from API server.
+  ref._session = {};
+  // The user information
+  ref._user = {};
+  // The peers
+  ref._peers = {};
+  // The config set.
+  ref._config = {
+    appKey: null,
+    name: null,
+    requireWebRTC: options && typeof options === 'object' && options.requireWebRTC !== false
+  };
+  // The supports.
+  ref._supports = {};
+  // The current states.
+  ref._states = {};
+
+  if (!(options && typeof options === 'object' && options.appKey && typeof options.appKey === 'string')) {
+    return _log.throw(ref._componentId, new Error('Temasys.Room: options.appKey is not provided when required'));
+  }
+
+  ref._config.appKey = options.appKey;
+  ref._config.name = options.name && typeof options.name === 'string' ? options.name : options.appKey;
+
+  /**
+   * Function to subscribe a callback function to an event once.
+   * - Parameters follows `.once()` method in returned object of `Temasys.Utils.createEventManager()` method.
+   * @method once
+   * @for Temasys.Room
+   * @since 0.7.0
+   */
+  ref.once = ref._eventManager.once;
+
+  /**
+   * Function to subscribe a callback function to an event.
+   * - Parameters follows `.on()` method in returned object of `Temasys.Utils.createEventManager()` method.
+   * @method on
+   * @for Temasys.Room
+   * @since 0.7.0
+   */
+  ref.on = ref._eventManager.on;
+
+  /**
+   * Function to unsubscribe a callback function to an event.
+   * - Parameters follows `.off()` method in returned object of `Temasys.Utils.createEventManager()` method.
+   * @method off
+   * @for Temasys.Room
+   * @since 0.7.0
+   */
+  ref.off = ref._eventManager.off;
+
+  if (!(typeof options.initTimeout === 'number' && options.initTimeout === -1)) {
+    setTimeout(function () {
+      ref.init();
+    }, typeof options.initTimeout === 'number' ? options.initTimeout : 1000);
+  }
+
+  /**
+   * Event triggered when invoked `init()` method state has changed.
+   * @event initStateChange
+   * @param {Number} state The current state.
+   * - This references the `INIT_STATE_ENUM` constant.
+   * @param {JSON} [error] The error result.
+   * - This is only defined when `state` is `INIT_STATE_ENUM.ERROR`.
+   * @param {Error} [error.error] The error object.
+   * @param {Number} [error.code] The error code.
+   * - This references the `INIT_ERROR_CODE_ENUM` constant.
+   * @for Temasys.Room
+   * @since 0.7.0
+   */
+};
+
+/**
+ * The enum of invoked `init()` method states.
+ * @attribute INIT_STATE_ENUM
+ * @param {Number} LOADING The state when starting dependencies and supports requirements checks.
+ * @param {Number} COMPLETED The state when dependencies and supports requirements have been checked and initialised.
+ * @param {Number} ERROR The state when required dependencies or supports is missing, or initialisation has errors.
+ * @type JSON
+ * @readOnly
+ * @final
+ * @for Temasys.Room
+ * @since 0.7.0
+ */
+Temasys.Room.prototype.SESSION_STATE_ENUM = {
+  // Brought over values from Skylink object READY_STATE_CHANGE
+  LOADING: 0,
+  COMPLETED: 1,
+  ERROR: -1
+};
+
+/**
+ * The enum of Room dependency initialising error codes.
+ * @attribute INIT_ERROR_CODE_ENUM
+ * @param {Number} MISSING_SOCKETIO The error code when required socket.io-client dependency is not loaded.
+ * @param {Number} MISSING_ADAPTERJS The error code when required AdapterJS dependency is not loaded.
+ * @param {Number} XMLHTTPREQUEST_NOT_AVAILABLE The error code when XMLHttpRequest (or
+ *   XDomainRequest for IE 8-9) API is not available when required.
+ * @param {Number} WEBRTC_NOT_AVAILABLE The error code when WebRTC is not supported for browser or device.
+ * - This state should only happen if `options.requireWebRTC` is enabled when constructing `Temasys.Room` object.
+ * @param {Number} PLUGIN_NOT_AVAILABLE The error code when WebRTC plugin is not available
+ *   (or inactive) when required.
+ * - This state should only happen if `options.requireWebRTC` is enabled when constructing `Temasys.Room` object.
+ * @param {Number} PARSE_SUPPORTS_ERROR The error code when retrieving of WebRTC supports fails
+ *   hence initialisation fails.
+ * - This state should only happen if `options.requireWebRTC` is enabled when constructing `Temasys.Room` object.
+ * @param {Number} WEBRTC_MIN_SUPPORTS_ERROR The error code when browser version is lower than required
+ *   minimum support.
+ * - This state should only happen if `options.requireWebRTC` is enabled when constructing `Temasys.Room` object.
+ * @type JSON
+ * @readOnly
+ * @final
+ * @for Temasys.Room
+ * @since 0.7.0
+ */
+Temasys.Room.prototype.INIT_ERROR_CODE_ENUM = {
+  // Brought over values from Skylink object READY_STATE_CHANGE_ERROR
+  NO_SOCKET_IO: 1,
+  NO_XMLHTTPREQUEST_SUPPORT: 2,
+  NO_WEBRTC_SUPPORT: 3,
+  PLUGIN_NOT_AVAILABLE: 4,
+  ADAPTER_NO_LOADED: 7,
+  PARSE_CODECS: 8,
+  WEBRTC_MIN_SUPPORTS_ERROR: 9
+};
+
+/**
+ * Function to initialise dependencies and check for supports.
+ * @method init
+ * @param {Promise} return The promise for request completion.
+ * @return {Promise}
+ * @for Temasys.Room
+ * @since 0.7.0
+ */
+Temasys.Room.prototype.init = function () {
+  var ref = this;
+
+  var fnEmitInitState = function (state, error) {
+    log.debug(['Room', ref._config.name, null, null, 'Init state ->'], state, error || null);
+    ref._states.init = state;
+    ref._eventManager.emit('initStateChange', state, error || null);
+    return error || null;
+  };
+
+  ref._supports = {
+    webrtc: false,
+    codecs: {
+      audio: {},
+      video: {}
+    }
+  };
+
+  return new Promise(function (resolve, reject) {
+    // Check for socket.io-client supports
+    if (!(_globals.io || window.io)) {
+      return reject(fnEmitInitState(ref.INIT_STATE_ENUM.ERROR, {
+        error: new Error('init(): socket.io-client dependency is not loaded'),
+        code: ref.INIT_ERROR_CODE_ENUM.MISSING_SOCKETIO
+      }));
+    }
+
+    // Check for AdapterJS supports
+    if (!(_globals.AdapterJS || window.AdapterJS)) {
+      return reject(fnEmitInitState(ref.INIT_STATE_ENUM.ERROR, {
+        error: new Error('init(): AdapterJS dependency is not loaded'),
+        code: ref.INIT_ERROR_CODE_ENUM.MISSING_ADAPTERJS
+      }));
+    }
+
+    // Check for XMLHttpRequest API supports
+    if (!(window.webrtcDetectedBrowser === 'IE' && [8,9].indexOf(window.webrtcDetectedVersion) > -1 ?
+      ['object', 'function'].indexOf(typeof window.XDomainRequest) > -1 :
+      typeof window.XMLHttpRequest === 'function')) {
+      return reject(fnEmitInitState(ref.INIT_STATE_ENUM.ERROR, {
+        error: new Error('init(): XMLHttpRequest (or XDomainRequest for IE 8-9) API is not available'),
+        code: ref.INIT_ERROR_CODE_ENUM.XMLHTTPREQUEST_NOT_AVAILABLE
+      }));
+    }
+
+    (_globals.AdapterJS || window.AdapterJS).webRTCReady(function () {
+      if (!window.RTCPeerConnection && ref._config.requireWebRTC) {
+        return reject(fnEmitInitState(ref.INIT_STATE_ENUM.ERROR, {
+          error: new Error('init(): WebRTC is not supported or available when requested'),
+          code: ref.INIT_ERROR_CODE_ENUM.WEBRTC_NOT_AVAILABLE
+        }));
+      }
+
+      if (window.RTCPeerConnection) {
+        // Check if plugin is active and available
+        if (['IE', 'safari'].indexOf(window.webrtcDetectedBrowser) > -1) {
+          try {
+            var pc = new window.RTCPeerConnection(null);
+            // IE returns as typeof object
+            ref._supports.webrtc = pc.createOffer !== null &&
+              ['object', 'function'].indexOf(typeof pc.createOffer) > -1;
+
+            if (ref._config.requireWebRTC) {
+              return reject(fnEmitInitState(ref.INIT_STATE_ENUM.ERROR, {
+                error: new Error('init(): WebRTC plugin is not available or active'),
+                code: ref.INIT_ERROR_CODE_ENUM.PLUGIN_NOT_AVAILABLE
+              }));
+            }
+          } catch (e) {}
+        }
+      }
+
+
+    });
+  });
+};
 
   /**
    * The Room ID.
@@ -338,48 +582,7 @@ Temasys.Room.prototype.SM_PROTOCOL_VERSION = '0.1.2.3';
  */
 Room.prototype.DT_PROTOCOL_VERSION = '0.1.3';
 
-/**
- * The enum of Room dependency initialising states.
- * @attribute INIT_STATE_ENUM
- * @param {Number} LOADING The state when Room is initialising.
- * @param {Number} COMPLETED The state when Room has initialised.
- * @param {Number} ERROR The state when Room failed to initialise.
- * @type JSON
- * @readOnly
- * @final
- * @for Room
- * @since 0.7.0
- */
-Room.prototype.INIT_STATE_ENUM = {
-  LOADING: 0,
-  COMPLETED: 1,
-  ERROR: -1
-};
 
-/**
- * The enum of Room dependency initialising error codes.
- * @attribute INIT_ERROR_CODE_ENUM
- * @param {Number} NO_SOCKET_IO The error code when the required socket.io-client dependency is not loaded.
- * @param {Number} ADAPTER_NO_LOADED The error code when the required AdapterJS dependency is not loaded.
- * @param {Number} NO_XMLHTTPREQUEST_SUPPORT The error code when XMLHttpRequest or XDomainRequest API is not supported.
- * @param {Number} PLUGIN_NOT_AVAILABLE The error code when WebRTC plugin is not active.
- * @param {Number} NO_WEBRTC_SUPPORT The error code when WebRTC is not supported for browser or device.
- * @param {Number} PARSE_CODECS The error code when parsing of WebRTC supports fails.
- * @type JSON
- * @readOnly
- * @final
- * @for Room
- * @since 0.7.0
- */
-Room.prototype.INIT_ERROR_CODE_ENUM = {
-  NO_SOCKET_IO: 1,
-  NO_XMLHTTPREQUEST_SUPPORT: 2,
-  NO_WEBRTC_SUPPORT: 3,
-  PLUGIN_NOT_AVAILABLE: 4,
-  //NO_PATH: 4,
-  ADAPTER_NO_LOADED: 7,
-  PARSE_CODECS: 8
-};
 
 /**
  * The enum of Room authentication states, in which is used to validate the App Key ID before starting a session.

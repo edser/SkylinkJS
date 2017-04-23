@@ -406,6 +406,180 @@ Temasys.Utils = {
       d = Math.floor(d / 16);
       return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
     });
-  }
+  },
   /* jshint ignore:end */
+
+  /**
+   * Function that checks if the required dependencies or API is loaded.
+   * @method checkDependencies
+   * @param {JSON} return The result.
+   * @param {JSON} return.current The current supports.
+   * @param {String} [return.current.adapterjs] The AdapterJS dependency version.
+   * - When AdapterJS dependency is not loaded, the value returned is `null`.
+   * - Note that only `0.13.0` versions and above will be detected.
+   * @param {Boolean} [return.current.io] The flag if socket.io-client dependency is loaded.
+   * @param {Boolean} [return.current.xmlhttprequest] The flag if XMLHttpRequest API is available.
+   * @param {JSON} return.recommended The recommended dependencies versions.
+   * @param {String} return.recommended.adapterjs The recommended AdapterJS dependency version.
+   * @param {String} return.recommended.io The recommended socket.io-client dependency version.
+   * @return {JSON}
+   * @example
+   * // Example: Get the current dependencies and recommended versions
+   * var result = Temasys.Utils.checkDependencies();
+   * console.log("Current ->", result.current);
+   * console.log("Recommended ->", result.recommended);
+   * @for Temasys.Utils
+   * @since 0.7.0
+   */
+  checkDependencies: function () {
+    return {
+      current: {
+        adapterjs: _globals.AdapterJS && typeof _globals.AdapterJS === 'object' &&
+          typeof _globals.AdapterJS.webRTCReady === 'function' ? _globals.AdapterJS.VERSION :
+          (window.AdapterJS && typeof window.AdapterJS === 'object' &&
+          typeof window.AdapterJS.webRTCReady === 'function' ? window.AdapterJS.VERSION : null),
+        io: !!((_globals.io && typeof _globals.io === 'function') || (window.io && typeof window.io === 'function')),
+        xmlhttprequest: typeof window.XMLHttpRequest === 'function'
+      },
+      recommended: {
+        adapterjs: '@@adapterjsVersion',
+        io: '@@socketIoVersion'
+      }
+    };
+  },
+
+  /**
+   * Function that gets the client browser supports.
+   * @method getBrowserSupports
+   * @param {Promise} return The Promise for the request result.
+   * @param {Function} return.then Function to subscribe to when request result is successful.
+   * @param {Function} return.then.fn The callback function.
+   * @param {JSON} return.then.fn.supports The supports.
+   * @param {Boolean} 
+   * @param {Function} return.catch Function to subscribe to when request result had failed.
+   * @param {Function} return.catch.fn The callback function.
+   * @param {Error} return.catch.fn.error The error object.
+   * @example
+   * // Example: Get the supports
+   * Temasys.Utils.getBrowserSupports().then(function (supports) {
+   *   console.log("Browser supports ->", supports);
+   * }).catch(function (error) {
+   *   console.log("Browser supports retrieval error ->", error);
+   * });
+   * @for Temasys.Utils
+   * @since 0.7.0
+   */
+  getBrowserSupports: function () {
+    /*return new Promise(function (resolve, reject) {
+      if (!Temasys.Utils.checkDependencies().current.adapterjs) {
+        return reject(new Error('Unable to retrieve WebRTC supports as AdapterJS dependency is not loaded'));
+      }
+
+      (_globals.AdapterJS || window.AdapterJS).webRTCReady(function () {
+        var result = {
+          current: {},
+          recommended: {}
+        };
+
+        // Set the browser information
+        result.current.browser = {
+          name: window.webrtcDetectedBrowser,
+          version: (window.webrtcDetectedVersion || 0).toString(),
+          platform: navigator.platform,
+          mobilePlatformVersion: null
+        };
+
+        // Set the WebRTC plugin information later..
+        result.current.webrtcPlugin = {
+          required: false,
+          active: false,
+          version: null,
+          company: null,
+          expirationDate: null,
+          screensharing: false
+        };
+
+        
+
+          current: {
+            browser: {
+              
+            },
+            webrtcPlugin: {
+              
+            },
+            supports: {
+              webrtc: {
+                connection: false,
+                datachannel: window.webrtcDetectedBrowser !== 'edge',
+                iceRestart: !((window.webrtcDetectedBrowser === 'firefox' && window.webrtcDetectedVersion < 48) ||
+                  window.webrtcDetectedBrowser === 'edge'),
+                screensharing: ['chrome', 'firefox'].indexOf(window.webrtcDetectedBrowser) > -1,
+                maxBandwidth: !((window.webrtcDetectedBrowser === 'firefox' && window.webrtcDetectedVersion < 49) ||
+                  window.webrtcDetectedBrowser === 'edge'),
+                turns: ['IE', 'safari', 'chrome', 'opera'].indexOf(window.webrtcDetectedBrowser) > -1,
+                codecs: {
+                  send: { audio: {}, video: {} },
+                  recv: { audio: {}, video: {} }
+                }
+              },
+              corsRequest: window.webrtcDetectedBrowser === 'IE' && [8,9].indexOf(window.webrtcDetectedVersion) > -1 ?
+                ['object', 'function'].indexOf(typeof window.XDomainRequest) > -1 :
+                typeof window.XMLHttpRequest === 'function'
+            }
+          },
+          requirements: {
+            browsers: {
+              chrome: {
+                minVersion: '52',
+                maxVersion: null,
+                minMobilePlatformVersion: null,
+                maxMobilePlatformVersion: null
+              },
+              firefox: {
+                minVersion: '48',
+                maxVersion: null,
+                minMobilePlatformVersion: null,
+                maxMobilePlatformVersion: null
+              },
+              opera: {
+                minVersion: '38',
+                maxVersion: null,
+                minMobilePlatformVersion: null,
+                maxMobilePlatformVersion: null
+              },
+              IE: {
+                minVersion: '9',
+                maxVersion: null,
+                minMobilePlatformVersion: null,
+                maxMobilePlatformVersion: null
+              },
+              safari: {
+                minVersion: '7',
+                maxVersion: null,
+                minMobilePlatformVersion: null,
+                maxMobilePlatformVersion: null
+              },
+              edge: {
+                minVersion: '14.14352',
+                maxVersion: null,
+                minMobilePlatformVersion: null,
+                maxMobilePlatformVersion: null
+              },
+              bowser: {
+                minVersion: '0.6.1',
+                maxVersion: null,
+                minMobilePlatformVersion: null,
+                maxMobilePlatformVersion: '0.9'
+              }
+            },
+            webrtcPlugin: {
+              minVersion: '0.8.869',
+              maxVersion: null
+            }
+          }
+        }
+      });
+    });*/
+  }
 };

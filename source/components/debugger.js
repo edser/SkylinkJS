@@ -28,6 +28,7 @@ Temasys.Debugger = new (function () {
    * @since 0.7.0
    */
   ref.LOG_LEVEL_ENUM = {
+    // Brought over values from Skylink object LOG_LEVEL
     NONE: -1,
     ERROR: 0,
     WARN: 1,
@@ -76,11 +77,11 @@ Temasys.Debugger = new (function () {
    *   configuration to use the global configuration.
    * @param {Number} [options.level] The log level.
    * - When not provided, the value is set to `LOG_LEVEL_ENUM.ERROR`.
-   * - This references the @(link=Temasys.Debugger:LOG_LEVEL_ENUM:constant).
+   * - This references the `LOG_LEVEL_ENUM` constant.
    * @param {Boolean} [options.traceLogs=false] The flag if Web console logs should be traced.
    * - This uses the `console.trace` function when available.
    * @param {Boolean} [options.cacheLogs=false] The flag if Web console logs should be cached for
-   *   fetching in @(link=Temasys.Debugger:getCachedLogs:method).
+   *   fetching in `getCachedLogs()` method.
    * @param {Boolean} [options.printTimestamp=false] The flag if timestamps (ISO-8601) should be
    *   printed on Web console logs.
    * @param {Boolean} [options.printComponentId=false] The flag if component ID should be
@@ -145,7 +146,7 @@ Temasys.Debugger = new (function () {
    * @param {String} [componentId] The component ID.
    * - When provided, it returns the configuration only for the specific component.
    * @param {JSON} return The configured options.
-   * - Object signature matches the `options` parameter in @(link=Temasys.Debugger:setConfig:method).
+   * - Object signature matches the `options` parameter in `setConfig()` method.
    * @return {JSON}
    * @example
    * // Example 1: Get global configuration
@@ -180,8 +181,7 @@ Temasys.Debugger = new (function () {
    * @param {Number} return.warn The total number of "warn" logs received.
    * @param {Number} return.error The total number of "error" logs received.
    * @param {Array} return.exceptions The total exceptions caught.
-   * - Note that for tabulation for this, it this requires
-   *   @(link=Temasys.Debugger:catchExceptions:method) to be configured.
+   * - Note that for tabulation for this, it this requires `catchExceptions()` to be configured.
    * - Each array item is an `Error` object.
    * @return {JSON}
    * @example
@@ -219,7 +219,7 @@ Temasys.Debugger = new (function () {
    * @param {Function} [fn] The callback function.
    * - When not provided as `Function`, it unsubscribes any existing configured callback function.
    * @param {Array} fn.log The log item.
-   * - Object signature matches the returned log item in @(link=Temasys.Debugger:logs:method).
+   * - Object signature matches the returned log item in `getCachedLogs()` method.
    * @param {String} fn.componentId The component ID.
    * @example
    * // Example 1: Watch for logs
@@ -273,11 +273,11 @@ Temasys.Debugger = new (function () {
    * - When provided, this may cause performance issues when cached logs size is huge.
    * @param {String} [options.componentId] The component ID of logs to return only.
    * @param {Number} [options.level] The specific level of logs to return only.
-   * - This references the @(link=Temasys.Debugger:LOG_LEVEL_ENUM:constant).
+   * - This references the `LOG_LEVEL_ENUM` constant.
    * @param {Array} return The array of log items.
    * @param {Array} return._index The log item.
    * @param {String} return._index._0 The log item level property key.
-   * - This references the @(link=Temasys.Debugger:LOG_LEVEL_ENUM:constant).
+   * - This references the `LOG_LEVEL_ENUM` constant.
    * @param {String} return._index._1 The log item component ID.
    * @param {String} return._index._2 The log item timestamp (in ISO-8601 format).
    * @param {String} return._index._3 The log item message.
@@ -326,7 +326,7 @@ Temasys.Debugger = new (function () {
    * - When `options.componentId` and `options.level` is not provided, it clears all the cached logs.
    * @param {String} [options.componentId] The component ID of logs to clear only.
    * @param {Number} [options.level] The specific level of logs to clear only.
-   * - This references the @(link=Temasys.Debugger:LOG_LEVEL_ENUM:constant).
+   * - This references the `LOG_LEVEL_ENUM` constant.
    * @example
    * // Example 1: Clear cached logs for specific component and log level
    * Temasys.Debugger.clearCachedLogs({
@@ -364,7 +364,7 @@ Temasys.Debugger = new (function () {
    * @param {JSON} [options] The options.
    * @param {String} [options.componentId] The component ID of logs to print only.
    * @param {Number} [options.level] The specific level of logs to print only.
-   * - This references the @(link=Temasys.Debugger:LOG_LEVEL_ENUM:constant).
+   * - This references the `LOG_LEVEL_ENUM` constant.
    * @example
    * // Example 1: Print cached logs for specific component and log level
    * Temasys.Debugger.printCachedLogs({
@@ -487,6 +487,17 @@ Temasys.Debugger = new (function () {
        * Function to push stats to API.
        */
       stat: function (appKey, roomId, peerId, type, data) {
+      },
+
+      /**
+       * Function to catch custom errors to be thrown. 
+       */
+      throw: function (componentId, error) {
+        if (typeof ref._listeners.catch === 'function') {
+          ref._listeners.catch(componentId, error);
+        } else {
+          throw error;
+        }
       }
     }
   })(function (level, args) {
