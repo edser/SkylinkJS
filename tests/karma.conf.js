@@ -1,7 +1,7 @@
 module.exports = function(config) {
   config.set({
     basePath: '..',
-    frameworks: ['mocha', 'chai'],
+    frameworks: ['mocha', 'chai-as-promised', 'chai'],
     files: [
       { pattern: 'node_modules/socket.io-client/socket.io.js', included: true, served: true },
       { pattern: 'node_modules/adapterjs/publish/adapter.screenshare.js', included: true, served: true },
@@ -37,6 +37,7 @@ module.exports = function(config) {
       'karma-mocha', 
       'karma-mocha-reporter', 
       'karma-chai',
+      'karma-chai-as-promised',
       'karma-chrome-launcher', 
       'karma-safari-launcher', 
       'karma-firefox-launcher',

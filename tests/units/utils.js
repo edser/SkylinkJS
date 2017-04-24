@@ -1,12 +1,3 @@
-// Mocha specs
-var expect = chai.expect;
-var assert = chai.assert;
-var should = chai.should;
-// Part of test
-var Temasys = {};
-var _log = null;
-var _globals = this;
-
 describe('Temasys.Utils', function() {
 	// Load the script first
 	before(function (done) {
@@ -361,6 +352,326 @@ describe('Temasys.Utils', function() {
 		fnCheckSupports('Missing XMLHttpRequest', { adapterjs: window.AdapterJS.VERSION, io: true, xmlhttprequest: false });
 		window.XMLHttpRequest = window._XMLHttpRequest;
 
+		fnCheckSupports('Everything loaded', { adapterjs: window.AdapterJS.VERSION, io: true, xmlhttprequest: true });
+
 		done();
+	});
+
+	/**
+	 * Tests the `getBrowserSupports` method.
+	 */
+	it('getBrowserSupports()', function (done) {
+	  var queue = [];
+
+		window._webrtcDetectedBrowser = window.webrtcDetectedBrowser;
+		window._webrtcDetectedVersion = window._webrtcDetectedVersion;
+
+		Temasys.Utils.forEach(['chrome', 'firefox', 'opera', 'safari', 'IE', 'bowser', 'edge'], function (browser) {
+			Temasys.Utils.forEach([8,9,10], function (version) {
+				queue.push([browser, version, browser + '+' + version + ' without AdapterJS', function () {
+					window._AdapterJS = window.AdapterJS;
+					window.AdapterJS = null;
+				}, function () {
+					window.AdapterJS = window._AdapterJS;
+				}]);
+
+				queue.push([browser, version, browser + '+' + version + ' without XMLHttpRequest', function () {
+					window._XMLHttpRequest = window.XMLHttpRequest;
+					window.XMLHttpRequest = null;
+				}, function () {
+					window.XMLHttpRequest = window._XMLHttpRequest;
+				}]);
+
+				queue.push([browser, version, browser + '+' + version + ' without XDomainRequest', function () {
+					window._XDomainRequest = window.XDomainRequest;
+					window.XDomainRequest = null;
+				}, function () {
+					window.XDomainRequest = window._XDomainRequest;
+				}]);
+
+				if (['IE', 'safari'].indexOf(browser) > -1) {
+					Temasys.Utils.forEach([
+						{ valid: false },
+						{ VERSION: '1.3.4' },
+						{ COMPANY: 'test' },
+						{ HasUsageRestrictionToDomains: true },
+						{ HasFeaturesRestrictedToDomains: true },
+						{ HasAutoupdateFeature: true },
+						{ HasCrashReporterFeature: true },
+						{ HasPopupFeature: true },
+						{ HasWhiteListingFeature: true, isWebsiteWhitelisted: false },
+						{ HasWhiteListingFeature: false, isWebsiteWhitelisted: true },
+						{ HasWhiteListingFeature: false, isWebsiteWhitelisted: false },
+						{ HasWhiteListingFeature: true, isWebsiteWhitelisted: true },
+						{ HasScreensharingFeature: true, isScreensharingAvailable: false },
+						{ HasScreensharingFeature: false, isScreensharingAvailable: true },
+						{ HasScreensharingFeature: true, isScreensharingAvailable: true },
+						{ HasScreensharingFeature: false, isScreensharingAvailable: false },
+						{ HasHTTPProxyFeature: true },
+						{ HasH264Support: true },
+						{ HasExperimentalAEC: true },
+						{ expirationDate: '2012-08-01' },
+						{ expirationDate: '2199-08-01' },
+						{ isOutOfDate: true },
+						{}
+					], function (pluginStatus) {
+						queue.push([browser, version, browser + '+' + version + ' with plugin data (' + JSON.stringify(pluginStatus) + ')', function () {
+							AdapterJS = window._AdapterJS || {};
+							AdapterJS.WebRTCPlugin = AdapterJS.WebRTCPlugin || {};
+							AdapterJS.WebRTCPlugin.plugin = pluginStatus;
+						}, function () {
+							AdapterJS = {};
+						}]);
+					});
+				} else if (browser === 'edge') {
+					var fnReturnCapabilities = function () {
+						return [
+							{ name: 'xx1', kind: 'audio', preferredPayload: 100, clockRate: 1000, numChannels: 1 },
+							{ name: 'xx2', kind: 'video', preferredPayload: 101, clockRate: 2000, numChannels: 2 }];
+					};
+
+					queue.push([browser, version, browser + '+' + version + ' with ORTC RTCRtpSender', function () {
+						window.RTCRtpSender = function () {};
+						window.RTCRtpSender.getCapabilities = fnReturnCapabilities;
+					}, function () {
+						window.RTPSender = null;
+					}]);
+
+					queue.push([browser, version, browser + '+' + version + ' with ORTC RTCRtpSender and RTCRtpReceiver', function () {
+						window.RTCRtpSender = function () {};
+						window.RTCRtpSender.getCapabilities = fnReturnCapabilities;
+						window.RTCRtpReceiver = function () {};
+						window.RTCRtpReceiver.getCapabilities = fnReturnCapabilities;
+					}, function () {
+						window.RTPSender = null;
+					}]);
+
+					queue.push([browser, version, browser + '+' + version + ' with ORTC RTCRtpReceiver', function () {
+						window.RTCRtpReceiver = function () {};
+						window.RTCRtpReceiver.getCapabilities = fnReturnCapabilities;
+					}, function () {
+						window.RTPSender = null;
+					}]);
+
+					queue.push([browser, version, browser + '+' + version + ' without ORTC RTCRtpSender and RTCRtpReceiver', function () {}, function () {}]);
+				}
+			});
+		});
+
+		var fnProcessNextQueueItem = function () {
+			if (queue.length > 0) {
+				var item = queue[0];
+				queue.splice(0, 1);
+				var itemName = item[2];
+				window.webrtcDetectedBrowser = item[0];
+				window.webrtcDetectedVersion = item[1];
+				item[3]();
+
+				var promise = Temasys.Utils.getBrowserSupports();
+				assert.instanceOf(promise, Promise, itemName + ': return is instanceof Promise');
+				chaiPromised(promise, function (error, result) {
+					if (error) {
+						throw error;
+					}
+
+					// NOTE: Because there are too many properties to test, we need to test everything into an array instead of individual
+					//   asserts or equals per item.
+					// Tests result.current.browser.name
+					expect(result.current.browser.name, itemName + ': result.current.browser.name matches expected'
+						).to.equal(window.webrtcDetectedBrowser);
+					// Tests result.current.browser.version
+					expect(result.current.browser.version, itemName + ': result.current.browser.version matches expected'
+						).to.equal(window.webrtcDetectedVersion.toString());
+					// Tests result.current.browser.platform
+					expect(result.current.browser.platform, itemName + ': result.current.browser.name matches expected'
+						).to.equal(navigator.platform);
+					// Tests result.current.browser.mobilePlatformVersion
+					expect(result.current.browser.mobilePlatformVersion, itemName + ': result.current.browser.name matches expected'
+						).to.equal(null);
+
+					var pluginAvailable = AdapterJS && typeof AdapterJS === 'object' && AdapterJS.WebRTCPlugin &&
+						typeof AdapterJS.WebRTCPlugin === 'object' && AdapterJS.WebRTCPlugin.plugin;
+
+					// Tests result.current.webrtcPlugin.required
+					expect(result.current.webrtcPlugin.required, itemName + ': result.current.webrtcPlugin.required matches expected'
+						).to.equal(['IE', 'safari'].indexOf(window.webrtcDetectedBrowser) > -1);
+					// Tests result.current.webrtcPlugin.active
+					expect(result.current.webrtcPlugin.active, itemName + ': result.current.webrtcPlugin.active matches expected').to.equal(
+						pluginAvailable ? !(
+						// Whitelist checks
+						(AdapterJS.WebRTCPlugin.plugin.HasWhiteListingFeature && !AdapterJS.WebRTCPlugin.plugin.isWebsiteWhitelisted) ||
+						// Expiration date checks
+						(AdapterJS.WebRTCPlugin.plugin.expirationDate &&
+						(new Date (rAdapterJS.WebRTCPlugin.plugin.expirationDate)).getTime() <= (new Date()).getTime()) ||
+						// Valid checks
+						!AdapterJS.WebRTCPlugin.plugin.valid ||
+						// Out of date checks
+						AdapterJS.WebRTCPlugin.plugin.isOutOfDate) : false);
+					// Tests result.current.webrtcPlugin.version
+					expect(result.current.webrtcPlugin.version, itemName + ': result.current.webrtcPlugin.version matches expected'
+						).to.equal(pluginAvailable ? AdapterJS.WebRTCPlugin.plugin.VERSION : null);
+					// Tests result.current.webrtcPlugin.company
+					expect(result.current.webrtcPlugin.company, itemName + ': result.current.webrtcPlugin.company matches expected'
+						).to.equal(pluginAvailable ? AdapterJS.WebRTCPlugin.plugin.COMPANY : null);
+					// Tests result.current.webrtcPlugin.expirationDate
+					expect(result.current.webrtcPlugin.expirationDate, itemName + ': result.current.webrtcPlugin.expirationDate matches expected'
+						).to.equal(pluginAvailable ? AdapterJS.WebRTCPlugin.plugin.expirationDate : null);
+					// Tests result.current.webrtcPlugin.whitelisted
+					expect(result.current.webrtcPlugin.whitelisted, itemName + ': result.current.webrtcPlugin.whitelisted matches expected'
+						).to.equal(pluginAvailable ? (AdapterJS.WebRTCPlugin.plugin.HasWhiteListingFeature ?
+						AdapterJS.WebRTCPlugin.plugin.isWebsiteWhitelisted : false) : false);
+					// Tests result.current.webrtcPlugin.features.domainUsageRestrictions
+					expect(result.current.webrtcPlugin.features.domainUsageRestrictions, itemName + ': result.current.webrtcPlugin.features.domainUsageRestrictions matches expected'
+						).to.equal(pluginAvailable ? !!AdapterJS.WebRTCPlugin.plugin.HasUsageRestrictionToDomains : false);
+					// Tests result.current.webrtcPlugin.features.domainFeaturesRestrictions
+					expect(result.current.webrtcPlugin.features.domainFeaturesRestrictions, itemName + ': result.current.webrtcPlugin.features.domainFeaturesRestrictions matches expected'
+						).to.equal(pluginAvailable ? !!AdapterJS.WebRTCPlugin.plugin.HasUsageRestrictionToDomains : false);
+					// Tests result.current.webrtcPlugin.features.autoUpdate
+					expect(result.current.webrtcPlugin.features.autoUpdate, itemName + ': result.current.webrtcPlugin.features.autoUpdate matches expected'
+						).to.equal(pluginAvailable ? !!AdapterJS.WebRTCPlugin.plugin.HasAutoupdateFeature : false);
+					// Tests result.current.webrtcPlugin.features.crashReporter
+					expect(result.current.webrtcPlugin.features.crashReporter, itemName + ': result.current.webrtcPlugin.features.crashReporter matches expected'
+						).to.equal(pluginAvailable ? !!AdapterJS.WebRTCPlugin.plugin.HasCrashReporterFeature : false);
+					// Tests result.current.webrtcPlugin.features.permissionPopup
+					expect(result.current.webrtcPlugin.features.permissionPopup, itemName + ': result.current.webrtcPlugin.features.permissionPopup matches expected'
+						).to.equal(pluginAvailable ? !!AdapterJS.WebRTCPlugin.plugin.HasPopupFeature : false);
+					// Tests result.current.webrtcPlugin.features.whiteListing
+					expect(result.current.webrtcPlugin.features.whiteListing, itemName + ': result.current.webrtcPlugin.features.whiteListing matches expected'
+						).to.equal(pluginAvailable ? !!AdapterJS.WebRTCPlugin.plugin.HasWhiteListingFeature : false);
+					// Tests result.current.webrtcPlugin.features.screensharing
+					expect(result.current.webrtcPlugin.features.screensharing, itemName + ': result.current.webrtcPlugin.features.screensharing matches expected'
+						).to.equal(pluginAvailable ? !!(AdapterJS.WebRTCPlugin.plugin.HasScreensharingFeature &&
+						AdapterJS.WebRTCPlugin.plugin.isScreensharingAvailable) : false);
+					// Tests result.current.webrtcPlugin.features.whiteListing
+					expect(result.current.webrtcPlugin.features.experimentalAEC, itemName + ': result.current.webrtcPlugin.features.experimentalAEC matches expected'
+						).to.equal(pluginAvailable ? !!AdapterJS.WebRTCPlugin.plugin.HasExperimentalAEC : false);
+					// Tests result.current.webrtcPlugin.features.h264
+					expect(result.current.webrtcPlugin.features.h264, itemName + ': result.current.webrtcPlugin.features.h264 matches expected'
+						).to.equal(pluginAvailable ? !!AdapterJS.WebRTCPlugin.plugin.HasH264Support : false);
+					// Tests result.current.webrtcPlugin.features.httpProxy
+					expect(result.current.webrtcPlugin.features.httpProxy, itemName + ': result.current.webrtcPlugin.features.httpProxy matches expected'
+						).to.equal(pluginAvailable ? !!AdapterJS.WebRTCPlugin.plugin.HasHTTPProxyFeature : false);
+
+					var fnAssertKeysLength = function (obj, shouldZero) {
+						return shouldZero ? Object.keys(obj).length === 0 : Object.keys(obj).length >= 0;
+					};
+
+					// Tests result.current.supports.webrtc.connection
+					expect([typeof result.current.supports.webrtc.connection, result.current.supports.webrtc.connection],
+						itemName + ': result.current.supports.webrtc.connection matches expected').to.deep.equal(
+						['boolean', result.current.webrtcPlugin.required ? result.current.webrtcPlugin.active : !!window.RTCPeerConnection]);
+					// Tests result.current.supports.webrtc.datachannel
+					expect([typeof result.current.supports.webrtc.datachannel, !result.current.supports.webrtc.connection ?
+						result.current.supports.webrtc.datachannel : null],
+						itemName + ': result.current.supports.webrtc.datachannel matches expected').to.deep.equal(
+						['boolean', !result.current.supports.webrtc.connection ? false : null]);
+					// Tests result.current.supports.webrtc.iceRestart
+					expect([typeof result.current.supports.webrtc.iceRestart, !result.current.supports.webrtc.connection ?
+						result.current.supports.webrtc.iceRestart : null],
+						itemName + ': result.current.supports.webrtc.iceRestart matches expected').to.deep.equal(
+						['boolean', !result.current.supports.webrtc.connection ? false : null]);
+					// Tests result.current.supports.webrtc.screensharing
+					expect([typeof result.current.supports.webrtc.screensharing, !result.current.supports.webrtc.connection ?
+						result.current.supports.webrtc.screensharing : null,
+						result.current.webrtcPlugin.required ? result.current.supports.webrtc.screensharing : null],
+						itemName + ': result.current.supports.webrtc.screensharing matches expected').to.deep.equal(
+						['boolean', !result.current.supports.webrtc.connection ? false : null,
+						result.current.webrtcPlugin.required ? result.current.webrtcPlugin.features.screensharing : null]);
+					// Tests result.current.supports.webrtc.maxBandwidth
+					expect([typeof result.current.supports.webrtc.maxBandwidth, !result.current.supports.webrtc.connection ?
+						result.current.supports.webrtc.maxBandwidth : null],
+						itemName + ': result.current.supports.webrtc.maxBandwidth matches expected').to.deep.equal(
+						['boolean', !result.current.supports.webrtc.connection ? false : null]);
+					// Tests result.current.supports.webrtc.turns
+					expect([typeof result.current.supports.webrtc.turns, !result.current.supports.webrtc.connection ?
+						result.current.supports.webrtc.turns : null],
+						itemName + ': result.current.supports.webrtc.turns matches expected').to.deep.equal(
+						['boolean', !result.current.supports.webrtc.connection ? false : null]);
+					// Tests result.current.supports.webrtc.codecs.send.audio
+					expect([typeof result.current.supports.webrtc.codecs.send.audio, !!result.current.supports.webrtc.codecs.send.audio,
+						fnAssertKeysLength(result.current.supports.webrtc.codecs.send.audio, !result.current.supports.webrtc.connection)],
+						itemName + ': result.current.supports.webrtc.codecs.send.audio matches expected').to.deep.equal(['object', true, true]);
+					// Tests result.current.supports.webrtc.codecs.recv.audio
+					expect([typeof result.current.supports.webrtc.codecs.recv.audio, !!result.current.supports.webrtc.codecs.recv.audio,
+						fnAssertKeysLength(result.current.supports.webrtc.codecs.recv.audio, !result.current.supports.webrtc.connection)],
+						itemName + ': result.current.supports.webrtc.codecs.recv.audio matches expected').to.deep.equal(['object', true, true]);
+					// Tests result.current.supports.webrtc.codecs.send.video
+					expect([typeof result.current.supports.webrtc.codecs.send.video, !!result.current.supports.webrtc.codecs.send.video,
+						fnAssertKeysLength(result.current.supports.webrtc.codecs.send.video, !result.current.supports.webrtc.connection)],
+						itemName + ': result.current.supports.webrtc.codecs.send.video matches expected').to.deep.equal(['object', true, true]);
+					// Tests result.current.supports.webrtc.codecs.recv.video
+					expect([typeof result.current.supports.webrtc.codecs.recv.video, !!result.current.supports.webrtc.codecs.recv.video,
+						fnAssertKeysLength(result.current.supports.webrtc.codecs.recv.video, !result.current.supports.webrtc.connection)],
+						itemName + ': result.current.supports.webrtc.codecs.recv.video matches expected').to.deep.equal(['object', true, true]);
+					// Tests result.current.supports.corsRequest
+					expect([typeof result.current.supports.corsRequest, result.current.supports.corsRequest],
+						itemName + ': result.current.supports.corsRequest matches expected').to.deep.equal(
+						['boolean', window.webrtcDetectedBrowser === 'IE' && [8,9].indexOf(window.webrtcDetectedVersion) > -1 ?
+						['object', 'function'].indexOf(typeof window.XDomainRequest) > -1 : typeof window.XMLHttpRequest === 'function']);
+
+					var fnTestCodecsItem = function (kind, direction) {
+						Temasys.Utils.forEach(result.current.supports.webrtc.codecs[direction][kind], function (codec, codecProp) {
+							// Tests codecProp
+							expect([typeof codecProp, !!codecProp], itemName + ': result.current.supports.webrtc.codecs.' +
+								direction + '.' + kind + '.' + codecProp + ' matches expected for codecProp').to.deep.equal(['string', true]);
+							// Tests codec.channels
+							expect([typeof codec.channels, codec.channels > 0], itemName + ': result.current.supports.webrtc.codecs.' +
+								direction + '.' + kind + '.' + codecProp + ' matches expected for codec.channels').to.deep.equal(['number', true]);
+							// Tests codec.clockRate
+							expect([typeof codec.clockRate, codec.clockRate > 0], itemName + ': result.current.supports.webrtc.codecs.' +
+								direction + '.' + kind + '.' + codecProp + ' matches expected for codec.clockRate').to.deep.equal(['number', true]);
+							// Tests codec.sdpFmtpLine
+							expect([typeof codec.sdpFmtpLine, !!codec.sdpFmtpLine], itemName + ': result.current.supports.webrtc.codecs.' +
+								direction + '.' + kind + '.' + codecProp + ' matches expected for codec.sdpFmtpLine').to.deep.equal(['string', true]);
+						});
+					};
+
+					fnTestCodecsItem('audio', 'send');
+					fnTestCodecsItem('audio', 'recv');
+					fnTestCodecsItem('video', 'send');
+					fnTestCodecsItem('video', 'recv');
+
+					// Test recommended browsers
+					Temasys.Utils.forEach(result.recommended.browers, function (browser, browserProp) {
+						// Tests browserProp
+						expect([typeof browserProp, !!browserProp], itemName + ': result.current.recommended.browsers.' + browserProp +
+							' matches expected for browserProp').to.deep.equal(['string', true]);
+						// Tests browser.minVersion
+						expect([typeof browser.minVersion, browser.hasOwnProperty('minVersion'), !!browser.minVersion],
+							itemName + ': result.current.recommended.browsers.' + browserProp +
+							' matches expected for browser.minVersion').to.deep.equal(['string', true, true]);
+						// Tests browser.maxVersion
+						expect([typeof browser.maxVersion, browser.hasOwnProperty('maxVersion')],
+							itemName + ': result.current.recommended.browsers.' + browserProp +
+							' matches expected for browser.maxVersion').to.deep.equal([!!browser.maxVersion ? 'string' : 'object', true]);
+						// Tests browser.minMobilePlatformVersion
+						expect([typeof browser.minMobilePlatformVersion, browser.hasOwnProperty('minMobilePlatformVersion')],
+							itemName + ': result.current.recommended.browsers.' + browserProp +
+							' matches expected for browser.minMobilePlatformVersion').to.deep.equal([!!browser.minMobilePlatformVersion ? 'string' : 'object', true]);
+						// Tests browser.maxMobilePlatformVersion
+						expect([typeof browser.maxMobilePlatformVersion, browser.hasOwnProperty('maxMobilePlatformVersion')],
+							itemName + ': result.current.recommended.browsers.' + browserProp +
+							' matches expected for browser.maxMobilePlatformVersion').to.deep.equal([!!browser.maxMobilePlatformVersion ? 'string' : 'object', true]);
+					});
+
+					// Test result.recommended.webrtcPlugin.minVersion
+					expect([typeof result.recommended.webrtcPlugin.minVersion, result.recommended.webrtcPlugin.hasOwnProperty('minVersion'),
+						!!result.recommended.webrtcPlugin.minVersion], itemName + ': result.current.recommended.webrtcPlugin.minVersion' +
+						' matches expected for browserProp').to.deep.equal(['string', true, true]);
+					// Test result.recommended.webrtcPlugin.maxVersion
+					expect([typeof result.recommended.webrtcPlugin.maxVersion, result.recommended.webrtcPlugin.hasOwnProperty('maxVersion')],
+						itemName + ': result.current.recommended.webrtcPlugin.maxVersion' +
+						' matches expected for browserProp').to.deep.equal([!!result.recommended.webrtcPlugin.maxVersion ? 'string' : 'object', true]);
+
+					fnProcessNextQueueItem();
+				});
+			} else {
+				window.webrtcDetectedBrowser = window._webrtcDetectedBrowser;
+				window.webrtcDetectedVersion = window._webrtcDetectedVersion;
+				done();
+			}
+		};
+
+		fnProcessNextQueueItem();
 	});
 });

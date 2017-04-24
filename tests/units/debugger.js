@@ -1,11 +1,3 @@
-// Mocha specs
-var expect = chai.expect;
-var assert = chai.assert;
-var should = chai.should;
-// Part of test
-var Temasys = {};
-var _log = null;
-
 describe('Temasys.Debugger', function() {
   var cachedConsole = {
     debug: console.debug,
