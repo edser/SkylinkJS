@@ -6748,9 +6748,9 @@
         {
             "file": "source/components/utils.js",
             "line": 412,
-            "description": "Function that gets the client browser supports.",
+            "description": "Function that gets the client browser current and recommended version supports.",
             "itemtype": "method",
-            "name": "getBrowserSupports",
+            "name": "getClientSupports",
             "params": [
                 {
                     "name": "return",
@@ -6768,15 +6768,392 @@
                                     "type": "Function"
                                 },
                                 {
-                                    "name": "fn.supports",
-                                    "description": "The supports.",
+                                    "name": "fn.result",
+                                    "description": "The result.",
                                     "type": "JSON"
+                                },
+                                {
+                                    "name": "fn.result.current",
+                                    "description": "The current versions and supports.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "fn.result.current.browser",
+                                    "description": "The browser information.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "fn.result.current.browser.name",
+                                    "description": "The browser name.",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "fn.result.current.browser.version",
+                                    "description": "The browser version.",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "fn.result.current.browser.platform",
+                                    "description": "The browser platform.",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "fn.result.current.browser.mobilePlatformVersion",
+                                    "description": "The browser mobile platform version\n  if the client is accessing from Android and iOS mobile devices.",
+                                    "type": "String",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "fn.result.current.dependencies",
+                                    "description": "The dependencies loaded.",
+                                    "type": "JSON",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "fn.result.current.dependencies.adapterjs",
+                                    "description": "The loaded AdapterJS dependency version.\n- This is defined only for when the AdapterJS dependency versions `0.13.0` and above is loaded.\n- Note that this is required for starting `Temasys.Room` session connections.",
+                                    "type": "String",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "fn.result.current.dependencies.io",
+                                    "description": "The flag if the socket.io-client dependency is loaded.\n- Note that this is required for starting `Temasys.Room` session connections.",
+                                    "type": "Boolean",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "fn.result.current.webrtcPlugin",
+                                    "description": "The WebRTC plugin information.\n- This is defined only when the WebRTC plugin is loaded for the current accessing webpage, which is loaded from\n  the AdapterJS dependency.\n- For more advanced usage of the WebRTC plugin, see https://confluence.temasys.com.sg/display/TWT/Useful+debug+APIs.",
+                                    "type": "JSON",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "fn.result.current.webrtcPlugin.active",
+                                    "description": "The flag if the WebRTC plugin is active.\n- This determines if the WebRTC and `getUserMedia()` API functionalities is enabled.\n- It is also advisable to check if the plugin `<object>` element css `display` is set to `\"none\"` as the\n  `display` property must be displayed in order for the plugin to load, which is some cases the WebRTC plugin is active\n  but disabled (hence made inactive) because of the `display` css settings. To prevent displaying the plugin\n  `<object>` element, you may set the css `visibility` to `\"hidden\"` and use `z-index` properties to cover it.",
+                                    "type": "Boolean"
+                                },
+                                {
+                                    "name": "fn.result.current.webrtcPlugin.version",
+                                    "description": "The WebRTC plugin version.",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "fn.result.current.webrtcPlugin.company",
+                                    "description": "The WebRTC plugin company name it is built for.",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "fn.result.current.webrtcPlugin.expirationDate",
+                                    "description": "The WebRTC plugin expiration date if any.",
+                                    "type": "String",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "fn.result.current.webrtcPlugin.whiteList",
+                                    "description": "The WebRTC plugin whitelist settings.\n- This is defined only when whitelisting is configured for the WebRTC plugin.",
+                                    "type": "JSON",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "fn.result.current.webrtcPlugin.whiteList.enabled",
+                                    "description": "The flag if current accessing domain\n  is configured in the list of whitelisted domains for the WebRTC plugin.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "fn.result.current.webrtcPlugin.whiteList.restrictsUsage",
+                                    "description": "The flag that disables the\n  WebRTC and `getUserMedia()` API for the WebRTC plugin unless current accessing domain is configured\n  in the list of whitelisted domains.",
+                                    "type": "Boolean"
+                                },
+                                {
+                                    "name": "fn.result.current.webrtcPlugin.whiteList.restrictsFeatures",
+                                    "description": "The flag that disables the\n  `webrtcPlugin.features` for the WebRTC plugin unless current accessing domain is configured in the\n  list of whitelisted domains.",
+                                    "type": "Boolean"
+                                },
+                                {
+                                    "name": "fn.result.current.webrtcPlugin.features",
+                                    "description": "The WebRTC plugin features supports.\n- The enabling of these features are determined based on the WebRTC plugin pricing plan selected.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "fn.result.current.webrtcPlugin.features.crashReporter",
+                                    "description": "The flag if\n  the crash reporter is enabled for the WebRTC plugin.",
+                                    "type": "Boolean"
+                                },
+                                {
+                                    "name": "fn.result.current.webrtcPlugin.features.autoUpdate",
+                                    "description": "The flag if\n  auto updating of the plugin is enabled for the WebRTC plugin.",
+                                    "type": "Boolean"
+                                },
+                                {
+                                    "name": "fn.result.current.webrtcPlugin.features.screensharing",
+                                    "description": "The flag if\n  screensharing functionalities is enabled for the WebRTC plugin.",
+                                    "type": "Boolean"
+                                },
+                                {
+                                    "name": "fn.result.current.webrtcPlugin.features.h264",
+                                    "description": "The flag if\n  H264 video codec is enabled for the WebRTC plugin.",
+                                    "type": "Boolean"
+                                },
+                                {
+                                    "name": "fn.result.current.webrtcPlugin.features.httpProxy",
+                                    "description": "The flag if\n  connections behind HTTP proxy is enabled for the WebRTC plugin.",
+                                    "type": "Boolean"
+                                },
+                                {
+                                    "name": "fn.result.current.webrtcPlugin.features.noPermissionPopup",
+                                    "description": "The flag if\n  permission popup is disabled for the WebRTC plugin when invoking `getUserMedia()` API method.",
+                                    "type": "Boolean"
+                                },
+                                {
+                                    "name": "fn.result.current.webrtcPlugin.features.experimentalAEC",
+                                    "description": "The flag if\n  experimental AEC (acoustic echo cancellation) is enabled for the WebRTC plugin.",
+                                    "type": "Boolean"
+                                },
+                                {
+                                    "name": "fn.result.current.supports",
+                                    "description": "The browser supports.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "fn.result.current.supports.webrtc",
+                                    "description": "The WebRTC and `getUserMedia()` API supports.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "fn.result.current.supports.webrtc.connection",
+                                    "description": "The flag if `RTCPeerConnection` API is supported.",
+                                    "type": "Boolean"
+                                },
+                                {
+                                    "name": "fn.result.current.supports.webrtc.datachannel",
+                                    "description": "The flag if `RTCDataChannel` API is supported.",
+                                    "type": "Boolean"
+                                },
+                                {
+                                    "name": "fn.result.current.supports.webrtc.dtmfsender",
+                                    "description": "The flag if `RTCDTMFSender` API is supported.",
+                                    "type": "Boolean"
+                                },
+                                {
+                                    "name": "fn.result.current.supports.webrtc.generateCertificate",
+                                    "description": "The flag if\n  `RTCPeerConnection.generateCertificate` API is supported.",
+                                    "type": "Boolean"
+                                },
+                                {
+                                    "name": "fn.result.current.supports.webrtc.iceRestart",
+                                    "description": "The flag if ICE credentials restart is supported.",
+                                    "type": "Boolean"
+                                },
+                                {
+                                    "name": "fn.result.current.supports.webrtc.maxBandwidth",
+                                    "description": "The flag if maximum sending bandwidth\n  limitations (`b=AS` or `b=TIAS` flags) is supported.",
+                                    "type": "Boolean"
+                                },
+                                {
+                                    "name": "fn.result.current.supports.webrtc.turns",
+                                    "description": "The flag if TURN over TLS protocol is supported\n  when connecting to TURN server.",
+                                    "type": "Boolean"
+                                },
+                                {
+                                    "name": "fn.result.current.supports.webrtc.stun",
+                                    "description": "The flag if STUN connections is supported.",
+                                    "type": "Boolean"
+                                },
+                                {
+                                    "name": "fn.result.current.supports.webrtc.turn",
+                                    "description": "The flag if TURN connections is supported.",
+                                    "type": "Boolean"
+                                },
+                                {
+                                    "name": "fn.result.current.supports.webrtc.turnOverTcp",
+                                    "description": "The flag if TURN connections over TCP IP\n  protocol is supported.",
+                                    "type": "Boolean"
+                                },
+                                {
+                                    "name": "fn.result.current.supports.webrtc.turnOverUdp",
+                                    "description": "The flag if TURN connections over UDP IP\n  protocol is supported.",
+                                    "type": "Boolean"
+                                },
+                                {
+                                    "name": "fn.result.current.supports.webrtc.screensharing",
+                                    "description": "The flag if screensharing functionalities\n  is supported.",
+                                    "type": "Boolean"
+                                },
+                                {
+                                    "name": "fn.result.current.supports.webrtc.codecs",
+                                    "description": "The list of codecs supported.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "fn.result.current.supports.webrtc.codecs.send",
+                                    "description": "The sending codecs.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "fn.result.current.supports.webrtc.codecs.send.audio",
+                                    "description": "The sending audio codecs.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "fn.result.current.supports.webrtc.codecs.send.audio._codecName",
+                                    "description": "The codec information.\n- The property key (`#codeName`) value is the codec name.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "fn.result.current.supports.webrtc.codecs.send.audio._codecName.payloadType",
+                                    "description": "The\n  codec payload number.",
+                                    "type": "Number"
+                                },
+                                {
+                                    "name": "fn.result.current.supports.webrtc.codecs.send.audio._codecName.clockRate",
+                                    "description": "The\n  codec clock rate in Hz (hertz).",
+                                    "type": "Number"
+                                },
+                                {
+                                    "name": "fn.result.current.supports.webrtc.codecs.send.audio._codecName.payloadType",
+                                    "description": "The\n  number of channels, where mono is represented as `1`, and stereo as `2`.",
+                                    "type": "Number"
+                                },
+                                {
+                                    "name": "fn.result.current.supports.webrtc.codecs.send.audio._codecName.sdpFmtpLine",
+                                    "description": "The\n  codec parameters configured as its corresponding `a=fmtp` SDP line.",
+                                    "type": "String",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "fn.result.current.supports.webrtc.codecs.send.video",
+                                    "description": "The sending video codecs.\n- Object signature matches `current.supports.webrtc.codecs.send.audio`.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "fn.result.current.supports.webrtc.codecs.recv",
+                                    "description": "The receiving codecs.\n- Object signature matches `current.supports.webrtc.codecs.send.audio`.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "fn.result.current.supports.webrtc.codecs.recv.audio",
+                                    "description": "The receiving audio codecs.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "fn.result.current.supports.webrtc.codecs.recv.video",
+                                    "description": "The receiving video codecs.\n- Object signature matches `current.supports.webrtc.codecs.send.audio`.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "fn.result.current.supports.xhr",
+                                    "description": "The flag if `XMLHttpRequest` API is supported.\n- Note that this is required for starting `Temasys.Room` session connections.",
+                                    "type": "Boolean"
+                                },
+                                {
+                                    "name": "fn.result.current.supports.corsRequest",
+                                    "description": "The flag if CORS (cross origin resource sharing)\n  domain requests is supported, in which the CORS domain is determined from current accessing domain request.\n- Note that this is required for CORS authentication when starting `Temasys.Room` session connections.",
+                                    "type": "Boolean"
+                                },
+                                {
+                                    "name": "fn.result.recommended",
+                                    "description": "The recommended dependencies, browsers and WebRTC plugin versions.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "fn.result.recommended.browsers",
+                                    "description": "The browsers.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "fn.result.recommended.browsers.chrome",
+                                    "description": "The chrome browser recommended versions.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "fn.result.recommended.browser.chrome.minVersion",
+                                    "description": "The recommended minimum version.",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "fn.result.recommended.browser.chrome.maxVersion",
+                                    "description": "The recommended maximum version if any.",
+                                    "type": "String",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "fn.result.recommended.browser.chrome.minMobilePlatformVersion",
+                                    "description": "The recommended\n  minimum version of the mobile platform if any.",
+                                    "type": "String",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "fn.result.recommended.browser.chrome.maxMobilePlatformVersion",
+                                    "description": "The recommended\n  maximum version of the mobile platform if any.",
+                                    "type": "String",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "fn.result.recommended.browser.opera",
+                                    "description": "The opera browser recommended versions.\n- Object signature matches `recommended.browser.chrome`.",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "fn.result.recommended.browser.firefox",
+                                    "description": "The firefox browser recommended versions.\n- Object signature matches `recommended.browser.chrome`.",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "fn.result.recommended.browser.IE",
+                                    "description": "The IE browser recommended versions.\n- Object signature matches `recommended.browser.chrome`.",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "fn.result.recommended.browser.safari",
+                                    "description": "The safari browser recommended versions.\n- Object signature matches `recommended.browser.chrome`.",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "fn.result.recommended.browser.edge",
+                                    "description": "The Edge browser recommended versions.\n- Object signature matches `recommended.browser.chrome`.",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "fn.result.recommended.browser.bowser",
+                                    "description": "The Bowser browser recommended versions.\n- Object signature matches `recommended.browser.chrome`.",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "fn.result.recommended.webrtcPlugin",
+                                    "description": "The WebRTC plugin versions recommended.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "fn.result.recommended.webrtcPlugin.minVersion",
+                                    "description": "The recommended WebRTC plugin minimum version.",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "fn.result.recommended.webrtcPlugin.maxVersion",
+                                    "description": "The recommended WebRTC\n plugin maxmimum version if any.",
+                                    "type": "String",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "fn.result.recommended.dependencies",
+                                    "description": "The dependencies.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "fn.result.recommended.dependencies.adapterjs",
+                                    "description": "The recommended AdapterJS dependency version.",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "fn.result.recommended.dependencies.io",
+                                    "description": "The recommended socket.io-client dependency version.",
+                                    "type": "String"
                                 }
                             ]
                         },
                         {
                             "name": "catch",
-                            "description": "Function to subscribe to when request result had failed.",
+                            "description": "Function to subscribe to when request result has errors.",
                             "type": "Function",
                             "props": [
                                 {
@@ -6792,15 +7169,10 @@
                             ]
                         }
                     ]
-                },
-                {
-                    "name": "UNKNOWN",
-                    "description": "",
-                    "type": "Boolean"
                 }
             ],
             "example": [
-                "\n// Example: Get the supports\nTemasys.Utils.getBrowserSupports().then(function (supports) {\n  console.log(\"Browser supports ->\", supports);\n}).catch(function (error) {\n  console.log(\"Browser supports retrieval error ->\", error);\n});"
+                "\n// Example: Get the supports\nTemasys.Utils.getClientSupports().then(function (result) {\n  console.info(\"==== Current browser information ====\");\n  console.log(\"- Name: \" + result.current.browser.name);\n  console.log(\"- Version: \" + result.current.browser.version);\n  console.log(\"- Platform: \" + result.current.browser.platform +\n    (result.current.browser.platform.version ? \" / \" + result.current.browser.platform.version : \"\");\n\n  if (result.current.webrtcPlugin) {\n    console.info(\"==== Current WebRTC plugin information ====\");\n    console.log(\"- Is active: \" + result.current.webrtcPlugin.active);\n    console.log(\"- Company: \" + result.current.webrtcPlugin.company);\n    console.log(\"- Version: \" + result.current.webrtcPlugin.version);\n    console.log(\"- Expiration Date: \" + (result.current.webrtcPlugin.expirationDate || 'N/A'));\n  }\n}).catch(function (error) {\n  console.error(\"Browser supports retrieval error ->\", error);\n});"
             ],
             "since": "0.7.0",
             "class": "Temasys.Utils"
@@ -16571,10 +16943,6 @@
         {
             "message": "unknown tag: typedef",
             "line": " source/components/utils.js:1"
-        },
-        {
-            "message": "param name missing: {Boolean}",
-            "line": " source/components/utils.js:412"
         },
         {
             "message": "replacing incorrect tag: parma with param",
