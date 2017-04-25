@@ -1,4 +1,4 @@
-/*! skylinkjs - v0.6.19 - Mon Apr 24 2017 23:36:15 GMT+0800 (SGT) */
+/*! skylinkjs - v0.6.19 - Tue Apr 25 2017 10:38:43 GMT+0800 (SGT) */
 (function (_globals) {
 
   'use strict';
@@ -965,6 +965,7 @@ Temasys.Debugger = new (function () {
     // TODO: Push logs to remote server when requested.
   });
 })();
+
 
 
 /**
@@ -4712,7 +4713,7 @@ Temasys.Utils = {
         version: null,
         company: null,
         expirationDate: null,
-        whitelisted: false,
+        whiteListed: false,
         features: {
           domainUsageRestrictions: false,
           domainFeaturesRestrictions: false,
@@ -4814,35 +4815,37 @@ Temasys.Utils = {
 
         if (['IE', 'safari'].indexOf(window.webrtcDetectedBrowser) > -1) {
           try {
-            result.current.webrtcPlugin.whitelisted = !!refAdapterJS.WebRTCPlugin.plugin.isWebsiteWhitelisted;
-            result.current.webrtcPlugin.version = refAdapterJS.WebRTCPlugin.plugin.VERSION;
-            result.current.webrtcPlugin.company = refAdapterJS.WebRTCPlugin.plugin.COMPANY;
-            result.current.webrtcPlugin.expirationDate = refAdapterJS.WebRTCPlugin.plugin.expirationDate;
-            // Parse WebRTC plugin features
-            result.current.webrtcPlugin.features = {
-              domainUsageRestrictions: !!refAdapterJS.WebRTCPlugin.plugin.HasUsageRestrictionToDomains,
-              domainFeaturesRestrictions: !!refAdapterJS.WebRTCPlugin.plugin.HasFeaturesRestrictedToDomains,
-              autoUpdate: !!refAdapterJS.WebRTCPlugin.plugin.HasAutoupdateFeature,
-              crashReporter: !!refAdapterJS.WebRTCPlugin.plugin.HasCrashReporterFeature,
-              permissionPopup: !!refAdapterJS.WebRTCPlugin.plugin.HasPopupFeature,
-              whitelisting: !!refAdapterJS.WebRTCPlugin.plugin.HasWhiteListingFeature,
-              screensharing: !!(refAdapterJS.WebRTCPlugin.plugin.HasScreensharingFeature &&
-                refAdapterJS.WebRTCPlugin.plugin.isScreensharingAvailable),
-              experimentalAEC: !!refAdapterJS.WebRTCPlugin.plugin.HasExperimentalAEC,
-              h264: !!refAdapterJS.WebRTCPlugin.plugin.HasH264Support,
-              httpProxy: !!refAdapterJS.WebRTCPlugin.plugin.HasHTTPProxyFeature
-            };
             // IE returns as typeof object
             var pc = new window.RTCPeerConnection(null);
-            result.current.webrtcPlugin.active =
+            result.current.webrtcPlugin = {
+              required: ['IE', 'safari'].indexOf(window.webrtcDetectedBrowser) > -1,
               // Check if RTCPeerConnection.createOffer is still valid
-              !!((pc.createOffer !== null && ['object', 'function'].indexOf(typeof pc.createOffer) > -1) &&
-              // Check plugin flags "valid" is true, and then check if expiration date exists
-              refAdapterJS.WebRTCPlugin.plugin.valid && !!(result.current.webrtcPlugin.expirationDate &&
-              // If expiration date is defined, check if plugin has expired
-              (new Date(result.current.webrtcPlugin.expirationDate)).getTime() > (new Date()).getTime()) &&
-              // If whitelisted and domain is not in it
-              (result.current.webrtcPlugin.supports.whitelisting ? result.current.webrtcPlugin.whitelisted : true));
+              active: !!((pc.createOffer !== null && ['object', 'function'].indexOf(typeof pc.createOffer) > -1) &&
+                // Check plugin flags "valid" is true, and then check if expiration date exists
+                refAdapterJS.WebRTCPlugin.plugin.valid && !!(result.current.webrtcPlugin.expirationDate &&
+                // If expiration date is defined, check if plugin has expired
+                (new Date(result.current.webrtcPlugin.expirationDate)).getTime() > (new Date()).getTime()) &&
+                // If whitelisted and domain is not in it
+                (result.current.webrtcPlugin.supports.whitelisting ? result.current.webrtcPlugin.whitelisted : true)),
+              version: refAdapterJS.WebRTCPlugin.plugin.VERSION || null,
+              company: refAdapterJS.WebRTCPlugin.plugin.COMPANY || null,
+              expirationDate: refAdapterJS.WebRTCPlugin.plugin.expirationDate || null,
+              whiteListed: !!(refAdapterJS.WebRTCPlugin.plugin.HasWhiteListingFeature &&
+						    refAdapterJS.WebRTCPlugin.plugin.isWebsiteWhitelisted),
+              features: {
+                domainUsageRestrictions: !!refAdapterJS.WebRTCPlugin.plugin.HasUsageRestrictionToDomains,
+                domainFeaturesRestrictions: !!refAdapterJS.WebRTCPlugin.plugin.HasFeaturesRestrictedToDomains,
+                autoUpdate: !!refAdapterJS.WebRTCPlugin.plugin.HasAutoupdateFeature,
+                crashReporter: !!refAdapterJS.WebRTCPlugin.plugin.HasCrashReporterFeature,
+                permissionPopup: !!refAdapterJS.WebRTCPlugin.plugin.HasPopupFeature,
+                whiteListing: !!refAdapterJS.WebRTCPlugin.plugin.HasWhiteListingFeature,
+                screensharing: !!(refAdapterJS.WebRTCPlugin.plugin.HasScreensharingFeature &&
+                  refAdapterJS.WebRTCPlugin.plugin.isScreensharingAvailable),
+                experimentalAEC: !!refAdapterJS.WebRTCPlugin.plugin.HasExperimentalAEC,
+                h264: !!refAdapterJS.WebRTCPlugin.plugin.HasH264Support,
+                httpProxy: !!refAdapterJS.WebRTCPlugin.plugin.HasHTTPProxyFeature
+              }
+            };
             pc.close();
           } catch (e) {}
           // Need not parse WebRTC supports if plugin is not active

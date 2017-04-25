@@ -410,62 +410,143 @@ Temasys.Utils = {
   /* jshint ignore:end */
 
   /**
-   * Function that checks if the required dependencies or API is loaded.
-   * @method checkDependencies
-   * @param {JSON} return The result.
-   * @param {JSON} return.current The current supports.
-   * @param {String} [return.current.adapterjs] The AdapterJS dependency version.
-   * - When AdapterJS dependency is not loaded, the value returned is `null`.
-   * - Note that only `0.13.0` versions and above will be detected.
-   * @param {Boolean} [return.current.io] The flag if socket.io-client dependency is loaded.
-   * @param {Boolean} [return.current.xmlhttprequest] The flag if XMLHttpRequest API is available.
-   * @param {JSON} return.recommended The recommended dependencies versions.
-   * @param {String} return.recommended.adapterjs The recommended AdapterJS dependency version.
-   * @param {String} return.recommended.io The recommended socket.io-client dependency version.
-   * @return {JSON}
-   * @example
-   * // Example: Get the current dependencies and recommended versions
-   * var result = Temasys.Utils.checkDependencies();
-   * console.log("Current ->", result.current);
-   * console.log("Recommended ->", result.recommended);
-   * @for Temasys.Utils
-   * @since 0.7.0
-   */
-  checkDependencies: function () {
-    return {
-      current: {
-        adapterjs: _globals.AdapterJS && typeof _globals.AdapterJS === 'object' &&
-          typeof _globals.AdapterJS.webRTCReady === 'function' ? _globals.AdapterJS.VERSION :
-          (window.AdapterJS && typeof window.AdapterJS === 'object' &&
-          typeof window.AdapterJS.webRTCReady === 'function' ? window.AdapterJS.VERSION : null),
-        io: !!((_globals.io && typeof _globals.io === 'function') || (window.io && typeof window.io === 'function')),
-        xmlhttprequest: typeof window.XMLHttpRequest === 'function'
-      },
-      recommended: {
-        adapterjs: '@@adapterjsVersion',
-        io: '@@socketIoVersion'
-      }
-    };
-  },
-
-  /**
    * Function that gets the client browser supports.
-   * - Note that to parse for IE and safari browsers, the AdapterJS dependency must be loaded first.
-   * @method getBrowserSupports
+   * @method getClientSupports
    * @param {Promise} return The Promise for the request result.
    * @param {Function} return.then Function to subscribe to when request result is successful.
    * @param {Function} return.then.fn The callback function.
-   * @param {JSON} return.then.fn.supports The supports.
-   * @param {Boolean} 
+   * @param {JSON} return.then.fn.result The result
+   * @param {JSON} return.then.fn.result.current The current dependencies loaded, supports and information.
+   * @param {JSON} return.then.fn.result.current.browser The browser information.
+   * @param {String} return.then.fn.result.current.browser.name The browser name.
+   * @param {String} return.then.fn.result.current.browser.version The browser version.
+   * @param {String} return.then.fn.result.current.browser.platform The browser platform.
+   * @param {String} [return.then.fn.result.current.browser.mobilePlatformVersion] The mobile browser platform version.
+   * - This is defined only for Android and iOS mobile devices.
+   * @param {JSON} [return.then.fn.result.current.dependencies] The dependencies loaded.
+   * @param {String} [return.then.fn.result.current.dependencies.adapterjs] The AdapterJS dependency version.
+   * - This is defined only for when the AdapterJS dependency is loaded, else the value returned is `null`.
+   * - Note that AdapterJS versions `0.13.0` and above are loaded only.
+   * @param {Boolean} [return.then.fn.result.current.dependencies.io] The flag if socket.io-client dependency is loaded.
+   * @param {JSON} [return.then.fn.result.current.webrtcPlugin] The WebRTC plugin information.
+   * - This is defined only if the WebRTC plugin is loaded and available for the current accessing webpage.
+   * - Note that the AdapterJS dependency is required to be loaded first in order to load the WebRTC plugin.
+   * - For more advanced manipulation of the WebRTC plugin loaded, see
+   *   https://confluence.temasys.com.sg/display/TWT/Useful+debug+APIs.
+   * @param {Boolean} return.then.fn.result.current.webrtcPlugin.active The flag if the WebRTC plugin
+   *   is active, which determines if the WebRTC and `getUserMedia()` API functionalities is enabled.
+   * @param {Boolean} return.then.fn.result.current.webrtcPlugin.disabled The flag if the WebRTC plugin
+   *   is disabled, which is caused by the plugin `&lt;object&gt;` element css `display` set to `none`.
+   * @param {String} return.then.fn.result.current.webrtcPlugin.version The WebRTC plugin version.
+   * @param {String} return.then.fn.result.current.webrtcPlugin.company The company name the WebRTC plugin is built for.
+   * @param {String} [return.then.fn.result.current.webrtcPlugin.expirationDate] The WebRTC plugin expiration
+   *   date if configured.
+   * @param {Boolean} return.then.fn.result.current.webrtcPlugin.whiteListed The flag if the domain accessing
+   *   the WebRTC plugin is allowed to use the plugin based on its configured whitelisted domains
+   *   when the whitelisting feature is enabled for the plugin.
+   * @param {JSON} return.then.fn.result.current.webrtcPlugin.features The list of features available for
+   *   on for the loaded WebRTC plugin.
+   * - The list of features are determined based on the pricing plan of the WebRTC plugin purchased for.
+   * @param {Boolean} return.then.fn.result.current.webrtcPlugin.features.domainUsageRestrictions The flag if
+   *   the usage restrictions based on domains are enabled for the WebRTC plugin.
+   * @param {Boolean} return.then.fn.result.current.webrtcPlugin.features.domainFeaturesRestrictions The flag if
+   *   the features restrictions based on domains are enabled for the WebRTC plugin.
+   * @param {Boolean} return.then.fn.result.current.webrtcPlugin.features.crashReporter The flag if
+   *   the crash reporter is enabled for the WebRTC plugin.
+   * @param {Boolean} return.then.fn.result.current.webrtcPlugin.features.autoUpdate The flag if
+   *   auto update is enabled for the WebRTC plugin.
+   * @param {Boolean} return.then.fn.result.current.webrtcPlugin.features.whiteListing The flag if
+   *   whitelisting is enabled for the WebRTC plugin.
+   * @param {Boolean} return.then.fn.result.current.webrtcPlugin.features.screensharing The flag if
+   *   screensharing is enabled for the WebRTC plugin.
+   * @param {Boolean} return.then.fn.result.current.webrtcPlugin.features.h264 The flag if
+   *   H264 video codec is enabled for the WebRTC plugin.
+   * @param {Boolean} return.then.fn.result.current.webrtcPlugin.features.httpProxy The flag if
+   *   HTTP proxy is enabled for the WebRTC plugin.
+   * @param {Boolean} return.then.fn.result.current.webrtcPlugin.features.noPermissionPopup The flag if
+   *   permission popup is disabled for the WebRTC plugin when invoking `getUserMedia()` API method.
+   * @param {Boolean} return.then.fn.result.current.webrtcPlugin.features.experimentalAEC The flag if
+   *   experimental AEC (acoustic echo cancellation) is enabled for the WebRTC plugin.
+   * @param {JSON} return.then.fn.result.current.supports The supports.
+   * @param {JSON} return.then.fn.result.current.supports.webrtc The WebRTC and `getUserMedia()` API supports.
+   * @param {Boolean} return.then.fn.result.current.supports.webrtc.connection The flag if
+   *   `RTCPeerConnection` API is supported.
+   * @param {Boolean} return.then.fn.result.current.supports.webrtc.datachannel The flag if
+   *   `RTCDataChannel` API is supported.
+   * @param {Boolean} return.then.fn.result.current.supports.webrtc.dtmfsender The flag if
+   *   `RTCDTMFSender` API is supported.
+   * @param {Boolean} return.then.fn.result.current.supports.webrtc.generateCertificate The flag if
+   *   `RTCPeerConnection.generateCertificate` API is supported.
+   * @param {Boolean} return.then.fn.result.current.supports.webrtc.iceRestart The flag if
+   *   restart of ICE credentials is supported when re-negotiating offer and answer SDP.
+   * @param {Boolean} return.then.fn.result.current.supports.webrtc.maxBandwidth The flag if
+   *   maximum sending bandwidth limitations (`b=AS` or `b=TIAS`) is supported.
+   * @param {Boolean} return.then.fn.result.current.supports.webrtc.turns The flag if
+   *   TURN over TLS protocol is supported when connecting to TURN server.
+   * @param {Boolean} return.then.fn.result.current.supports.webrtc.screensharing The flag if
+   *   screensharing functionalities is supported.
+   * @param {JSON} return.then.fn.result.current.supports.webrtc.codecs The list of supported codecs.
+   * @param {JSON} return.then.fn.result.current.supports.webrtc.codecs.send The sending codecs.
+   * @param {JSON} return.then.fn.result.current.supports.webrtc.codecs.send.audio The sending audio codecs.
+   * @param {JSON} return.then.fn.result.current.supports.webrtc.codecs.send.audio._codecName The codec information.
+   * - The property key value is the codec name.
+   * @param {Number} return.then.fn.result.current.supports.webrtc.codecs.send.audio._codecName.payloadType The
+   *   codec payload number.
+   * @param {Number} return.then.fn.result.current.supports.webrtc.codecs.send.audio._codecName.clockRate The
+   *   codec clock rate in Hz (hertz).
+   * @param {Number} return.then.fn.result.current.supports.webrtc.codecs.send.audio._codecName.payloadType The
+   *   number of channels, where mono is represented as `1`, and stereo as `2`.
+   * @param {String} [return.then.fn.result.current.supports.webrtc.codecs.send.audio._codecName.sdpFmtpLine] The
+   *   codec parameters configured as its corresponding `a=fmtp` SDP line.
+   * @param {JSON} return.then.fn.result.current.supports.webrtc.codecs.send.video The sending video codecs.
+   * @param {JSON} return.then.fn.result.current.supports.webrtc.codecs.send.video._codecName The codec information.
+   * - Object signature matches `then.fn.result.current.supports.webrtc.codecs.send.audio.#codecName`.
+   * @param {JSON} return.then.fn.result.current.supports.webrtc.codecs.recv The receiving codecs.
+   * @param {JSON} return.then.fn.result.current.supports.webrtc.codecs.recv.audio._codecName The codec information.
+   * - Object signature matches `then.fn.result.current.supports.webrtc.codecs.send.audio.#codecName`.
+   * @param {JSON} return.then.fn.result.current.supports.webrtc.codecs.recv.audio The receiving audio codecs.
+   * @param {JSON} return.then.fn.result.current.supports.webrtc.codecs.recv.video The receiving video codecs.
+   * @param {JSON} return.then.fn.result.current.supports.webrtc.codecs.recv.video._codecName The codec information.
+   * - Object signature matches `then.fn.result.current.supports.webrtc.codecs.send.audio.#codecName`.
+   * @param {Boolean} return.then.fn.result.current.supports.xhr The flag if `XMLHttpRequest` API is supported.
+   * @param {Boolean} return.then.fn.result.current.supports.corsRequest The flag if CORS requests is supported.
+   * @param {JSON} return.then.fn.result.recommended The recommended versions of
+   *   dependencies, browsers or WebRTC plugin to load for this SDK release version.
+   * @param {JSON} return.then.fn.result.recommended.browsers The browsers recommended.
+   * @param {JSON} return.then.fn.result.recommended.browser._browserName The browser recommended versions.
+   * - The property key value is the browser name.
+   * @param {String} return.then.fn.result.recommended.browser._browserName.minVersion The recommended
+   *   minimum version.
+   * @param {String} [return.then.fn.result.recommended.browser._browserName.maxVersion] The recommended
+   *   maximum version if required.
+   * @param {String} [return.then.fn.result.recommended.browser._browserName.minMobilePlatformVersion] The
+   *   recommended minimum version of the mobile platform if required.
+   * @param {String} [return.then.fn.result.recommended.browser._browserName.maxMobilePlatformVersion] The
+   *   recommended maximum version of the mobile platform if required.
+   * @param {JSON} return.then.fn.result.recommended.webrtcPlugin The WebRTC plugin versions recommended.
+   * @param {String} return.then.fn.result.recommended.webrtcPlugin.minVersion The
+   *   recommended WebRTC plugin minimum version.
+   * @param {String} [return.then.fn.result.recommended.webrtcPlugin.maxVersion] The
+   *   recommended WebRTC plugin maxmimum version if required.
+   * @param {JSON} return.then.fn.result.recommended.dependencies The recommended dependencies versions.
+   * @param {String} return.then.fn.result.recommended.dependencies.adapterjs The recommended AdapterJS
+   *   dependency version.
+   * @param {String} return.then.fn.result.recommended.dependencies.io The recommended socket.io-client
+   *   dependency version.
+   * @param {Function} return.catch Function to subscribe to when request result has errors.
+   * @param {Function} return.catch.fn The callback function.
+   * @param {Error} return.catch.fn.error The error object.
    * @example
    * // Example: Get the supports
-   * Temasys.Utils.getBrowserSupports().then(function (supports) {
+   * Temasys.Utils.getClientSupports().then(function (supports) {
    *   console.log("Browser supports ->", supports);
+   * }).catch(function (error) {
+   *   console.error("Browser supports retrieval error ->", error);
    * });
    * @for Temasys.Utils
    * @since 0.7.0
    */
-  getBrowserSupports: function () {
+  getClientSupports: function () {
     return new Promise(function (resolve) {
       var result = {
         current: {},
@@ -481,14 +562,14 @@ Temasys.Utils = {
       };
 
       // Set the current WebRTC plugin information
-      // References: https://confluence.temasys.com.sg/display/TWT/Useful+debug+APIs
+      // References: 
       result.current.webrtcPlugin = {
         required: ['IE', 'safari'].indexOf(window.webrtcDetectedBrowser) > -1,
         active: false,
         version: null,
         company: null,
         expirationDate: null,
-        whitelisted: false,
+        whiteListed: false,
         features: {
           domainUsageRestrictions: false,
           domainFeaturesRestrictions: false,
@@ -590,41 +671,43 @@ Temasys.Utils = {
 
         if (['IE', 'safari'].indexOf(window.webrtcDetectedBrowser) > -1) {
           try {
-            result.current.webrtcPlugin.whitelisted = !!refAdapterJS.WebRTCPlugin.plugin.isWebsiteWhitelisted;
-            result.current.webrtcPlugin.version = refAdapterJS.WebRTCPlugin.plugin.VERSION;
-            result.current.webrtcPlugin.company = refAdapterJS.WebRTCPlugin.plugin.COMPANY;
-            result.current.webrtcPlugin.expirationDate = refAdapterJS.WebRTCPlugin.plugin.expirationDate;
-            // Parse WebRTC plugin features
-            result.current.webrtcPlugin.features = {
-              domainUsageRestrictions: !!refAdapterJS.WebRTCPlugin.plugin.HasUsageRestrictionToDomains,
-              domainFeaturesRestrictions: !!refAdapterJS.WebRTCPlugin.plugin.HasFeaturesRestrictedToDomains,
-              autoUpdate: !!refAdapterJS.WebRTCPlugin.plugin.HasAutoupdateFeature,
-              crashReporter: !!refAdapterJS.WebRTCPlugin.plugin.HasCrashReporterFeature,
-              permissionPopup: !!refAdapterJS.WebRTCPlugin.plugin.HasPopupFeature,
-              whitelisting: !!refAdapterJS.WebRTCPlugin.plugin.HasWhiteListingFeature,
-              screensharing: !!(refAdapterJS.WebRTCPlugin.plugin.HasScreensharingFeature &&
-                refAdapterJS.WebRTCPlugin.plugin.isScreensharingAvailable),
-              experimentalAEC: !!refAdapterJS.WebRTCPlugin.plugin.HasExperimentalAEC,
-              h264: !!refAdapterJS.WebRTCPlugin.plugin.HasH264Support,
-              httpProxy: !!refAdapterJS.WebRTCPlugin.plugin.HasHTTPProxyFeature
-            };
             // IE returns as typeof object
             var pc = new window.RTCPeerConnection(null);
-            result.current.webrtcPlugin.active =
+            result.current.webrtcPlugin = {
+              required: ['IE', 'safari'].indexOf(window.webrtcDetectedBrowser) > -1,
               // Check if RTCPeerConnection.createOffer is still valid
-              !!((pc.createOffer !== null && ['object', 'function'].indexOf(typeof pc.createOffer) > -1) &&
-              // Check plugin flags "valid" is true, and then check if expiration date exists
-              refAdapterJS.WebRTCPlugin.plugin.valid && !!(result.current.webrtcPlugin.expirationDate &&
-              // If expiration date is defined, check if plugin has expired
-              (new Date(result.current.webrtcPlugin.expirationDate)).getTime() > (new Date()).getTime()) &&
-              // If whitelisted and domain is not in it
-              (result.current.webrtcPlugin.supports.whitelisting ? result.current.webrtcPlugin.whitelisted : true));
-            pc.close();
+              active: !!((pc.createOffer !== null && ['object', 'function'].indexOf(typeof pc.createOffer) > -1) &&
+                // Check plugin flags "valid" is true, and then check if expiration date exists
+                refAdapterJS.WebRTCPlugin.plugin.valid && !!(result.current.webrtcPlugin.expirationDate &&
+                // If expiration date is defined, check if plugin has expired
+                (new Date(result.current.webrtcPlugin.expirationDate)).getTime() > (new Date()).getTime()) &&
+                // If whitelisted and domain is not in it
+                (result.current.webrtcPlugin.supports.whitelisting ? result.current.webrtcPlugin.whitelisted : true)),
+              version: refAdapterJS.WebRTCPlugin.plugin.VERSION || null,
+              company: refAdapterJS.WebRTCPlugin.plugin.COMPANY || null,
+              expirationDate: refAdapterJS.WebRTCPlugin.plugin.expirationDate || null,
+              whiteListed: !!(refAdapterJS.WebRTCPlugin.plugin.HasWhiteListingFeature &&
+						    refAdapterJS.WebRTCPlugin.plugin.isWebsiteWhitelisted),
+              features: {
+                domainUsageRestrictions: !!refAdapterJS.WebRTCPlugin.plugin.HasUsageRestrictionToDomains,
+                domainFeaturesRestrictions: !!refAdapterJS.WebRTCPlugin.plugin.HasFeaturesRestrictedToDomains,
+                autoUpdate: !!refAdapterJS.WebRTCPlugin.plugin.HasAutoupdateFeature,
+                crashReporter: !!refAdapterJS.WebRTCPlugin.plugin.HasCrashReporterFeature,
+                permissionPopup: !!refAdapterJS.WebRTCPlugin.plugin.HasPopupFeature,
+                whiteListing: !!refAdapterJS.WebRTCPlugin.plugin.HasWhiteListingFeature,
+                screensharing: !!(refAdapterJS.WebRTCPlugin.plugin.HasScreensharingFeature &&
+                  refAdapterJS.WebRTCPlugin.plugin.isScreensharingAvailable),
+                experimentalAEC: !!refAdapterJS.WebRTCPlugin.plugin.HasExperimentalAEC,
+                h264: !!refAdapterJS.WebRTCPlugin.plugin.HasH264Support,
+                httpProxy: !!refAdapterJS.WebRTCPlugin.plugin.HasHTTPProxyFeature
+              }
+            };
+            // Need not parse WebRTC supports if plugin is not active
+            if (result.current.webrtcPlugin.active) {
+
+            }
           } catch (e) {}
-          // Need not parse WebRTC supports if plugin is not active
-          if (!result.current.webrtcPlugin.active) {
-            return resolve(result);
-          }
+          resolve(result);
         }
 
         result.current.supports.webrtc = {
@@ -655,7 +738,7 @@ Temasys.Utils = {
               result.current.supports.webrtc.codecs.send[codec.kind][codec.name.toLowerCase()] = {
                 channels: codec.numChannels || 1,
                 clockRate: codec.clockRate,
-                sdpFmtpLine: (codec.preferredPayload || '').toString()
+                payloadType: (codec.preferredPayload || '').toString()
               };
             }
           });

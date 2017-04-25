@@ -509,23 +509,23 @@ describe('Temasys.Utils', function() {
 						AdapterJS.WebRTCPlugin.plugin.isOutOfDate) : false);
 					// Tests result.current.webrtcPlugin.version
 					expect(result.current.webrtcPlugin.version, itemName + ': result.current.webrtcPlugin.version matches expected'
-						).to.equal(pluginAvailable ? AdapterJS.WebRTCPlugin.plugin.VERSION : null);
+						).to.equal(pluginAvailable ? (AdapterJS.WebRTCPlugin.plugin.VERSION || null) : null);
 					// Tests result.current.webrtcPlugin.company
 					expect(result.current.webrtcPlugin.company, itemName + ': result.current.webrtcPlugin.company matches expected'
 						).to.equal(pluginAvailable ? AdapterJS.WebRTCPlugin.plugin.COMPANY : null);
 					// Tests result.current.webrtcPlugin.expirationDate
 					expect(result.current.webrtcPlugin.expirationDate, itemName + ': result.current.webrtcPlugin.expirationDate matches expected'
 						).to.equal(pluginAvailable ? AdapterJS.WebRTCPlugin.plugin.expirationDate : null);
-					// Tests result.current.webrtcPlugin.whitelisted
-					expect(result.current.webrtcPlugin.whitelisted, itemName + ': result.current.webrtcPlugin.whitelisted matches expected'
+					// Tests result.current.webrtcPlugin.whiteListed
+					expect(result.current.webrtcPlugin.whiteListed, itemName + ': result.current.webrtcPlugin.whiteListed matches expected'
 						).to.equal(pluginAvailable ? (AdapterJS.WebRTCPlugin.plugin.HasWhiteListingFeature ?
-						AdapterJS.WebRTCPlugin.plugin.isWebsiteWhitelisted : false) : false);
+						!!AdapterJS.WebRTCPlugin.plugin.isWebsiteWhitelisted : false) : false);
 					// Tests result.current.webrtcPlugin.features.domainUsageRestrictions
 					expect(result.current.webrtcPlugin.features.domainUsageRestrictions, itemName + ': result.current.webrtcPlugin.features.domainUsageRestrictions matches expected'
 						).to.equal(pluginAvailable ? !!AdapterJS.WebRTCPlugin.plugin.HasUsageRestrictionToDomains : false);
 					// Tests result.current.webrtcPlugin.features.domainFeaturesRestrictions
 					expect(result.current.webrtcPlugin.features.domainFeaturesRestrictions, itemName + ': result.current.webrtcPlugin.features.domainFeaturesRestrictions matches expected'
-						).to.equal(pluginAvailable ? !!AdapterJS.WebRTCPlugin.plugin.HasUsageRestrictionToDomains : false);
+						).to.equal(pluginAvailable ? !!AdapterJS.WebRTCPlugin.plugin.HasFeaturesRestrictedToDomains : false);
 					// Tests result.current.webrtcPlugin.features.autoUpdate
 					expect(result.current.webrtcPlugin.features.autoUpdate, itemName + ': result.current.webrtcPlugin.features.autoUpdate matches expected'
 						).to.equal(pluginAvailable ? !!AdapterJS.WebRTCPlugin.plugin.HasAutoupdateFeature : false);

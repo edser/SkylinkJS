@@ -18,6 +18,35 @@
   "scripts": {
     "start": "sudo npm install && node localhost/server.js"
   },
+  "recommended": {
+    "browsers": {
+      "chrome": {
+        "minVersion": "52"
+      },
+      "firefox": {
+        "minVersion": "48"
+      },
+      "opera": {
+        "minVersion": "38"
+      },
+      "IE": {
+        "minVersion": "9"
+      },
+      "safari": {
+        "minVersion": "7"
+      },
+      "edge": {
+        "minVersion": "14.14352"
+      },
+      "bowser": {
+        "minVersion": "0.6.0",
+        "maxMobilePlatformVersion": "9"
+      }
+    },
+    "webrtcPlugin": {
+      "minVersion": "0.8.869"
+    }
+  },
   "dependencies": {
     "socket.io-client": "1.4.8",
     "adapterjs": "0.14.1"
