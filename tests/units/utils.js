@@ -326,6 +326,7 @@ describe('Temasys.Utils', function() {
 	 * Tests the `getClientSupports()` method.
 	 */
 	it('getClientSupports()', function (done) {
+		this.timeout(6500);
 		var queue = [];
 		window._webrtcDetectedBrowser = window.webrtcDetectedBrowser;
 		window._webrtcDetectedVersion = window.webrtcDetectedVersion;
@@ -409,7 +410,7 @@ describe('Temasys.Utils', function() {
 						{ isOutOfDate: true },
 						{}
 					], function (pluginStatus) {
-						testCases.push(['with plugin data (' + JSON.stringify(pluginStatus) + ')', function () {
+						var fnDefineAdapterJS = function (tcaseIndex) {
 							AdapterJS = window._AdapterJS || {};
 							AdapterJS.WebRTCPlugin = AdapterJS.WebRTCPlugin || {};
 							AdapterJS.WebRTCPlugin.plugin = pluginStatus;
@@ -418,29 +419,50 @@ describe('Temasys.Utils', function() {
 							};
 							var pluginDOM = document.createElement('object');
 							pluginDOM.id = AdapterJS.WebRTCPlugin.pluginInfo.pluginId;
-							pluginDOM.style.visibility = 'hidden';
 							pluginDOM.style.width = 0;
 							pluginDOM.style.height = 0;
+							pluginDOM.style.visibility = 'hidden';
+							pluginDOM.style.display = [0,2,3].indexOf(tcaseIndex) > -1 ? '' : 'none';
 							document.body.appendChild(pluginDOM);
+
+							if ([2,3].indexOf(tcaseIndex) > -1) {
+								window.RTCPeerConnection = function () {
+									this.createOffer = function (successCb, failCb) {
+										successCb({
+											type: 'offer',
+											sdp: tcaseIndex === 2 ? 'm=audio\r\na=rtpmap:56 test/48000/2\r\nm=video\r\na=rtpmap:57 ' +
+												'testa/48000/1\r\na=fmtp:57 test_param=1;\r\n' : '\r\n'
+										});
+									};
+									this.close = function () {};
+								};
+							}
+						};
+
+						testCases.push(['with plugin data (' + JSON.stringify(pluginStatus) + ') with plugin object', function () {
+							fnDefineAdapterJS(0);
+						}, function () {
+							AdapterJS = {};
+						}]);
+
+						testCases.push(['with plugin data (' + JSON.stringify(pluginStatus) + ') with plugin object not displayed', function () {
+							fnDefineAdapterJS(1);
+						}, function () {
+							AdapterJS = {};
+						}]);
+
+						testCases.push(['with plugin data (' + JSON.stringify(pluginStatus) + ') with RTCPeerConnection API', function () {
+							fnDefineAdapterJS(2);
+						}, function () {
+							AdapterJS = {};
+						}]);
+
+						testCases.push(['with plugin data (' + JSON.stringify(pluginStatus) + ') with RTCPeerConnection API but no codecs', function () {
+							fnDefineAdapterJS(3);
 						}, function () {
 							AdapterJS = {};
 						}]);
 					});
-
-					testCases.push(['with plugin object not displayed', function () {
-						AdapterJS = window._AdapterJS || {};
-						AdapterJS.WebRTCPlugin = AdapterJS.WebRTCPlugin || {};
-						AdapterJS.WebRTCPlugin.plugin = {};
-						AdapterJS.WebRTCPlugin.pluginInfo = {
-							pluginId : 'test',
-						};
-						var pluginDOM = document.createElement('object');
-						pluginDOM.id = AdapterJS.WebRTCPlugin.pluginInfo.pluginId;
-						pluginDOM.style.display = 'none';
-						document.body.appendChild(pluginDOM);
-					}, function () {
-						AdapterJS = {};
-					}]);
 				}
 
 				Temasys.Utils.forEach(testCases, function(item) {
@@ -457,7 +479,7 @@ describe('Temasys.Utils', function() {
 				window.webrtcDetectedVersion = testItem[1];
 			  fnProcessItem(testItem[2], function () {
 					testItem[4]();
-					fnNext();
+					fnNext(fnProcessItem);
 				});
 			} else {
 				window.webrtcDetectedBrowser = window._webrtcDetectedBrowser;
@@ -477,8 +499,8 @@ describe('Temasys.Utils', function() {
 
 				expect(result.current.browser.name,
 					testName + ': result.current.browser.name is correct').to.equal(window.webrtcDetectedBrowser);
-				expect(result.current.browser.name,
-					testName + ': result.current.browser.version is correct').to.equal(window.webrtcDetectedVersion);
+				expect(result.current.browser.version,
+					testName + ': result.current.browser.version is correct').to.equal(window.webrtcDetectedVersion.toString());
 				expect(result.current.browser.platform,
 					testName + ': result.current.browser.platform is correct').to.equal(navigator.platform);
 				expect(result.current.browser.mobilePlatformVersion,
@@ -489,11 +511,11 @@ describe('Temasys.Utils', function() {
 				expect(result.current.dependencies.io,
 					testName + ': result.current.dependencies.io is correct').to.equal(!!window.io);
 
-				if (['IE', 'safari'].indexOf(window.webrtcDetectedBrowser) > -1 && hasAdapterJS) {
+				if (['IE', 'safari'].indexOf(window.webrtcDetectedBrowser) > -1 && hasAdapterJS && AdapterJS.WebRTCPlugin.plugin) {
 					expect(result.current.webrtcPlugin.version,
-						testName + ': result.current.webrtcPlugin.version is correct').to.equal(AdapterJS.WebRTCPlugin.plugin.VERSION);
+						testName + ': result.current.webrtcPlugin.version is correct').to.equal(AdapterJS.WebRTCPlugin.plugin.VERSION || null);
 					expect(result.current.webrtcPlugin.company,
-						testName + ': result.current.webrtcPlugin.company is correct').to.equal(AdapterJS.WebRTCPlugin.plugin.COMPANY);
+						testName + ': result.current.webrtcPlugin.company is correct').to.equal(AdapterJS.WebRTCPlugin.plugin.COMPANY || null);
 					expect(result.current.webrtcPlugin.expirationDate,
 						testName + ': result.current.webrtcPlugin.expirationDate is correct').to.equal(
 						AdapterJS.WebRTCPlugin.plugin.expirationDate || null);
@@ -514,8 +536,8 @@ describe('Temasys.Utils', function() {
 					}
 
 					var pluginDOM = document.getElementById(AdapterJS.WebRTCPlugin.pluginInfo.pluginId);
-					var isInactiveFeatures = result.current.webrtcPlugin.active && !(result.current.webrtcPlugin.whiteList &&
-						!result.current.webrtcPlugin.whiteList.enabled && result.current.webrtcPlugin.whiteList.restrictsFeatures);
+					var isInactiveFeatures = !(result.current.webrtcPlugin.active && !(result.current.webrtcPlugin.whiteList &&
+						!result.current.webrtcPlugin.whiteList.enabled && result.current.webrtcPlugin.whiteList.restrictsFeatures));
 					
 					if (AdapterJS.WebRTCPlugin.plugin.isOutOfDate || (result.current.webrtcPlugin.whiteList &&
 						!result.current.webrtcPlugin.whiteList.enabled && result.current.webrtcPlugin.whiteList.restrictsUsage) ||
@@ -553,155 +575,79 @@ describe('Temasys.Utils', function() {
 
 				expect(result.current.supports.webrtc.connection,
 					testName + ': result.current.supports.webrtc.connection is correct').to.equal(
-					!(result.current.webrtcPlugin && !result.current.webrtcPlugin.active) || !window.RTCPeerConnection ||
+					!((result.current.webrtcPlugin && !result.current.webrtcPlugin.active) || !window.RTCPeerConnection ||
 					(Object.keys(result.current.supports.webrtc.codecs.send.audio).length === 0 &&
 					Object.keys(result.current.supports.webrtc.codecs.send.video).length === 0 &&
 					Object.keys(result.current.supports.webrtc.codecs.recv.audio).length === 0 &&
-					Object.keys(result.current.supports.webrtc.codecs.rec.video).length === 0));
+					Object.keys(result.current.supports.webrtc.codecs.recv.video).length === 0)));
 
-				expect(result.current.supports.webrtc.datachannel,
-					testName + ': result.current.supports.webrtc.datachannel is correct').to.equal(
-					
+				assert.typeOf(result.current.supports.webrtc.datachannel, 'boolean',
+					testName + ': result.current.supports.webrtc.datachannel typeof boolean');
+				assert.typeOf(result.current.supports.webrtc.dtmfsender, 'boolean',
+					testName + ': result.current.supports.webrtc.dtmfsender typeof boolean');
+				assert.typeOf(result.current.supports.webrtc.generateCertificate, 'boolean',
+					testName + ': result.current.supports.webrtc.generateCertificate typeof boolean');
+				assert.typeOf(result.current.supports.webrtc.iceRestart, 'boolean',
+					testName + ': result.current.supports.webrtc.iceRestart typeof boolean');
+				assert.typeOf(result.current.supports.webrtc.screensharing, 'boolean',
+					testName + ': result.current.supports.webrtc.screensharing typeof boolean');
+				assert.typeOf(result.current.supports.webrtc.maxBandwidth, 'boolean',
+					testName + ': result.current.supports.webrtc.maxBandwidth typeof boolean');
+				assert.typeOf(result.current.supports.webrtc.turns, 'boolean',
+					testName + ': result.current.supports.webrtc.turns typeof boolean');
+				assert.typeOf(result.current.supports.webrtc.stun, 'boolean',
+					testName + ': result.current.supports.webrtc.stun typeof boolean');
+				assert.typeOf(result.current.supports.webrtc.turnOverTcp, 'boolean',
+					testName + ': result.current.supports.webrtc.turnOverTcp typeof boolean');
 
-				console.info('parse->',{
-					datachannel: result.current.supports.webrtc.datachannel,
-					dtmfsender: result.current.supports.webrtc.dtmfsender,
-					generateCertificate: result.current.supports.webrtc.generateCertificate,
-					iceRestart: result.current.supports.webrtc.iceRestart,
-					screensharing: result.current.supports.webrtc.screensharing,
-					maxBandwidth: result.current.supports.webrtc.maxBandwidth,
-					turns: result.current.supports.webrtc.turns,
-					stun: result.current.supports.webrtc.stun,
-					turn: result.current.supports.webrtc.turn,
-					turnOverTcp: result.current.supports.webrtc.turnOverTcp
-				}, (function () {
-					var output = {
-						datachannel: false,
-						dtmfsender: false,
-						generateCertificate: false,
-						iceRestart: false,
-						screensharing: false,
-						maxBandwidth: false,
-						turns: false,
-						stun: false,
-						turn: false,
-						turnOverTcp: false
-					};
-					if (result.current.supports.webrtc.connection) {
-						if (window.webrtcDetectedBrowser === 'chrome') {
-							output.datachannel = window.webrtcDetectedVersion > 30;
-							output.dtmfsender = window.webrtcDetectedVersion >= 45;
-							output.generateCertificate = window.webrtcDetectedVersion > 52;
-							output.iceRestart = window.webrtcDetectedVersion >= 45;
-							output.turns = window.webrtcDetectedBrowser >= 30;
-							output.turnOverTcp = window.webrtcDetectedVersion >= 45;
-							output.maxBandwidth = window.webrtcDetectedVersion >= 45;
-							output.screensharing = window.webrtcDetectedVersion >= 45;
-							output.stun = window.webrtcDetectedVersion >= 45;
-						} else if (window.webrtcDetectedBrowser === 'firefox') {
-							output.datachannel = window.webrtcDetectedVersion >= 38;
-							output.dtmfsender = window.webrtcDetectedVersion >= 52;
-							output.generateCertificate = window.webrtcDetectedVersion >= 42;
-							output.iceRestart = window.webrtcDetectedVersion >= 48;
-							output.turns = window.webrtcDetectedVersion >= 52;
-							output.turnOverTcp = window.webrtcDetectedVersion >= 38;
-							output.maxBandwidth = window.webrtcDetectedVersion >= 49;
-							output.screensharing = window.webrtcDetectedVersion >= 38;
-							output.stun = window.webrtcDetectedVersion >= 38;
-						} else if (window.webrtcDetectedBrowser === 'opera') {
-							output.datachannel = window.webrtcDetectedVersion >= 22;
-							output.dtmfsender = window.webrtcDetectedVersion >= 52;
-							output.generateCertificate = window.webrtcDetectedVersion >= 42;
-							output.iceRestart = window.webrtcDetectedVersion >= 48;
-							output.turns = window.webrtcDetectedVersion >= 52;
-							output.turnOverTcp = window.webrtcDetectedVersion >= 22;
-							output.maxBandwidth = window.webrtcDetectedVersion >= 49;
-							output.screensharing = window.webrtcDetectedVersion >= 34;
-							output.stun = window.webrtcDetectedVersion >= 22;
-						}
-					}
-					return output;
-				})());
-
-				expect({
-					datachannel: result.current.supports.webrtc.datachannel,
-					dtmfsender: result.current.supports.webrtc.dtmfsender,
-					generateCertificate: result.current.supports.webrtc.generateCertificate,
-					iceRestart: result.current.supports.webrtc.iceRestart,
-					screensharing: result.current.supports.webrtc.screensharing,
-					maxBandwidth: result.current.supports.webrtc.maxBandwidth,
-					turns: result.current.supports.webrtc.turns,
-					stun: result.current.supports.webrtc.stun,
-					turn: result.current.supports.webrtc.turn,
-					turnOverTcp: result.current.supports.webrtc.turnOverTcp
-				}, testName + ': result.current.supports.webrtc settings matches expected').to.deep.equal((function () {
-					var output = {
-						datachannel: false,
-						dtmfsender: false,
-						generateCertificate: false,
-						iceRestart: false,
-						screensharing: false,
-						maxBandwidth: false,
-						turns: false,
-						stun: false,
-						turn: false,
-						turnOverTcp: false
-					};
-					if (result.current.supports.webrtc.connection) {
-						if (window.webrtcDetectedBrowser === 'chrome') {
-							output.datachannel = window.webrtcDetectedVersion > 30;
-							output.dtmfsender = window.webrtcDetectedVersion >= 45;
-							output.generateCertificate = window.webrtcDetectedVersion > 52;
-							output.iceRestart = window.webrtcDetectedVersion >= 45;
-							output.turns = window.webrtcDetectedBrowser >= 30;
-							output.turnOverTcp = window.webrtcDetectedVersion >= 45;
-							output.maxBandwidth = window.webrtcDetectedVersion >= 45;
-							output.screensharing = window.webrtcDetectedVersion >= 45;
-							output.stun = window.webrtcDetectedVersion >= 45;
-						} else if (window.webrtcDetectedBrowser === 'firefox') {
-							output.datachannel = window.webrtcDetectedVersion >= 38;
-							output.dtmfsender = window.webrtcDetectedVersion >= 52;
-							output.generateCertificate = window.webrtcDetectedVersion >= 42;
-							output.iceRestart = window.webrtcDetectedVersion >= 48;
-							output.turns = window.webrtcDetectedVersion >= 52;
-							output.turnOverTcp = window.webrtcDetectedVersion >= 38;
-							output.maxBandwidth = window.webrtcDetectedVersion >= 49;
-							output.screensharing = window.webrtcDetectedVersion >= 38;
-							output.stun = window.webrtcDetectedVersion >= 38;
-						} else if (window.webrtcDetectedBrowser === 'opera') {
-							output.datachannel = window.webrtcDetectedVersion >= 22;
-							output.dtmfsender = window.webrtcDetectedVersion >= 52;
-							output.generateCertificate = window.webrtcDetectedVersion >= 42;
-							output.iceRestart = window.webrtcDetectedVersion >= 48;
-							output.turns = window.webrtcDetectedVersion >= 52;
-							output.turnOverTcp = window.webrtcDetectedVersion >= 22;
-							output.maxBandwidth = window.webrtcDetectedVersion >= 49;
-							output.screensharing = window.webrtcDetectedVersion >= 34;
-							output.stun = window.webrtcDetectedVersion >= 22;
-						}
-					}
-					return output;
-				})());
-
-				Temasys.forEach(['audio', 'video'], function (kind) {
-					Temasys.forEach(['send', 'recv'], function (direction) {
-						Temasys.Utils.forEach(result.current.supports.webrtc.codecs[direction][kind], function (codec, codecProp) {
-							expect({
-								codecName: { matches: !!codecProp, typeof: typeof codec.codecName },
-								channels: { matches: codec.channels > 0, typeof: typeof codec.channels },
-								clockRate: { matches: codec.clockRate > 0, typeof: typeof codec.clockRate },
-								sdpFmtpLine: { matches: !!codec.sdpFmtpLine, typeof: typeof codec.sdpFmtpLine },
-								payloadType: { matches: codec.payloadType > 0, typeof: typeof codec.payloadType }
-							}).to.deep.equal({
-								codecName: { matches: true, typeof: 'string' },
-								channels: { matches: true, typeof: 'number' },
-								clockRate: { matches: true, typeof: 'number' },
-								sdpFmtpLine: { matches: true, typeof: 'string' },
-								payloadType: { matches: true, typeof: 'number' }
+				if (!result.current.supports.webrtc.connection) {
+					expect(result.current.supports.webrtc.datachannel,
+						testName + ': result.current.supports.webrtc.datachannel is disabled').to.equal(false);
+					expect(result.current.supports.webrtc.dtmfsender,
+						testName + ': result.current.supports.webrtc.dtmfsender is disabled').to.equal(false);
+					expect(result.current.supports.webrtc.generateCertificate,
+						testName + ': result.current.supports.webrtc.generateCertificate is disabled').to.equal(false);
+					expect(result.current.supports.webrtc.iceRestart,
+						testName + ': result.current.supports.webrtc.iceRestart is disabled').to.equal(false);
+					expect(result.current.supports.webrtc.screensharing,
+						testName + ': result.current.supports.webrtc.screensharing is disabled').to.equal(false);
+					expect(result.current.supports.webrtc.maxBandwidth,
+						testName + ': result.current.supports.webrtc.maxBandwidth is disabled').to.equal(false);
+					expect(result.current.supports.webrtc.turns,
+						testName + ': result.current.supports.webrtc.turns is disabled').to.equal(false);
+					expect(result.current.supports.webrtc.stun,
+						testName + ': result.current.supports.webrtc.stun is disabled').to.equal(false);
+					expect(result.current.supports.webrtc.turnOverTcp,
+						testName + ': result.current.supports.webrtc.turnOverTcp is disabled').to.equal(false);
+				} else {
+					Temasys.Utils.forEach(['audio', 'video'], function (kind) {
+						Temasys.Utils.forEach(['send', 'recv'], function (direction) {
+							Temasys.Utils.forEach(result.current.supports.webrtc.codecs[direction][kind], function (codec, codecProp) {
+								assert.typeOf(codecProp, 'string',	testName + ': result.current.supports.webrtc.codecs.' +
+									direction + '.' + kind + ': "' + codecProp + '" is typeof string');
+								assert.typeOf(codec.channels, 'number', testName + ': result.current.supports.webrtc.codecs.' +
+									direction + '.' + kind + '["' + codecProp + '"].channels is typeof number');
+								assert.typeOf(codec.clockRate, 'number', testName + ': result.current.supports.webrtc.codecs.' +
+									direction + '.' + kind + '["' + codecProp + '"].clockRate is typeof number');
+								assert.typeOf(codec.payloadType, 'number', testName + ': result.current.supports.webrtc.codecs.' +
+									direction + '.' + kind + '["' + codecProp + '"].payloadType is typeof number');
+								assert.typeOf(codec.sdpFmtpLine, 'string', testName + ': result.current.supports.webrtc.codecs.' +
+									direction + '.' + kind + '["' + codecProp + '"].sdpFmtpLine is typeof string');
+								assert.isDefined(codecProp,  testName + ': result.current.supports.webrtc.codecs.' +
+									direction + '.' + kind + ': "' + codecProp + '" is defined');
+								assert.isDefined(codec.sdpFmtpLine,  testName + ': result.current.supports.webrtc.codecs.' +
+									direction + '.' + kind + '["' + codecProp + '"].sdpFmtpLine is defined');
+								expect(codec.channels, testName + ': result.current.supports.webrtc.codecs.' +
+									direction + '.' + kind + '["' + codecProp + '"].channels is greater than 0').to.be.above(0);
+								expect(codec.clockRate, testName + ': result.current.supports.webrtc.codecs.' +
+									direction + '.' + kind + '["' + codecProp + '"].clockRate is greater than 0').to.be.above(0);
+								expect(codec.payloadType, testName + ': result.current.supports.webrtc.codecs.' +
+									direction + '.' + kind + '["' + codecProp + '"].payloadType is greater than -1').to.be.above(-1);
 							});
 						});
 					});
-				});
+				}
+
 				fnItemDone();
 			});
 		});
