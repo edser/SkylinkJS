@@ -481,7 +481,6 @@ Temasys.Utils = {
    * @param {Boolean} return.then.fn.result.current.supports.webrtc.turns The flag if TURN over TLS protocol is supported
    *   when connecting to TURN server.
    * @param {Boolean} return.then.fn.result.current.supports.webrtc.stun The flag if STUN connections is supported.
-   * @param {Boolean} return.then.fn.result.current.supports.webrtc.turn The flag if TURN connections is supported.
    * @param {Boolean} return.then.fn.result.current.supports.webrtc.turnOverTcp The flag if TURN connections over TCP IP
    *   protocol is supported.
    * @param {Boolean} return.then.fn.result.current.supports.webrtc.turnOverUdp The flag if TURN connections over UDP IP
@@ -547,23 +546,13 @@ Temasys.Utils = {
    * @example
    * // Example: Get the supports
    * Temasys.Utils.getClientSupports().then(function (result) {
-   *   console.info("==== Current browser information ====");
-   *   console.log("- Name: " + result.current.browser.name);
-   *   console.log("- Version: " + result.current.browser.version);
-   *   console.log("- Platform: " + result.current.browser.platform +
-   *     (result.current.browser.platform.version ? " / " + result.current.browser.platform.version : "");
-   * 
-   *   if (result.current.webrtcPlugin) {
-   *     console.info("==== Current WebRTC plugin information ====");
-   *     console.log("- Is active: " + result.current.webrtcPlugin.active);
-   *     console.log("- Company: " + result.current.webrtcPlugin.company);
-   *     console.log("- Version: " + result.current.webrtcPlugin.version);
-   *     console.log("- Expiration Date: " + (result.current.webrtcPlugin.expirationDate || 'N/A'));
-   *
-   *     if (result.current.webrtcPlugin.whiteList) {
-   *       console.log("- Is domain whitelisted")
-   *     }
-   *   }
+   *   console.log("Browser information ->", result.current.browser);
+   *   console.log("WebRTC plugin information (if any) ->", result.current.webrtcPlugin);
+   *   console.log("Dependencies loaded ->", result.current.dependencies);
+   *   console.log("Browser supports ->", result.current.supports);
+   *   console.log("Recommended browsers versions ->", result.recommended.browsers);
+   *   console.log("Recommended WebRTC plugin versions ->", result.recommended.webrtcPlugin);
+   *   console.log("Recommended dependencies versions ->", result.recommended.dependencies);
    * }).catch(function (error) {
    *   console.error("Browser supports retrieval error ->", error);
    * });
@@ -573,7 +562,7 @@ Temasys.Utils = {
   getClientSupports: function () {
     return new Promise(function (resolve, reject) {
       var refAdapterJS = (_globals.AdapterJS || window.AdapterJS);
-      refAdapterJS = typeof refAdapterJS.webRTCReady === 'function' ? refAdapterJS : null;
+      refAdapterJS = refAdapterJS && typeof refAdapterJS.webRTCReady === 'function' ? refAdapterJS : null;
       var result = {
         current: {
           browser: {
@@ -587,7 +576,13 @@ Temasys.Utils = {
             adapterjs: refAdapterJS ? refAdapterJS.VERSION : null
           },
           webrtcPlugin: null,
-          supports: {}
+          supports: {
+            webrtc: {},
+            xhr: typeof window.XMLHttpRequest === 'function',
+            corsRequest: window.webrtcDetectedBrowser === 'IE' && [8,9].indexOf(window.webrtcDetectedVersion) > -1 ?
+              ['object', 'function'].indexOf(typeof window.XDomainRequest) > -1 :
+              typeof window.XMLHttpRequest === 'function'
+          }
         },
         recommended: {
           browers: {
@@ -634,6 +629,10 @@ Temasys.Utils = {
               mobilePlatformMaxVersion: '@@bowserMobilePlatformMaxVersion' || null
             }
           },
+          dependencies: {
+            io: '@@socketioVersion' || null,
+            adapterjs: '@@adapterjsVersion' || null
+          },
           webrtcPlugin: {
             minVersion: '@@pluginMinVersion' || null,
             maxVersion: '@@pluginMaxVersion' || null
@@ -644,194 +643,180 @@ Temasys.Utils = {
       (refAdapterJS ? refAdapterJS : {
         webRTCReady: function (fn) { fn(); }
       }).webRTCReady(function () {
-        
-      });
-
-      // Set the current WebRTC plugin information
-      // References: 
-      result.current.webrtcPlugin = {
-        required: ['IE', 'safari'].indexOf(window.webrtcDetectedBrowser) > -1,
-        active: false,
-        version: null,
-        company: null,
-        expirationDate: null,
-        whiteListed: false,
-        features: {
-          domainUsageRestrictions: false,
-          domainFeaturesRestrictions: false,
-          crashReporter: false,
-          autoUpdate: false,
-          whiteListing: false,
-          screensharing: false,
-          httpProxy: false,
-          h264: false,
-          permissionPopup: false,
-          experimentalAEC: false
-        }
-      };
-
-      // Set the recommended browser information
-      result.recommended.
-
-      // Set the recommended WebRTC plugin information
-      result.recommended.webrtcPlugin = {
-        minVersion: '0.8.869',
-        maxVersion: null
-      };
-
-      // Set the WebRTC and CORS supports
-      result.current.supports = {
-        webrtc: {
+        result.current.supports.webrtc = {
           connection: false,
           datachannel: false,
+          dtmfsender: false,
+          generateCertificate: false,
           iceRestart: false,
           screensharing: false,
           maxBandwidth: false,
           turns: false,
-          codecs: {
-            send: { audio: {}, video: {} },
-            recv: { audio: {}, video: {} }
-          }
-        },
-        corsRequest: window.webrtcDetectedBrowser === 'IE' && [8,9].indexOf(window.webrtcDetectedVersion) > -1 ?
-          ['object', 'function'].indexOf(typeof window.XDomainRequest) > -1 :
-          typeof window.XMLHttpRequest === 'function'
-      };
-
-      var refAdapterJS = _globals.AdapterJS || window.AdapterJS;
-
-      (function (fnParseSupports) {
-        if (['IE', 'safari'].indexOf(window.webrtcDetectedBrowser) > -1 && refAdapterJS &&
-          typeof refAdapterJS === 'object' && typeof refAdapterJS.webRTCReady === 'function') {
-          refAdapterJS.webRTCReady(fnParseCodecsSupports);
-        } else {
-          fnParseSupports();
-        }
-      })(function () {
-        if (!window.RTCPeerConnection) {
-          return resolve(result);
-        }
-
-        if (['IE', 'safari'].indexOf(window.webrtcDetectedBrowser) > -1) {
-          try {
-            // IE returns as typeof object
-            var pc = new window.RTCPeerConnection(null);
-            result.current.webrtcPlugin = {
-              required: ['IE', 'safari'].indexOf(window.webrtcDetectedBrowser) > -1,
-              // Check if RTCPeerConnection.createOffer is still valid
-              active: !!((pc.createOffer !== null && ['object', 'function'].indexOf(typeof pc.createOffer) > -1) &&
-                // Check plugin flags "valid" is true, and then check if expiration date exists
-                refAdapterJS.WebRTCPlugin.plugin.valid && !!(result.current.webrtcPlugin.expirationDate &&
-                // If expiration date is defined, check if plugin has expired
-                (new Date(result.current.webrtcPlugin.expirationDate)).getTime() > (new Date()).getTime()) &&
-                // If whitelisted and domain is not in it
-                (result.current.webrtcPlugin.supports.whitelisting ? result.current.webrtcPlugin.whitelisted : true)),
-              version: refAdapterJS.WebRTCPlugin.plugin.VERSION || null,
-              company: refAdapterJS.WebRTCPlugin.plugin.COMPANY || null,
-              expirationDate: refAdapterJS.WebRTCPlugin.plugin.expirationDate || null,
-              whiteListed: !!(refAdapterJS.WebRTCPlugin.plugin.HasWhiteListingFeature &&
-						    refAdapterJS.WebRTCPlugin.plugin.isWebsiteWhitelisted),
-              features: {
-                domainUsageRestrictions: !!refAdapterJS.WebRTCPlugin.plugin.HasUsageRestrictionToDomains,
-                domainFeaturesRestrictions: !!refAdapterJS.WebRTCPlugin.plugin.HasFeaturesRestrictedToDomains,
-                autoUpdate: !!refAdapterJS.WebRTCPlugin.plugin.HasAutoupdateFeature,
-                crashReporter: !!refAdapterJS.WebRTCPlugin.plugin.HasCrashReporterFeature,
-                permissionPopup: !!refAdapterJS.WebRTCPlugin.plugin.HasPopupFeature,
-                whiteListing: !!refAdapterJS.WebRTCPlugin.plugin.HasWhiteListingFeature,
-                screensharing: !!(refAdapterJS.WebRTCPlugin.plugin.HasScreensharingFeature &&
-                  refAdapterJS.WebRTCPlugin.plugin.isScreensharingAvailable),
-                experimentalAEC: !!refAdapterJS.WebRTCPlugin.plugin.HasExperimentalAEC,
-                h264: !!refAdapterJS.WebRTCPlugin.plugin.HasH264Support,
-                httpProxy: !!refAdapterJS.WebRTCPlugin.plugin.HasHTTPProxyFeature
-              }
-            };
-            // Need not parse WebRTC supports if plugin is not active
-            if (result.current.webrtcPlugin.active) {
-
-            }
-          } catch (e) {}
-          resolve(result);
-        }
-
-        result.current.supports.webrtc = {
-          connection: true,
-          datachannel: window.webrtcDetectedBrowser !== 'edge',
-          iceRestart: !((window.webrtcDetectedBrowser === 'firefox' && window.webrtcDetectedVersion < 48) ||
-            window.webrtcDetectedBrowser === 'edge'),
-          screensharing: ['chrome', 'firefox'].indexOf(window.webrtcDetectedBrowser) > -1 ||
-            (['IE', 'safari'].indexOf(window.webrtcDetectedBrowser) > -1 && result.current.webrtcPlugin.supports.screensharing),
-          maxBandwidth: !((window.webrtcDetectedBrowser === 'firefox' && window.webrtcDetectedVersion < 49) ||
-            window.webrtcDetectedBrowser === 'edge'),
-          turns: ['IE', 'safari', 'chrome', 'opera'].indexOf(window.webrtcDetectedBrowser) > -1,
+          stun: false,
+          turn: false,
+          turnOverTcp: false,
+          turnOverUdp: false,
           codecs: {
             send: { audio: {}, video: {} },
             recv: { audio: {}, video: {} }
           }
         };
 
-        if (window.webrtcDetectedBrowser === 'edge' &&
-          typeof window.RTCRtpSender === 'function' && typeof window.RTCRtpSender.getCapabilities === 'function' &&
-          typeof window.RTCRtpReceiver === 'function' && typeof window.RTCRtpReceiver.getCapabilities === 'function') {
-          // Parse sending codecs
-          var sendCodecs = RTCRtpSender.getCapabilities();
-          Temasys.Utils.forEach(sendCodecs, function (codec) {
-            if (!codec.name) {
-              return;
-            } else if (['audio', 'video'].indexOf(codec.kind) > -1) {
-              result.current.supports.webrtc.codecs.send[codec.kind][codec.name.toLowerCase()] = {
-                channels: codec.numChannels || 1,
-                clockRate: codec.clockRate,
-                payloadType: (codec.preferredPayload || '').toString()
+        try {
+          if (window.RTCPeerConnection) {
+            // Check for WebRTC plugin supports and active
+            if (['IE', 'safari'].indexOf(window.webrtcDetectedBrowser) > -1 && !!refAdapterJS) {
+              var pc = new RTCPeerConnection(null);
+              var pluginDOM = document.getElementById(refAdapterJS.WebRTCPlugin.pluginInfo.pluginId);
+
+              result.current.webrtcPlugin = {
+                active: !!(pc.createOffer !== null && ['object', 'function'].indexOf(typeof pc.createOffer) > -1 &&
+                  // Check plugin flags "valid" is true, and then check if expired
+                  refAdapterJS.WebRTCPlugin.plugin.valid && !refAdapterJS.WebRTCPlugin.plugin.isOutOfDate &&
+                  // Check if plugin has whitelisting feature and has usage restrictions
+                  // Ensure that plugin <object> element to access the plugin WebRTC API is not not displayed
+                  pluginDOM && pluginDOM.style.display !== 'none'),
+                version: refAdapterJS.WebRTCPlugin.plugin.VERSION || null,
+                company: refAdapterJS.WebRTCPlugin.plugin.COMPANY || null,
+                expirationDate: refAdapterJS.WebRTCPlugin.plugin.expirationDate || null,
+                whiteList: null,
+                features: {
+                  autoUpdate: !!refAdapterJS.WebRTCPlugin.plugin.HasAutoupdateFeature,
+                  crashReporter: !!refAdapterJS.WebRTCPlugin.plugin.HasCrashReporterFeature,
+                  noPermissionPopup: !!refAdapterJS.WebRTCPlugin.plugin.HasPopupFeature,
+                  screensharing: !!(refAdapterJS.WebRTCPlugin.plugin.HasScreensharingFeature &&
+                    refAdapterJS.WebRTCPlugin.plugin.isScreensharingAvailable),
+                  experimentalAEC: !!refAdapterJS.WebRTCPlugin.plugin.HasExperimentalAEC,
+                  h264: !!refAdapterJS.WebRTCPlugin.plugin.HasH264Support,
+                  httpProxy: !!refAdapterJS.WebRTCPlugin.plugin.HasHTTPProxyFeature
+                }
               };
-            }
-          });
-          // Parse receiving codecs
-          var recvCodecs = RTCRtpReceiver.getCapabilities();
-          Temasys.Utils.forEach(recvCodecs, function (codec) {
-            if (!codec.name) {
-              return;
-            } else if (['audio', 'video'].indexOf(codec.kind) > -1) {
-              result.current.supports.webrtc.codecs.recv[codec.kind][codec.name.toLowerCase()] = {
-                channels: codec.numChannels || 1,
-                clockRate: codec.clockRate,
-                sdpFmtpLine: (codec.preferredPayload || '').toString()
-              };
-            }
-          });
-          resolve(result);
-        } else {
-          var pc = new RTCPeerConnection(null);
-          pc.createOffer(function (offer) {
-            var sdpLines = offer.sdp.split('\r\n');
-            var mediaType = '';
-            Temasys.Utils.forEach(sdpLines, function (line) {
-              if (line.indexOf('m=') === 0) {
-                mediaType = (line.split('m=')[1] || '').split(' ')[0];
-              } else if (['audio', 'video'].indexOf(mediaType) > -1 && line.indexOf('a=rtpmap:') === 0) {
-                var parts = (line.split('a=rtpmap:')[1] || '').split(' ');
-                var codecParts = (parts[1] || '').split('/');
-                var codecResult = {
-                  channels: parseInt(codecParts[2] || '1', 10) || 1,
-                  clockRate: parseInt(codecParts[1] || '0', 10) || 0,
-                  sdpFmtpLine: parts[0]
+
+              // Check if whitelisting feature is enabled
+              if (!!refAdapterJS.WebRTCPlugin.plugin.HasWhiteListingFeature) {
+                result.current.webrtcPlugin.whiteList = {
+                  enabled: !!refAdapterJS.WebRTCPlugin.plugin.isWebsiteWhitelisted,
+                  restrictsUsage: !!refAdapterJS.WebRTCPlugin.plugin.HasUsageRestrictionToDomains,
+                  restrictsFeatures: !!refAdapterJS.WebRTCPlugin.plugin.HasFeaturesRestrictedToDomains
                 };
-                result.current.supports.webrtc.codecs.recv[mediaType][codecParts[0].toLowerCase()] = codecResult;
-                result.current.supports.webrtc.codecs.send[mediaType][codecParts[0].toLowerCase()] = codecResult;
+                // Check if whitelisting disables connection
+                if (!(result.current.webrtcPlugin.whiteList.enabled || !result.current.webrtcPlugin.whiteList.restrictsUsage)) {
+                  result.current.webrtcPlugin.active = false;
+                }
               }
-            });
-            resolve(result);
-          }, function (e) {
-            result.current.supports.webrtc.connection = false;
-            resolve(result);
-          }, ['IE', 'safari'].indexOf(window.webrtcDetectedBrowser) > -1 ? {
-            mandatory: {
-              OfferToReceiveAudio: 1,
-              OfferToReceiveVideo: 1
+
+              // Check if inactive or whitelisting disables features
+              if (!result.current.webrtcPlugin.active || !((result.current.webrtcPlugin.whiteList &&
+                result.current.webrtcPlugin.whiteList.enabled) || !result.current.webrtcPlugin.whiteList.restrictsFeatures)) {
+                result.current.webrtcPlugin.features.autoUpdate = false;
+                result.current.webrtcPlugin.crashReporter = false;
+                result.current.webrtcPlugin.noPermissionPopup = false;
+                result.current.webrtcPlugin.screensharing = false;
+                result.current.webrtcPlugin.experimentalAEC = false;
+                result.current.webrtcPlugin.httpProxy = false;
+              }
+
+              pc.close();
+  
+              if (!result.current.webrtcPlugin.active) {
+                return resolve(result);
+              }
             }
-          } : {
-            offerToReceiveVideo: 1,
-            offerToReceiveAudio: 1
-          });
+
+            result.current.supports.webrtc.connection = true;
+            result.current.supports.webrtc.datachannel = window.webrtcDetectedBrowser !== 'edge';
+            result.current.supports.webrtc.dtmfsender = ['opera', 'chrome'].indexOf(window.webrtcDetectedBrowser) > -1 ||
+              (window.webrtcDetectedBrowser === 'firefox' && window.webrtcDetectedVersion >= 52);
+            result.current.supports.webrtc.generateCertificate = (window.webrtcDetectedBrowser === 'firefox' &&
+              window.webrtcDetectedVersion >= 42) || (window.webrtcDetectedBrowser === 'chrome' &&
+              window.webrtcDetectedVersion >= 49) || (window.webrtcDetectedBrowser === 'opera' &&
+              window.webrtcDetectedVersion >= 36);
+            result.current.supports.webrtc.iceRestart = !((window.webrtcDetectedBrowser === 'firefox' &&
+              window.webrtcDetectedVersion < 48) || window.webrtcDetectedBrowser === 'edge');
+            result.current.supports.webrtc.screensharing = ['chrome', 'firefox'].indexOf(
+              window.webrtcDetectedBrowser) > -1 || (['IE', 'safari'].indexOf(window.webrtcDetectedBrowser) > -1 &&
+              result.current.webrtcPlugin.supports.screensharing);
+            result.current.supports.webrtc.maxBandwidth = !((window.webrtcDetectedBrowser === 'firefox' &&
+              window.webrtcDetectedVersion < 49) || window.webrtcDetectedBrowser === 'edge');
+            result.current.supports.webrtc.turns = ['IE', 'safari', 'chrome', 'opera'
+              ].indexOf(window.webrtcDetectedBrowser) > -1;
+            result.current.supports.webrtc.turns = ['IE', 'safari', 'chrome', 'opera'
+              ].indexOf(window.webrtcDetectedBrowser) > -1;
+            result.current.supports.webrtc.stun = window.webrtcDetectedBrowser !== 'edge';
+            result.current.supports.webrtc.turnOverTcp = window.webrtcDetectedBrowser !== 'edge';
+
+            // Parse Edge browser
+            if (window.webrtcDetectedBrowser === 'edge' && typeof window.RTCRtpSender === 'function' &&
+              typeof window.RTCRtpSender.getCapabilities === 'function' && typeof window.RTCRtpReceiver === 'function' &&
+              typeof window.RTCRtpReceiver.getCapabilities === 'function') {
+              var fnParseCodecs = function (codecs, direction) {
+                Temasys.Utils.forEach(codecs, function (codec) {
+                  if (!codec.name) {
+                    return;
+                  }
+                  var sdpFmtpLine = '';
+
+                  Temasys.Utils.forEach(codec.parameters, function (paramValue, param) {
+                    sdpFmtpLine += codec.name === 'H264' && codec.parameters[
+                      'level-asymmetry-allowed'] === undefined ? '1' : paramValue;
+                  });
+
+                  result.current.supports.webrtc.codecs[direction][codec.kind][codec.name.toLowerCase()] = {
+                    channels: codec.numChannels || 1,
+                    clockRate: codec.clockRate,
+                    payloadType: codec.preferredPayload,
+                    sdpFmtpLine: sdpFmtpLine
+                  };
+                });
+              };
+
+              fnParseCodecs(RTCRtpSender.getCapabilities(), 'send');
+              fnParseCodecs(RTCRtpReceiver.getCapabilities(), 'recv');
+
+              resolve(result);
+            // Parse for other browsers
+            } else {
+              var pc = new RTCPeerConnection(null);
+              pc.createOffer(function (offer) {
+                var sdpLines = offer.sdp.split('\r\n');
+                var mediaType = '';
+                var codecs = {};
+                Temasys.Utils.forEach(sdpLines, function (line) {
+                  if (line.indexOf('m=') === 0) {
+                    mediaType = (line.split('m=')[1] || '').split(' ')[0];
+                  } else if (['audio', 'video'].indexOf(mediaType) > -1 && line.indexOf('a=rtpmap:') === 0) {
+                    var parts = (line.split('a=rtpmap:')[1] || '').split(' ');
+                    var codecParts = (parts[1] || '').split('/');
+                    var codecResult = {
+                      channels: parseInt(codecParts[2] || '1', 10) || 1,
+                      clockRate: parseInt(codecParts[1] || '0', 10) || 0,
+                      payloadType: parseInt(parts[0], 10) || -1,
+                      sdpFmtpLine: ''
+                    };
+                    codecs[parts[0]] = codecParts[0].toLowerCase();
+                    result.current.supports.webrtc.codecs.recv[mediaType][codecParts[0].toLowerCase()] = codecResult;
+                    result.current.supports.webrtc.codecs.send[mediaType][codecParts[0].toLowerCase()] = codecResult;
+                  } else if (line.indexOf('a=fmtp:') === 0) {
+                    var parts = (line.split('a=rtpmap:')[1] || '').split(' ');
+                    var payloadType = parts[0];
+                    parts.shift();
+                    var fmtpLine = parts.join(' ');
+                    if (codecs[parts[0]]) {
+                      result.current.supports.webrtc.codecs.recv[mediaType][codecs[parts[0]]].sdpFmtpLine = fmtpLine;
+                      result.current.supports.webrtc.codecs.send[mediaType][codecs[parts[0]]].sdpFmtpLine = fmtpLine;
+                    }
+                  }
+                });
+                resolve(result);
+              }, function (error) {
+                resolve(error);
+              }, ['IE', 'safari'].indexOf(window.webrtcDetectedBrowser) > -1 ? {
+                mandatory: { OfferToReceiveAudio: 1, OfferToReceiveVideo: 1 }
+              } : { offerToReceiveAudio: 1, offerToReceiveVideo: 1 });
+            }
+          };
+        } catch (error) {
+          reject(error);
         }
       });
     });
