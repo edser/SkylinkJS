@@ -45,8 +45,12 @@ Temasys.Socket = function (options, defaultOptions) {
 
   // Stores the socket settings
   ref._settings = {
-    current: {},
-    default: {}
+    
+  };
+
+  // Stores the socket current state
+  ref._state = {
+
   };
 
   // Stores the socket stats
