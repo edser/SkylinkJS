@@ -5,34 +5,17 @@
  * @param {String} options.appKey The App key ID.
  * @param {String} [options.name] The Room name in App space.
  * - When not provided, the value of the App key ID is used.
- * @param {Number} [options.initTimeout=1000] The timeout to wait before `Temasys.Room.init()` method
- *   should be invoked when `Temasys.Room` object is constructed.
- * - When provided as `-1`, the `Temasys.Room.init()` method will not be invoked, and the method has
- *   to be invoked first by app first before invoking `Temasys.Room.connect()` method.
- * @param {Boolean} [options.requireWebRTC=true] The flag if client requires WebRTC to be supported in
- *   order to start a Room connection session.
  * @param {String} [componentId] The unique component ID to use for `Temasys.Debugger` module or as
  *   for object identification.
  * - Please ensure that this value is unique from other class objects.
  * @constructor
  * @example
- * // Example 1: Create a Room object
+ * // Example: Create a Room object
  * var room = new Temasys.Room({
  *   appKey: myAppKey
  * });
- * room.on("initStateChange", function (state) {
- *   console.log("init() state ->", state);
- * });
  * 
- * // Example 2: Create a Room object but invoke `init()` manually.
- * var room = new Temasys.Room({
- *   appKey: myAppKey,
- *   initTimeout: -1
- * });
- * room.on("initStateChange", function (state) {
- *   console.log("init() state ->", state);
- * });
- * room.init();
+ * room.connect();
  * @since 0.7.0
  */
 Temasys.Room = function (options, componentId) {
@@ -172,12 +155,19 @@ Temasys.Room.prototype.INIT_ERROR_CODE_ENUM = {
 /**
  * Function to initialise dependencies and check for supports.
  * @method init
+ * @param {Number} [options.initTimeout=1000] The timeout to wait before `Temasys.Room.init()` method
+ *   should be invoked when `Temasys.Room` object is constructed.
+ * - When provided as `-1`, the `Temasys.Room.init()` method will not be invoked, and the method has
+ *   to be invoked first by app first before invoking `Temasys.Room.connect()` method.
+ * @param {Boolean} [options.requireWebRTC=true] The flag if client requires WebRTC to be supported in
+ *   order to start a Room connection session.
+ }
  * @param {Promise} return The promise for request completion.
  * @return {Promise}
  * @for Temasys.Room
  * @since 0.7.0
  */
-Temasys.Room.prototype.init = function () {
+Temasys.Room.prototype.init = function (options) {
   var ref = this;
 
   var fnEmitInitState = function (state, error) {

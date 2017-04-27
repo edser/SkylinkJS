@@ -1,11 +1,12 @@
 /**
- * Handles the Room socket.io-client connection to the Signling server.
+ * Handles the Room connection session to the Signling server.
  * @class Temasys.Socket
  * @param {JSON} [options] The options.
- * @param {String} [options.server] @(exp) The custom Signaling server domain to use.
- * @param {Array} [options.ports] @(exp) The custom list of Signaling server ports (`Number`) to use.
+ * - Note that configuring these settings may result in connection failures. Please configure them wisely.
+ * @param {String} [options.server] The custom Signaling server domain to use.
+ * @param {Array} [options.ports] The custom list of Signaling server ports (`Number`) to use.
  * - The priority of port used is based on first index order starting from `0`.
- * @param {String} [options.path] @(exp) The custom Signaling server path to use.
+ * @param {String} [options.path] The custom Signaling server path to use.
  * @param {String} [options.protocol] The protocol to use to connect to the Signaling server.
  * - When not provided, the current accessing `window.location.protocol` will be used.
  * @param {Array} [options.transports] The list of socket.io-client transports to use.
@@ -19,7 +20,7 @@
  *   reconnectionDelay: 5000, reconnectionDelayMax: 2000, randomizationFactor: 0.5, timeout: 20000 },
  *   polling: { reconnection: true, reconnectionAttempts: 4, reconnectionDelay: 2000,
  *   reconnectionDelayMax: 1000, randomizationFactor: 0.5, timeout: 20000 } }`
- * @param {JSON} options.options.index @(exp) The socket options for the `"index"` socket.io-client transport type.
+ * @param {JSON} options.options.index The socket options for the `"index"` socket.io-client transport type.
  * - `"index"` can be identified as: `"websocket"` (Websocket) or `"polling"` (Polling).
  * @param {Boolean} [options.options.index.reconnection=true] The flag if socket connection should
  *   reconnect several attempts for the current transport or port used before switching to the next
@@ -37,10 +38,25 @@
  *   that the inital connection has timed out.
  * @constructor
  * @private
- * @for Temasys
  * @since 0.7.0
  */
-function Socket (options, defaultOptions) {
+Temasys.Socket = function (options, defaultOptions) {
+  var ref = this;
+
+  // Stores the socket settings
+  ref._settings = {
+    current: {},
+    default: {}
+  };
+
+  // Stores the socket stats
+  ref._stats = {
+    messages: { send: 0, recv: 0 },
+    disconnects: 0,
+    fallbacks: [],
+    fallbackCurrentIndex: 0
+  };
+
   options = options && typeof options === 'object' ? options : {};
 
   /**
@@ -261,7 +277,7 @@ function Socket (options, defaultOptions) {
  * @for Temasys.Socket
  * @since 0.7.0
  */
-Socket.prototype.STATE_ENUM = {
+Temasys.Socket.prototype.STATE_ENUM = {
   RECONNECT_ATTEMPT: 'reconnect_attempt',
   RECONNECT_FAILED: 'reconnect_failed',
   RECONNECT_ERROR: 'reconnect_error',
@@ -286,7 +302,7 @@ Socket.prototype.STATE_ENUM = {
  * @for Temasys.Socket
  * @since 0.7.0
  */
-Socket.prototype.GET_STATS_STATE_ENUM = {
+Temasys.Socket.prototype.GET_STATS_STATE_ENUM = {
 	LOADING: 'loading',
   SUCCESS: 'success',
   FAILED: 'failed'
@@ -305,13 +321,13 @@ Socket.prototype.GET_STATS_STATE_ENUM = {
  * @for Temasys.Socket
  * @since 0.7.0
  */
-Socket.prototype.getStats = function () {
+Temasys.Socket.prototype.getStats = function () {
 };
 
 /**
  * Function to start socket connection.
  */
-Socket.prototype._connect = function (fn) {
+Temasys.Socket.prototype._connect = function (fn) {
   var ref = this;
   // These are stored states since sometimes the event is triggered after the restart
   var eventAttempts = 0, eventPort = null, eventTransport = null, isFnTriggered = false;
@@ -616,7 +632,7 @@ Socket.prototype._sendNextQueue = function (fnSend) {
 /**
  * Function to send messages.
  */
-Socket.prototype._send = function (message, fn) {
+Temasys.Socket.prototype._send = function (message, fn) {
   var ref = this;
 
   /**
