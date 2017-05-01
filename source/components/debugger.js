@@ -13,14 +13,17 @@ Temasys.Debugger = new (function () {
   /**
    * The enum of debugger log levels.
    * @attribute LOG_LEVEL_ENUM
-   * @param {Number} NONE The level to print no logs.
-   * @param {Number} ERROR The level to print Web `console.error()` logs.
-   * @param {Number} WARN The level to print Web `console.error()`, `console.warn()` logs.
-   * @param {Number} INFO The level to print Web `console.error()`, `console.warn()`, `console.info()` logs.
-   * @param {Number} LOG The level to print Web `console.error()`, `console.warn()`,
-   *   `console.info()`, `console.log()` logs.
-   * @param {Number} DEBUG The level to print Web `console.error()`, `console.warn()`
-   *   `console.info()`, `console.log()`, `console.debug()` logs.
+   * @param {Number} NONE The level that prints no logs.
+   * @param {Number} ERROR The level that prints error logs.
+   * - Prints error as [`console.error()`](https://developer.mozilla.org/en-US/docs/Web/API/Console/error)
+   * @param {Number} WARN The level that prints warning + error logs.
+   * - Prints warning as [`console.warn()`](https://developer.mozilla.org/en-US/docs/Web/API/Console/warn)
+   * @param {Number} INFO The level that prints info + warning + error logs.
+   * - Prints info as [`console.info()`](https://developer.mozilla.org/en-US/docs/Web/API/Console/info)
+   * @param {Number} LOG The level that prints verbose + info + warning + error logs.
+   * - Prints log as [`console.log()`](https://developer.mozilla.org/en-US/docs/Web/API/Console/log)
+   * @param {Number} DEBUG The level that prints verbose (detailed debugging) + verbose + info + warning + error logs.
+   * - Prints debug as [`console.debug()`](https://developer.mozilla.org/en-US/docs/Web/API/Console/debug)
    * @type JSON
    * @final
    * @readOnly

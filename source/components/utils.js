@@ -277,7 +277,7 @@ Temasys.Utils = {
    * @param {Array|JSON} object The object.
    * @param {Function} fn The callback function invoked for each object item looped.
    * - To break the function loop, return `true`.
-   * - To increment or decrement loop, return the `Number`, and be careful of using it to prevent infinite loops.
+   * - To increment or decrement loop, return a (`Number`), and be careful of using it to prevent infinite loops.
    * @param {Any} fn.item The object item.
    * @param {Number|String} fn.index The object item index or property key.
    * @example
