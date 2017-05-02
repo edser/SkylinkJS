@@ -51,10 +51,9 @@ Temasys.Socket = function (options, defaultOptions) {
 
   // Set the event manager
   ref._eventManager = Temasys.Utils.createEventManager();
-
   // Set the component ID
   ref._componentId = _log.configure(null, function (fn) {
-    ref._eventManager.catch(fn);
+    ref._eventManager.catchExceptions(fn);
   });
 
   // Stores the socket data settings
@@ -89,101 +88,30 @@ Temasys.Socket = function (options, defaultOptions) {
 
   // Stores the socket stats
   ref._stats = {
-    messages: { send: { total: 0, errors: 0 }, recv: { total: 0, errors: 0 } },
+    messages: {
+      send: { total: 0, errors: 0 },
+      recv: { total: 0, errors: 0 }
+    },
     connection: {
-      reconnections: { total: 0, servers: [] },
+      reconnections: {
+        total: 0,
+        servers: []
+      },
       pings: { total: 0 },
-      pongs: { total: 0, latency: { highest: null, average: null, lowest: null } }
+      pongs: {
+        total: 0,
+        latency: {
+          total: null,
+          highest: null,
+          lowest: null
+        }
+      }
     }
   };
 
   // Stores the socket.io-client object
   ref._connection = null;
-
-  // NOTE: We should always define options as an object {}.
-  // Use user's defined servers
-  if (Array.isArray(options.servers) && options.servers.length > 0) {
-    Temasys.Utils.forEach(options.servers, function (item) {
-      if (item && typeof item === 'object' ?
-        !(item.server && typeof item.server === 'string') ||
-        !(item.port && typeof item.port === 'number') ||
-        !(item.transport === 'Websocket' && !window.WebSocket) : true) {
-        return;
-      }
-
-      var useItem = {
-        server: item.server,
-        protocol: item.protocol && typeof item.protocol === 'string' && item.protocol.length > 1 &&
-          item.protocol.indexOf(':') === (item.protocol.length - 1) ? item.protocol : window.location.protocol,
-        port: item.port,
-        path: item.path && typeof item.path === 'string' && item.protocol.length > 1 &&
-          item.path.indexOf('/') === 0 ? item.path : '/socket.io',
-        reconnectionDelay: typeof item.reconnectionDelay === 'number' ? item.reconnectionDelay : 2000,
-        randomizationFactor: typeof item.randomizationFactor === 'number' &&
-          item.randomizationFactor >= 0 && serveritem.randomizationFactor <= 1 ? item.randomizationFactor : 0.5,
-        timeout: typeof item.timeout === 'number' ? item.timeout : 20000,
-        transport: !window.WebSocket ? ref.TRANSPORT_ENUM.POLLING : ref.TRANSPORT_ENUM.WEBSOCKET
-      };
-
-      if (item.transport && typeof item.transport === 'string') {
-        Temasys.Utils.forEach(ref.TRANSPORT_ENUM, function (transportItem) {
-          if (transportItem === item.transport) {
-            useItem.transport = item.transport;
-            return true;
-          }
-        });
-      }
-
-      useItem.reconnection = typeof item.reconnection === 'boolean' ? item.reconnection :
-        useItem.transport === ref.TRANSPORT_ENUM.POLLING;
-      useItem.reconnectionAttempts = typeof item.reconnectionAttempts === 'number' && item.reconnectionAttempts <= 5 ?
-        item.reconnectionAttempts : (useItem.transport === ref.TRANSPORT_ENUM.POLLING ? 4 : 0);
-      useItem.reconnectionDelayMax = typeof item.reconnectionDelayMax === 'number' ?
-        item.reconnectionDelayMax : (useItem.transport === ref.TRANSPORT_ENUM.POLLING ? 1000 : 2000);
-      ref._servers.push(useItem);
-    });
-
-  // Use API returned defined servers
-  } else {
-    var ports = window.location.protocol === 'https:' ?
-      (Array.isArray(defaultOptions.httpsPorts) && defaultOptions.httpsPorts.length > 0 ?
-      defaultOptions.httpsPorts : [443, 3443]) :
-      (Array.isArray(defaultOptions.httpPorts) && defaultOptions.httpPorts.length > 0 ?
-      defaultOptions.httpPorts : [80, 3000]);
-
-    Temasys.Utils.forEach(ports, function (portItem) {
-      var item = {
-        server: defaultOptions.server && typeof defaultOptions.server === 'string' ?
-          defaultOptions.server : 'signaling.temasys.io',
-        protocol: window.location.protocol,
-        port: portItem,
-        path: '/socket.io',
-        reconnection: false,
-        reconnectionDelay: 2000,
-        randomizationFactor: 0.5,
-        timeout: 20000,
-        transport: ref.TRANSPORT_ENUM.WEBSOCKET,
-        reconnectionAttempts: 0,
-        reconnectionDelayMax: 2000
-      };
-
-      if (window.WebSocket) {
-        ref._servers.push(item);
-      }
-
-      item.reconnection = true;
-      item.reconnectionDelayMax = 1000;
-      item.reconnectionAttempts = 4;
-      item.transport = ref.TRANSPORT_ENUM.POLLING;
-      ref._server.push(item);
-    });
-  }
-
-  if (options.data && typeof options.data === 'object') {
-    ref._data.compress = options.data.compress === true;
-    ref._data.queue.priorityInterval = typeof options.data.priorityInterval === 'number' ?
-      options.data.priorityInterval : 10;
-  }
+  ref._setConfig(options, defaultOptions);
 
   /**
    * Event triggered when connection state has been changed.
@@ -308,6 +236,36 @@ Temasys.Socket.prototype.ACTIVE_STATE_ENUM = {
 };
 
 /**
+ * Function that returns the Socket configuration.
+ * - These are data configured when constructing `new Temasys.Socket()` object.
+ * @method getConfig
+ * @param {JSON} return The result.
+ * - Object signature matches `options` in `new Temasys.Socket()`.
+ * @return {JSON}
+ * @example
+ *   var config = socket.getConfig();
+ *   console.log("Configuration ->", config);
+ * @for Temasys.Socket
+ * @since 0.7.0
+ */
+Temasys.Socket.prototype.getConfig = function () {
+  var ref = this;
+  return {
+    servers: (function () {
+      var servers = [];
+      Temasys.Utils.forEach(ref._servers, function (item,index) {
+        servers[index] = Temasys.Utils.copy(item);
+      });
+      return servers;
+    })(),
+    data: {
+      compress: ref._data.compress,
+      priorityInterval: ref._data.queue.priorityInterval
+    }
+  };
+};
+
+/**
  * Function to retrieve Socket connection stats.
  * @method getStats
  * @param {JSON} return The result.
@@ -328,7 +286,7 @@ Temasys.Socket.prototype.ACTIVE_STATE_ENUM = {
  * @param {Number} return.connection.pings.total The total number of "ping" messages received.
  * @param {JSON} return.connection.pongs The "pong" stats.
  * @param {Number} return.connection.pongs.total The total number of "pong" messages sent.
- * @param {JSON} return.connection.pongs.latency The latency stats.
+ * @param {JSON} return.connection.pongs.latency The "pong" latency stats.
  * @param {Number} return.connection.pongs.latency.lowest The lowest number of latency received.
  * @param {Number} return.connection.pongs.latency.average The average number of latency received.
  * @param {Number} return.connection.pongs.latency.highest The highest number of latency received.
@@ -341,8 +299,17 @@ Temasys.Socket.prototype.ACTIVE_STATE_ENUM = {
  */
 Temasys.Socket.prototype.getStats = function () {
   var ref = this;
-  return Temasys.Utils.copy({
-    messages: ref._stats.messages,
+  return {
+    messages: {
+      send: {
+        total: ref._stats.messages.send.total,
+        errors: ref._stats.messages.send.error
+      },
+      recv: {
+        total: ref._stats.messages.recv.total,
+        errors: ref._stats.messages.recv.error
+      }
+    },
     connection: {
       reconnections: {
         total: ref._stats.connection.attempts.total,
@@ -354,21 +321,142 @@ Temasys.Socket.prototype.getStats = function () {
           return servers;
         })()
       },
-      pings: ref._stats.connection.pings,
-      pongs: ref._stats.connection.pongs
+      pings: {
+        total: ref._stats.connection.pings.total,
+      },
+      pongs: {
+        total: ref._stats.connection.pongs.total,
+        latency: {
+          lowest: ref._stats.connection.pongs.latency.lowest,
+          highest: ref._stats.connection.pongs.latency.highest,
+          average: parseFloat((ref._stats.connection.pongs.latency.total /
+            ref._stats.connection.pongs.total).toFixed(2), 10)
+        }
+      }
     }
-  });
+  };
+};
+
+/**
+ * Function to set configuration.
+ */
+Temasys.Socket.prototype._setConfig = function (options, defaultOptions) {
+  var ref = this;
+
+  if (!(options && typeof options === 'object' && !Array.isArray(options))) {
+    return _log.throw(ref._componentId, new Error('new Temasys.Socket(): options is not defined correctly'));
+  }
+
+  // NOTE: We should always define options as an object {}.
+  // Use user's defined servers
+  if (Array.isArray(options.servers) && options.servers.length > 0) {
+    Temasys.Utils.forEach(options.servers, function (item) {
+      if (item && typeof item === 'object' ?
+        !(item.server && typeof item.server === 'string') ||
+        !(typeof item.port === 'number' && item.port > 0) ||
+        !(item.transport === 'Websocket' ? !window.WebSocket : true) : true) {
+        return;
+      }
+
+      var useItem = {
+        server: item.server,
+        protocol: item.protocol && typeof item.protocol === 'string' && item.protocol.length > 1 &&
+          item.protocol.indexOf(':') === (item.protocol.length - 1) ? item.protocol : window.location.protocol,
+        port: item.port,
+        path: item.path && typeof item.path === 'string' && item.path.length > 1 &&
+          item.path.indexOf('/') === 0 ? item.path : '/socket.io',
+        reconnectionDelay: typeof item.reconnectionDelay === 'number' && item.reconnectionDelay >= 0 ?
+          item.reconnectionDelay : 2000,
+        randomizationFactor: typeof item.randomizationFactor === 'number' && item.randomizationFactor >= 0 &&
+          item.randomizationFactor <= 1 ? item.randomizationFactor : 0.5,
+        timeout: typeof item.timeout === 'number' && item.timeout >= 0 ? item.timeout : 20000,
+        transport: !window.WebSocket ? ref.TRANSPORT_ENUM.POLLING : ref.TRANSPORT_ENUM.WEBSOCKET
+      };
+
+      if (item.transport && typeof item.transport === 'string') {
+        Temasys.Utils.forEach(ref.TRANSPORT_ENUM, function (transportItem) {
+          if (transportItem === item.transport) {
+            useItem.transport = item.transport;
+            return true;
+          }
+        });
+      }
+
+      useItem.reconnection = typeof item.reconnection === 'boolean' ? item.reconnection :
+        useItem.transport === ref.TRANSPORT_ENUM.POLLING;
+      useItem.reconnectionAttempts = typeof item.reconnectionAttempts === 'number' &&
+        item.reconnectionAttempts >= 0 && item.reconnectionAttempts <= 5 ?
+        item.reconnectionAttempts : (useItem.transport === ref.TRANSPORT_ENUM.POLLING ? 4 : 0);
+      useItem.reconnectionDelayMax = typeof item.reconnectionDelayMax === 'number' &&
+        item.reconnectionDelayMax >= 0 ? item.reconnectionDelayMax :
+        (useItem.transport === ref.TRANSPORT_ENUM.POLLING ? 1000 : 2000);
+      ref._servers.push(useItem);
+    });
+
+  // Use API returned defined servers
+  } else {
+    if (!(defaultOptions && typeof defaultOptions === 'object')) {
+      defaultOptions = {};
+    }
+
+    var ports = window.location.protocol === 'https:' ?
+      (Array.isArray(defaultOptions.httpsPorts) && defaultOptions.httpsPorts.length > 0 ?
+      defaultOptions.httpsPorts : [443, 3443]) :
+      (Array.isArray(defaultOptions.httpPorts) && defaultOptions.httpPorts.length > 0 ?
+      defaultOptions.httpPorts : [80, 3000]);
+
+    Temasys.Utils.forEach(ports, function (portItem) {
+      if (portItem < 1) {
+        return;
+      }
+      var item = {
+        server: defaultOptions.server && typeof defaultOptions.server === 'string' ?
+          defaultOptions.server : 'signaling.temasys.io',
+        protocol: window.location.protocol,
+        port: portItem,
+        path: '/socket.io',
+        reconnection: false,
+        reconnectionDelay: 2000,
+        randomizationFactor: 0.5,
+        timeout: 20000,
+        transport: ref.TRANSPORT_ENUM.WEBSOCKET,
+        reconnectionAttempts: 0,
+        reconnectionDelayMax: 2000
+      };
+
+      if (window.WebSocket) {
+        ref._servers.push(item);
+      }
+
+      item.reconnection = true;
+      item.reconnectionDelayMax = 1000;
+      item.reconnectionAttempts = 4;
+      item.transport = ref.TRANSPORT_ENUM.POLLING;
+      ref._servers.push(item);
+    });
+  }
+
+  if (ref._servers.length === 0) {
+    return _log.throw(ref._componentId, new Error('new Temasys.Socket(): There are no servers to connect to'));
+  }
+
+  if (options.data && typeof options.data === 'object') {
+    ref._data.compress = options.data.compress === true;
+    ref._data.queue.priorityInterval = typeof options.data.priorityInterval === 'number' &&
+      options.data.priorityInterval >= 0 ? options.data.priorityInterval : 10;
+  }
 };
 
 /**
  * Function to start socket connection.
- * - Returns a Promise
+ * - Returns a Promise (Error error) for failure, (String socketId) for success
  */
 Temasys.Socket.prototype._connect = function () {
   var ref = this;
 
   return new Promise (function (resolve, reject) {
-    var fnFallback = function () {
+    (function fnFallback() {
+      ref._disconnect();
       ref._state.serverIndex++;
 
       // Cache them to prevent overrides when triggering events
@@ -478,8 +566,7 @@ Temasys.Socket.prototype._connect = function () {
         if (ref._stats.connection.pongs.latency.lowest === null || latency < ref._stats.connection.pongs.latency.lowest) {
           ref._stats.connection.pongs.latency.lowest = latency;
         }
-        ref._stats.connection.latency.average = (ref._stats.connection.latency.average + latency) /
-          (ref._stats.connection.pongs.total + 1);
+        ref._stats.connection.pongs.latency.total += latency;
         ref._stats.connection.pongs.total++;
         ref._event.emit('activeStateChange', ref.ACTIVE_STATE_ENUM.PONG, Date.now(), latency);
       });
@@ -508,13 +595,12 @@ Temasys.Socket.prototype._connect = function () {
           fnEmit(ref.STATE_ENUM.CONNECT_START_ERROR, error);
         }
       }
-    };
-    fnFallback();
+    })();
   });
 };
 
 /**
- * Function to stop socket connection.
+ * Function to start socket connection.
  */
 Temasys.Socket.prototype._disconnect = function () {
   var ref = this;
@@ -529,7 +615,7 @@ Temasys.Socket.prototype._disconnect = function () {
 /**
  * Function to send the next batch of queued messages.
  */
-Socket.prototype._sendNextQueue = function (fnSend) {
+Temasys.Socket.prototype._sendNextQueue = function (fnSend) {
   var ref = this;
 
   if (ref._buffer.timer) {

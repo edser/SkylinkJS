@@ -568,6 +568,7 @@ describe('Temasys.Debugger', function() {
   it('clearCachedLogs()', function (done) {
     var componentIdA = _log.configure(null, function () {});
     var componentIdB = _log.configure(null, function () {});
+    var queue = [];
     var fnTabulateLogs = function (_componentId, method) {
       var length = parseInt((Math.random() * 10).toFixed(0), 10);
       var index = 0;
@@ -580,31 +581,40 @@ describe('Temasys.Debugger', function() {
     Temasys.Debugger.setConfig({ cacheLogs: true });
     Temasys.Utils.forEach([componentIdA, componentIdB, undefined], function (_componentId) {
       Temasys.Utils.forEach(['DEBUG', 'LOG', 'INFO', 'WARN', 'ERROR', undefined], function (levelProp) {
-        fnTabulateLogs(componentIdA, 'debug');
-        fnTabulateLogs(componentIdA, 'log');
-        fnTabulateLogs(componentIdA, 'info');
-        fnTabulateLogs(componentIdA, 'warn');
-        fnTabulateLogs(componentIdA, 'error');
-        fnTabulateLogs(componentIdB, 'debug');
-        fnTabulateLogs(componentIdB, 'log');
-        fnTabulateLogs(componentIdB, 'info');
-        fnTabulateLogs(componentIdB, 'warn');
-        fnTabulateLogs(componentIdB, 'error');
+        queue.push(function () {
+          fnTabulateLogs(componentIdA, 'debug');
+          fnTabulateLogs(componentIdA, 'log');
+          fnTabulateLogs(componentIdA, 'info');
+          fnTabulateLogs(componentIdA, 'warn');
+          fnTabulateLogs(componentIdA, 'error');
+          fnTabulateLogs(componentIdB, 'debug');
+          fnTabulateLogs(componentIdB, 'log');
+          fnTabulateLogs(componentIdB, 'info');
+          fnTabulateLogs(componentIdB, 'warn');
+          fnTabulateLogs(componentIdB, 'error');
 
-        var options = {
-          componentId: _componentId,
-          level: levelProp ? Temasys.Debugger.LOG_LEVEL_ENUM[levelProp] : undefined
-        };
+          var options = {
+            componentId: _componentId,
+            level: levelProp ? Temasys.Debugger.LOG_LEVEL_ENUM[levelProp] : undefined
+          };
 
-        expect(Temasys.Debugger.getCachedLogs(options), '(' + _componentId + ',' + levelProp + '): to have length first').to.have.length.above(0);
-
-        Temasys.Debugger.clearCachedLogs(options);
-
-        expect(Temasys.Debugger.getCachedLogs(options), '(' + _componentId + ',' + levelProp + '): to not have length').to.have.lengthOf(0);
+          expect(Temasys.Debugger.getCachedLogs(options), '(' + _componentId + ',' + levelProp + '): to have length first').to.have.length.above(0);
+          Temasys.Debugger.clearCachedLogs(options);
+          expect(Temasys.Debugger.getCachedLogs(options), '(' + _componentId + ',' + levelProp + '): to not have length').to.have.lengthOf(0);
+        });
       });
     });
 
-    done();
+    (function fnProcessNextQueue () {
+      if (queue.length > 0) {
+        queue.splice(0, 1)[0]();
+        setTimeout(function () {
+          fnProcessNextQueue();
+        }, 1);
+      } else {
+        done();
+      }
+    })();
   });
 
   /**
