@@ -120,7 +120,7 @@ Temasys.Socket = function (options, defaultOptions) {
    * - This references `STATE_ENUM` constant.
    * @param {Error} error The error object.
    * - This is defined when `state` is `STATE_ENUM.RECONNECT_FAILED`, `STATE_ENUM.RECONNECT_END`,
-   *   `STATE_ENUM.CONNECT_ERROR` and `STATE_ENUM.CONNECT_TIMEOUT`.
+   *   `STATE_ENUM.CONNECT_ERROR` and `STATE_ENUM.CONNECT_TIMEOUT` (or `STATE_ENUM.CONNECT_ERROR`).
    * @param {JSON} current The current settings.
    * @param {Number} current.attempts The current reconnection attempt for server item.
    * @param {Number} current.serverIndex The server item index of the server items configured.
@@ -151,6 +151,10 @@ Temasys.Socket = function (options, defaultOptions) {
    * @for Temasys.Socket
    * @since 0.7.0
    */
+
+   ref.on = ref._eventManager.on;
+   ref.once = ref._eventManager.once;
+   ref.off = ref._eventManager.off;
 };
 
 /**
@@ -176,7 +180,7 @@ Temasys.Socket.prototype.TRANSPORT_ENUM = {
  * @param {String} CONNECTING The state when attempting to start connection for current server item
  *   configured in `new Temasys.Socket(options.servers)`.
  * - When constructing attempt fails, the `CONNECT_START_ERROR` state will be triggered, else the
- *   `CONNECT` state will be triggered if successful or `CONNECT_TIMEOUT` state will be triggered
+ *   `CONNECT` state will be triggered if successful or `CONNECT_TIMEOUT` (or `CONNECT_ERROR`) state will be triggered
  *   if failed to obtain response from server.
  * @param {String} RECONNECT_FAILED The state when failed to reconnect after specified attempts.
  * - The next server item will be used to start connection which should result in `CONNECTING` state if available,
@@ -455,7 +459,7 @@ Temasys.Socket.prototype._connect = function () {
   var ref = this;
 
   return new Promise (function (resolve, reject) {
-    (function fnFallback() {
+    (function fnConnect() {
       ref._disconnect();
       ref._state.serverIndex++;
 
@@ -479,20 +483,16 @@ Temasys.Socket.prototype._connect = function () {
         }
       };
 
-      var fnEmit = function (state, error) {
-        ref._state.state = state;
-        ref._eventManager.emit('stateChange', state, error || null, useSettings);
-
-        if ([ref.STATE_ENUM.CONNECT_START_ERROR, ref.STATE_ENUM.RECONNECT_FAILED].indexOf(state) > -1) {
-          if (ref._servers[ref._state.serverIndex + 1]) {
-            fnFallback();
-          } else {
-            var endError = new Error('Connection aborted');
-            fnEmit(ref.STATE_ENUM.RECONNECT_END, endError);
-            reject(endError);
-          }
-        } else if ([ref.STATE_ENUM.CONNECT, ref.STATE_ENUM.RECONNECT].indexOf(state) > -1) {
-          resolve(ref._connection.id || null);
+      var returnTriggered = false;
+      var timeoutTriggered = false;
+      var fnReconnect = function () {
+        if (ref._servers[ref._state.serverIndex + 1]) {
+          fnConnect();
+        } else {
+          var endError = new Error('Connection aborted');
+          ref._state.state = state;
+          ref._eventManager.emit('stateChange', state, error || null, useSettings);
+          reject(endError);
         }
       };
 
@@ -501,45 +501,63 @@ Temasys.Socket.prototype._connect = function () {
       fnEmit(ref.STATE_ENUM.CONNECTING);
 
       try {
-        ref._connection = io.connect(useSettings.url);
+        ref._connection = io.connect(useSettings.url, useSettings.settings);
       } catch (error) {
-        return fnEmit(ref.STATE_ENUM.CONNECT_START_ERROR, error);
+        ref._state.state = ref.STATE_ENUM.CONNECT_START_ERROR;
+        ref._eventManager.emit('stateChange', ref.STATE_ENUM.CONNECT_START_ERROR, error, useSettings);
+        fnReconnect();
+        return;
       }
 
       ref._connection.on('connect', function () {
-        fnEmit(ref.STATE_ENUM.CONNECT);
+        ref._state.state = ref.STATE_ENUM.CONNECT;
+        ref._eventManager.emit('stateChange', ref.STATE_ENUM.CONNECT, error, useSettings);
+        if (!returnTriggered) {
+          returnTriggered = true;
+          resolve(null);
+        }
       });
 
       ref._connection.on('reconnect', function () {
-        fnEmit(ref.STATE_ENUM.RECONNECT);
-      });
-
-      ref._connection.on('reconnect', function () {
-        fnEmit(ref.STATE_ENUM.RECONNECT);
+        ref._state.state = ref.STATE_ENUM.RECONNECT;
+        ref._eventManager.emit('stateChange', ref.STATE_ENUM.RECONNECT, error, useSettings);
+        if (!returnTriggered) {
+          returnTriggered = true;
+          resolve(null);
+        }
       });
 
       ref._connection.on('disconnect', function () {
-        fnEmit(ref.STATE_ENUM.DISCONNECT);
+        ref._state.state = ref.STATE_ENUM.DISCONNECT;
+        ref._eventManager.emit('stateChange', ref.STATE_ENUM.DISCONNECT, error, useSettings);
       });
 
       ref._connection.on('connect_timeout', function () {
-        fnEmit(ref.STATE_ENUM.CONNECT_TIMEOUT);
+        ref._state.state = ref.STATE_ENUM.CONNECT_TIMEOUT;
+        ref._eventManager.emit('stateChange', ref.STATE_ENUM.CONNECT_TIMEOUT, error, useSettings);
       });
 
       ref._connection.on('connect_error', function (error) {
-        fnEmit(ref.STATE_ENUM.CONNECT_ERROR, error && typeof error === 'object' ? error : new Error(error || 'Connect error'));
+        ref._state.state = ref.STATE_ENUM.CONNECT_ERROR;
+        ref._eventManager.emit('stateChange', ref.STATE_ENUM.CONNECT_ERROR, error || new Error('Connect error'), useSettings);
+        if (!useSettings.settings.reconnection) {
+          fnReconnect();
+        }
       });
 
       ref._connection.on('reconnecting', function () {
-        fnEmit(ref.STATE_ENUM.RECONNECTING);
+        ref._state.state = ref.STATE_ENUM.RECONNECTING;
+        ref._eventManager.emit('stateChange', ref.STATE_ENUM.RECONNECTING, null, useSettings);
       });
 
       ref._connection.on('reconnect_error', function (error) {
+        
         fnEmit(ref.STATE_ENUM.RECONNECT_ERROR, error && typeof error === 'object' ? error : new Error(error || 'Reconnect error'));
       });
 
       ref._connection.on('reconnect_failed', function () {
         fnEmit(ref.STATE_ENUM.RECONNECT_FAILED, new Error('Failed reconnecting all attempts'));
+        fnReconnect();
       });
 
       ref._connection.on('reconnect_attempt', function () {
@@ -592,7 +610,9 @@ Temasys.Socket.prototype._connect = function () {
         try {
           ref._connection.connect();
         } catch (error) {
-          fnEmit(ref.STATE_ENUM.CONNECT_START_ERROR, error);
+          ref._state.state = ref.STATE_ENUM.CONNECT_START_ERROR;
+          ref._eventManager.emit('stateChange', ref.STATE_ENUM.CONNECT_START_ERROR, error, useSettings);
+          fnReconnect();
         }
       }
     })();

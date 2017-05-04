@@ -348,6 +348,7 @@ describe('Temasys.Socket', function() {
 	 * Tests the `_connect()` method.
 	 */
 	it('_connect()', function (done) {
+		this.timeout(70000);
 		var queue = (function (fnGetExpect) {
 			return [
 				fnGetExpect([
@@ -371,102 +372,123 @@ describe('Temasys.Socket', function() {
 					{ server: 'signaling.temasys.io', port: 443, protocol: 'httpss:' }])
 			];
 		})(function (servers) {
-			var expectStates = [];
-			var expectSettings = [];
-			var expectErrors = [];
-
-			Temasys.Utils.forEach(servers, function (serverItem, serverIndex) {
-				var settings = {
-					attempts: 0,
-					url: (serverItem.protocol || window.location.protocol) + '//' + serverItem.server + ':' + serverItem.port,
-					reconnection: serverItem.reconnection,
-					reconnectionAttempts: serverItem.reconnectionAttempts
-				};
-				expectStates.push(Temasys.Socket.prototype.STATE_ENUM.CONNECTING);
-				expectErrors.push([false, false]);
-				expectSettings.push(settings);
-				if (serverItem.protocol && ['http:', 'https:'].indexOf(serverItem.protocol) === -1) {
-					expectStates.push(Temasys.Socket.prototype.STATE_ENUM.CONNECT_START_ERROR);
-					expectErrors.push([true, true]);
-					expectSettings.push(settings);
-				} else if (serverItem.server !== 'signaling.temasys.io') {
-					expectStates.push(Temasys.Socket.prototype.STATE_ENUM.CONNECT_TIMEOUT);
-					expectErrors.push([true, true]);
-					expectSettings.push(settings);
-					if (serverItem.reconnection && typeof serverItem.reconnectionAttempts === 'number' &&
-						serverItem.reconnectionAttempts > 0) {
-						expectStates.push(Temasys.Socket.prototype.STATE_ENUM.RECONNECTING);
-						expectSettings.push(settings);
-						expectErrors.push([true, true]);
-						var index = 0;
-						while (index < serverItem.reconnectionAttempts) {
-							settings.reconnectionAttempts += 1;
-							expectStates.push(Temasys.Socket.prototype.STATE_ENUM.RECONNECT_ATTEMPT);
-							expectErrors.push([true, true]);
-							expectSettings.push(settings);
-							expectStates.push(Temasys.Socket.prototype.STATE_ENUM.RECONNECT_ERROR);
-							expectErrors.push([true, true]);
-							expectSettings.push(settings);
-							index++;
-						}
-						expectStates.push(Temasys.Socket.prototype.STATE_ENUM.RECONNECT_FAILED);
-						expectErrors.push([true, true]);
-						expectSettings.push(settings);
-						if (serverIndex === (servers.length - 1)) {
-							expectStates.push(Temasys.Socket.prototype.STATE_ENUM.RECONNECT_END);
-							expectErrors.push([true, true]);
-							expectSettings.push(settings);
-						}
-					}
-				} else {
-					expectStates.push(Temasys.Socket.prototype.STATE_ENUM.CONNECT);
-					expectErrors.push([false, false]);
-					expectSettings.push(settings);
-				}
-			});
-		});
-
-		var options = item[0];
-			var expectStates = item[1];
-			var shouldFail = item[2];
-			var socket = new Temasys.Socket(options, {});
-			var states = [];
-			var outputResult = { error: null, success: null };
-			var timeout = null;
-			var fnConfigureTimeout = function () {
-				if (timeout) {
-					return;
-				}
-				timeout = setTimeout(function () {
-					expect(states, JSON.stringify(options) + ': States are triggered correctly').to.deep.equal(expectStates);
-					if (shouldFail) {
-						assert.instanceOf(outputResult.error, Error, JSON.stringify(options) + ': catch() is triggered');
-						assert.isDefined(outputResult.error.message, JSON.stringify(options) + ': catch() message is defined');
-						expect(outputResult.success, JSON.stringify(options) + ': then() is not triggered').to.equal(null);
-					} else {
-						expect(outputResult.success, JSON.stringify(options) + ': then() is triggered').to.equal(true);
-						expect(outputResult.error, JSON.stringify(options) + ': catch() is not triggered').to.equal(null);
-					}
-
-				}, 1000);
+			var result = {
+				servers: [],
+				states: [],
+				errors: [],
+				attempts: [],
+				shouldFail: true
 			};
 
-			socket.on('stateChange', function (state, error, current) {
-				states.push(state, error instanceof Error, !!error.message, current);
+			Temasys.Utils.forEach(servers, function (serverItem, serverIndex) {
+				result.servers[serverIndex] = serverItem;
+				result.servers[serverIndex].timeout = 5000;
+
+				var fnAppendState = function (state, hasErrors, attempt) {
+					result.states.push(Temasys.Socket.prototype.STATE_ENUM[state]);
+					result.errors.push([!!hasErrors, !!hasErrors]);
+					result.attempts.push(attempt || 0);
+					result.shouldFail = state !== 'CONNECT';
+				};
+
+				fnAppendState('CONNECTING');
+				if (serverItem.protocol && ['http:', 'https:'].indexOf(serverItem.protocol) === -1) {
+					fnAppendState('CONNECT_START_ERROR', true);
+				} else if (serverItem.server !== 'signaling.temasys.io') {
+					if (serverItem.reconnection && typeof serverItem.reconnectionAttempts === 'number' &&
+						serverItem.reconnectionAttempts > 0) {
+						fnAppendState('CONNECT_TIMEOUT', true);
+						var index = 0;
+						while (index < serverItem.reconnectionAttempts) {
+							fnAppendState('RECONNECT_ATTEMPT', true, index + 1);
+							fnAppendState('RECONNECT_ERROR', true, index + 1);
+							index++;
+						}
+						fnAppendState('RECONNECT_FAILED', true);
+					} else {
+						fnAppendState('CONNECT_ERROR', true);
+					}
+				} else {
+					fnAppendState('CONNECT');
+				}
+				if (result.shouldFail && serverIndex === (servers.length - 1)) {
+					fnAppendState('RECONNECT_END', true);
+				}
 			});
+			return result;
+		});
 
-			var p = socket._connect();
-			assert.instanceOf(p, Promise, JSON.stringify(options) + ': returns a Promise');
+		(function fnProcessNext () {
+			if (queue.length > 0) {
+				var expectResult = queue.splice(0, 1)[0];
+				var outputResult = {
+					promise: { error: null, success: null, timeout: null },
+					stateIndex: -1
+				};
+				window.socket = new Temasys.Socket({ servers: expectResult.servers }, {});
+				var fnConfigureTimeout = function () {
+					if (outputResult.promise.output) {
+						return;
+					}
+					outputResult.promise.output = setTimeout(function () {
+						if (expectResult.shouldFail) {
+							assert.instanceOf(outputResult.promise.error, Error, JSON.stringify(expectResult.servers) + ': catch() is triggered');
+							assert.isDefined(outputResult.promise.error.message, JSON.stringify(expectResult.servers) + ': catch() message is defined');
+							expect(outputResult.promise.success, JSON.stringify(expectResult.server) + ': then() is not triggered').to.equal(null);
+						} else {
+							console.info(expectResult.shouldFail);
+							expect(outputResult.promise.success, JSON.stringify(expectResult.servers) + ': then() is triggered').to.equal(true);
+							expect(outputResult.promise.error, JSON.stringify(expectResult.servers) + ': catch() is not triggered').to.equal(null);
+						}
+						expect(outputResult.stateIndex, JSON.stringify(expectResult.servers) + ': triggers all expected states').to.equal(expectResult.states.length);
+						fnProcessNext();
+					}, 1000);
+				};
 
-			p.then(function (result) {
-				outputResult = result || true;
-				fnConfigureTimeout();
-			}).catch(function (error) {
-				outputResult = error || true;
-				fnConfigureTimeout();
-			});
-		
+				socket.on('stateChange', function (state, error, current) {
+					outputResult.stateIndex++;
+					console.info(state, outputResult.stateIndex, current.settings);
+					var settings = socket.getConfig().servers[current.serverIndex];
+					expect(state, JSON.stringify(expectResult.servers) +
+						': state is triggered correctly').to.equal(expectResult.states[output.stateIndex]);
+				  expect([error instanceof Error, !!(error && error.message)], JSON.stringify(expect.servers) +
+						': error is triggered correctly').to.equal(expectResult.states[output.stateIndex]);
+				  expect(current.attempts, JSON.stringify(expectResult.servers) +
+						': current.attempts is triggered correctly').to.equal(expectResult.attempts[output.stateIndex]);
+					expect(current.url, JSON.stringify(expectResult.servers) +
+						': current.url is triggered correctly').to.equal(settings.protocol + '//' + settings.server + ':' + settings.port);
+					expect(current.settings.reconnection, JSON.stringify(expectResult.servers) +
+						': current.settings.reconnection is triggered correctly').to.equal(settings.reconnection);
+					expect(current.settings.reconnectionAttempts, JSON.stringify(expectResult.servers) +
+						': current.settings.reconnectionAttempts is triggered correctly').to.equal(settings.reconnectionAttempts);
+					expect(current.settings.reconnectionDelay, JSON.stringify(expectResult.servers) +
+						': current.settings.reconnectionDelay is triggered correctly').to.equal(settings.reconnectionDelay);
+					expect(current.settings.reconnectionDelayMax, JSON.stringify(expectResult.servers) +
+						': current.settings.reconnectionDelayMax is triggered correctly').to.equal(settings.reconnectionDelayMax);
+					expect(current.settings.timeout, JSON.stringify(expectResult.servers) +
+						': current.settings.timeout is triggered correctly').to.equal(settings.timeout);
+					expect(current.settings.randomizationFactor, JSON.stringify(expectResult.servers) +
+						': current.settings.randomizationFactor is triggered correctly').to.equal(settings.randomizationFactor);
+					expect(current.settings.path, JSON.stringify(expectResult.servers) +
+						': current.settings.path is triggered correctly').to.equal(settings.path);
+					expect(current.settings.transport, JSON.stringify(expectResult.servers) +
+						': current.settings.transport is triggered correctly').to.deep.equal([settings.transport]);
+					assert.typeOf(current.settings.forceNew, 'boolean', JSON.stringify(expectResult.servers) + ': current.settings.forceNew typeof boolean');
+					assert.typeOf(current.settings.autoConnect, 'boolean', JSON.stringify(expectResult.servers) + ': current.settings.autoConnect typeof boolean');
+				});
 
-		done();
+				var p = socket._connect();
+				assert.instanceOf(p, Promise, JSON.stringify(expectResult.servers) + ': returns a Promise');
+				p.then(function (result) {
+					outputResult.promise.success = result || true;
+					fnConfigureTimeout();
+				}).catch(function (error) {
+					outputResult.promise.error = error || true;
+					fnConfigureTimeout();
+				});
+			} else {
+				done();
+			}
+		})();
 	});
 })
