@@ -71,14 +71,14 @@ describe('Temasys.Socket', function() {
 	});
 
 	/**
-	 * Tests the `STATE_ENUM` constant.
+	 * Tests the `CONNECTION_STATE_ENUM` constant.
 	 */
-	it('STATE_ENUM', function (done) {
+	it('CONNECTION_STATE_ENUM', function (done) {
 		var socket = new Temasys.Socket({ servers: [{ server: 'test', port: 23 }]});
-		assert.typeOf(socket.STATE_ENUM, 'object', 'typeof is object');
-    assert.isNotNull(socket.STATE_ENUM, 'Is not null');
+		assert.typeOf(socket.CONNECTION_STATE_ENUM, 'object', 'typeof is object');
+    assert.isNotNull(socket.CONNECTION_STATE_ENUM, 'Is not null');
     
-    Temasys.Utils.forEach(socket.STATE_ENUM, function (item, itemProp) {
+    Temasys.Utils.forEach(socket.CONNECTION_STATE_ENUM, function (item, itemProp) {
       assert.typeOf(item, 'string', itemProp + ': typeof is string');
 			assert.isDefined(item, 'string', itemProp + ': typeof is defined');
     });
@@ -131,8 +131,7 @@ describe('Temasys.Socket', function() {
 						item.protocol.length > 1 ? item.protocol : window.location.protocol);
 					assert.typeOf(outputOptions.servers[index].protocol, 'string', _testName + 'protocol typeof string');
 					expect(outputOptions.servers[index].path, _testName + 'path matches as expected').to.equal(
-						typeof item.path === 'string' && item.path.indexOf('/') === 0 &&
-						item.path.length > 1 ? item.path : '/socket.io');
+						typeof item.path === 'string' && item.path.indexOf('/') === 0 && item.path.length > 1 ? item.path : '/socket.io');
 					assert.typeOf(outputOptions.servers[index].path, 'string', _testName + 'path typeof string');
 					expect(outputOptions.servers[index].reconnection, _testName + 'reconnection matches as expected').to.equal(
 						typeof item.reconnection === 'boolean' ? item.reconnection :
@@ -140,24 +139,19 @@ describe('Temasys.Socket', function() {
 					assert.typeOf(outputOptions.servers[index].reconnection, 'boolean',	_testName + 'reconnection typeof boolean');
 					expect(outputOptions.servers[index].reconnectionAttempts, _testName + 'reconnectionAttempts matches as expected').to.equal(
 						typeof item.reconnectionAttempts === 'number' && item.reconnectionAttempts <= 5 &&
-						item.reconnectionAttempts >= 0 ? item.reconnectionAttempts :
-						(outputOptions.servers[index].transport === socket.TRANSPORT_ENUM.POLLING ? 4 : 0));
+						item.reconnectionAttempts >= 0 ? item.reconnectionAttempts : (outputOptions.servers[index].transport === socket.TRANSPORT_ENUM.POLLING ? 4 : 0));
 					assert.typeOf(outputOptions.servers[index].reconnectionAttempts, 'number', _testName + 'reconnectionAttempts typeof number');
 					expect(outputOptions.servers[index].reconnectionDelay, _testName + 'reconnectionDelay matches as expected').to.equal(
-						typeof item.reconnectionDelay === 'number' && item.reconnectionDelay >= 0 ?
-						item.reconnectionDelay : 2000);
+						typeof item.reconnectionDelay === 'number' && item.reconnectionDelay >= 0 ? item.reconnectionDelay : 2000);
 					assert.typeOf(outputOptions.servers[index].reconnectionDelay, 'number',	_testName + 'reconnectionDelay typeof number');
 					expect(outputOptions.servers[index].reconnectionDelayMax, _testName + 'reconnectionDelayMax matches as expected').to.equal(
 						typeof item.reconnectionDelayMax === 'number' && item.reconnectionDelayMax >= 0 ?
-						item.reconnectionDelayMax :
-						(outputOptions.servers[index].transport === socket.TRANSPORT_ENUM.POLLING ? 1000 : 2000));
+						item.reconnectionDelayMax : (outputOptions.servers[index].transport === socket.TRANSPORT_ENUM.POLLING ? 1000 : 2000));
 					assert.typeOf(outputOptions.servers[index].reconnectionDelayMax, 'number', _testName + 'reconnectionDelayMax typeof number');
 					expect(outputOptions.servers[index].randomizationFactor, _testName + 'randomizationFactor matches as expected').to.equal(
-						typeof item.randomizationFactor === 'number' && item.randomizationFactor >= 0 &&
-						item.randomizationFactor <= 1 ? item.randomizationFactor : 0.5);
+						typeof item.randomizationFactor === 'number' && item.randomizationFactor >= 0 && item.randomizationFactor <= 1 ? item.randomizationFactor : 0.5);
 					assert.typeOf(outputOptions.servers[index].randomizationFactor, 'number', _testName + 'randomizationFactor typeof number');
-					expect(outputOptions.servers[index].timeout, _testName + 'timeout matches as expected').to.equal(
-						typeof item.timeout === 'number' && item.timeout >= 0 ? item.timeout : 20000);
+					expect(outputOptions.servers[index].timeout, _testName + 'timeout matches as expected').to.equal(typeof item.timeout === 'number' && item.timeout >= 0 ? item.timeout : 20000);
 					assert.typeOf(outputOptions.servers[index].timeout, 'number', _testName + '.timeout typeof number');
 					expect(outputOptions.servers[index].transport, _testName + 'transport matches as expected').to.equal(
 						(item.transport === socket.TRANSPORT_ENUM.WEBSOCKET || !(function () {
@@ -174,13 +168,10 @@ describe('Temasys.Socket', function() {
 				});
 			}
 			expect(outputOptions.data.compress, testName + 'result.data.compress matches as expected').to.equal(
-				options.data && typeof options.data === 'object' && typeof options.data.compress === 'boolean' ?
-				options.data.compress : false);
+				options.data && typeof options.data === 'object' && typeof options.data.compress === 'boolean' ? options.data.compress : false);
 			assert.typeOf(outputOptions.data.compress, 'boolean', testName + 'result.data.compress typeof boolean');
 			expect(outputOptions.data.priorityInterval, testName + 'result.data.priorityInterval matches as expected').to.equal(
-				options.data && typeof options.data === 'object' &&
-				typeof options.data.priorityInterval === 'number' && options.data.priorityInterval >= 0 ?
-				options.data.priorityInterval : 10);
+				options.data && typeof options.data === 'object' && typeof options.data.priorityInterval === 'number' && options.data.priorityInterval >= 0 ? options.data.priorityInterval : 10);
 			assert.typeOf(outputOptions.data.priorityInterval, 'number', testName + 'result.data.priorityInterval typeof number');
 		};
 
@@ -270,8 +261,7 @@ describe('Temasys.Socket', function() {
 				if (window.location.protocol === 'https:' ? Array.isArray(defaultOptions.httpsPorts) &&
 					defaultOptions.httpsPorts.length > 0 : Array.isArray(defaultOptions.httpPorts) &&
 					defaultOptions.httpPorts.length > 0) {
-					expect(window.location.protocol === 'https:' ? defaultOptions.httpsPorts : defaultOptions.httpPorts,
-						_testName + 'port matches as expected').to.contain(item.port);
+					expect(window.location.protocol === 'https:' ? defaultOptions.httpsPorts : defaultOptions.httpPorts,_testName + 'port matches as expected').to.contain(item.port);
 				} else { item.port
 					expect(item.port, _testName + 'port is defined correctly').to.be.above(0);
 				}
@@ -281,16 +271,13 @@ describe('Temasys.Socket', function() {
 				assert.typeOf(item.path, 'string', _testName + 'path typeof string');
 				expect(item.path,	_testName + 'path matches as expected').to.equal('/socket.io');
 				assert.typeOf(item.reconnection, 'boolean', _testName + 'reconnection typeof boolean');
-				expect(item.reconnection,	_testName + 'reconnection matches as expected').to.equal(
-					item.transport === socket.TRANSPORT_ENUM.POLLING);
+				expect(item.reconnection,	_testName + 'reconnection matches as expected').to.equal(item.transport === socket.TRANSPORT_ENUM.POLLING);
 				assert.typeOf(item.reconnectionAttempts, 'number', _testName + 'reconnectionAttempts typeof number');
-				expect(item.reconnectionAttempts,	_testName + 'reconnectionAttempts matches as expected').to.equal(
-					item.transport === socket.TRANSPORT_ENUM.POLLING ? 4 : 0);
+				expect(item.reconnectionAttempts,	_testName + 'reconnectionAttempts matches as expected').to.equal(item.transport === socket.TRANSPORT_ENUM.POLLING ? 4 : 0);
 				assert.typeOf(item.reconnectionDelay, 'number', _testName + 'reconnectionDelay typeof number');
 				expect(item.reconnectionDelay,	_testName + 'reconnectionDelay matches as expected').to.equal(2000);
 				assert.typeOf(item.reconnectionDelayMax, 'number', _testName + 'reconnectionDelayMax typeof number');
-				expect(item.reconnectionDelayMax,	_testName + 'reconnectionDelayMax matches as expected').to.equal(
-					item.transport === socket.TRANSPORT_ENUM.POLLING ? 1000 : 2000);
+				expect(item.reconnectionDelayMax,	_testName + 'reconnectionDelayMax matches as expected').to.equal(item.transport === socket.TRANSPORT_ENUM.POLLING ? 1000 : 2000);
 				assert.typeOf(item.randomizationFactor, 'number', _testName + 'randomizationFactor typeof number');
 				expect(item.randomizationFactor,	_testName + 'randomizationFactor matches as expected').to.equal(0.5);
 				assert.typeOf(item.timeout, 'number', _testName + 'timeout typeof number');
@@ -347,148 +334,252 @@ describe('Temasys.Socket', function() {
 	/**
 	 * Tests the `_connect()` method.
 	 */
-	it('_connect()', function (done) {
-		this.timeout(70000);
-		var queue = (function (fnGetExpect) {
-			return [
-				fnGetExpect([
-					{ server: 'test1.com', port: 23 },
-					{ server: 'test2.com', port: 24 },
-					{ server: 'test3.com', port: 25 }]),
-				fnGetExpect([
-					{ server: 'test1.com', port: 23, reconnection: true, reconnectionAttempts: 2 }]),
-				fnGetExpect([
-					{ server: 'test1.com', port: 23, reconnection: false, reconnectionAttempts: 2 }]),
-				fnGetExpect([
-					{ server: 'test1.com', port: 23, reconnectionAttempts: 4 },
-					{ server: 'signaling.temasys.io', port: 3000 }]),
-				fnGetExpect([
-					{ server: 'signaling.temasys.io', port: 80 }]),
-				fnGetExpect([
-					{ server: 'signaling.temasys.io', port: 443, protocol: 'https:' }]),
-				fnGetExpect([
-					{ server: 'test1.io', port: 443, protocol: 'https:' }]),
-				fnGetExpect([
-					{ server: 'signaling.temasys.io', port: 443, protocol: 'httpss:' }])
-			];
-		})(function (servers) {
-			var result = {
-				servers: [],
-				states: [],
-				errors: [],
-				attempts: [],
-				shouldFail: true
-			};
-
-			Temasys.Utils.forEach(servers, function (serverItem, serverIndex) {
-				result.servers[serverIndex] = serverItem;
-				result.servers[serverIndex].timeout = 5000;
-
-				var fnAppendState = function (state, hasErrors, attempt) {
-					result.states.push(Temasys.Socket.prototype.STATE_ENUM[state]);
-					result.errors.push([!!hasErrors, !!hasErrors]);
-					result.attempts.push(attempt || 0);
-					result.shouldFail = state !== 'CONNECT';
-				};
-
-				fnAppendState('CONNECTING');
-				if (serverItem.protocol && ['http:', 'https:'].indexOf(serverItem.protocol) === -1) {
-					fnAppendState('CONNECT_START_ERROR', true);
-				} else if (serverItem.server !== 'signaling.temasys.io') {
-					if (serverItem.reconnection && typeof serverItem.reconnectionAttempts === 'number' &&
-						serverItem.reconnectionAttempts > 0) {
-						fnAppendState('CONNECT_TIMEOUT', true);
-						var index = 0;
-						while (index < serverItem.reconnectionAttempts) {
-							fnAppendState('RECONNECT_ATTEMPT', true, index + 1);
-							fnAppendState('RECONNECT_ERROR', true, index + 1);
-							index++;
-						}
-						fnAppendState('RECONNECT_FAILED', true);
-					} else {
-						fnAppendState('CONNECT_ERROR', true);
-					}
-				} else {
-					fnAppendState('CONNECT');
-				}
-				if (result.shouldFail && serverIndex === (servers.length - 1)) {
-					fnAppendState('RECONNECT_END', true);
-				}
-			});
-			return result;
-		});
+	it.skip('_connect()', function (done) {
+		this.timeout(170000);
+		var queue = [
+			[{ server: 'test1.com', port: 80 }, { server: 'test2.com', port: 81 }, { server: 'test3.com', port: 82 }],
+			[{ server: 'test1.com', port: 83, reconnection: true, reconnectionAttempts: 2 }],
+			[{ server: 'test1.com', port: 84, reconnection: false, reconnectionAttempts: 2 }],
+			[{ server: 'test1.com', port: 85, reconnectionAttempts: 4 }, { server: 'signaling.temasys.io', port: 3000 }],
+			[{ server: 'signaling.temasys.io', port: 80 }],
+			[{ server: 'signaling.temasys.io', port: 443, protocol: 'https:' }],
+			[{ server: 'signaling-legacy.temasys.com.sg', port: 800, reconnectionAttempts: 0, reconnection: true }],
+			[{ server: 'test1.io', port: 443, protocol: 'https:' }],
+			[{ server: 'test1.com', port: 443, protocol: 'https:', transport: 'polling' }],
+			[{ server: 'throwerror.com', port: 23 }],
+			[{ server: 'throwerror.com', port: 23 }, { server: 'signaling.temasys.io', port: 80 }]
+		];
 
 		(function fnProcessNext () {
 			if (queue.length > 0) {
-				var expectResult = queue.splice(0, 1)[0];
-				var outputResult = {
-					promise: { error: null, success: null, timeout: null },
-					stateIndex: -1
+				var servers = queue.splice(0, 1)[0];
+				var expectResult = {
+					shouldFail: true,
+					attempts: 0,
+					states: []
 				};
-				window.socket = new Temasys.Socket({ servers: expectResult.servers }, {});
-				var fnConfigureTimeout = function () {
-					if (outputResult.promise.output) {
+				var stateIndex = -1;
+
+				Temasys.Utils.forEach(servers, function (serverItem, serverIndex) {
+					servers[serverIndex].timeout = 5000;
+					if (!serverItem.server || !serverItem.port) {
 						return;
 					}
-					outputResult.promise.output = setTimeout(function () {
-						if (expectResult.shouldFail) {
-							assert.instanceOf(outputResult.promise.error, Error, JSON.stringify(expectResult.servers) + ': catch() is triggered');
-							assert.isDefined(outputResult.promise.error.message, JSON.stringify(expectResult.servers) + ': catch() message is defined');
-							expect(outputResult.promise.success, JSON.stringify(expectResult.server) + ': then() is not triggered').to.equal(null);
-						} else {
-							console.info(expectResult.shouldFail);
-							expect(outputResult.promise.success, JSON.stringify(expectResult.servers) + ': then() is triggered').to.equal(true);
-							expect(outputResult.promise.error, JSON.stringify(expectResult.servers) + ': catch() is not triggered').to.equal(null);
-						}
-						expect(outputResult.stateIndex, JSON.stringify(expectResult.servers) + ': triggers all expected states').to.equal(expectResult.states.length);
-						fnProcessNext();
-					}, 1000);
-				};
 
-				socket.on('stateChange', function (state, error, current) {
-					outputResult.stateIndex++;
-					console.info(state, outputResult.stateIndex, current.settings);
-					var settings = socket.getConfig().servers[current.serverIndex];
-					expect(state, JSON.stringify(expectResult.servers) +
-						': state is triggered correctly').to.equal(expectResult.states[output.stateIndex]);
-				  expect([error instanceof Error, !!(error && error.message)], JSON.stringify(expect.servers) +
-						': error is triggered correctly').to.equal(expectResult.states[output.stateIndex]);
-				  expect(current.attempts, JSON.stringify(expectResult.servers) +
-						': current.attempts is triggered correctly').to.equal(expectResult.attempts[output.stateIndex]);
-					expect(current.url, JSON.stringify(expectResult.servers) +
-						': current.url is triggered correctly').to.equal(settings.protocol + '//' + settings.server + ':' + settings.port);
-					expect(current.settings.reconnection, JSON.stringify(expectResult.servers) +
-						': current.settings.reconnection is triggered correctly').to.equal(settings.reconnection);
-					expect(current.settings.reconnectionAttempts, JSON.stringify(expectResult.servers) +
-						': current.settings.reconnectionAttempts is triggered correctly').to.equal(settings.reconnectionAttempts);
-					expect(current.settings.reconnectionDelay, JSON.stringify(expectResult.servers) +
-						': current.settings.reconnectionDelay is triggered correctly').to.equal(settings.reconnectionDelay);
-					expect(current.settings.reconnectionDelayMax, JSON.stringify(expectResult.servers) +
-						': current.settings.reconnectionDelayMax is triggered correctly').to.equal(settings.reconnectionDelayMax);
-					expect(current.settings.timeout, JSON.stringify(expectResult.servers) +
-						': current.settings.timeout is triggered correctly').to.equal(settings.timeout);
-					expect(current.settings.randomizationFactor, JSON.stringify(expectResult.servers) +
-						': current.settings.randomizationFactor is triggered correctly').to.equal(settings.randomizationFactor);
-					expect(current.settings.path, JSON.stringify(expectResult.servers) +
-						': current.settings.path is triggered correctly').to.equal(settings.path);
-					expect(current.settings.transport, JSON.stringify(expectResult.servers) +
-						': current.settings.transport is triggered correctly').to.deep.equal([settings.transport]);
-					assert.typeOf(current.settings.forceNew, 'boolean', JSON.stringify(expectResult.servers) + ': current.settings.forceNew typeof boolean');
-					assert.typeOf(current.settings.autoConnect, 'boolean', JSON.stringify(expectResult.servers) + ': current.settings.autoConnect typeof boolean');
+					expectResult.states.push({
+						state: 'CONNECTING',
+						error: [false, false],
+						attempt: 0
+					});
+
+					if (serverItem.server === 'throwerror.com') {
+						expectResult.states.push({
+							state: 'CONNECT_START_ERROR',
+							error: [true, true],
+							attempt: 0
+						});
+						window._connect = window.io.connect;
+					} else if (serverItem.server === 'signaling.temasys.io') {
+						expectResult.states.push({
+							state: 'CONNECT',
+							error: [false, false],
+							attempt: 0
+						});
+						expectResult.shouldFail = false;
+					} else {
+						expectResult.states.push({
+							state: 'CONNECT_ERROR',
+							error: [true, true],
+							attempt: 0
+						});
+
+						if (serverItem.reconnection === true || (serverItem.reconnection !== false && serverItem.transport === 'polling')) {
+							var index = 0;
+							var len = typeof serverItem.reconnectionAttempts === 'number' ? serverItem.reconnectionAttempts :
+								(serverItem.transport === 'polling' ? 4 : 0);
+							if (len > 0) {
+								while (index < len) {
+									expectResult.states.push({
+										state: 'RECONNECT_ATTEMPT',
+										error: [false, false],
+										attempt: index + 1
+									});
+									expectResult.states.push({
+										state: 'RECONNECT_ERROR',
+										error: [true, true],
+										attempt: index + 1
+									});
+									index++;
+								}
+								expectResult.states.push({
+									state: 'RECONNECT_FAILED',
+									error: [true, true],
+									attempt: len
+								});
+
+								expectResult.attempts = len;
+							}
+						}
+					}
 				});
 
-				var p = socket._connect();
-				assert.instanceOf(p, Promise, JSON.stringify(expectResult.servers) + ': returns a Promise');
-				p.then(function (result) {
-					outputResult.promise.success = result || true;
-					fnConfigureTimeout();
-				}).catch(function (error) {
-					outputResult.promise.error = error || true;
-					fnConfigureTimeout();
+				if (expectResult.shouldFail) {
+					expectResult.states.push({
+						state: 'TERMINATE',
+						error: [true, true],
+						attempt: expectResult.attempts
+					});
+				}
+
+				if (window._connect) {
+					window.io.connect = function (url, options) {
+						throw new Error('Test');
+					};
+				}
+
+				var socket = new Temasys.Socket({ servers: servers }, {});
+				socket.on('connectionStateChange', function (state, error, current) {
+					stateIndex++;
+					var settings = socket.getConfig().servers[current.serverIndex];
+					var expectState = expectResult.states[stateIndex];
+					expect(state, JSON.stringify(servers) +	': state is triggered correctly').to.equal(socket.CONNECTION_STATE_ENUM[expectState.state]);
+				  expect([error instanceof Error, !!(error && error.message)], JSON.stringify(servers) + ': error is triggered correctly').to.deep.equal(expectState.error);
+				  expect(current.attempt, JSON.stringify(servers) + ': current.attempt is triggered correctly').to.equal(expectState.attempt);
+					expect(current.url, JSON.stringify(servers) +	': current.url is triggered correctly').to.equal(settings.protocol + '//' + settings.server + ':' + settings.port);
+					expect(current.options.reconnection, JSON.stringify(servers) + ': current.options.reconnection is triggered correctly').to.equal(settings.reconnection);
+					expect(current.options.reconnectionAttempts, JSON.stringify(servers) + ': current.options.reconnectionAttempts is triggered correctly').to.equal(settings.reconnectionAttempts);
+					expect(current.options.reconnectionDelay, JSON.stringify(servers) + ': current.options.reconnectionDelay is triggered correctly').to.equal(settings.reconnectionDelay);
+					expect(current.options.reconnectionDelayMax, JSON.stringify(servers) + ': current.options.reconnectionDelayMax is triggered correctly').to.equal(settings.reconnectionDelayMax);
+					expect(current.options.timeout, JSON.stringify(servers) + ': current.options.timeout is triggered correctly').to.equal(settings.timeout);
+					expect(current.options.randomizationFactor, JSON.stringify(servers) + ': current.options.randomizationFactor is triggered correctly').to.equal(settings.randomizationFactor);
+					expect(current.options.path, JSON.stringify(servers) +	': current.options.path is triggered correctly').to.equal(settings.path);
+					expect(current.options.transports, JSON.stringify(servers) + ': current.options.transports is triggered correctly').to.deep.equal([settings.transport]);
+					assert.typeOf(current.options.forceNew, 'boolean', JSON.stringify(servers) + ': current.options.forceNew typeof boolean');
+					assert.typeOf(current.options.autoConnect, 'boolean', JSON.stringify(servers) + ': current.options.autoConnect typeof boolean');
+					if (state === socket.CONNECTION_STATE_ENUM.CONNECT_START_ERROR && window._connect) {
+						window.io.connect = window._connect;
+						window._connect = null;
+					}
+				});
+
+				var promise = socket._connect();
+				assert.instanceOf(promise, Promise, JSON.stringify(expectResult.servers) + ': returns a Promise');
+				chaiPromised(promise, function (error, result) {
+					setTimeout(function () {
+						if (expectResult.shouldFail) {
+							assert.instanceOf(error, Error, JSON.stringify(servers) + ': catch() is triggered');
+							assert.isDefined(error.message, JSON.stringify(servers) + ': catch() message is defined');
+							expect(result, JSON.stringify(servers) + ': then() is not triggered').to.equal(null);
+						} else {
+							expect(result, JSON.stringify(servers) + ': then() is triggered').to.equal(null);
+							expect(error, JSON.stringify(servers) + ': catch() is not triggered').to.equal(null);
+						}
+						expect(stateIndex + 1, JSON.stringify(servers) + ': triggers all expected states').to.equal(expectResult.states.length);
+						fnProcessNext();
+					}, 2000);
 				});
 			} else {
 				done();
 			}
 		})();
+	});
+
+	/**
+	 * Tests the `_disconnect()` method.
+	 */
+	it.skip('_disconnect()', function (done) {
+		this.timeout(35000);
+		var queue = [
+			// Test for disconnect to not trigger error when _connect has not yet been called
+			function (fnDone) {
+				expect(function () {
+				var socket = new Temasys.Socket({ servers: [{ server:'xxx', port: 80 }]});
+					socket._disconnect();
+				}, 'Should not throw error when connect has not started').to.not.throw(Error);
+				fnDone();
+			},
+			// Test for disconnect not triggering when failed to connect.
+			function (fnDone) {
+				var socket = new Temasys.Socket({ servers: [{ server:'xxx', port: 80, reconnection: true, reconnectionAttempts: 4, timeout: 1000 }]});
+				var disconnectTriggered = false;
+				var hasDisconnect = false;
+				socket.on('connectionStateChange', function (state) {
+					if (state === socket.CONNECTION_STATE_ENUM.RECONNECT_ERROR) {
+						socket._disconnect();
+						hasDisconnect = true;
+					} else if (state === socket.CONNECTION_STATE_ENUM.DISCONNECT) {
+						disconnectTriggered = true;
+					}
+				});
+				socket._connect();
+				setTimeout(function () {
+					expect([hasDisconnect, disconnectTriggered], 'Should not trigger DISCONNECT state when not connected').to.deep.equal([true, false]);
+					fnDone();
+				}, 4000);
+			},
+			// Test for disconnect to trigger when connected.
+			function (fnDone) {
+				var socket = new Temasys.Socket({ servers: [{ server:'signaling.temasys.io', port: 443, protocol: 'https:' }]});
+				var disconnectTriggered = false;
+				var hasDisconnect = false;
+				socket.on('connectionStateChange', function (state) {
+					if (state === socket.CONNECTION_STATE_ENUM.CONNECT) {
+						socket._disconnect();
+						hasDisconnect = true;
+					} else if (state === socket.CONNECTION_STATE_ENUM.DISCONNECT) {
+						disconnectTriggered = true;
+					}
+				});
+				socket._connect();
+				setTimeout(function () {
+					expect([hasDisconnect, disconnectTriggered], 'Should trigger DISCONNECT state when connected').to.deep.equal([true, true]);
+					fnDone();
+				}, 2000);
+			},
+			// Test for disconnect to trigger when reconnected.
+			function (fnDone) {
+				var initTs = Date.now();
+				window.XMLHttpRequest.prototype._open = window.XMLHttpRequest.prototype.open;
+				window.XMLHttpRequest.prototype.open = function (method, url, isCredentials) {
+					this._open('GET', 'https://fake.com', true);
+				};
+				var socket = new Temasys.Socket({ server:'signaling.temasys.io', port: 443, protocol: 'https:', transport: 'polling', timeout: 1500 });
+				var disconnectTriggered = false;
+				var hasDisconnect = false;
+				socket.on('connectionStateChange', function (state) {
+					if (state === socket.CONNECTION_STATE_ENUM.RECONNECT) {
+						socket._disconnect();
+						hasDisconnect = true;
+					} else if (state === socket.CONNECTION_STATE_ENUM.CONNECT_ERROR) {
+						window.XMLHttpRequest.prototype.open = window.XMLHttpRequest.prototype._open;
+						delete window.XMLHttpRequest.prototype._open;
+					} else if (state === socket.CONNECTION_STATE_ENUM.DISCONNECT) {
+						disconnectTriggered = true;
+					}
+				});
+				socket._connect();
+				setTimeout(function () {
+					expect([hasDisconnect, disconnectTriggered], 'Should trigger DISCONNECT state when reconnected').to.deep.equal([true, true]);
+					fnDone();
+				}, 22000);
+			}
+		];
+
+		(function fnProcessNext () {
+			if (queue.length > 0) {
+				queue.splice(0, 1)[0](function () {
+					fnProcessNext();
+				});
+			} else {
+				done();
+			}
+		})();
+	});
+
+	/**
+	 * Tests the `_send()` method.
+	 */
+	it('_send()', function (done) {
+		this.timeout(15000);
 	});
 })

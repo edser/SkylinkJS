@@ -724,6 +724,12 @@ describe('Temasys.Debugger', function() {
     var componentIdB = _log.configure(null, function (fn) {
       listeners.b = fn;
     });
+    var eventManagerC = Temasys.Utils.createEventManager();
+    var componentIdC = _log.configure(null, function (fn) {
+      eventManagerC.catchExceptions(typeof fn === 'function' ? function (error) {
+        fn(componentIdC, error);
+      } : null);
+    });
 
     Temasys.Debugger.catchExceptions(function (error, _componentId) {
       output.push([error, _componentId]);
@@ -735,10 +741,16 @@ describe('Temasys.Debugger', function() {
     var error4 = new Error('testC');
     var error5 = new Error('testD');
     var error6 = new Error('testD4');
+    var error7 = new Error('testBA');
+    var error8 = new Error('testTest');
 
     listeners.a(componentIdA, error1);
     listeners.b(componentIdB, error2);
     listeners.b(componentIdB, error3);
+    eventManagerC.once('test', function () {
+      throw error7;
+    });
+    eventManagerC.emit('test');
 
     Temasys.Debugger.catchExceptions(null);
 
@@ -746,9 +758,13 @@ describe('Temasys.Debugger', function() {
       listeners.a(componentIdA, error4);
       listeners.b(componentIdA, error5);
       listeners.b(componentIdA, error6);
+      eventManagerC.once('test2', function () {
+        throw error8;
+      });
+      eventManagerC.emit('test2');
     }, '() should throw errors').to.throw(Error);
     expect(output, 'Should match output as expected').to.deep.equal([
-      [error1, componentIdA], [error2, componentIdB], [error3, componentIdB]]);
+      [error1, componentIdA], [error2, componentIdB], [error3, componentIdB], [error7, componentIdC]]);
 
     done();
   });

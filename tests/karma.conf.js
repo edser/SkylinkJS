@@ -3,7 +3,7 @@ module.exports = function(config) {
     basePath: '..',
     frameworks: ['mocha', 'chai-as-promised', 'chai'],
     files: [
-      { pattern: 'node_modules/socket.io-client/socket.io.js', included: true, served: true },
+      { pattern: 'node_modules/socket.io-client/dist/socket.io.js', included: true, served: true },
       { pattern: 'node_modules/adapterjs/publish/adapter.screenshare.js', included: true, served: true },
       { pattern: 'source/**/*.js', included: false, served: true },
       { pattern: 'tests/libs/*.js', included: true, served: true },
@@ -19,7 +19,7 @@ module.exports = function(config) {
     customLaunchers: {
       ChromeCustom: {
         base: 'Chrome',
-        flags: ['--use-fake-ui-for-media-stream', '--disable-user-media-security']
+        flags: ['--use-fake-ui-for-media-stream', '--disable-user-media-security', '--ignore-certificate-errors']
       },
       FirefoxCustom: {
         base: 'Firefox',

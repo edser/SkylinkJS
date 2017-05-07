@@ -53,8 +53,11 @@ Temasys.Socket = function (options, defaultOptions) {
   ref._eventManager = Temasys.Utils.createEventManager();
   // Set the component ID
   ref._componentId = _log.configure(null, function (fn) {
-    ref._eventManager.catchExceptions(fn);
+    ref._eventManager.catchExceptions(typeof fn === 'function' ? function (error) {
+      fn(ref._componentId, error);
+    } : null);
   });
+
 
   // Stores the socket data settings
   ref._data = {
@@ -82,8 +85,14 @@ Temasys.Socket = function (options, defaultOptions) {
   // Stores the socket current state
   ref._state = {
     serverIndex: -1,
-    state: '',
-    connected: false
+    connectionState: '',
+    activeState: '',
+    connected: false,
+    triggered: {},
+    options: {
+      url: null,
+      settings: null
+    }
   };
 
   // Stores the socket stats
@@ -115,17 +124,17 @@ Temasys.Socket = function (options, defaultOptions) {
 
   /**
    * Event triggered when connection state has been changed.
-   * @event stateChange
+   * @event connectionStateChange
    * @param {String} state The current connection state.
-   * - This references `STATE_ENUM` constant.
+   * - This references `CONNECTION_STATE_ENUM` constant.
    * @param {Error} error The error object.
-   * - This is defined when `state` is `STATE_ENUM.RECONNECT_FAILED`, `STATE_ENUM.RECONNECT_END`,
-   *   `STATE_ENUM.CONNECT_ERROR` and `STATE_ENUM.CONNECT_TIMEOUT` (or `STATE_ENUM.CONNECT_ERROR`).
+   * - This is defined when `state` is `RECONNECT_FAILED`, `RECONNECT_END`, `CONNECT_ERROR`.
    * @param {JSON} current The current settings.
    * @param {Number} current.attempts The current reconnection attempt for server item.
    * @param {Number} current.serverIndex The server item index of the server items configured.
    * @param {String} current.url The socket.io-client url used.
-   * @param {JSON} current.settings The socket.io-client settings used.
+   * @param {JSON} current.options The socket.io-client options used.
+   * - References the [socket.io-client documentation for `options`](https://socket.io/docs/client-api/#new-manager-url-options).
    * @for Temasys.Socket
    * @since 0.7.0
    */
@@ -176,52 +185,38 @@ Temasys.Socket.prototype.TRANSPORT_ENUM = {
 
 /**
  * The enum of connection states.
- * @attribute STATE_ENUM
- * @param {String} CONNECTING The state when attempting to start connection for current server item
- *   configured in `new Temasys.Socket(options.servers)`.
- * - When constructing attempt fails, the `CONNECT_START_ERROR` state will be triggered, else the
- *   `CONNECT` state will be triggered if successful or `CONNECT_TIMEOUT` (or `CONNECT_ERROR`) state will be triggered
- *   if failed to obtain response from server.
- * @param {String} RECONNECT_FAILED The state when failed to reconnect after specified attempts.
- * - The next server item will be used to start connection which should result in `CONNECTING` state if available,
- *   or `RECONNECT_END` if there is not more server items to attempt connection to.
- * @param {String} RECONNECT_ERROR The state when reconnection attempt failed.
+ * @attribute CONNECTION_STATE_ENUM
+ * @param {String} CONNECTING The state when attempting to start connection for a new server item.
+ * @param {String} RECONNECT_FAILED The state when failed to reconnect after all reconnection attempts.
+ * @param {String} RECONNECT_ERROR The state when a reconnection attempt failed.
  * @param {String} RECONNECT_ATTEMPT The state when starting a reconnection attempt.
- * - When attempt fails, the `RECONNECT_ERROR` state will be triggered, and after all attempts have failed,
- *   the `RECONNECT_FAILED` state will be triggered. When attempt is successful, the `RECONNECT` state will be triggered.
- * @param {String} RECONNECTING The state when reconnection has started.
- * - This should result in `RECONNECT_ATTEMPT` being triggered for each `reconnectionAttempts`
- *   configured in the current server item.
- * @param {String} RECONNECT The state when connected to Signaling server after some reconnection attempts.
- * @param {String} CONNECT_TIMEOUT The state when attempt to start connection fails.
- * - This should result in `RECONNECTING` state triggered if `reconnection` is enabled and
- *   there are `reconnectionAttempts` available.
- * @param {String} CONNECT_START_ERROR The state when attempt to start connection failed.
- * @param {String} CONNECT_ERROR The state when connection has errors and disconnects.
- * - This should only happen after being connected to Signaling server.
+ * @param {String} RECONNECT The state when connected after reconnection attempts.
+ * @param {String} CONNECT_ERROR The state when attempt to start connection fails and reconnection may occur if enabled.
+ * @param {String} CONNECT_START_ERROR The state when attempt to construct connection for starting failed.
  * @param {String} CONNECT The state when connected.
  * @param {String} DISCONNECT The state when disconnected.
- * - This should only happen after being connected to Signaling server.
- * @param {String} RECONNECT_END The state when there is no more server items to fallback and start connection.
+ * @param {String} TERMINATE The state when there is no more new server items to start connection.
+ * @param {String} ERROR The state when there are connection errors when connected.
  * @type JSON
  * @readOnly
  * @final
  * @for Temasys.Socket
  * @since 0.7.0
  */
-Temasys.Socket.prototype.STATE_ENUM = {
+Temasys.Socket.prototype.CONNECTION_STATE_ENUM = {
   RECONNECT_ATTEMPT: 'reconnect_attempt',
   RECONNECT_FAILED: 'reconnect_failed',
   RECONNECT_ERROR: 'reconnect_error',
-  RECONNECTING: 'reconnecting',
+  //RECONNECTING: 'reconnecting',
   RECONNECT: 'reconnect',
-  CONNECT_TIMEOUT: 'connect_timeout',
+  //CONNECT_TIMEOUT: 'connect_timeout',
   CONNECT_ERROR: 'connect_error',
   CONNECT: 'connect',
   CONNECTING: 'connecting',
   DISCONNECT: 'disconnect',
-  RECONNECT_END: 'reconnect_end',
-  CONNECT_START_ERROR: 'connect_start_error'
+  CONNECT_START_ERROR: 'connect_start_error',
+  TERMINATE: 'terminate',
+  ERROR: 'error'
 };
 
 /**
@@ -431,7 +426,6 @@ Temasys.Socket.prototype._setConfig = function (options, defaultOptions) {
       if (window.WebSocket) {
         ref._servers.push(item);
       }
-
       item.reconnection = true;
       item.reconnectionDelayMax = 1000;
       item.reconnectionAttempts = 4;
@@ -457,165 +451,247 @@ Temasys.Socket.prototype._setConfig = function (options, defaultOptions) {
  */
 Temasys.Socket.prototype._connect = function () {
   var ref = this;
+  ref._state.serverIndex = -1;
+  ref._state.triggered = {
+    response: false,
+    fnResponse: function () {},
+    reconnecting: false,
+    connectError: false,
+    connectFailed: false,
+    reconnectAttempt: false
+  };
 
-  return new Promise (function (resolve, reject) {
-    (function fnConnect() {
-      ref._disconnect();
-      ref._state.serverIndex++;
+  var fnConnect = function () {
+    var terminated = false;
+    var useSettings = {
+      attempt: 0,
+      serverIndex: -1,
+      url: null,
+      options: {
+        path: '/socket.io',
+        reconnection: false,
+        reconnectionAttempts: 0,
+        reconnectionDelay: 2000,
+        reconnectionDelayMax: 2000,
+        randomizationFactor: 0.5,
+        timeout: 20000,
+        transports: [],
+        autoConnect: false,
+        forceNew: true
+      }
+    };
 
-      // Cache them to prevent overrides when triggering events
-      var useSettings = {
-        serverIndex: ref._state.serverIndex,
-        attempts: 0,
-        url: ref._servers[ref._state.serverIndex].protocol + '//' + ref._servers[ref._state.serverIndex].server + ':' +
-          ref._servers[ref._state.serverIndex].port,
-        settings: {
-          path: ref._servers[ref._state.serverIndex].path,
-          reconnection: ref._servers[ref._state.serverIndex].reconnection,
-          reconnectionAttempts: ref._servers[ref._state.serverIndex].reconnectionAttempts,
-          reconnectionDelay: ref._servers[ref._state.serverIndex].reconnectionDelay,
-          reconnectionDelayMax: ref._servers[ref._state.serverIndex].reconnectionDelayMax,
-          randomizationFactor: ref._servers[ref._state.serverIndex].randomizationFactor,
-          timeout: ref._servers[ref._state.serverIndex].timeout,
-          transports: [ref._servers[ref._state.serverIndex].transport],
-          autoConnect: false,
-          forceNew: true
+    // Function that returns the error
+    var fnEmitState = function (state, error) {
+      ref._state.connectionState = ref.CONNECTION_STATE_ENUM[state];
+      ref._eventManager.emit('connectionStateChange', ref.CONNECTION_STATE_ENUM[state], error || null, useSettings);
+
+      if (!ref._state.triggered.response && ['TERMINATE', 'CONNECT', 'RECONNECT'].indexOf(state) > -1) {
+        terminated = true;
+        ref._state.triggered.response = true;
+        ref._state.triggered.fnResponse(state === 'TERMINATE' ? error : null);
+        ref._state.triggered.fnResponse = null;
+      } else if (['CONNECT_START_ERROR', 'RECONNECT_FAILED'].indexOf(state) > -1 ||
+        (state === 'CONNECT_ERROR' && !(useSettings.options.reconnection && useSettings.options.reconnectionAttempts > 0))) {
+        terminated = true;
+        if (!ref._servers[ref._state.serverIndex + 1]) {
+          return fnEmitState('TERMINATE', new Error('There are no more servers to continue starting of connection'));
         }
-      };
+        fnConnect();
+      }
+    };
 
-      var returnTriggered = false;
-      var timeoutTriggered = false;
-      var fnReconnect = function () {
-        if (ref._servers[ref._state.serverIndex + 1]) {
-          fnConnect();
-        } else {
-          var endError = new Error('Connection aborted');
-          ref._state.state = state;
-          ref._eventManager.emit('stateChange', state, error || null, useSettings);
-          reject(endError);
-        }
-      };
+    if (ref._servers.length === 0) {
+      return fnEmitState('TERMINATE', new Error('There are no servers to start connection'));
+    }
 
-      ref._connection = null;
-      ref._stats.connection.reconnections.servers[useSettings.serverIndex] = 0;
-      fnEmit(ref.STATE_ENUM.CONNECTING);
+    ref._disconnect();
+    ref._state.serverIndex++;
+    ref._state.triggered.timeout = false;
+    ref._state.triggered.reconnecting = false;
+    ref._state.triggered.reconnectAttempt = false;
+    ref._state.triggered.connectError = false;
+    ref._state.triggered.connectFailed = false;
+    useSettings.attempt = 0;
+    useSettings.serverIndex = ref._state.serverIndex;
 
-      try {
-        ref._connection = io.connect(useSettings.url, useSettings.settings);
-      } catch (error) {
-        ref._state.state = ref.STATE_ENUM.CONNECT_START_ERROR;
-        ref._eventManager.emit('stateChange', ref.STATE_ENUM.CONNECT_START_ERROR, error, useSettings);
-        fnReconnect();
+    var serverItem = ref._servers[ref._state.serverIndex];
+    useSettings.url = serverItem.protocol + '//' + serverItem.server + ':' + serverItem.port;
+    useSettings.options.path = serverItem.path;
+    useSettings.options.reconnection = serverItem.reconnection;
+    useSettings.options.reconnectionAttempts = serverItem.reconnectionAttempts;
+    useSettings.options.reconnectionDelay = serverItem.reconnectionDelay;
+    useSettings.options.reconnectionDelayMax = serverItem.reconnectionDelayMax;
+    useSettings.options.randomizationFactor = serverItem.randomizationFactor;
+    useSettings.options.timeout = serverItem.timeout;
+    useSettings.options.transports = [serverItem.transport];
+
+    ref._state.options = useSettings.options;
+    ref._state.url = useSettings.url;
+
+    fnEmitState('CONNECTING');
+
+    try {
+      ref._connection = io.connect(useSettings.url, useSettings.options);
+    } catch (error) {
+      fnEmitState('CONNECT_START_ERROR', error);
+      return;
+    }
+
+    ref._connection.on('connect', function () {
+      ref._state.connected = true;
+      fnEmitState('CONNECT');
+    });
+
+    ref._connection.on('reconnect', function () {
+      ref._state.connected = true;
+      fnEmitState('RECONNECT');
+    });
+
+    ref._state.triggered.fnEmitDisconnect = function () {
+      if (ref._state.connected) {
+        ref._state.connected = false;
+        fnEmitState('DISCONNECT');
+      }
+    };
+
+    ref._connection.on('disconnect', function () {
+      ref._state.triggered.fnEmitDisconnect();
+    });
+
+    // "connect_timeout" is the same as "connect_error"
+    // See: https://socket.io/docs/client-api
+    ref._connection.on('connect_timeout', function () {
+      if (terminated) {
+        return;
+      // Prevent triggering of CONNECT_ERROR again
+      } else if (ref._state.triggered.connectError) {
         return;
       }
+      ref._state.triggered.connectError = true;
+      fnEmitState('CONNECT_ERROR', new Error('Connection timeout'));
+    });
 
-      ref._connection.on('connect', function () {
-        ref._state.state = ref.STATE_ENUM.CONNECT;
-        ref._eventManager.emit('stateChange', ref.STATE_ENUM.CONNECT, error, useSettings);
-        if (!returnTriggered) {
-          returnTriggered = true;
-          resolve(null);
-        }
-      });
-
-      ref._connection.on('reconnect', function () {
-        ref._state.state = ref.STATE_ENUM.RECONNECT;
-        ref._eventManager.emit('stateChange', ref.STATE_ENUM.RECONNECT, error, useSettings);
-        if (!returnTriggered) {
-          returnTriggered = true;
-          resolve(null);
-        }
-      });
-
-      ref._connection.on('disconnect', function () {
-        ref._state.state = ref.STATE_ENUM.DISCONNECT;
-        ref._eventManager.emit('stateChange', ref.STATE_ENUM.DISCONNECT, error, useSettings);
-      });
-
-      ref._connection.on('connect_timeout', function () {
-        ref._state.state = ref.STATE_ENUM.CONNECT_TIMEOUT;
-        ref._eventManager.emit('stateChange', ref.STATE_ENUM.CONNECT_TIMEOUT, error, useSettings);
-      });
-
-      ref._connection.on('connect_error', function (error) {
-        ref._state.state = ref.STATE_ENUM.CONNECT_ERROR;
-        ref._eventManager.emit('stateChange', ref.STATE_ENUM.CONNECT_ERROR, error || new Error('Connect error'), useSettings);
-        if (!useSettings.settings.reconnection) {
-          fnReconnect();
-        }
-      });
-
-      ref._connection.on('reconnecting', function () {
-        ref._state.state = ref.STATE_ENUM.RECONNECTING;
-        ref._eventManager.emit('stateChange', ref.STATE_ENUM.RECONNECTING, null, useSettings);
-      });
-
-      ref._connection.on('reconnect_error', function (error) {
-        
-        fnEmit(ref.STATE_ENUM.RECONNECT_ERROR, error && typeof error === 'object' ? error : new Error(error || 'Reconnect error'));
-      });
-
-      ref._connection.on('reconnect_failed', function () {
-        fnEmit(ref.STATE_ENUM.RECONNECT_FAILED, new Error('Failed reconnecting all attempts'));
-        fnReconnect();
-      });
-
-      ref._connection.on('reconnect_attempt', function () {
-        useSettings.attempts++;
-        ref._stats.connection.reconnections.total++;
-        ref._stats.connection.reconnections.servers[useSettings.serverIndex]++;
-        fnEmit(ref.STATE_ENUM.RECONNECT_ATTEMPT);
-      });
-
-      // Deprecated socket.io-client 1.4.x
-      ref._connection.on('error', function (error) {
-        _log.throw(ref._componentId, error && typeof error === 'object' ? error : new Error(error || 'DOM exception'));
-      });
-
-      ref._connection.on('ping', function () {
-        ref._stats.connection.pings.total++;
-        ref._event.emit('activeStateChange', ref.ACTIVE_STATE_ENUM.PING, Date.now(), null);
-      });
-
-      ref._connection.on('pong', function (latency) {
-        if (ref._stats.connection.pongs.latency.highest === null || latency > ref._stats.connection.pongs.latency.highest) {
-          ref._stats.connection.pongs.latency.highest = latency;
-        }
-        if (ref._stats.connection.pongs.latency.lowest === null || latency < ref._stats.connection.pongs.latency.lowest) {
-          ref._stats.connection.pongs.latency.lowest = latency;
-        }
-        ref._stats.connection.pongs.latency.total += latency;
-        ref._stats.connection.pongs.total++;
-        ref._event.emit('activeStateChange', ref.ACTIVE_STATE_ENUM.PONG, Date.now(), latency);
-      });
-
-      ref._connection.on('message', function (messageStr) {
-        ref._stats.messages.recv.total++;
-        try {
-          var message = JSON.parse(messageStr);
-          // Cache the room ID for group messages later
-          if (message.type === 'inRoom') {
-            ref._data.session.roomId = message.rid;
-            ref._data.session.peerId = message.sid;
+    ref._connection.on('connect_error', function (error) {
+      if (terminated) {
+        return;
+      } else if (!ref._state.connected) {
+        if (!ref._state.triggered.connectFailed) {
+          ref._state.triggered.connectFailed = true;
+          // Prevent triggering of CONNECT_ERROR again
+          if (ref._state.triggered.connectError) {
+            return;
           }
-          ref._eventManager.emit('message', message, null, false);
-        } catch (error) {
-          ref._stats.messages.recv.errors++;
-          ref._eventManager.emit('message', messageStr, error, false);
+          ref._state.triggered.connectError = true;
+          fnEmitState('CONNECT_ERROR', error instanceof Error ? error : new Error('Connection error'));
+          return;
         }
-      });
-
-      if (typeof ref._connection.connect === 'function') {
-        // Catch any "http:" accessing errors on "https:" sites errors
-        try {
-          ref._connection.connect();
-        } catch (error) {
-          ref._state.state = ref.STATE_ENUM.CONNECT_START_ERROR;
-          ref._eventManager.emit('stateChange', ref.STATE_ENUM.CONNECT_START_ERROR, error, useSettings);
-          fnReconnect();
+        ref._state.triggered.reconnecting = true;
+        // Prevent triggering of RECONNECT_ERROR again
+        if (ref._state.triggered.reconnectAttempt) {
+          return;
         }
+        ref._state.triggered.reconnectAttempt = true;
+        fnEmitState('RECONNECT_ERROR', error instanceof Error ? error : new Error('Reconection error'));
+        return;
       }
-    })();
+      fnEmitState('ERROR', error || new Error('Connection session error'));
+    });
+
+    // Fired when successful reconnection. reconnect does the same thing
+    /*ref._connection.on('reconnecting', function () {
+      fnEmitState('RECONNECTING');
+    });*/
+
+    ref._connection.on('reconnect_error', function (error) {
+      if (terminated) {
+        return;
+      // Prevent triggering of RECONNECT_ERROR again
+      } else if (ref._state.triggered.reconnectAttempt) {
+        return;
+      }
+      ref._state.triggered.reconnectAttempt = true;
+      fnEmitState('RECONNECT_ERROR', error instanceof Error ? error : new Error('Reconnection error'));
+    });
+
+    ref._connection.on('reconnect_failed', function () {
+      fnEmitState('RECONNECT_FAILED', new Error('Reconnection failed'));
+    });
+
+    ref._connection.on('reconnect_attempt', function () {
+      if (terminated) {
+        return;
+      }
+      useSettings.attempt++;
+      ref._stats.connection.reconnections.total++;
+      ref._stats.connection.reconnections.servers[useSettings.serverIndex]++;
+      ref._state.triggered.reconnectAttempt = false;
+      fnEmitState('RECONNECT_ATTEMPT');
+    });
+
+    // Deprecated socket.io-client 1.4.x
+    ref._connection.on('error', function (error) {
+      _log.throw(ref._componentId, error instanceof Error ? error : new Error(
+        typeof error === 'string' ? error : 'DOM exception'));
+    });
+
+    ref._connection.on('ping', function () {
+      ref._stats.connection.pings.total++;
+      ref._eventManager.emit('activeStateChange', ref.ACTIVE_STATE_ENUM.PING, Date.now(), null);
+    });
+
+    ref._connection.on('pong', function (latency) {
+      // Set the highest latency received
+      if (ref._stats.connection.pongs.latency.highest === null || latency > ref._stats.connection.pongs.latency.highest) {
+        ref._stats.connection.pongs.latency.highest = latency;
+      }
+      // Set the lowest latency received
+      if (ref._stats.connection.pongs.latency.lowest === null || latency < ref._stats.connection.pongs.latency.lowest) {
+        ref._stats.connection.pongs.latency.lowest = latency;
+      }
+      ref._stats.connection.pongs.latency.total += latency;
+      ref._stats.connection.pongs.total++;
+      ref._eventManager.emit('activeStateChange', ref.ACTIVE_STATE_ENUM.PONG, Date.now(), latency);
+    });
+
+    ref._connection.on('message', function (messageStr) {
+      ref._stats.messages.recv.total++;
+      try {
+        var message = JSON.parse(messageStr);
+        // Cache the room ID for group messages later
+        if (message.type === 'inRoom') {
+          ref._data.session.roomId = message.rid;
+          ref._data.session.peerId = message.sid;
+        }
+        ref._eventManager.emit('message', message, null, false);
+      } catch (error) {
+        ref._stats.messages.recv.errors++;
+        ref._eventManager.emit('message', messageStr, error, false);
+      }
+    });
+
+    if (typeof ref._connection.connect === 'function') {
+      // Catch any "http:" accessing errors on "https:" sites errors
+      try {
+        ref._connection.connect();
+      } catch (error) {
+        fnEmitState('CONNECT_START_ERROR', error);
+      }
+    }
+  };
+
+  setTimeout(function () {
+    fnConnect();
+  }, 10);
+
+  return new Promise(function (resolve, reject) {
+    ref._state.triggered.fnResponse = function (error) {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(null);
+      }
+    };
   });
 };
 
@@ -625,64 +701,16 @@ Temasys.Socket.prototype._connect = function () {
 Temasys.Socket.prototype._disconnect = function () {
   var ref = this;
   if (ref._connection) {
+    ref._connection.removeAllListeners();
     if (ref._state.connected) {
       ref._connection.disconnect();
+      // Add precautionary checks
+      if (typeof ref._state.triggered.fnEmitDisconnect === 'function') {
+        ref._state.triggered.fnEmitDisconnect();
+      }
     }
     ref._connection = null;
   }
-};
-
-/**
- * Function to send the next batch of queued messages.
- */
-Temasys.Socket.prototype._sendNextQueue = function (fnSend) {
-  var ref = this;
-
-  if (ref._buffer.timer) {
-    clearTimeout(ref._buffer.timer);
-  }
-
-  ref._buffer.timer = setTimeout(function () {
-    // Ignore if there is no queue to send
-    if (ref._buffer.queue[0].length === 0) {
-      return;
-    }
-
-    var now = Date.now();
-
-    if ((now - ref._buffer.timestamp) > 1000) {
-      Utils.forEach(ref._buffer.queue[0], function (qMessageStr, i) {
-        var qMessage = JSON.parse(qMessageStr);
-        // Drop outdated messages
-        if (['muteVideoEvent', 'muteAudioEvent', 'updateUserEvent'].indexOf(qMessage.type) > -1 &&
-          ref._buffer.status[qMessage.type] >= qMessage.stamp) {
-          ref._buffer.queue[0].splice(i, 1);
-          // Trigger callback because status is outdated so it's technically updated
-          ref._buffer.queue[1].splice(i, 1)[0](null);
-          return -1;
-        }
-      });
-
-      var messageList = ref._buffer.queue[0].splice(0, 16);
-      var fnList = ref._buffer.queue[1].splice(0, 16);
-
-      // Send the next batch
-      fnSend([{
-        type: 'group',
-        mid: ref._buffer.cached.user,
-        rid: ref._buffer.cached.room,
-        list: messageList
-
-      }, function (error) {
-        Utils.forEach(fnList, function (fnItem, i) {
-          ref._event.emit('message', JSON.parse(messageList[i]), error || null, true);
-          fnItem(error || null);
-        });
-      }]);
-      ref._buffer.timestamp = now;
-      ref._sendNextQueue(fnSend);
-    }
-  }, 1000);
 };
 
 /**
@@ -690,6 +718,53 @@ Temasys.Socket.prototype._sendNextQueue = function (fnSend) {
  */
 Temasys.Socket.prototype._send = function (message, fn) {
   var ref = this;
+  var fnSendNextbatch = function () {
+    if (ref._buffer.timer) {
+      clearTimeout(ref._buffer.timer);
+    }
+
+    ref._buffer.timer = setTimeout(function () {
+      // Ignore if there is no queue to send
+      if (ref._buffer.queue[0].length === 0) {
+        return;
+      }
+
+      var now = Date.now();
+
+      if ((now - ref._buffer.timestamp) > 1000) {
+        Utils.forEach(ref._buffer.queue[0], function (qMessageStr, i) {
+          var qMessage = JSON.parse(qMessageStr);
+          // Drop outdated messages
+          if (['muteVideoEvent', 'muteAudioEvent', 'updateUserEvent'].indexOf(qMessage.type) > -1 &&
+            ref._buffer.status[qMessage.type] >= qMessage.stamp) {
+            ref._buffer.queue[0].splice(i, 1);
+            // Trigger callback because status is outdated so it's technically updated
+            ref._buffer.queue[1].splice(i, 1)[0](null);
+            return -1;
+          }
+        });
+
+        var messageList = ref._buffer.queue[0].splice(0, 16);
+        var fnList = ref._buffer.queue[1].splice(0, 16);
+
+        // Send the next batch
+        fnSend([{
+          type: 'group',
+          mid: ref._buffer.cached.user,
+          rid: ref._buffer.cached.room,
+          list: messageList
+
+        }, function (error) {
+          Utils.forEach(fnList, function (fnItem, i) {
+            ref._event.emit('message', JSON.parse(messageList[i]), error || null, true);
+            fnItem(error || null);
+          });
+        }]);
+        ref._buffer.timestamp = now;
+        fnSendNextbatch(fnSend);
+      }
+    }, 1000);
+  };
 
   /**
    * Internal function to send message.
