@@ -391,12 +391,12 @@ Temasys.Socket.prototype.getCurrent = function () {
  * @param {JSON} return.session The socket connection session stats.
  * @param {String} [return.session.id] The socket connection session ID when connected.
  * @param {Number} return.session.protocol The socket connection socket.io protocol revision number.
- * @param {Array} return.session.pairs The list of port and transport pair attempts made - where each item is a _JSON_.
- * - Property `#index` will be used to identify the array index and the fallback attempt (for the next available pair) index.
- * @param {JSON} return.session.pairs.#index The port and transport pair.
- * @param {Number} return.session.pairs.#index.attempts The total number of reconnection attempts made for this pair.
- * @param {Number} return.session.pairs.#index.port The port number.
- * @param {String} return.session.pairs.#index.transport The transport type.
+ * @param {Array} return.session.fallbacks The list of port and transport pair attempts made - where each item is a _JSON_.
+ * - Property `#index` will be used to identify the array index and the fallback for the next available pair attempt number.
+ * @param {JSON} return.session.fallbacks.#index The port and transport pair.
+ * @param {Number} return.session.fallbacks.#index.attempts The total number of reconnection attempts made for this pair.
+ * @param {Number} return.session.fallbacks.#index.port The port number.
+ * @param {String} return.session.fallbacks.#index.transport The transport type.
  * - Reference [`TRANSPORT_ENUM`](#docs+Temasys.Socket+constants+TRANSPORT_ENUM) for the list of available transports.
  * @param {JSON} return.active The "activeness" or keep-alive connection stats.
  * @param {JSON} return.active.pings The "ping" stats.

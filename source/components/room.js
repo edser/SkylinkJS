@@ -1,5 +1,5 @@
 /**
- * Handles the client Room connection session in App space.
+ * Handles the client room connection session.
  * @class Temasys.Room
  * @param {JSON} options The options.
  * @param {String} options.appKey The App key ID.

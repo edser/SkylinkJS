@@ -847,7 +847,7 @@
             "extension_for": [],
             "file": "source/components/room.js",
             "line": 1,
-            "description": "Handles the client Room connection session in App space.",
+            "description": "Handles the client room connection session.",
             "params": [
                 {
                     "name": "options",
@@ -5958,27 +5958,27 @@
                                     "type": "Number"
                                 },
                                 {
-                                    "name": "pairs",
-                                    "description": "The list of port and transport pair attempts made - where each item is a _JSON_.\n- Property `#index` will be used to identify the array index and the fallback attempt (for the next available pair) index.",
+                                    "name": "fallbacks",
+                                    "description": "The list of port and transport pair attempts made - where each item is a _JSON_.\n- Property `#index` will be used to identify the array index and the fallback for the next available pair attempt number.",
                                     "type": "Array"
                                 },
                                 {
-                                    "name": "pairs.#index",
+                                    "name": "fallbacks.#index",
                                     "description": "The port and transport pair.",
                                     "type": "JSON"
                                 },
                                 {
-                                    "name": "pairs.#index.attempts",
+                                    "name": "fallbacks.#index.attempts",
                                     "description": "The total number of reconnection attempts made for this pair.",
                                     "type": "Number"
                                 },
                                 {
-                                    "name": "pairs.#index.port",
+                                    "name": "fallbacks.#index.port",
                                     "description": "The port number.",
                                     "type": "Number"
                                 },
                                 {
-                                    "name": "pairs.#index.transport",
+                                    "name": "fallbacks.#index.transport",
                                     "description": "The transport type.\n- Reference [`TRANSPORT_ENUM`](#docs+Temasys.Socket+constants+TRANSPORT_ENUM) for the list of available transports.",
                                     "type": "String"
                                 }
