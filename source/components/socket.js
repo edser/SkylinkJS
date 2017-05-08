@@ -1,47 +1,44 @@
 /**
- * Handles the Socket connection to the Signaling server.
+ * Handles the socket connection to the signaling server.
  * @class Temasys.Socket
  * @param {JSON} options The options.
- * - Note that configuring these settings may result in connection failures.
- *   Please configure them only for debugging purposes only.
- * @param {Array} [options.servers] The list of Signaling servers to attempt to connect to.
- * - When not provided, the default values returned from Auth server is used.
- * @param {JSON} [options.servers._index] The Signaling server.
- * @param {String} options.servers._index.server The Signaling server domain.
- * @param {Number} options.servers._index.port The Signaling server port.
- * @param {String} [options.servers._index.protocol] The Signaling server protocol.
- * - When not provided, the value is the current accessing `window.location.protocol`.
- * @param {String} [options.servers._index.path] The Signaling server path.
- * - When not provided, the value is `/socket.io`.
- * @param {Boolean} [options.servers._index.reconnection] The flag if socket connection should
- *   reconnect several attempts for the current transport or port used before switching to the next
- *   available transport or port available.
- * - When not provided, the value is `false` (`true` if `.transport` is `TRANSPORT_ENUM.POLLING`).
- * @param {Number} [options.servers._index.reconnectionAttempts] The reconnection attempts to take if
- *   `options.options.index.reconnection` is enabled.
- * - The maximum value that can be provided is `5`.
- * - When not provided, the value is `0` (`4` if `.transport` is `TRANSPORT_ENUM.POLLING`).
- * @param {Number} [options.servers._index.reconnectionDelay] The number of miliseconds to wait before
- *   starting the next reconnection attempt, which is affected by the `randomizationFactor` configured.
- * - When not provided, the value is `2000`.
- * @param {Number} [options.servers._index.reconnectionDelayMax] The maximum number of miliseconds to wait
- *   before starting the next reconnection attempt.
- * - When not provided, the value is `2000` (`1000` if `.transport` is `TRANSPORT_ENUM.POLLING`).
- * @param {Number} [options.servers._index.randomizationFactor] The randomization for each reconnection attempt.
- * - When not provided, the value is `0.5`, and the range is from `0` to `1`.
- * @param {Number} [options.servers._index.timeout] The timeout in miliseconds to consider
- *   that the inital connection has timed out.
- * - When not provided, the value is `20000`.
- * @param {String} [options.servers._index.transport] The transport type.
- * - This references the `TRANSPORT_ENUM` constant.
- * - When not provided, the value is `TRANSPORT_ENUM.WEBSOCKET` or `TRANSPORT_ENUM.POLLING` if
- *   [WebSocket API](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API) is not supported.
- * @param {JSON} [options.data] The data settings.
- * @param {Boolean} [options.data.compress] The flag if sending data should be compressed if feature
- *   is available on connected Signaling server.
- * - When not provided, the value is `false`.
- * @param {Number} [options.data.priorityInterval] The interval between each priority SM protocol messages sent in queue.
- * - When not provided, the value is `10`.
+ * @param {String} [options.protocol] The signaling server protocol.
+ * - Examples: `"https:"`, `"http:"`
+ * - When not provided, the value of `window.location.protocol` is used.
+ * @param {String} [options.server] The signaling server domain.
+ * - Examples: `"signaling.temasys.io"`
+ * - When not provided, the default value returned from Auth server is used.
+ * @param {String} [options.path] The signaling server path if required.
+ * - Examples: `"/"`, `"/socket.io"`
+ * - When not provided, the default value is `"/socket.io"`.
+ * @param {Array} [options.ports] The list of signaling ports - where each item is a _Number_.
+ * - Examples: `new Array(80, 3000)`, `new Array(443, 3443)`
+ * - When not provided, the default value returned from Auth server is used.
+ * @param {Number} [options.reconnectionAttempts] The number of reconnection attempts for each port and transport pair.
+ * - Range: `0` - `5`
+ * - When not provided, the default value is `0`, which means no reconnection attempts should be made.
+ * @param {Number} [options.reconnectionDelay] The number of miliseconds to wait before starting the
+ *   next reconnection attempt. This is tampered with the `.randomizationFactor` configured.
+ * - Range: `1` and above
+ * - When not provided, the default value is `1000`.
+ * @param {Number} [options.reconnectionDelayMax] The maximum number of miliseconds to wait before starting the
+ *   next reconnection attempt.
+ * - Range: `1` and above
+ * - When not provided, the default value is `5000`.
+ * @param {Number} [options.randomizationFactor] The randominzation factor (+/-) for each reconnection attempts.
+ * - Range: `0` - `1`
+ * - Output reconnection delay would be `800` or `1200` if value is `0.2` with `.reconnectionDelay` set to `1000`.
+ * - Output reconnection delay would be `500` or `1500` if value is `0.5` with `.reconnectionDelay` set to `1000`.
+ * @param {Number} [options.timeout] The number of miliseconds to wait without response before considering that
+ *   connection attempt has timed out and should consider reconnecting.
+ * - Range: `0` and above
+ * - When not provided, the default value is `20000`.
+ * @param {Array} [options.transports] The list of signaling transports - where each item is a _String_.
+ * - Examples: `new Array("polling")`, `new Array("websocket", "polling")`
+ * - When not provided, the default value is `new Array("websocket", "polling")`.
+ * - Reference [`TRANSPORT_ENUM`](#docs+Temasys.Socket+constants+TRANSPORT_ENUM) for the list of available transports.
+ * @param {Boolean} [options.compression] The flag if data compression should be enabled when sending messages.
+ * - When not provided, the default value is `false`.
  * @constructor
  * @private
  * @since 0.7.0
@@ -122,30 +119,100 @@ Temasys.Socket = function (options, defaultOptions) {
   ref._connection = null;
   ref._setConfig(options, defaultOptions);
 
-  /**
-   * Event triggered when connection state has been changed.
-   * @event connectionStateChange
-   * @param {String} state The current connection state.
-   * - This references `CONNECTION_STATE_ENUM` constant.
-   * @param {Error} error The error object.
-   * - This is defined when `state` is `RECONNECT_FAILED`, `RECONNECT_END`, `CONNECT_ERROR`.
-   * @param {JSON} current The current settings.
-   * @param {Number} current.attempts The current reconnection attempt for server item.
-   * @param {Number} current.serverIndex The server item index of the server items configured.
-   * @param {String} current.url The socket.io-client url used.
-   * @param {JSON} current.options The socket.io-client options used.
-   * - References the [socket.io-client documentation for `options`](https://socket.io/docs/client-api/#new-manager-url-options).
+   /**
+    * Function to subscribe to an event.
+    * @method on
+    * @param {String} eventName The event name.
+    * @param {Function} fn The callback function called when event is emitted.
+    * @example
+    * // Example: Subscribe to an event
+    * socket.on("activeStateChange", function (state, latency) {
+    *   console.log("active state ->", state);
+    * });
+    * @for Temasys.Socket
+    * @since 0.7.0
+    */
+   ref.on = ref._eventManager.on;
+
+   /**
+    * Function to subscribe to an event once.
+    * @method once
+    * @param {String} eventName The event name.
+    * @param {Function} fn The callback function called once when event is emitted, or after when condition is met.
+    * @param {Function} [fnCondition] The conditional function called each time event is emitted.
+    * - Return `true` to satisfy condition.
+    * - When not provided, the default value is `function () { return true; }`.
+    * @param {Boolean} [forever] The flag if callback function should not be called only once but each time
+    *   condition is met.
+    * - When not provided, the default value is `false`.
+    * @example
+    * // Example 1: Subscribe to an event once when emitted
+    * socket.once("activeStateChange", function (state, latency) {
+    *   console.log("active state ->", state);
+    * });
+    *
+    * // Example 2: Subscribe to an event that is emited once the condition is met
+    * socket.once("connectionStateChange", function (state) {
+    *   console.info("connected"); 
+    * }, function (state) {
+    *   return ["connect", "reconnect"].indexOf(state) > -1;
+    * });
+    *
+    * // Example 3: Subscribe to an event that is emited always once the condition is met
+    * socket.once("activeStateChange", function (state, latency) {
+    *   console.info("pong latency ->", latency); 
+    * }, function (state) {
+    *   return state === 'pong';
+    * }, true);
+    * @for Temasys.Socket
+    * @since 0.7.0
+    */
+   ref.once = ref._eventManager.once;
+
+   /**
+    * Function to unsubscribe to an event.
+    * @method off
+    * @param {String} [eventName] The event name to unsubscribe to.
+    * - When not provided, all events callback functions.
+    * @param {Function} [fn] The callback function to unsubscribe.
+    * - When not provided, all the event callback functions.
+    * @example
+    * // Example 1: Unsubscribe to all events
+    * socket.off();
+    *
+    * // Example 2: Unsubscribe "activeStateChange" event
+    * socket.once("activeStateChange");
+    *
+    * // Example 3: Unsubscribe to a single callback function for "activeStateChange" event
+    * var fn = function () {};
+    * socket.on("activeStateChange", fn);
+    * socket.off("activeStateChange", fn);
+    * @for Temasys.Socket
+    * @since 0.7.0
+    */
+   ref.off = ref._eventManager.off;
+
+   /**
+   * Event triggered when socket connection state has changed.
+   * @param connectionStateChange
+   * @param {String} state The connection state.
+   * - Reference [`CONNECTION_STATE_ENUM`](#docs+Temasys.Socket+constants+CONNECTION_STATE_ENUM) for the list of available states.
+   * @param {Error} [error] The error object if there are errors.
+   * @param {JSON} session The state session.
+   * @param {Number} session.attempts The total number of reconnection attempts made for the current fallback attempt.
+   * @param {Number} session.fallbacks The total number of port and transport pairs tried.
+   * @param {Number} settings.port The port number.
+   * @param {String} settings.transport The transport used.
+   * - Reference [`TRANSPORT_ENUM`](#docs+Temasys.Socket+constants+TRANSPORT_ENUM) for the list of available transports.
    * @for Temasys.Socket
    * @since 0.7.0
    */
   /**
-   * Event triggered when connection active state has been changed.
+   * Event triggered when socket connection "activeness" or keep-alive state has changed.
    * @event activeStateChange
-   * @param {String} state The current active state.
-   * - This references `STATE_ENUM` constant.
-   * @param {Number} date The current date time in milliseconds.
-   * @param {Number} [latency] The response time latency.
-   * - This is defined only when `state` is `ACTIVE_STATE_ENUM.PONG`.
+   * @param {String} state The active state.
+   * - Reference [`ACTIVE_STATE_ENUM`](#docs+Temasys.Socket+constants+ACTIVE_STATE_ENUM) for the list of available states.
+   * @param {Number} [latency] The number of miliseconds of response time latency when receiving `PONG` response packet.
    * @for Temasys.Socket
    * @since 0.7.0
    */
@@ -153,26 +220,23 @@ Temasys.Socket = function (options, defaultOptions) {
    * Event triggered when message is sent or received.
    * @event message
    * @param {JSON|String} message The message object.
-   * - When defined as type of `String`, it could indicate that received message has parsing errors.
-   * @param {Error} [error] The error object.
-   * - This is defined only when parsing of received message or when sending message has errors.
+   * - When defined as type of _String_, this indicates that received message has parsing errors.
+   * @param {Error} [error] The error object if there are errors.
    * @param {Boolean} isSelf The flag if self is sending the message.
    * @for Temasys.Socket
    * @since 0.7.0
    */
-
-   ref.on = ref._eventManager.on;
-   ref.once = ref._eventManager.once;
-   ref.off = ref._eventManager.off;
 };
 
 /**
  * The enum of transport types.
  * @attribute TRANSPORT_ENUM
- * @param {String} WEBSOCKET The transport type that uses the 
- *   [WebSocket API](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API).
- * @param {String} POLLING The transport type that uses polling that uses the 
- *   [XMLHttpRequest API](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest).
+ * @param {String} WEBSOCKET The transport type to use WebSocket connections.
+ * - Value: `"websocket"`
+ * - Reference [WebSocket protocol](https://en.wikipedia.org/wiki/WebSocket) for more information.
+ * @param {String} POLLING The transport type to use polling.
+ * - Value: `"polling"`
+ * - Reference [Polling concept](https://en.wikipedia.org/wiki/Polling_%28computer_science%29) for more information.
  * @type JSON
  * @final
  * @readOnly
@@ -184,19 +248,35 @@ Temasys.Socket.prototype.TRANSPORT_ENUM = {
 };
 
 /**
- * The enum of connection states.
+ * The enum of socket connection states.
  * @attribute CONNECTION_STATE_ENUM
- * @param {String} CONNECTING The state when attempting to start connection for a new server item.
- * @param {String} RECONNECT_FAILED The state when failed to reconnect after all reconnection attempts.
- * @param {String} RECONNECT_ERROR The state when a reconnection attempt failed.
- * @param {String} RECONNECT_ATTEMPT The state when starting a reconnection attempt.
- * @param {String} RECONNECT The state when connected after reconnection attempts.
- * @param {String} CONNECT_ERROR The state when attempt to start connection fails and reconnection may occur if enabled.
- * @param {String} CONNECT_START_ERROR The state when attempt to construct connection for starting failed.
+ * @param {String} NEW The state when starting with a new port and transport pair to start connection.
+ * - Value: `"new"`
+ * - Output port and transport pairs available would be `a+1`, `a+2`, `b+1` and `b+2`, if transports given are `a` and `b`,
+ *   and ports give are `1` and `2`.
  * @param {String} CONNECT The state when connected.
+ * - Value: `"connect"`
+ * @param {String} CONNECT_ERROR The state when connection failed or timed out for current port and transport pair.
+ * - Value: `"connect_error"`
+ * - Reconnections will be attempted if configured, else it would switch to the next available pair.
+ * @param {String} CONNECT_START_ERROR The state when constructing connection has errors for the current port and transport pair.
+ * - Value: `"connect_start_error"`
+ * - Reconnections will not be attempted even if configured, and it would switch to the next available pair.
+ * @param {String} RECONNECT_ATTEMPT The state when starting a reconnection attempt for the current port and transport pair.
+ * - Value: `"reconnect_attempt"`
+ * @param {String} RECONNECT_ERROR The state when a reconnection attempt failed.
+ * - Value: `"reconnect_error"`
+ * @param {String} RECONNECT The state when reconnected after some reconnection attempts.
+ * - Value: `"reconnect"`
+ * @param {String} RECONNECT_FAILED The state when all reconnection attempts failed for the current port and transport pair.
+ * - Value: `"reconnect_failed"`
  * @param {String} DISCONNECT The state when disconnected.
- * @param {String} TERMINATE The state when there is no more new server items to start connection.
- * @param {String} ERROR The state when there are connection errors when connected.
+ * - Value: `"disconnect"`
+ * @param {String} TERMINATE The state when there is no more port and transport pairs to start connection and
+ *   fallback for the next available pair attempts are aborted.
+ * - Value: `"terminate"`
+ * @param {String} ERROR The state when there are errors in connection after being connected.
+ * - Value: `"error"`
  * @type JSON
  * @readOnly
  * @final
@@ -204,26 +284,28 @@ Temasys.Socket.prototype.TRANSPORT_ENUM = {
  * @since 0.7.0
  */
 Temasys.Socket.prototype.CONNECTION_STATE_ENUM = {
-  RECONNECT_ATTEMPT: 'reconnect_attempt',
-  RECONNECT_FAILED: 'reconnect_failed',
-  RECONNECT_ERROR: 'reconnect_error',
-  //RECONNECTING: 'reconnecting',
-  RECONNECT: 'reconnect',
-  //CONNECT_TIMEOUT: 'connect_timeout',
-  CONNECT_ERROR: 'connect_error',
+  NEW: 'new',
   CONNECT: 'connect',
-  CONNECTING: 'connecting',
-  DISCONNECT: 'disconnect',
+  CONNECT_ERROR: 'connect_error',
   CONNECT_START_ERROR: 'connect_start_error',
+  RECONNECT_ATTEMPT: 'reconnect_attempt',
+  RECONNECT: 'reconnect',
+  RECONNECT_ERROR: 'reconnect_error',
+  RECONNECT_FAILED: 'reconnect_failed',
+  DISCONNECT: 'disconnect',
   TERMINATE: 'terminate',
   ERROR: 'error'
 };
 
 /**
- * The enum of connection active state after connected.
+ * The enum of socket connection "activeness" or keep-alive states.
  * @attribute ACTIVE_STATE_ENUM
- * @param {String} PING The state when "ping" packet is written out to the server.
- * @param {String} PONG The state when  "pong" packet is received from the server.
+ * @param {String} PING The state when "ping" packet is written out to the signaling server
+ *   to obtain response from server to check if server-end connection is still active.
+ * - Value: `"ping"`
+ * @param {String} PONG The state when "pong" packet is received from the signaling server,
+ *   which indicates that server-end connection is still active.
+ * - Value: `"pong"`
  * @type JSON
  * @final
  * @readOnly
@@ -235,15 +317,13 @@ Temasys.Socket.prototype.ACTIVE_STATE_ENUM = {
 };
 
 /**
- * Function that returns the Socket configuration.
- * - These are data configured when constructing `new Temasys.Socket()` object.
+ * Function that returns the socket configuration.
  * @method getConfig
- * @param {JSON} return The result.
- * - Object signature matches `options` in `new Temasys.Socket()`.
+ * @param {JSON} return The configuration settings.
+ * - Object signature matches `options` parameter in [`Temasys.Socket` constructor](#docs+Temasys.Socket+constructor+Temasys.Socket).
  * @return {JSON}
  * @example
- *   var config = socket.getConfig();
- *   console.log("Configuration ->", config);
+ *   console.log("config ->", socket.getConfig());
  * @for Temasys.Socket
  * @since 0.7.0
  */
@@ -265,34 +345,71 @@ Temasys.Socket.prototype.getConfig = function () {
 };
 
 /**
- * Function to retrieve Socket connection stats.
+ * Function that returns the current socket states and connection session.
+ * @method getCurrent
+ * @param {JSON} return The current states and connection session.
+ * @param {JSON} return.states The current states.
+ * @param {String} return.states.connectionState The socket connection state.
+ * - Reference [`CONNECTION_STATE_ENUM`](#docs+Temasys.Socket+constants+CONNECTION_STATE_ENUM) for the list of available states.
+ * @param {String} return.states.activeState The socket "activeness" or keep-alive state.
+ * - Reference [`ACTIVE_STATE_ENUM`](#docs+Temasys.Socket+constants+ACTIVE_STATE_ENUM) for the list of available states.
+ * @param {Boolean} return.states.connected The flag if socket is connected to signaling server.
+ * @param {JSON} return.session The current connection session.
+ * @param {Number} return.session.port The port number.
+ * @param {String} return.session.transport The transport type.
+ * - Reference [`TRANSPORT_ENUM`](#docs+Temasys.Socket+constants+TRANSPORT_ENUM) for the list of available transports.
+ * @param {Number} return.session.attempt The total number of attempts made for the current port and transport pair.
+ * @param {Number} return.session.fallbacks The total number of port and transport pairs tried.
+ * @return {JSON}  
+ * @example
+ *   console.log("current info ->", socket.getCurrent());
+ * @for Temasys.Socket
+ * @since 0.7.0
+ */
+Temasys.Socket.prototype.getCurrent = function () {
+  var ref = this;
+  return {
+    servers: (function () {
+      var servers = [];
+      Temasys.Utils.forEach(ref._servers, function (item,index) {
+        servers[index] = Temasys.Utils.copy(item);
+      });
+      return servers;
+    })(),
+    data: {
+      compress: ref._data.compress,
+      priorityInterval: ref._data.queue.priorityInterval
+    }
+  };
+};
+
+/**
+ * Function that returns the socket connection stats.
  * @method getStats
- * @param {JSON} return The result.
- * @param {JSON} return.messages The messages stats.
- * @param {JSON} return.messages.send The messages sent stats.
- * @param {Number} return.messages.send.total The total number of messages sent.
- * @param {Number} return.messages.send.errors The total number of messages sent with errors.
- * @param {JSON} return.messages.recv The messages received stats.
- * @param {Number} return.messages.recv.total The total number of messages received.
- * @param {Number} return.messages.recv.errors The total number of messages received with errors.
- * @param {JSON} return.connection The connection stats.
- * @param {JSON} return.connection.reconnections The reconnection stats.
- * @param {Number} return.connection.reconnections.total The total number of reconnections attempts.
- * @param {Array} return.connection.reconnections.servers The servers reconnections stats.
- * @param {Number} return.connection.reconnections.servers._serverIndex The total number of reconnection attempts
- *   made for the current server index.
- * @param {JSON} return.connection.pings The "ping" stats.
- * @param {Number} return.connection.pings.total The total number of "ping" messages received.
- * @param {JSON} return.connection.pongs The "pong" stats.
- * @param {Number} return.connection.pongs.total The total number of "pong" messages sent.
- * @param {JSON} return.connection.pongs.latency The "pong" latency stats.
- * @param {Number} return.connection.pongs.latency.lowest The lowest number of latency received.
- * @param {Number} return.connection.pongs.latency.average The average number of latency received.
- * @param {Number} return.connection.pongs.latency.highest The highest number of latency received.
+ * @param {JSON} return The full stats.
+ * @param {String} return.componentId The component ID.
+ * @param {JSON} return.session The socket connection session stats.
+ * @param {String} [return.session.id] The socket connection session ID when connected.
+ * @param {Number} return.session.protocol The socket connection socket.io protocol revision number.
+ * @param {Array} return.session.pairs The list of port and transport pair attempts made - where each item is a _JSON_.
+ * - Property `#index` will be used to identify the array index and the fallback attempt (for the next available pair) index.
+ * @param {JSON} return.session.pairs.#index The port and transport pair.
+ * @param {Number} return.session.pairs.#index.attempts The total number of reconnection attempts made for this pair.
+ * @param {Number} return.session.pairs.#index.port The port number.
+ * @param {String} return.session.pairs.#index.transport The transport type.
+ * - Reference [`TRANSPORT_ENUM`](#docs+Temasys.Socket+constants+TRANSPORT_ENUM) for the list of available transports.
+ * @param {JSON} return.active The "activeness" or keep-alive connection stats.
+ * @param {JSON} return.active.pings The "ping" stats.
+ * @param {Number} return.active.pings.total The total number of "ping" packets sent to signaling server.
+ * @param {JSON} return.active.pongs The "pong" stats.
+ * @param {Number} return.active.pongs.total The total number of "pong" packets received from signaling server.
+ * @param {JSON} return.active.pongs.latency The "pong" latency stats.
+ * @param {Number} return.active.pongs.latency.lowest The lowest number of miliseconds of latency received.
+ * @param {Number} return.active.pongs.latency.average The average number of miliseconds of latency received.
+ * @param {Number} return.active.pongs.latency.highest The highest number of miliseconds of latency received.
  * @return {JSON}
  * @example
- *   var stats = socket.getStats();
- *   console.log("Received stats ->", stats);
+ *   console.log("stats ->", socket.getStats());
  * @for Temasys.Socket
  * @since 0.7.0
  */

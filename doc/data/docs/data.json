@@ -70,7 +70,6 @@
                 "Temasys.Socket": 1
             },
             "fors": {
-                "Temasys": 1,
                 "Temasys.Socket": 1
             },
             "namespaces": {}
@@ -865,20 +864,6 @@
                             "description": "The Room name in App space.\n- When not provided, the value of the App key ID is used.",
                             "type": "String",
                             "optional": true
-                        },
-                        {
-                            "name": "initTimeout",
-                            "description": "The timeout to wait before `Temasys.Room.init()` method\n  should be invoked when `Temasys.Room` object is constructed.\n- When provided as `-1`, the `Temasys.Room.init()` method will not be invoked, and the method has\n  to be invoked first by app first before invoking `Temasys.Room.connect()` method.",
-                            "type": "Number",
-                            "optional": true,
-                            "optdefault": "1000"
-                        },
-                        {
-                            "name": "requireWebRTC",
-                            "description": "The flag if client requires WebRTC to be supported in\n  order to start a Room connection session.",
-                            "type": "Boolean",
-                            "optional": true,
-                            "optdefault": "true"
                         }
                     ]
                 },
@@ -891,7 +876,7 @@
             ],
             "is_constructor": 1,
             "example": [
-                "\n// Example 1: Create a Room object\nvar room = new Temasys.Room({\n  appKey: myAppKey\n});\nroom.on(\"initStateChange\", function (state) {\n  console.log(\"init() state ->\", state);\n});\n\n// Example 2: Create a Room object but invoke `init()` manually.\nvar room = new Temasys.Room({\n  appKey: myAppKey,\n  initTimeout: -1\n});\nroom.on(\"initStateChange\", function (state) {\n  console.log(\"init() state ->\", state);\n});\nroom.init();"
+                "\n// Example: Create a Room object\nvar room = new Temasys.Room({\n  appKey: myAppKey\n});\n\nroom.connect();"
             ],
             "since": "0.7.0"
         },
@@ -923,99 +908,78 @@
             "extension_for": [],
             "file": "source/components/socket.js",
             "line": 1,
-            "description": "Handles the Room socket.io-client connection to the Signling server.",
+            "description": "Handles the socket connection to the signaling server.",
             "params": [
                 {
                     "name": "options",
                     "description": "The options.",
                     "type": "JSON",
-                    "optional": true,
                     "props": [
                         {
+                            "name": "protocol",
+                            "description": "The signaling server protocol.\n- Examples: `\"https:\"`, `\"http:\"`\n- When not provided, the value of `window.location.protocol` is used.",
+                            "type": "String",
+                            "optional": true
+                        },
+                        {
                             "name": "server",
-                            "description": "@(exp) The custom Signaling server domain to use.",
+                            "description": "The signaling server domain.\n- Examples: `\"signaling.temasys.io\"`\n- When not provided, the default value returned from Auth server is used.",
+                            "type": "String",
+                            "optional": true
+                        },
+                        {
+                            "name": "path",
+                            "description": "The signaling server path if required.\n- Examples: `\"/\"`, `\"/socket.io\"`\n- When not provided, the default value is `\"/socket.io\"`.",
                             "type": "String",
                             "optional": true
                         },
                         {
                             "name": "ports",
-                            "description": "@(exp) The custom list of Signaling server ports (`Number`) to use.\n- The priority of port used is based on first index order starting from `0`.",
+                            "description": "The list of signaling ports - where each item is a _Number_.\n- Examples: `new Array(80, 3000)`, `new Array(443, 3443)`\n- When not provided, the default value returned from Auth server is used.",
                             "type": "Array",
                             "optional": true
                         },
                         {
-                            "name": "path",
-                            "description": "@(exp) The custom Signaling server path to use.",
-                            "type": "String",
+                            "name": "reconnectionAttempts",
+                            "description": "The number of reconnection attempts for each port and transport pair.\n- Range: `0` - `5`\n- When not provided, the default value is `0`, which means no reconnection attempts should be made.",
+                            "type": "Number",
                             "optional": true
                         },
                         {
-                            "name": "protocol",
-                            "description": "The protocol to use to connect to the Signaling server.\n- When not provided, the current accessing `window.location.protocol` will be used.",
-                            "type": "String",
+                            "name": "reconnectionDelay",
+                            "description": "The number of miliseconds to wait before starting the\n  next reconnection attempt. This is tampered with the `.randomizationFactor` configured.\n- Range: `1` and above\n- When not provided, the default value is `1000`.",
+                            "type": "Number",
+                            "optional": true
+                        },
+                        {
+                            "name": "reconnectionDelayMax",
+                            "description": "The maximum number of miliseconds to wait before starting the\n  next reconnection attempt.\n- Range: `1` and above\n- When not provided, the default value is `5000`.",
+                            "type": "Number",
+                            "optional": true
+                        },
+                        {
+                            "name": "randomizationFactor",
+                            "description": "The randominzation factor (+/-) for each reconnection attempts.\n- Range: `0` - `1`\n- Output reconnection delay would be `800` or `1200` if value is `0.2` with `.reconnectionDelay` set to `1000`.\n- Output reconnection delay would be `500` or `1500` if value is `0.5` with `.reconnectionDelay` set to `1000`.",
+                            "type": "Number",
+                            "optional": true
+                        },
+                        {
+                            "name": "timeout",
+                            "description": "The number of miliseconds to wait without response before considering that\n  connection attempt has timed out and should consider reconnecting.\n- Range: `0` and above\n- When not provided, the default value is `20000`.",
+                            "type": "Number",
                             "optional": true
                         },
                         {
                             "name": "transports",
-                            "description": "The list of socket.io-client transports to use.\n- Available transports are: `\"websocket\"` (Websocket) and `\"polling\"` (Polling).\n- The priority of transport to use are based on first index order starting from `0`.\n- When not provided, `(\"websocket\", \"polling\")` will be used.\n- If the browser does not support `WebSocket` API, `\"websocket\"` transports will be ignored.",
+                            "description": "The list of signaling transports - where each item is a _String_.\n- Examples: `new Array(\"polling\")`, `new Array(\"websocket\", \"polling\")`\n- When not provided, the default value is `new Array(\"websocket\", \"polling\")`.\n- Reference [`TRANSPORT_ENUM`](#docs+Temasys.Socket+constants+TRANSPORT_ENUM) for the list of available transports.",
                             "type": "Array",
                             "optional": true
                         },
                         {
-                            "name": "compressData",
-                            "description": "The flag if data sent should be compressed.",
+                            "name": "compression",
+                            "description": "The flag if data compression should be enabled when sending messages.\n- When not provided, the default value is `false`.",
                             "type": "Boolean",
-                            "optional": true,
-                            "optdefault": "false"
-                        },
-                        {
-                            "name": "options",
-                            "description": "The socket.io-client options configured for each socket.io-client transport type.\n- The current default is `{ websocket: { reconnection: true, reconnectionAttempts: 2,\n  reconnectionDelay: 5000, reconnectionDelayMax: 2000, randomizationFactor: 0.5, timeout: 20000 },\n  polling: { reconnection: true, reconnectionAttempts: 4, reconnectionDelay: 2000,\n  reconnectionDelayMax: 1000, randomizationFactor: 0.5, timeout: 20000 } }`",
-                            "type": "JSON",
-                            "props": [
-                                {
-                                    "name": "index",
-                                    "description": "@(exp) The socket options for the `\"index\"` socket.io-client transport type.\n- `\"index\"` can be identified as: `\"websocket\"` (Websocket) or `\"polling\"` (Polling).",
-                                    "type": "JSON"
-                                },
-                                {
-                                    "name": "index.reconnection",
-                                    "description": "The flag if socket connection should\n  reconnect several attempts for the current transport or port used before switching to the next\n  available transport or port available.",
-                                    "type": "Boolean",
-                                    "optional": true,
-                                    "optdefault": "true"
-                                },
-                                {
-                                    "name": "index.reconnectionAttempts",
-                                    "description": "The reconnection attempts to take if\n  `options.options.index.reconnection` is enabled.\n- The maximum value that can be provided is `5`.",
-                                    "type": "Number",
-                                    "optional": true
-                                },
-                                {
-                                    "name": "index.reconnectionDelay",
-                                    "description": "The number of miliseconds to wait before\n  starting the next reconnection attempt, which is affected by the `randomizationFactor` configured.",
-                                    "type": "Number",
-                                    "optional": true
-                                },
-                                {
-                                    "name": "index.reconnectionDelayMax",
-                                    "description": "The maximum number of miliseconds to wait\n  before starting the next reconnection attempt.",
-                                    "type": "Number",
-                                    "optional": true
-                                },
-                                {
-                                    "name": "index.randomizationFactor",
-                                    "description": "The randomization for each reconnection attempt.\n- The range is from `0` to `1`.",
-                                    "type": "Number",
-                                    "optional": true
-                                },
-                                {
-                                    "name": "index.timeout",
-                                    "description": "The timeout in miliseconds to consider\n  that the inital connection has timed out.",
-                                    "type": "Number",
-                                    "optional": true
-                                }
-                            ]
+                            "optional": true
                         }
                     ]
                 }
@@ -1554,32 +1518,32 @@
             "params": [
                 {
                     "name": "NONE",
-                    "description": "The level to print no logs.",
+                    "description": "The level that prints no logs.",
                     "type": "Number"
                 },
                 {
                     "name": "ERROR",
-                    "description": "The level to print Web `console.error()` logs.",
+                    "description": "The level that prints error logs.\n- Prints error as [`console.error()`](https://developer.mozilla.org/en-US/docs/Web/API/Console/error)",
                     "type": "Number"
                 },
                 {
                     "name": "WARN",
-                    "description": "The level to print Web `console.error()`, `console.warn()` logs.",
+                    "description": "The level that prints warning + error logs.\n- Prints warning as [`console.warn()`](https://developer.mozilla.org/en-US/docs/Web/API/Console/warn)",
                     "type": "Number"
                 },
                 {
                     "name": "INFO",
-                    "description": "The level to print Web `console.error()`, `console.warn()`, `console.info()` logs.",
+                    "description": "The level that prints info + warning + error logs.\n- Prints info as [`console.info()`](https://developer.mozilla.org/en-US/docs/Web/API/Console/info)",
                     "type": "Number"
                 },
                 {
                     "name": "LOG",
-                    "description": "The level to print Web `console.error()`, `console.warn()`,\n  `console.info()`, `console.log()` logs.",
+                    "description": "The level that prints verbose + info + warning + error logs.\n- Prints log as [`console.log()`](https://developer.mozilla.org/en-US/docs/Web/API/Console/log)",
                     "type": "Number"
                 },
                 {
                     "name": "DEBUG",
-                    "description": "The level to print Web `console.error()`, `console.warn()`\n  `console.info()`, `console.log()`, `console.debug()` logs.",
+                    "description": "The level that prints verbose (detailed debugging) + verbose + info + warning + error logs.\n- Prints debug as [`console.debug()`](https://developer.mozilla.org/en-US/docs/Web/API/Console/debug)",
                     "type": "Number"
                 }
             ],
@@ -1591,7 +1555,7 @@
         },
         {
             "file": "source/components/debugger.js",
-            "line": 72,
+            "line": 75,
             "description": "Function that sets the debugger configuration.",
             "itemtype": "method",
             "name": "setConfig",
@@ -1652,7 +1616,7 @@
         },
         {
             "file": "source/components/debugger.js",
-            "line": 143,
+            "line": 146,
             "description": "Function that returns the debugger configuration.",
             "itemtype": "method",
             "name": "getConfig",
@@ -1681,7 +1645,7 @@
         },
         {
             "file": "source/components/debugger.js",
-            "line": 172,
+            "line": 175,
             "description": "Function that returns the total debugger stats.",
             "itemtype": "method",
             "name": "getStats",
@@ -1742,7 +1706,7 @@
         },
         {
             "file": "source/components/debugger.js",
-            "line": 201,
+            "line": 204,
             "description": "Function that returns the list of components.",
             "itemtype": "method",
             "name": "getComponents",
@@ -1765,7 +1729,7 @@
         },
         {
             "file": "source/components/debugger.js",
-            "line": 216,
+            "line": 219,
             "description": "Function that watches for logs logged.",
             "itemtype": "method",
             "name": "watchForLogs",
@@ -1797,7 +1761,7 @@
         },
         {
             "file": "source/components/debugger.js",
-            "line": 239,
+            "line": 242,
             "description": "Function that catches the SDK exceptions.",
             "itemtype": "method",
             "name": "catchExceptions",
@@ -1829,7 +1793,7 @@
         },
         {
             "file": "source/components/debugger.js",
-            "line": 269,
+            "line": 272,
             "description": "Function that gets the cached logs.",
             "itemtype": "method",
             "name": "getCachedLogs",
@@ -1912,7 +1876,7 @@
         },
         {
             "file": "source/components/debugger.js",
-            "line": 322,
+            "line": 325,
             "description": "Function that clears the cached logs.",
             "itemtype": "method",
             "name": "clearCachedLogs",
@@ -1946,7 +1910,7 @@
         },
         {
             "file": "source/components/debugger.js",
-            "line": 361,
+            "line": 364,
             "description": "Function that prints the cached logs.",
             "itemtype": "method",
             "name": "printCachedLogs",
@@ -1980,61 +1944,61 @@
         },
         {
             "file": "source/components/debugger.js",
-            "line": 401,
+            "line": 404,
             "description": "Function that checks the `options` provided and loops the log items. \n- Returns `true` if there's not a need to loop.",
             "class": "Temasys.Debugger"
         },
         {
             "file": "source/components/debugger.js",
-            "line": 425,
+            "line": 428,
             "description": "Handles the global log methods for all components.",
             "class": "Temasys.Debugger"
         },
         {
             "file": "source/components/debugger.js",
-            "line": 430,
+            "line": 433,
             "description": "Function to log \"debug\" level message.",
             "class": "Temasys.Debugger"
         },
         {
             "file": "source/components/debugger.js",
-            "line": 437,
+            "line": 440,
             "description": "Function to log \"log\" level message.",
             "class": "Temasys.Debugger"
         },
         {
             "file": "source/components/debugger.js",
-            "line": 444,
+            "line": 447,
             "description": "Function to log \"info\" level message.",
             "class": "Temasys.Debugger"
         },
         {
             "file": "source/components/debugger.js",
-            "line": 451,
+            "line": 454,
             "description": "Function to log \"warn\" level message.",
             "class": "Temasys.Debugger"
         },
         {
             "file": "source/components/debugger.js",
-            "line": 458,
+            "line": 461,
             "description": "Function to log \"error\" level message.",
             "class": "Temasys.Debugger"
         },
         {
             "file": "source/components/debugger.js",
-            "line": 465,
+            "line": 468,
             "description": "Function to configure component.\n- Returns the component ID.",
             "class": "Temasys.Debugger"
         },
         {
             "file": "source/components/debugger.js",
-            "line": 486,
+            "line": 489,
             "description": "Function to push stats to API.",
             "class": "Temasys.Debugger"
         },
         {
             "file": "source/components/debugger.js",
-            "line": 492,
+            "line": 495,
             "description": "Function to catch custom errors to be thrown.",
             "class": "Temasys.Debugger"
         },
@@ -4478,7 +4442,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 70,
+            "line": 53,
             "description": "Function to subscribe a callback function to an event once.\n- Parameters follows `.once()` method in returned object of `Temasys.Utils.createEventManager()` method.",
             "itemtype": "method",
             "name": "once",
@@ -4487,7 +4451,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 79,
+            "line": 62,
             "description": "Function to subscribe a callback function to an event.\n- Parameters follows `.on()` method in returned object of `Temasys.Utils.createEventManager()` method.",
             "itemtype": "method",
             "name": "on",
@@ -4496,7 +4460,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 88,
+            "line": 71,
             "description": "Function to unsubscribe a callback function to an event.\n- Parameters follows `.off()` method in returned object of `Temasys.Utils.createEventManager()` method.",
             "itemtype": "method",
             "name": "off",
@@ -4505,7 +4469,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 103,
+            "line": 86,
             "description": "Event triggered when invoked `init()` method state has changed.",
             "itemtype": "event",
             "name": "initStateChange",
@@ -4541,7 +4505,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 118,
+            "line": 101,
             "description": "The enum of invoked `init()` method states.",
             "itemtype": "attribute",
             "name": "INIT_STATE_ENUM",
@@ -4570,7 +4534,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 137,
+            "line": 120,
             "description": "The enum of Room dependency initialising error codes.",
             "itemtype": "attribute",
             "name": "INIT_ERROR_CODE_ENUM",
@@ -4619,11 +4583,25 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 172,
+            "line": 155,
             "description": "Function to initialise dependencies and check for supports.",
             "itemtype": "method",
             "name": "init",
             "params": [
+                {
+                    "name": "options.initTimeout",
+                    "description": "The timeout to wait before `Temasys.Room.init()` method\n  should be invoked when `Temasys.Room` object is constructed.\n- When provided as `-1`, the `Temasys.Room.init()` method will not be invoked, and the method has\n  to be invoked first by app first before invoking `Temasys.Room.connect()` method.",
+                    "type": "Number",
+                    "optional": true,
+                    "optdefault": "1000"
+                },
+                {
+                    "name": "options.requireWebRTC",
+                    "description": "The flag if client requires WebRTC to be supported in\n  order to start a Room connection session.\n}",
+                    "type": "Boolean",
+                    "optional": true,
+                    "optdefault": "true"
+                },
                 {
                     "name": "return",
                     "description": "The promise for request completion.",
@@ -4639,7 +4617,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 257,
+            "line": 247,
             "description": "The Room ID.",
             "itemtype": "attribute",
             "name": "id",
@@ -4650,7 +4628,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 267,
+            "line": 257,
             "description": "The Room name.",
             "itemtype": "attribute",
             "name": "name",
@@ -4661,7 +4639,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 277,
+            "line": 267,
             "description": "The App key ID.",
             "itemtype": "attribute",
             "name": "appKey",
@@ -4672,7 +4650,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 291,
+            "line": 281,
             "description": "The Auth (API) server domain.",
             "itemtype": "attribute",
             "name": "server",
@@ -4683,7 +4661,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 301,
+            "line": 291,
             "description": "The Auth (API) server protocol.",
             "itemtype": "attribute",
             "name": "protocol",
@@ -4694,7 +4672,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 311,
+            "line": 301,
             "description": "The Room session start timestamp in ISO-8601 format.",
             "itemtype": "attribute",
             "name": "start",
@@ -4705,7 +4683,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 321,
+            "line": 311,
             "description": "The Room session duration in hours.",
             "itemtype": "attribute",
             "name": "duration",
@@ -4716,7 +4694,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 331,
+            "line": 321,
             "description": "The Room session hash used only for hash based authentication.",
             "itemtype": "attribute",
             "name": "hash",
@@ -4728,7 +4706,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 342,
+            "line": 332,
             "description": "The flag if Room session has auto-introduce enabled.",
             "itemtype": "attribute",
             "name": "autoIntroduce",
@@ -4739,7 +4717,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 352,
+            "line": 342,
             "description": "The Room session self Peer information.",
             "itemtype": "attribute",
             "name": "peer",
@@ -4805,7 +4783,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 386,
+            "line": 376,
             "description": "The WebRTC supports of the browser or device.",
             "itemtype": "attribute",
             "name": "webrtcSupports",
@@ -4872,7 +4850,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 414,
+            "line": 404,
             "description": "The current Room session connection status.",
             "itemtype": "attribute",
             "name": "current",
@@ -4910,7 +4888,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 457,
+            "line": 447,
             "description": "Event triggered when Room authentication state has changed.",
             "itemtype": "event",
             "name": "authState",
@@ -4948,7 +4926,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 471,
+            "line": 461,
             "description": "Event triggered when Room init state has changed.",
             "itemtype": "event",
             "name": "initState",
@@ -4981,7 +4959,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 483,
+            "line": 473,
             "description": "Event triggered when Room session state has changed.",
             "itemtype": "event",
             "name": "sessionState",
@@ -5014,7 +4992,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 495,
+            "line": 485,
             "description": "Event triggered when there are exceptions thrown in this event handlers.",
             "itemtype": "event",
             "name": "domError",
@@ -5030,7 +5008,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 503,
+            "line": 493,
             "description": "Function to subscribe to an event.",
             "itemtype": "method",
             "name": "on",
@@ -5051,7 +5029,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 513,
+            "line": 503,
             "description": "Function to subscribe to an event once.",
             "itemtype": "method",
             "name": "once",
@@ -5084,7 +5062,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 530,
+            "line": 520,
             "description": "Function to unsubscribe to events.",
             "itemtype": "method",
             "name": "off",
@@ -5107,7 +5085,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 563,
+            "line": 553,
             "description": "The Room SM protocol version supports.",
             "itemtype": "attribute",
             "name": "SM_PROTOCOL_VERSION",
@@ -5119,7 +5097,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 574,
+            "line": 564,
             "description": "The Room DT protocol version supports.",
             "itemtype": "attribute",
             "name": "DT_PROTOCOL_VERSION",
@@ -5131,7 +5109,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 587,
+            "line": 577,
             "description": "The enum of Room authentication states, in which is used to validate the App Key ID before starting a session.",
             "itemtype": "attribute",
             "name": "AUTH_STATE_ENUM",
@@ -5160,7 +5138,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 605,
+            "line": 595,
             "description": "The enum of Room authentication error codes.",
             "itemtype": "attribute",
             "name": "AUTH_ERROR_CODE_ENUM",
@@ -5234,7 +5212,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 648,
+            "line": 638,
             "description": "The enum of Room connection session states.",
             "itemtype": "attribute",
             "name": "SESSION_STATE_ENUM",
@@ -5278,7 +5256,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 674,
+            "line": 664,
             "description": "The enum of Room connection session error codes.",
             "itemtype": "attribute",
             "name": "SESSION_ERROR_ENUM",
@@ -5347,7 +5325,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 717,
+            "line": 707,
             "description": "Function to get and check the connection availability.",
             "itemtype": "method",
             "name": "getConnectionAvailability",
@@ -5362,7 +5340,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 728,
+            "line": 718,
             "description": "Function to start initialising Room dependencies.",
             "itemtype": "method",
             "name": "init",
@@ -5387,7 +5365,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 832,
+            "line": 822,
             "description": "Function to start Room session connection.",
             "itemtype": "method",
             "name": "connect",
@@ -5482,19 +5460,19 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 888,
+            "line": 878,
             "description": "Internal function to update and trigger state.",
             "class": "Room"
         },
         {
             "file": "source/components/room.js",
-            "line": 916,
+            "line": 906,
             "description": "Internal function to load XHR response.",
             "class": "Room"
         },
         {
             "file": "source/components/room.js",
-            "line": 991,
+            "line": 981,
             "description": "Function to update the default stream or self Peer data.",
             "itemtype": "method",
             "name": "update",
@@ -5508,169 +5486,178 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 1053,
+            "line": 1043,
             "description": "Function to handle SM protocol for sending direction.",
             "class": "Room"
         },
         {
             "file": "source/components/room.js",
-            "line": 1063,
+            "line": 1053,
             "description": "\"joinRoom\" - Connects to the Room.",
             "class": "Room"
         },
         {
             "file": "source/components/room.js",
-            "line": 1079,
+            "line": 1069,
             "description": "\"enter\" - Broadcasts to existing Peers in the Room we exist.\n\"welcome\" - Respond to Peer who sent \"enter\" about who we are.\n\"restart\" - Re-negotiation request.",
             "class": "Room"
         },
         {
             "file": "source/components/room.js",
-            "line": 1090,
+            "line": 1080,
             "description": "Function to handle SM protocol for receiving direction.",
             "class": "Room"
         },
         {
             "file": "source/components/room.js",
-            "line": 1099,
+            "line": 1089,
             "description": "SM protocol: \"joinRoom\"",
             "class": "Room"
         },
         {
             "file": "source/components/room.js",
-            "line": 1107,
+            "line": 1097,
             "description": "SM protocol: \"inRoom\"",
             "class": "Room"
         },
         {
             "file": "source/components/room.js",
-            "line": 1120,
+            "line": 1110,
             "description": "SM protocol: \"enter\"",
             "class": "Room"
         },
         {
             "file": "source/components/socket.js",
-            "line": 46,
-            "description": "The Socket server domain.",
-            "itemtype": "attribute",
-            "name": "server",
-            "type": "String",
-            "readonly": "",
-            "since": "0.7.0",
-            "class": "Temasys.Socket"
-        },
-        {
-            "file": "source/components/socket.js",
-            "line": 58,
-            "description": "The Socket path.",
-            "itemtype": "attribute",
-            "name": "path",
-            "type": "String",
-            "readonly": "",
-            "since": "0.7.0",
-            "class": "Temasys.Socket"
-        },
-        {
-            "file": "source/components/socket.js",
-            "line": 68,
-            "description": "The Socket protocol.",
-            "itemtype": "attribute",
-            "name": "protocol",
-            "type": "String",
-            "readonly": "",
-            "since": "0.7.0",
-            "class": "Temasys.Socket"
-        },
-        {
-            "file": "source/components/socket.js",
-            "line": 79,
-            "description": "The flag if Socket data sent is compressed.",
-            "itemtype": "attribute",
-            "name": "compressed",
-            "type": "Boolean",
-            "readonly": "",
-            "since": "0.7.0",
-            "class": "Temasys.Socket"
-        },
-        {
-            "file": "source/components/socket.js",
-            "line": 89,
-            "description": "The Socket current states.",
-            "itemtype": "attribute",
-            "name": "$current",
-            "type": "JSON",
+            "line": 122,
+            "description": "Function to subscribe to an event.",
+            "itemtype": "method",
+            "name": "on",
             "params": [
                 {
-                    "name": "state",
-                    "description": "The current Socket connection state.\n- See {{#crossLink \"Temasys.Socket/STATE_ENUM:attribute\"}}{{/crossLink}} for reference.",
+                    "name": "eventName",
+                    "description": "The event name.",
                     "type": "String"
                 },
                 {
-                    "name": "connected",
-                    "description": "The flag if Socket is connected.",
-                    "type": "Boolean"
-                },
-                {
-                    "name": "reconnectionAttempts",
-                    "description": "The current total number of reconnection attempts\n  made for the current port and socket.io-client transport used.",
-                    "type": "Number"
-                },
-                {
-                    "name": "fallbackAttempts",
-                    "description": "The current total number of fallback attempts made.",
-                    "type": "Number"
-                },
-                {
-                    "name": "port",
-                    "description": "The current port used.",
-                    "type": "Number"
-                },
-                {
-                    "name": "transport",
-                    "description": "The current socket.io-client transport used.",
-                    "type": "String"
-                },
-                {
-                    "name": "options",
-                    "description": "The current socket.io-client options used.",
-                    "type": "JSON"
+                    "name": "fn",
+                    "description": "The callback function called when event is emitted.",
+                    "type": "Function"
                 }
             ],
-            "readonly": "",
+            "example": [
+                "\n// Example: Subscribe to an event\nsocket.on(\"activeStateChange\", function (state, latency) {\n  console.log(\"active state ->\", state);\n});"
+            ],
             "since": "0.7.0",
             "class": "Temasys.Socket"
         },
         {
             "file": "source/components/socket.js",
-            "line": 157,
-            "description": "Event triggered when Socket connection state has been changed.",
-            "itemtype": "event",
-            "name": "stateChange",
+            "line": 137,
+            "description": "Function to subscribe to an event once.",
+            "itemtype": "method",
+            "name": "once",
             "params": [
                 {
+                    "name": "eventName",
+                    "description": "The event name.",
+                    "type": "String"
+                },
+                {
+                    "name": "fn",
+                    "description": "The callback function called once when event is emitted, or after when condition is met.",
+                    "type": "Function"
+                },
+                {
+                    "name": "fnCondition",
+                    "description": "The conditional function called each time event is emitted.\n- Return `true` to satisfy condition.\n- When not provided, the default value is `function () { return true; }`.",
+                    "type": "Function",
+                    "optional": true
+                },
+                {
+                    "name": "forever",
+                    "description": "The flag if callback function should not be called only once but each time\n  condition is met.\n- When not provided, the default value is `false`.",
+                    "type": "Boolean",
+                    "optional": true
+                }
+            ],
+            "example": [
+                "\n// Example 1: Subscribe to an event once when emitted\nsocket.once(\"activeStateChange\", function (state, latency) {\n  console.log(\"active state ->\", state);\n});\n\n// Example 2: Subscribe to an event that is emited once the condition is met\nsocket.once(\"connectionStateChange\", function (state) {\n  console.info(\"connected\"); \n}, function (state) {\n  return [\"connect\", \"reconnect\"].indexOf(state) > -1;\n});\n\n// Example 3: Subscribe to an event that is emited always once the condition is met\nsocket.once(\"activeStateChange\", function (state, latency) {\n  console.info(\"pong latency ->\", latency); \n}, function (state) {\n  return state === 'pong';\n}, true);"
+            ],
+            "since": "0.7.0",
+            "class": "Temasys.Socket"
+        },
+        {
+            "file": "source/components/socket.js",
+            "line": 172,
+            "description": "Function to unsubscribe to an event.",
+            "itemtype": "method",
+            "name": "off",
+            "params": [
+                {
+                    "name": "eventName",
+                    "description": "The event name to unsubscribe to.\n- When not provided, all events callback functions.",
+                    "type": "String",
+                    "optional": true
+                },
+                {
+                    "name": "fn",
+                    "description": "The callback function to unsubscribe.\n- When not provided, all the event callback functions.",
+                    "type": "Function",
+                    "optional": true
+                }
+            ],
+            "example": [
+                "\n// Example 1: Unsubscribe to all events\nsocket.off();\n\n// Example 2: Unsubscribe \"activeStateChange\" event\nsocket.once(\"activeStateChange\");\n\n// Example 3: Unsubscribe to a single callback function for \"activeStateChange\" event\nvar fn = function () {};\nsocket.on(\"activeStateChange\", fn);\nsocket.off(\"activeStateChange\", fn);"
+            ],
+            "since": "0.7.0",
+            "class": "Temasys.Socket"
+        },
+        {
+            "file": "source/components/socket.js",
+            "line": 195,
+            "description": "Event triggered when socket connection state has changed.",
+            "params": [
+                {
+                    "name": "connectionStateChange",
+                    "description": ""
+                },
+                {
                     "name": "state",
-                    "description": "The current Socket connection state.\n- See {{#crossLink \"Temasys.Socket/STATE_ENUM:attribute\"}}{{/crossLink}} for reference.",
+                    "description": "The connection state.\n- Reference [`CONNECTION_STATE_ENUM`](#docs+Temasys.Socket+constants+CONNECTION_STATE_ENUM) for the list of available states.",
                     "type": "String"
                 },
                 {
                     "name": "error",
-                    "description": "The error object.\n- This is defined when `state` is `STATE_ENUM.RECONNECT_FAILED`,\n  `STATE_ENUM.CONNECT_ERROR` and `STATE_ENUM.CONNECT_TIMEOUT`.",
-                    "type": "Error"
+                    "description": "The error object if there are errors.",
+                    "type": "Error",
+                    "optional": true
                 },
                 {
-                    "name": "attempt",
-                    "description": "The reconnection attempt.",
+                    "name": "session",
+                    "description": "The state session.",
+                    "type": "JSON",
+                    "props": [
+                        {
+                            "name": "attempts",
+                            "description": "The total number of reconnection attempts made for the current fallback attempt.",
+                            "type": "Number"
+                        },
+                        {
+                            "name": "fallbacks",
+                            "description": "The total number of port and transport pairs tried.",
+                            "type": "Number"
+                        }
+                    ]
+                },
+                {
+                    "name": "settings.port",
+                    "description": "The port number.",
                     "type": "Number"
                 },
                 {
-                    "name": "port",
-                    "description": "The port used for the reconnection attempt.",
-                    "type": "Number"
-                },
-                {
-                    "name": "transport",
-                    "description": "The transport used for the reconnection attempt.",
-                    "type": "Number"
+                    "name": "settings.transport",
+                    "description": "The transport used.\n- Reference [`TRANSPORT_ENUM`](#docs+Temasys.Socket+constants+TRANSPORT_ENUM) for the list of available transports.",
+                    "type": "String"
                 }
             ],
             "since": "0.7.0",
@@ -5678,24 +5665,19 @@
         },
         {
             "file": "source/components/socket.js",
-            "line": 171,
-            "description": "Event triggered when Socket connection sends or receives Signaling server keep-alive responses.",
+            "line": 210,
+            "description": "Event triggered when socket connection \"activeness\" or keep-alive state has changed.",
             "itemtype": "event",
-            "name": "response",
+            "name": "activeStateChange",
             "params": [
                 {
-                    "name": "timestamp",
-                    "description": "The timestamp in miliseconds when response is sent or received.",
-                    "type": "Number"
-                },
-                {
-                    "name": "isSelf",
-                    "description": "The flag if response is from self.",
-                    "type": "Boolean"
+                    "name": "state",
+                    "description": "The active state.\n- Reference [`ACTIVE_STATE_ENUM`](#docs+Temasys.Socket+constants+ACTIVE_STATE_ENUM) for the list of available states.",
+                    "type": "String"
                 },
                 {
                     "name": "latency",
-                    "description": "The current latency in miliseconds from receiving \"pong\"\n  response from Signaling server after sending a \"ping\".\n- This is defined when `isSelf` is `false`.",
+                    "description": "The number of miliseconds of response time latency when receiving `PONG` response packet.",
                     "type": "Number",
                     "optional": true
                 }
@@ -5705,26 +5687,26 @@
         },
         {
             "file": "source/components/socket.js",
-            "line": 182,
-            "description": "Event triggered when Socket connection sends or receives a message.",
+            "line": 219,
+            "description": "Event triggered when message is sent or received.",
             "itemtype": "event",
             "name": "message",
             "params": [
                 {
                     "name": "message",
-                    "description": "The message.",
-                    "type": "JSON"
+                    "description": "The message object.\n- When defined as type of _String_, this indicates that received message has parsing errors.",
+                    "type": "JSON|String"
+                },
+                {
+                    "name": "error",
+                    "description": "The error object if there are errors.",
+                    "type": "Error",
+                    "optional": true
                 },
                 {
                     "name": "isSelf",
-                    "description": "The flag if message is from self.",
+                    "description": "The flag if self is sending the message.",
                     "type": "Boolean"
-                },
-                {
-                    "name": "error",
-                    "description": "The error object.\n- This is defined when message failed to send or parse received message.",
-                    "type": "Error",
-                    "optional": true
                 }
             ],
             "since": "0.7.0",
@@ -5732,194 +5714,87 @@
         },
         {
             "file": "source/components/socket.js",
-            "line": 192,
-            "description": "Event triggered when {{#crossLink \"Temasys.Socket/getStats:method\"}}{{/crossLink}} state has changed.",
-            "itemtype": "event",
-            "name": "getStatsStateChange",
-            "params": [
-                {
-                    "name": "state",
-                    "description": "The current stats retrieval state.\n- See {{#crossLink \"Temasys.Socket/GET_STATS_STATE_ENUM:attribute\"}}{{/crossLink}} for reference.",
-                    "type": "String"
-                },
-                {
-                    "name": "stats",
-                    "description": "The stats.\n- This is defined when `state` is `SUCCESS`.",
-                    "type": "JSON",
-                    "optional": true,
-                    "props": [
-                        {
-                            "name": "id",
-                            "description": "The Socket connection socket.io-client ID.",
-                            "type": "String"
-                        },
-                        {
-                            "name": "messages",
-                            "description": "The messages stats.",
-                            "type": "JSON",
-                            "props": [
-                                {
-                                    "name": "sent",
-                                    "description": "The number of messages sent from this Socket connection.",
-                                    "type": "Number"
-                                },
-                                {
-                                    "name": "received",
-                                    "description": "The number of messages received from this Socket connection.",
-                                    "type": "Number"
-                                },
-                                {
-                                    "name": "buffered",
-                                    "description": "The current number of messages buffered for this Socket connection to be sent.",
-                                    "type": "Number"
-                                }
-                            ]
-                        },
-                        {
-                            "name": "responses",
-                            "description": "The responses stats.",
-                            "type": "JSON",
-                            "props": [
-                                {
-                                    "name": "ping",
-                                    "description": "The responses stats for \"ping\" response.",
-                                    "type": "JSON"
-                                },
-                                {
-                                    "name": "ping.sent",
-                                    "description": "The total number of \"ping\" response sent from this Socket connection.",
-                                    "type": "Number"
-                                },
-                                {
-                                    "name": "ping.timestamp",
-                                    "description": "The latest timestamp of the \"ping\" response sent.",
-                                    "type": "String"
-                                },
-                                {
-                                    "name": "pong",
-                                    "description": "The response stats for \"pong\" response.",
-                                    "type": "JSON"
-                                },
-                                {
-                                    "name": "pong.received",
-                                    "description": "The total number of \"pong\" response received from this Socket connection.",
-                                    "type": "Number"
-                                },
-                                {
-                                    "name": "pong.timestamp",
-                                    "description": "The latest timestamp of the \"pong\" response received.",
-                                    "type": "String"
-                                },
-                                {
-                                    "name": "latency",
-                                    "description": "The response latency.",
-                                    "type": "JSON"
-                                },
-                                {
-                                    "name": "latency.average",
-                                    "description": "The average response latency in miliseconds.",
-                                    "type": "Number"
-                                },
-                                {
-                                    "name": "latency.lowest",
-                                    "description": "The lowest response latency in miliseconds.",
-                                    "type": "Number"
-                                },
-                                {
-                                    "name": "latency.highest",
-                                    "description": "The highest response latency in miliseconds.",
-                                    "type": "Number"
-                                }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    "name": "error",
-                    "description": "The error object.\n- This is defined when `state` is `FAILED`.",
-                    "type": "Error",
-                    "optional": true
-                }
-            ],
-            "since": "0.7.0",
-            "class": "Temasys.Socket"
-        },
-        {
-            "file": "source/components/socket.js",
-            "line": 220,
-            "description": "Event triggered when there are exceptions thrown in this event handlers.",
-            "itemtype": "event",
-            "name": "domError",
-            "params": [
-                {
-                    "name": "error",
-                    "description": "The error object.",
-                    "type": "Error"
-                }
-            ],
-            "since": "0.7.0",
-            "class": "Temasys.Socket"
-        },
-        {
-            "file": "source/components/socket.js",
-            "line": 238,
-            "description": "The enum of Socket connection states.",
+            "line": 231,
+            "description": "The enum of transport types.",
             "itemtype": "attribute",
-            "name": "STATE_ENUM",
+            "name": "TRANSPORT_ENUM",
             "params": [
                 {
-                    "name": "RECONNECT_FAILED",
-                    "description": "The state when Socket connection failed to reconnect after\n  the several specified attempts configured for the current port and transport used.\n  At this state, the Socket connection will fallback to the next available port or transport.",
+                    "name": "WEBSOCKET",
+                    "description": "The transport type to use WebSocket connections.\n- Value: `\"websocket\"`\n- Reference [WebSocket protocol](https://en.wikipedia.org/wiki/WebSocket) for more information.",
                     "type": "String"
                 },
                 {
-                    "name": "RECONNECT_ERROR",
-                    "description": "The state when Socket connection failed to reconnect for the\n  current attempt.",
+                    "name": "POLLING",
+                    "description": "The transport type to use polling.\n- Value: `\"polling\"`\n- Reference [Polling concept](https://en.wikipedia.org/wiki/Polling_%28computer_science%29) for more information.",
                     "type": "String"
-                },
+                }
+            ],
+            "type": "JSON",
+            "final": 1,
+            "readonly": "",
+            "class": "Temasys.Socket"
+        },
+        {
+            "file": "source/components/socket.js",
+            "line": 250,
+            "description": "The enum of socket connection states.",
+            "itemtype": "attribute",
+            "name": "CONNECTION_STATE_ENUM",
+            "params": [
                 {
-                    "name": "RECONNECT_ATTEMPT",
-                    "description": "The state when Socket connection is attempting to reconnect.",
-                    "type": "String"
-                },
-                {
-                    "name": "RECONNECTING",
-                    "description": "The state when Socket connection is reconnecting.",
-                    "type": "String"
-                },
-                {
-                    "name": "RECONNECT",
-                    "description": "The state when Socket connection has reconnected successfully.",
-                    "type": "String"
-                },
-                {
-                    "name": "CONNECT_TIMEOUT",
-                    "description": "The state when Socket connection has failed to connect after\n  the specified timeout configured for the current port and transport.\n  At this state, the socket connection will attempt to reconnect a few more times if reconnection is enabled.",
-                    "type": "String"
-                },
-                {
-                    "name": "CONNECT_ERROR",
-                    "description": "The state when Socket connection has errors and disconnects.",
+                    "name": "NEW",
+                    "description": "The state when starting with a new port and transport pair to start connection.\n- Value: `\"new\"`\n- Output port and transport pairs available would be `a+1`, `a+2`, `b+1` and `b+2`, if transports given are `a` and `b`,\n  and ports give are `1` and `2`.",
                     "type": "String"
                 },
                 {
                     "name": "CONNECT",
-                    "description": "The state when Socket connection has connected successfully.",
+                    "description": "The state when connected.\n- Value: `\"connect\"`",
+                    "type": "String"
+                },
+                {
+                    "name": "CONNECT_ERROR",
+                    "description": "The state when connection failed or timed out for current port and transport pair.\n- Value: `\"connect_error\"`\n- Reconnections will be attempted if configured, else it would switch to the next available pair.",
+                    "type": "String"
+                },
+                {
+                    "name": "CONNECT_START_ERROR",
+                    "description": "The state when constructing connection has errors for the current port and transport pair.\n- Value: `\"connect_start_error\"`\n- Reconnections will not be attempted even if configured, and it would switch to the next available pair.",
+                    "type": "String"
+                },
+                {
+                    "name": "RECONNECT_ATTEMPT",
+                    "description": "The state when starting a reconnection attempt for the current port and transport pair.\n- Value: `\"reconnect_attempt\"`",
+                    "type": "String"
+                },
+                {
+                    "name": "RECONNECT_ERROR",
+                    "description": "The state when a reconnection attempt failed.\n- Value: `\"reconnect_error\"`",
+                    "type": "String"
+                },
+                {
+                    "name": "RECONNECT",
+                    "description": "The state when reconnected after some reconnection attempts.\n- Value: `\"reconnect\"`",
+                    "type": "String"
+                },
+                {
+                    "name": "RECONNECT_FAILED",
+                    "description": "The state when all reconnection attempts failed for the current port and transport pair.\n- Value: `\"reconnect_failed\"`",
                     "type": "String"
                 },
                 {
                     "name": "DISCONNECT",
-                    "description": "The state when Socket connection has been disconnected.",
+                    "description": "The state when disconnected.\n- Value: `\"disconnect\"`",
                     "type": "String"
                 },
                 {
-                    "name": "ABORT",
-                    "description": "The state when Socket connection has aborted from attempting any available\n  ports or transports or reconnection as there is none left to reconnect or fallback with.",
+                    "name": "TERMINATE",
+                    "description": "The state when there is no more port and transport pairs to start connection and\n  fallback for the next available pair attempts are aborted.\n- Value: `\"terminate\"`",
                     "type": "String"
                 },
                 {
-                    "name": "CONSTRUCT_ERROR",
-                    "description": "The state when Socket connection failed to construct.",
+                    "name": "ERROR",
+                    "description": "The state when there are errors in connection after being connected.\n- Value: `\"error\"`",
                     "type": "String"
                 }
             ],
@@ -5931,159 +5806,271 @@
         },
         {
             "file": "source/components/socket.js",
-            "line": 278,
-            "description": "The enum of {{#crossLink \"Temasys.Socket/getStats:method\"}}{{/crossLink}} states.",
+            "line": 300,
+            "description": "The enum of socket connection \"activeness\" or keep-alive states.",
             "itemtype": "attribute",
-            "name": "GET_STATS_STATE_ENUM",
+            "name": "ACTIVE_STATE_ENUM",
             "params": [
                 {
-                    "name": "LOADING",
-                    "description": "The state when `getStats()` is retrieving stats.",
+                    "name": "PING",
+                    "description": "The state when \"ping\" packet is written out to the signaling server\n  to obtain response from server to check if server-end connection is still active.\n- Value: `\"ping\"`",
                     "type": "String"
                 },
                 {
-                    "name": "SUCCESS",
-                    "description": "The state when `getStats()` has retrieved stats successfully.",
-                    "type": "String"
-                },
-                {
-                    "name": "FAILED",
-                    "description": "The state when `getStats()` has failed to retrieve stats.",
+                    "name": "PONG",
+                    "description": "The state when \"pong\" packet is received from the signaling server,\n  which indicates that server-end connection is still active.\n- Value: `\"pong\"`",
                     "type": "String"
                 }
             ],
-            "readonly": "",
+            "type": "JSON",
             "final": 1,
-            "since": "0.7.0",
+            "readonly": "",
             "class": "Temasys.Socket"
         },
         {
             "file": "source/components/socket.js",
-            "line": 295,
-            "description": "Function to retrieve Socket connection stats.",
+            "line": 319,
+            "description": "Function that returns the socket configuration.",
             "itemtype": "method",
-            "name": "getStats",
+            "name": "getConfig",
+            "params": [
+                {
+                    "name": "return",
+                    "description": "The configuration settings.\n- Object signature matches `options` parameter in [`Temasys.Socket` constructor](#docs+Temasys.Socket+constructor+Temasys.Socket).",
+                    "type": "JSON"
+                }
+            ],
             "return": {
-                "description": "The Promise for function request completion.",
-                "type": "Promise"
+                "description": "",
+                "type": "JSON"
             },
             "example": [
-                "\n  socket.getStats().then(function (stats) {\n    console.log(\"Received stats ->\", stats);\n  }).catch(function (error) {\n    console.error(\"Received error ->\", error);\n  });"
+                "\n  console.log(\"config ->\", socket.getConfig());"
             ],
             "since": "0.7.0",
             "class": "Temasys.Socket"
         },
         {
             "file": "source/components/socket.js",
-            "line": 311,
+            "line": 347,
+            "description": "Function that returns the current socket states and connection session.",
+            "itemtype": "method",
+            "name": "getCurrent",
+            "params": [
+                {
+                    "name": "return",
+                    "description": "The current states and connection session.",
+                    "type": "JSON",
+                    "props": [
+                        {
+                            "name": "states",
+                            "description": "The current states.",
+                            "type": "JSON",
+                            "props": [
+                                {
+                                    "name": "connectionState",
+                                    "description": "The socket connection state.\n- Reference [`CONNECTION_STATE_ENUM`](#docs+Temasys.Socket+constants+CONNECTION_STATE_ENUM) for the list of available states.",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "activeState",
+                                    "description": "The socket \"activeness\" or keep-alive state.\n- Reference [`ACTIVE_STATE_ENUM`](#docs+Temasys.Socket+constants+ACTIVE_STATE_ENUM) for the list of available states.",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "connected",
+                                    "description": "The flag if socket is connected to signaling server.",
+                                    "type": "Boolean"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "session",
+                            "description": "The current connection session.",
+                            "type": "JSON",
+                            "props": [
+                                {
+                                    "name": "port",
+                                    "description": "The port number.",
+                                    "type": "Number"
+                                },
+                                {
+                                    "name": "transport",
+                                    "description": "The transport type.\n- Reference [`TRANSPORT_ENUM`](#docs+Temasys.Socket+constants+TRANSPORT_ENUM) for the list of available transports.",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "attempt",
+                                    "description": "The total number of attempts made for the current port and transport pair.",
+                                    "type": "Number"
+                                },
+                                {
+                                    "name": "fallbacks",
+                                    "description": "The total number of port and transport pairs tried.",
+                                    "type": "Number"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "JSON"
+            },
+            "example": [
+                "\n  console.log(\"current info ->\", socket.getCurrent());"
+            ],
+            "since": "0.7.0",
+            "class": "Temasys.Socket"
+        },
+        {
+            "file": "source/components/socket.js",
+            "line": 386,
+            "description": "Function that returns the socket connection stats.",
+            "itemtype": "method",
+            "name": "getStats",
+            "params": [
+                {
+                    "name": "return",
+                    "description": "The full stats.",
+                    "type": "JSON",
+                    "props": [
+                        {
+                            "name": "componentId",
+                            "description": "The component ID.",
+                            "type": "String"
+                        },
+                        {
+                            "name": "session",
+                            "description": "The socket connection session stats.",
+                            "type": "JSON",
+                            "props": [
+                                {
+                                    "name": "id",
+                                    "description": "The socket connection session ID when connected.",
+                                    "type": "String",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "protocol",
+                                    "description": "The socket connection socket.io protocol revision number.",
+                                    "type": "Number"
+                                },
+                                {
+                                    "name": "pairs",
+                                    "description": "The list of port and transport pair attempts made - where each item is a _JSON_.\n- Property `#index` will be used to identify the array index and the fallback attempt (for the next available pair) index.",
+                                    "type": "Array"
+                                },
+                                {
+                                    "name": "pairs.#index",
+                                    "description": "The port and transport pair.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "pairs.#index.attempts",
+                                    "description": "The total number of reconnection attempts made for this pair.",
+                                    "type": "Number"
+                                },
+                                {
+                                    "name": "pairs.#index.port",
+                                    "description": "The port number.",
+                                    "type": "Number"
+                                },
+                                {
+                                    "name": "pairs.#index.transport",
+                                    "description": "The transport type.\n- Reference [`TRANSPORT_ENUM`](#docs+Temasys.Socket+constants+TRANSPORT_ENUM) for the list of available transports.",
+                                    "type": "String"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "active",
+                            "description": "The \"activeness\" or keep-alive connection stats.",
+                            "type": "JSON",
+                            "props": [
+                                {
+                                    "name": "pings",
+                                    "description": "The \"ping\" stats.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "pings.total",
+                                    "description": "The total number of \"ping\" packets sent to signaling server.",
+                                    "type": "Number"
+                                },
+                                {
+                                    "name": "pongs",
+                                    "description": "The \"pong\" stats.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "pongs.total",
+                                    "description": "The total number of \"pong\" packets received from signaling server.",
+                                    "type": "Number"
+                                },
+                                {
+                                    "name": "pongs.latency",
+                                    "description": "The \"pong\" latency stats.",
+                                    "type": "JSON"
+                                },
+                                {
+                                    "name": "pongs.latency.lowest",
+                                    "description": "The lowest number of miliseconds of latency received.",
+                                    "type": "Number"
+                                },
+                                {
+                                    "name": "pongs.latency.average",
+                                    "description": "The average number of miliseconds of latency received.",
+                                    "type": "Number"
+                                },
+                                {
+                                    "name": "pongs.latency.highest",
+                                    "description": "The highest number of miliseconds of latency received.",
+                                    "type": "Number"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "JSON"
+            },
+            "example": [
+                "\n  console.log(\"stats ->\", socket.getStats());"
+            ],
+            "since": "0.7.0",
+            "class": "Temasys.Socket"
+        },
+        {
+            "file": "source/components/socket.js",
+            "line": 456,
+            "description": "Function to set configuration.",
+            "class": "Temasys.Socket"
+        },
+        {
+            "file": "source/components/socket.js",
+            "line": 565,
+            "description": "Function to start socket connection.\n- Returns a Promise (Error error) for failure, (String socketId) for success",
+            "class": "Temasys.Socket"
+        },
+        {
+            "file": "source/components/socket.js",
+            "line": 815,
             "description": "Function to start socket connection.",
             "class": "Temasys.Socket"
         },
         {
             "file": "source/components/socket.js",
-            "line": 321,
-            "description": "Internal function to update \"state\" event.",
-            "class": "Temasys.Socket"
-        },
-        {
-            "file": "source/components/socket.js",
-            "line": 436,
-            "description": "Socket.io-client \"connect\" state.",
-            "class": "Temasys.Socket"
-        },
-        {
-            "file": "source/components/socket.js",
-            "line": 443,
-            "description": "Socket.io-client \"reconnect\" state.",
-            "class": "Temasys.Socket"
-        },
-        {
-            "file": "source/components/socket.js",
-            "line": 450,
-            "description": "Socket.io-client \"disconnect\" state.",
-            "class": "Temasys.Socket"
-        },
-        {
-            "file": "source/components/socket.js",
-            "line": 457,
-            "description": "Socket.io-client \"connect_timeout\" state.",
-            "class": "Temasys.Socket"
-        },
-        {
-            "file": "source/components/socket.js",
-            "line": 464,
-            "description": "Socket.io-client \"connect_error\" state.",
-            "class": "Temasys.Socket"
-        },
-        {
-            "file": "source/components/socket.js",
-            "line": 472,
-            "description": "Socket.io-client \"reconnecting\" state.",
-            "class": "Temasys.Socket"
-        },
-        {
-            "file": "source/components/socket.js",
-            "line": 479,
-            "description": "Socket.io-client \"reconnect_error\" state.",
-            "class": "Temasys.Socket"
-        },
-        {
-            "file": "source/components/socket.js",
-            "line": 487,
-            "description": "Socket.io-client \"reconnect_failed\" state.",
-            "class": "Temasys.Socket"
-        },
-        {
-            "file": "source/components/socket.js",
-            "line": 494,
-            "description": "Socket.io-client \"reconnect_failed\" state.",
-            "class": "Temasys.Socket"
-        },
-        {
-            "file": "source/components/socket.js",
-            "line": 501,
-            "description": "Socket.io-client \"error\" state.\nDeprecated socket.io-client 1.4.x",
-            "class": "Temasys.Socket"
-        },
-        {
-            "file": "source/components/socket.js",
-            "line": 510,
-            "description": "Socket.io-client \"ping\" state.",
-            "class": "Temasys.Socket"
-        },
-        {
-            "file": "source/components/socket.js",
-            "line": 517,
-            "description": "Socket.io-client \"pong\" state.",
-            "class": "Temasys.Socket"
-        },
-        {
-            "file": "source/components/socket.js",
-            "line": 524,
-            "description": "Socket.io-client \"message\" state.",
-            "class": "Temasys.Socket"
-        },
-        {
-            "file": "source/components/socket.js",
-            "line": 549,
-            "description": "Function to stop socket connection.",
-            "class": "Temasys.Socket"
-        },
-        {
-            "file": "source/components/socket.js",
-            "line": 563,
-            "description": "Function to send the next batch of queued messages.",
-            "class": "Temasys.Socket"
-        },
-        {
-            "file": "source/components/socket.js",
-            "line": 616,
+            "line": 833,
             "description": "Function to send messages.",
             "class": "Temasys.Socket"
         },
         {
             "file": "source/components/socket.js",
-            "line": 622,
+            "line": 886,
             "description": "Internal function to send message.",
             "class": "Temasys.Socket"
         },
@@ -6650,7 +6637,7 @@
                 },
                 {
                     "name": "fn",
-                    "description": "The callback function invoked for each object item looped.\n- To break the function loop, return `true`.\n- To increment or decrement loop, return the `Number`, and be careful of using it to prevent infinite loops.",
+                    "description": "The callback function invoked for each object item looped.\n- To break the function loop, return `true`.\n- To increment or decrement loop, return a (`Number`), and be careful of using it to prevent infinite loops.",
                     "type": "Function",
                     "props": [
                         {
@@ -6960,18 +6947,8 @@
                                     "type": "Boolean"
                                 },
                                 {
-                                    "name": "fn.result.current.supports.webrtc.turn",
-                                    "description": "The flag if TURN connections is supported.",
-                                    "type": "Boolean"
-                                },
-                                {
                                     "name": "fn.result.current.supports.webrtc.turnOverTcp",
                                     "description": "The flag if TURN connections over TCP IP\n  protocol is supported.",
-                                    "type": "Boolean"
-                                },
-                                {
-                                    "name": "fn.result.current.supports.webrtc.turnOverUdp",
-                                    "description": "The flag if TURN connections over UDP IP\n  protocol is supported.",
                                     "type": "Boolean"
                                 },
                                 {
@@ -7172,7 +7149,7 @@
                 }
             ],
             "example": [
-                "\n// Example: Get the supports\nTemasys.Utils.getClientSupports().then(function (result) {\n  console.info(\"==== Current browser information ====\");\n  console.log(\"- Name: \" + result.current.browser.name);\n  console.log(\"- Version: \" + result.current.browser.version);\n  console.log(\"- Platform: \" + result.current.browser.platform +\n    (result.current.browser.platform.version ? \" / \" + result.current.browser.platform.version : \"\");\n\n  if (result.current.webrtcPlugin) {\n    console.info(\"==== Current WebRTC plugin information ====\");\n    console.log(\"- Is active: \" + result.current.webrtcPlugin.active);\n    console.log(\"- Company: \" + result.current.webrtcPlugin.company);\n    console.log(\"- Version: \" + result.current.webrtcPlugin.version);\n    console.log(\"- Expiration Date: \" + (result.current.webrtcPlugin.expirationDate || 'N/A'));\n  }\n}).catch(function (error) {\n  console.error(\"Browser supports retrieval error ->\", error);\n});"
+                "\n// Example: Get the supports\nTemasys.Utils.getClientSupports().then(function (result) {\n  console.info(\"==== Browser information ==== \");\n  console.log(\"- Name ->\", result.current.browser.name);\n  console.log(\"- Version ->\", result.current.browser.version);\n  console.log(\"- Platform ->\", result.current.browser.platform + (result.current.browser.mobilePlatformVersion ?\n    \" (OS version: \" + result.current.browser.mobilePlatformVersion : \"\"));\n\n  console.info(\"==== Dependencies information ==== \");\n  console.log(\"- AdapterJS version ->\", result.current.dependencies.adapterjs || 'Not Loaded');\n  console.log(\"- Socket.io-client loaded ->\", result.current.dependencies.io);\n\n  if (result.current.webrtcPlugin) {\n    console.info(\"==== WebRTC plugin information ==== \");\n    console.log(\"- Company ->\", result.current.webrtcPlugin.company);\n    console.log(\"- Version ->\", result.current.webrtcPlugin.version);\n    console.log(\"- Expiration date ->\", result.current.webrtcPlugin.expirationDate || 'None');\n\n    if (result.current.webrtcPlugin.whiteList) {\n      console.log(\"- Whitelisted plugin:\");\n      console.log(\"-- Domain is enabled ->\", result.current.webrtcPlugin.whiteList.enabled);\n      console.log(\"-- Whitelist restriction of features ->\", result.current.webrtcPlugin.whiteList.restrictsFeatures);\n      console.log(\"-- Whitelist restriction of WebRTC API ->\", result.current.webrtcPlugin.whiteList.restrictsUsage);\n    }\n  }\n\n  console.info(\"==== Supports ====\");\n  console.log(\"- XMLHttpRequest API ->\", result.current.supports.xhr);\n  console.log(\"- CORS domain request ->\", result.current.supports.corsRequest);\n  console.log(\"- WebRTC:\");\n  console.log(\"-- Enabled ->\", result.current.supports.webrtc.connection);\n  console.log(\"-- Datachannel ->\", result.current.supports.webrtc.datachannel);\n  console.log(\"-- DTMFSender ->\", result.current.supports.webrtc.dtmfsender);\n  console.log(\"-- Generation of new certificate ->\", result.current.supports.webrtc.generateCertificate);\n  console.log(\"-- ICE restart ->\", result.current.supports.webrtc.iceRestart);\n  console.log(\"-- TURN over TLS connections ->\", result.current.supports.webrtc.turns);\n  console.log(\"-- Max sending bandwidth limits ->\", result.current.supports.webrtc.maxBandwidth);\n  console.log(\"-- STUN ->\", result.current.supports.webrtc.stun);\n  console.log(\"-- TURN over TCP ->\", result.current.supports.webrtc.turnOverTcp);\n\n  var parseCodecs = function (kind, dir) {\n    console.log(\"-- \" + kind + \" \" + dir + \" codecs:\");\n    for (var codecName in result.current.supports.webrtc.codecs[dir][kind]) {\n      if (result.current.supports.webrtc.codecs[dir][kind].hasOwnProperty(codecName)) {\n        console.log(\"--- \" + codecName + \":\")\n        console.log(\"---- Payload ->\", result.current.supports.webrtc.codecs[dir][kind][codecName].payloadType);\n        console.log(\"---- Channels ->\", result.current.supports.webrtc.codecs[dir][kind][codecName].channels);\n        console.log(\"---- Clockrate ->\", result.current.supports.webrtc.codecs[dir][kind][codecName].clockRate);\n        console.log(\"---- Params ->\", result.current.supports.webrtc.codecs[dir][kind][codecName].sdpFmtpLine || 'None');\n      }\n    }\n  };\n\n  parseCodecs('audio', 'send');\n  parseCodecs('video', 'send');\n  parseCodecs('audio', 'recv');\n  parseCodecs('video', 'recv');\n\n  console.info(\"==== Recommended Browsers Versions ====\");\n  for (var browserName in result.recommended.browsers) {\n    if (result.recommended.browsers.hasOwnProperty(browserName)) {\n      console.log(\"- \" + browserName + \" :\");\n      console.log(\"-- Min version ->\", result.recommended.browsers[browserName].minVersion || 'N/A');\n      console.log(\"-- Max version ->\", result.recommended.browsers[browserName].maxVersion || 'N/A');\n      console.log(\"-- Min mobile platform version ->\", result.recommended.browsers[browserName].mobilePlatformMinVersion || 'N/A');\n      console.log(\"-- Max mobile platform version ->\", result.recommended.browsers[browserName].mobilePlatformMaxVersion || 'N/A');\n    }\n  }\n\n  console.info(\"==== Recommended WebRTC Plugin Versions ====\");\n  console.log(\"- Min version ->\", result.recommended.webrtcPlugin.minVersion || 'N/A');\n  console.log(\"- Max version ->\", result.recommended.webrtcPlugin.maxVersion || 'N/A');\n\n  console.info(\"==== Recommended Dependencies Versions ====\");\n  console.log(\"- AdapterJS version ->\", result.recommended.dependencies.adapterjs);\n  console.log(\"- Socket.io-client version ->\", result.recommended.dependencies.io);\n}).catch(function (error) {\n  console.error(\"Browser supports retrieval error ->\", error);\n});"
             ],
             "since": "0.7.0",
             "class": "Temasys.Utils"
@@ -16938,7 +16915,7 @@
         },
         {
             "message": "param name/type/descript missing",
-            "line": " source/components/room.js:352"
+            "line": " source/components/room.js:342"
         },
         {
             "message": "unknown tag: typedef",
@@ -17150,43 +17127,43 @@
         },
         {
             "message": "Missing item type\nFunction that checks the `options` provided and loops the log items. \n- Returns `true` if there's not a need to loop.",
-            "line": " source/components/debugger.js:401"
+            "line": " source/components/debugger.js:404"
         },
         {
             "message": "Missing item type\nHandles the global log methods for all components.",
-            "line": " source/components/debugger.js:425"
+            "line": " source/components/debugger.js:428"
         },
         {
             "message": "Missing item type\nFunction to log \"debug\" level message.",
-            "line": " source/components/debugger.js:430"
+            "line": " source/components/debugger.js:433"
         },
         {
             "message": "Missing item type\nFunction to log \"log\" level message.",
-            "line": " source/components/debugger.js:437"
+            "line": " source/components/debugger.js:440"
         },
         {
             "message": "Missing item type\nFunction to log \"info\" level message.",
-            "line": " source/components/debugger.js:444"
+            "line": " source/components/debugger.js:447"
         },
         {
             "message": "Missing item type\nFunction to log \"warn\" level message.",
-            "line": " source/components/debugger.js:451"
+            "line": " source/components/debugger.js:454"
         },
         {
             "message": "Missing item type\nFunction to log \"error\" level message.",
-            "line": " source/components/debugger.js:458"
+            "line": " source/components/debugger.js:461"
         },
         {
             "message": "Missing item type\nFunction to configure component.\n- Returns the component ID.",
-            "line": " source/components/debugger.js:465"
+            "line": " source/components/debugger.js:468"
         },
         {
             "message": "Missing item type\nFunction to push stats to API.",
-            "line": " source/components/debugger.js:486"
+            "line": " source/components/debugger.js:489"
         },
         {
             "message": "Missing item type\nFunction to catch custom errors to be thrown.",
-            "line": " source/components/debugger.js:492"
+            "line": " source/components/debugger.js:495"
         },
         {
             "message": "Missing item type\nFunction to retrieve Peer {{#crossLink \"Temasys.Stream\"}}Streams{{/crossLink}}.",
@@ -17206,115 +17183,63 @@
         },
         {
             "message": "Missing item type\nInternal function to update and trigger state.",
-            "line": " source/components/room.js:888"
+            "line": " source/components/room.js:878"
         },
         {
             "message": "Missing item type\nInternal function to load XHR response.",
-            "line": " source/components/room.js:916"
+            "line": " source/components/room.js:906"
         },
         {
             "message": "Missing item type\nFunction to handle SM protocol for sending direction.",
-            "line": " source/components/room.js:1053"
+            "line": " source/components/room.js:1043"
         },
         {
             "message": "Missing item type\n\"joinRoom\" - Connects to the Room.",
-            "line": " source/components/room.js:1063"
+            "line": " source/components/room.js:1053"
         },
         {
             "message": "Missing item type\n\"enter\" - Broadcasts to existing Peers in the Room we exist.\n\"welcome\" - Respond to Peer who sent \"enter\" about who we are.\n\"restart\" - Re-negotiation request.",
-            "line": " source/components/room.js:1079"
+            "line": " source/components/room.js:1069"
         },
         {
             "message": "Missing item type\nFunction to handle SM protocol for receiving direction.",
-            "line": " source/components/room.js:1090"
+            "line": " source/components/room.js:1080"
         },
         {
             "message": "Missing item type\nSM protocol: \"joinRoom\"",
-            "line": " source/components/room.js:1099"
+            "line": " source/components/room.js:1089"
         },
         {
             "message": "Missing item type\nSM protocol: \"inRoom\"",
-            "line": " source/components/room.js:1107"
+            "line": " source/components/room.js:1097"
         },
         {
             "message": "Missing item type\nSM protocol: \"enter\"",
-            "line": " source/components/room.js:1120"
+            "line": " source/components/room.js:1110"
+        },
+        {
+            "message": "Missing item type\nEvent triggered when socket connection state has changed.",
+            "line": " source/components/socket.js:195"
+        },
+        {
+            "message": "Missing item type\nFunction to set configuration.",
+            "line": " source/components/socket.js:456"
+        },
+        {
+            "message": "Missing item type\nFunction to start socket connection.\n- Returns a Promise (Error error) for failure, (String socketId) for success",
+            "line": " source/components/socket.js:565"
         },
         {
             "message": "Missing item type\nFunction to start socket connection.",
-            "line": " source/components/socket.js:311"
-        },
-        {
-            "message": "Missing item type\nInternal function to update \"state\" event.",
-            "line": " source/components/socket.js:321"
-        },
-        {
-            "message": "Missing item type\nSocket.io-client \"connect\" state.",
-            "line": " source/components/socket.js:436"
-        },
-        {
-            "message": "Missing item type\nSocket.io-client \"reconnect\" state.",
-            "line": " source/components/socket.js:443"
-        },
-        {
-            "message": "Missing item type\nSocket.io-client \"disconnect\" state.",
-            "line": " source/components/socket.js:450"
-        },
-        {
-            "message": "Missing item type\nSocket.io-client \"connect_timeout\" state.",
-            "line": " source/components/socket.js:457"
-        },
-        {
-            "message": "Missing item type\nSocket.io-client \"connect_error\" state.",
-            "line": " source/components/socket.js:464"
-        },
-        {
-            "message": "Missing item type\nSocket.io-client \"reconnecting\" state.",
-            "line": " source/components/socket.js:472"
-        },
-        {
-            "message": "Missing item type\nSocket.io-client \"reconnect_error\" state.",
-            "line": " source/components/socket.js:479"
-        },
-        {
-            "message": "Missing item type\nSocket.io-client \"reconnect_failed\" state.",
-            "line": " source/components/socket.js:487"
-        },
-        {
-            "message": "Missing item type\nSocket.io-client \"reconnect_failed\" state.",
-            "line": " source/components/socket.js:494"
-        },
-        {
-            "message": "Missing item type\nSocket.io-client \"error\" state.\nDeprecated socket.io-client 1.4.x",
-            "line": " source/components/socket.js:501"
-        },
-        {
-            "message": "Missing item type\nSocket.io-client \"ping\" state.",
-            "line": " source/components/socket.js:510"
-        },
-        {
-            "message": "Missing item type\nSocket.io-client \"pong\" state.",
-            "line": " source/components/socket.js:517"
-        },
-        {
-            "message": "Missing item type\nSocket.io-client \"message\" state.",
-            "line": " source/components/socket.js:524"
-        },
-        {
-            "message": "Missing item type\nFunction to stop socket connection.",
-            "line": " source/components/socket.js:549"
-        },
-        {
-            "message": "Missing item type\nFunction to send the next batch of queued messages.",
-            "line": " source/components/socket.js:563"
+            "line": " source/components/socket.js:815"
         },
         {
             "message": "Missing item type\nFunction to send messages.",
-            "line": " source/components/socket.js:616"
+            "line": " source/components/socket.js:833"
         },
         {
             "message": "Missing item type\nInternal function to send message.",
-            "line": " source/components/socket.js:622"
+            "line": " source/components/socket.js:886"
         },
         {
             "message": "Missing item type\nFunction that handles caught errors.",
