@@ -254,25 +254,25 @@ Temasys.Socket.prototype.TRANSPORT_ENUM = {
  * - Value: `"new"`
  * - Output port and transport pairs available would be `a+1`, `a+2`, `b+1` and `b+2`, if transports given are `a` and `b`,
  *   and ports give are `1` and `2`.
- * @param {String} CONNECT The state when connected.
+ * @param {String} CONNECTED The state when connected.
  * - Value: `"connect"`
- * @param {String} CONNECT_ERROR The state when connection failed or timed out for current port and transport pair.
+ * @param {String} CONNECTION_ERROR The state when connection failed or timed out for current port and transport pair.
  * - Value: `"connect_error"`
  * - Reconnections will be attempted if configured, else it would switch to the next available pair.
- * @param {String} CONNECT_START_ERROR The state when constructing connection has errors for the current port and transport pair.
- * - Value: `"connect_start_error"`
+ * @param {String} CONSTRUCT_ERROR The state when constructing connection has errors for the current port and transport pair.
+ * - Value: `"start_error"`
  * - Reconnections will not be attempted even if configured, and it would switch to the next available pair.
- * @param {String} RECONNECT_ATTEMPT The state when starting a reconnection attempt for the current port and transport pair.
+ * @param {String} RECONNECTION_ATTEMPT The state when starting a reconnection attempt for the current port and transport pair.
  * - Value: `"reconnect_attempt"`
- * @param {String} RECONNECT_ERROR The state when a reconnection attempt failed.
+ * @param {String} RECONNECTION_ERROR The state when a reconnection attempt failed.
  * - Value: `"reconnect_error"`
- * @param {String} RECONNECT The state when reconnected after some reconnection attempts.
+ * @param {String} RECONNECTED The state when reconnected after some reconnection attempts.
  * - Value: `"reconnect"`
- * @param {String} RECONNECT_FAILED The state when all reconnection attempts failed for the current port and transport pair.
+ * @param {String} RECONNECTION_FAILED The state when all reconnection attempts failed for the current port and transport pair.
  * - Value: `"reconnect_failed"`
- * @param {String} DISCONNECT The state when disconnected.
+ * @param {String} DISCONNECTED The state when disconnected.
  * - Value: `"disconnect"`
- * @param {String} TERMINATE The state when there is no more port and transport pairs to start connection and
+ * @param {String} TERMINATED The state when there is no more port and transport pairs to start connection and
  *   fallback for the next available pair attempts are aborted.
  * - Value: `"terminate"`
  * @param {String} ERROR The state when there are errors in connection after being connected.
@@ -285,15 +285,15 @@ Temasys.Socket.prototype.TRANSPORT_ENUM = {
  */
 Temasys.Socket.prototype.CONNECTION_STATE_ENUM = {
   NEW: 'new',
-  CONNECT: 'connect',
-  CONNECT_ERROR: 'connect_error',
-  CONNECT_START_ERROR: 'connect_start_error',
-  RECONNECT_ATTEMPT: 'reconnect_attempt',
-  RECONNECT: 'reconnect',
-  RECONNECT_ERROR: 'reconnect_error',
-  RECONNECT_FAILED: 'reconnect_failed',
-  DISCONNECT: 'disconnect',
-  TERMINATE: 'terminate',
+  CONNECTED: 'connect',
+  CONNECTION_ERROR: 'connect_error',
+  CONSTRUCT_ERROR: 'start_error',
+  RECONNECTION_ATTEMPT: 'reconnect_attempt',
+  RECONNECTED: 'reconnect',
+  RECONNECTION_ERROR: 'reconnect_error',
+  RECONNECTION_FAILED: 'reconnect_failed',
+  DISCONNECTED: 'disconnect',
+  TERMINATED: 'terminate',
   ERROR: 'error'
 };
 

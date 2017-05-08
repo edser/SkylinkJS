@@ -856,27 +856,21 @@
                     "props": [
                         {
                             "name": "appKey",
-                            "description": "The App key ID.",
+                            "description": "The app key ID.",
                             "type": "String"
                         },
                         {
                             "name": "name",
-                            "description": "The Room name in App space.\n- When not provided, the value of the App key ID is used.",
+                            "description": "The room name.\n- When not provided, the value of `.appKey` is used.",
                             "type": "String",
                             "optional": true
                         }
                     ]
-                },
-                {
-                    "name": "componentId",
-                    "description": "The unique component ID to use for `Temasys.Debugger` module or as\n  for object identification.\n- Please ensure that this value is unique from other class objects.",
-                    "type": "String",
-                    "optional": true
                 }
             ],
             "is_constructor": 1,
             "example": [
-                "\n// Example: Create a Room object\nvar room = new Temasys.Room({\n  appKey: myAppKey\n});\n\nroom.connect();"
+                "\n// Example: Create a room object\nvar room = new Temasys.Room({\n  appKey: \"MY_APP_KEY_ID_VALUE_HERE\"\n});\nroom.connect();"
             ],
             "since": "0.7.0"
         },
@@ -4442,7 +4436,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 53,
+            "line": 49,
             "description": "Function to subscribe a callback function to an event once.\n- Parameters follows `.once()` method in returned object of `Temasys.Utils.createEventManager()` method.",
             "itemtype": "method",
             "name": "once",
@@ -4451,7 +4445,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 62,
+            "line": 58,
             "description": "Function to subscribe a callback function to an event.\n- Parameters follows `.on()` method in returned object of `Temasys.Utils.createEventManager()` method.",
             "itemtype": "method",
             "name": "on",
@@ -4460,7 +4454,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 71,
+            "line": 67,
             "description": "Function to unsubscribe a callback function to an event.\n- Parameters follows `.off()` method in returned object of `Temasys.Utils.createEventManager()` method.",
             "itemtype": "method",
             "name": "off",
@@ -4469,7 +4463,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 86,
+            "line": 82,
             "description": "Event triggered when invoked `init()` method state has changed.",
             "itemtype": "event",
             "name": "initStateChange",
@@ -4505,7 +4499,37 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 101,
+            "line": 97,
+            "description": "The enum of room connection session states.",
+            "itemtype": "attribute",
+            "name": "SESSION_STATE_ENUM",
+            "params": [
+                {
+                    "name": "CHECKING",
+                    "description": "The state when it is checking if client is eligible to start connection session.\n- Value: `1`",
+                    "type": "Number"
+                },
+                {
+                    "name": "CONNECTING",
+                    "description": "The state when attempting to start connection session.",
+                    "type": "Number"
+                },
+                {
+                    "name": "CONNECT",
+                    "description": "The state when session connection has started.",
+                    "type": "Number"
+                },
+                {
+                    "name": "DISCONNECT",
+                    "description": "",
+                    "type": "Number"
+                }
+            ],
+            "class": "Temasys.Room"
+        },
+        {
+            "file": "source/components/room.js",
+            "line": 107,
             "description": "The enum of invoked `init()` method states.",
             "itemtype": "attribute",
             "name": "INIT_STATE_ENUM",
@@ -4534,7 +4558,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 120,
+            "line": 126,
             "description": "The enum of Room dependency initialising error codes.",
             "itemtype": "attribute",
             "name": "INIT_ERROR_CODE_ENUM",
@@ -4583,7 +4607,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 155,
+            "line": 161,
             "description": "Function to initialise dependencies and check for supports.",
             "itemtype": "method",
             "name": "init",
@@ -4617,7 +4641,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 247,
+            "line": 253,
             "description": "The Room ID.",
             "itemtype": "attribute",
             "name": "id",
@@ -4628,7 +4652,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 257,
+            "line": 263,
             "description": "The Room name.",
             "itemtype": "attribute",
             "name": "name",
@@ -4639,7 +4663,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 267,
+            "line": 273,
             "description": "The App key ID.",
             "itemtype": "attribute",
             "name": "appKey",
@@ -4650,7 +4674,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 281,
+            "line": 287,
             "description": "The Auth (API) server domain.",
             "itemtype": "attribute",
             "name": "server",
@@ -4661,7 +4685,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 291,
+            "line": 297,
             "description": "The Auth (API) server protocol.",
             "itemtype": "attribute",
             "name": "protocol",
@@ -4672,7 +4696,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 301,
+            "line": 307,
             "description": "The Room session start timestamp in ISO-8601 format.",
             "itemtype": "attribute",
             "name": "start",
@@ -4683,7 +4707,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 311,
+            "line": 317,
             "description": "The Room session duration in hours.",
             "itemtype": "attribute",
             "name": "duration",
@@ -4694,7 +4718,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 321,
+            "line": 327,
             "description": "The Room session hash used only for hash based authentication.",
             "itemtype": "attribute",
             "name": "hash",
@@ -4706,7 +4730,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 332,
+            "line": 338,
             "description": "The flag if Room session has auto-introduce enabled.",
             "itemtype": "attribute",
             "name": "autoIntroduce",
@@ -4717,7 +4741,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 342,
+            "line": 348,
             "description": "The Room session self Peer information.",
             "itemtype": "attribute",
             "name": "peer",
@@ -4783,7 +4807,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 376,
+            "line": 382,
             "description": "The WebRTC supports of the browser or device.",
             "itemtype": "attribute",
             "name": "webrtcSupports",
@@ -4850,7 +4874,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 404,
+            "line": 410,
             "description": "The current Room session connection status.",
             "itemtype": "attribute",
             "name": "current",
@@ -4888,7 +4912,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 447,
+            "line": 453,
             "description": "Event triggered when Room authentication state has changed.",
             "itemtype": "event",
             "name": "authState",
@@ -4926,7 +4950,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 461,
+            "line": 467,
             "description": "Event triggered when Room init state has changed.",
             "itemtype": "event",
             "name": "initState",
@@ -4959,7 +4983,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 473,
+            "line": 479,
             "description": "Event triggered when Room session state has changed.",
             "itemtype": "event",
             "name": "sessionState",
@@ -4992,7 +5016,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 485,
+            "line": 491,
             "description": "Event triggered when there are exceptions thrown in this event handlers.",
             "itemtype": "event",
             "name": "domError",
@@ -5008,7 +5032,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 493,
+            "line": 499,
             "description": "Function to subscribe to an event.",
             "itemtype": "method",
             "name": "on",
@@ -5029,7 +5053,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 503,
+            "line": 509,
             "description": "Function to subscribe to an event once.",
             "itemtype": "method",
             "name": "once",
@@ -5062,7 +5086,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 520,
+            "line": 526,
             "description": "Function to unsubscribe to events.",
             "itemtype": "method",
             "name": "off",
@@ -5085,7 +5109,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 553,
+            "line": 559,
             "description": "The Room SM protocol version supports.",
             "itemtype": "attribute",
             "name": "SM_PROTOCOL_VERSION",
@@ -5097,7 +5121,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 564,
+            "line": 570,
             "description": "The Room DT protocol version supports.",
             "itemtype": "attribute",
             "name": "DT_PROTOCOL_VERSION",
@@ -5109,7 +5133,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 577,
+            "line": 583,
             "description": "The enum of Room authentication states, in which is used to validate the App Key ID before starting a session.",
             "itemtype": "attribute",
             "name": "AUTH_STATE_ENUM",
@@ -5138,7 +5162,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 595,
+            "line": 601,
             "description": "The enum of Room authentication error codes.",
             "itemtype": "attribute",
             "name": "AUTH_ERROR_CODE_ENUM",
@@ -5212,7 +5236,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 638,
+            "line": 644,
             "description": "The enum of Room connection session states.",
             "itemtype": "attribute",
             "name": "SESSION_STATE_ENUM",
@@ -5256,7 +5280,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 664,
+            "line": 670,
             "description": "The enum of Room connection session error codes.",
             "itemtype": "attribute",
             "name": "SESSION_ERROR_ENUM",
@@ -5325,7 +5349,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 707,
+            "line": 713,
             "description": "Function to get and check the connection availability.",
             "itemtype": "method",
             "name": "getConnectionAvailability",
@@ -5340,7 +5364,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 718,
+            "line": 724,
             "description": "Function to start initialising Room dependencies.",
             "itemtype": "method",
             "name": "init",
@@ -5365,7 +5389,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 822,
+            "line": 828,
             "description": "Function to start Room session connection.",
             "itemtype": "method",
             "name": "connect",
@@ -5460,19 +5484,19 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 878,
+            "line": 884,
             "description": "Internal function to update and trigger state.",
             "class": "Room"
         },
         {
             "file": "source/components/room.js",
-            "line": 906,
+            "line": 912,
             "description": "Internal function to load XHR response.",
             "class": "Room"
         },
         {
             "file": "source/components/room.js",
-            "line": 981,
+            "line": 987,
             "description": "Function to update the default stream or self Peer data.",
             "itemtype": "method",
             "name": "update",
@@ -5486,43 +5510,43 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 1043,
+            "line": 1049,
             "description": "Function to handle SM protocol for sending direction.",
             "class": "Room"
         },
         {
             "file": "source/components/room.js",
-            "line": 1053,
+            "line": 1059,
             "description": "\"joinRoom\" - Connects to the Room.",
             "class": "Room"
         },
         {
             "file": "source/components/room.js",
-            "line": 1069,
+            "line": 1075,
             "description": "\"enter\" - Broadcasts to existing Peers in the Room we exist.\n\"welcome\" - Respond to Peer who sent \"enter\" about who we are.\n\"restart\" - Re-negotiation request.",
             "class": "Room"
         },
         {
             "file": "source/components/room.js",
-            "line": 1080,
+            "line": 1086,
             "description": "Function to handle SM protocol for receiving direction.",
             "class": "Room"
         },
         {
             "file": "source/components/room.js",
-            "line": 1089,
+            "line": 1095,
             "description": "SM protocol: \"joinRoom\"",
             "class": "Room"
         },
         {
             "file": "source/components/room.js",
-            "line": 1097,
+            "line": 1103,
             "description": "SM protocol: \"inRoom\"",
             "class": "Room"
         },
         {
             "file": "source/components/room.js",
-            "line": 1110,
+            "line": 1116,
             "description": "SM protocol: \"enter\"",
             "class": "Room"
         },
@@ -5748,47 +5772,47 @@
                     "type": "String"
                 },
                 {
-                    "name": "CONNECT",
+                    "name": "CONNECTED",
                     "description": "The state when connected.\n- Value: `\"connect\"`",
                     "type": "String"
                 },
                 {
-                    "name": "CONNECT_ERROR",
+                    "name": "CONNECTION_ERROR",
                     "description": "The state when connection failed or timed out for current port and transport pair.\n- Value: `\"connect_error\"`\n- Reconnections will be attempted if configured, else it would switch to the next available pair.",
                     "type": "String"
                 },
                 {
-                    "name": "CONNECT_START_ERROR",
-                    "description": "The state when constructing connection has errors for the current port and transport pair.\n- Value: `\"connect_start_error\"`\n- Reconnections will not be attempted even if configured, and it would switch to the next available pair.",
+                    "name": "CONSTRUCT_ERROR",
+                    "description": "The state when constructing connection has errors for the current port and transport pair.\n- Value: `\"start_error\"`\n- Reconnections will not be attempted even if configured, and it would switch to the next available pair.",
                     "type": "String"
                 },
                 {
-                    "name": "RECONNECT_ATTEMPT",
+                    "name": "RECONNECTION_ATTEMPT",
                     "description": "The state when starting a reconnection attempt for the current port and transport pair.\n- Value: `\"reconnect_attempt\"`",
                     "type": "String"
                 },
                 {
-                    "name": "RECONNECT_ERROR",
+                    "name": "RECONNECTION_ERROR",
                     "description": "The state when a reconnection attempt failed.\n- Value: `\"reconnect_error\"`",
                     "type": "String"
                 },
                 {
-                    "name": "RECONNECT",
+                    "name": "RECONNECTED",
                     "description": "The state when reconnected after some reconnection attempts.\n- Value: `\"reconnect\"`",
                     "type": "String"
                 },
                 {
-                    "name": "RECONNECT_FAILED",
+                    "name": "RECONNECTION_FAILED",
                     "description": "The state when all reconnection attempts failed for the current port and transport pair.\n- Value: `\"reconnect_failed\"`",
                     "type": "String"
                 },
                 {
-                    "name": "DISCONNECT",
+                    "name": "DISCONNECTED",
                     "description": "The state when disconnected.\n- Value: `\"disconnect\"`",
                     "type": "String"
                 },
                 {
-                    "name": "TERMINATE",
+                    "name": "TERMINATED",
                     "description": "The state when there is no more port and transport pairs to start connection and\n  fallback for the next available pair attempts are aborted.\n- Value: `\"terminate\"`",
                     "type": "String"
                 },
@@ -16915,7 +16939,7 @@
         },
         {
             "message": "param name/type/descript missing",
-            "line": " source/components/room.js:342"
+            "line": " source/components/room.js:348"
         },
         {
             "message": "unknown tag: typedef",
@@ -17183,39 +17207,39 @@
         },
         {
             "message": "Missing item type\nInternal function to update and trigger state.",
-            "line": " source/components/room.js:878"
+            "line": " source/components/room.js:884"
         },
         {
             "message": "Missing item type\nInternal function to load XHR response.",
-            "line": " source/components/room.js:906"
+            "line": " source/components/room.js:912"
         },
         {
             "message": "Missing item type\nFunction to handle SM protocol for sending direction.",
-            "line": " source/components/room.js:1043"
+            "line": " source/components/room.js:1049"
         },
         {
             "message": "Missing item type\n\"joinRoom\" - Connects to the Room.",
-            "line": " source/components/room.js:1053"
+            "line": " source/components/room.js:1059"
         },
         {
             "message": "Missing item type\n\"enter\" - Broadcasts to existing Peers in the Room we exist.\n\"welcome\" - Respond to Peer who sent \"enter\" about who we are.\n\"restart\" - Re-negotiation request.",
-            "line": " source/components/room.js:1069"
+            "line": " source/components/room.js:1075"
         },
         {
             "message": "Missing item type\nFunction to handle SM protocol for receiving direction.",
-            "line": " source/components/room.js:1080"
+            "line": " source/components/room.js:1086"
         },
         {
             "message": "Missing item type\nSM protocol: \"joinRoom\"",
-            "line": " source/components/room.js:1089"
+            "line": " source/components/room.js:1095"
         },
         {
             "message": "Missing item type\nSM protocol: \"inRoom\"",
-            "line": " source/components/room.js:1097"
+            "line": " source/components/room.js:1103"
         },
         {
             "message": "Missing item type\nSM protocol: \"enter\"",
-            "line": " source/components/room.js:1110"
+            "line": " source/components/room.js:1116"
         },
         {
             "message": "Missing item type\nEvent triggered when socket connection state has changed.",

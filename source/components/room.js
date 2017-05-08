@@ -2,23 +2,19 @@
  * Handles the client room connection session.
  * @class Temasys.Room
  * @param {JSON} options The options.
- * @param {String} options.appKey The App key ID.
- * @param {String} [options.name] The Room name in App space.
- * - When not provided, the value of the App key ID is used.
- * @param {String} [componentId] The unique component ID to use for `Temasys.Debugger` module or as
- *   for object identification.
- * - Please ensure that this value is unique from other class objects.
+ * @param {String} options.appKey The app key ID.
+ * @param {String} [options.name] The room name.
+ * - When not provided, the value of `.appKey` is used.
  * @constructor
  * @example
- * // Example: Create a Room object
+ * // Example: Create a room object
  * var room = new Temasys.Room({
- *   appKey: myAppKey
+ *   appKey: "MY_APP_KEY_ID_VALUE_HERE"
  * });
- * 
  * room.connect();
  * @since 0.7.0
  */
-Temasys.Room = function (options, componentId) {
+Temasys.Room = function (options) {
   var ref = this;
   // The event manager
   ref._eventManager = Temasys.Utils.createEventManager();
@@ -97,6 +93,46 @@ Temasys.Room = function (options, componentId) {
    * @since 0.7.0
    */
 };
+
+/**
+ * The enum of room connection session states.
+ * @attribute SESSION_STATE_ENUM
+ * @param {Number} CHECKING The state when it is checking if client is eligible to start connection session.
+ * @param {Number} STARTING The state when attempting to start connection session.
+ * @param {Number} STARTED The state when session connection has started.
+ * @param {Number} WARNING The state when session connection is alerted that it may end.
+ * @param {Number} ENDING The state when session connection is going to end.
+ * @param {Number} ENDED The state when session connection has ended.
+ * @param {Number} REJECTED The state when session connection has been rejected.
+ * @param {Number} TERMINATED The state when session connection has been terminated.
+ * @param {Number} ERROR The state when session connection has failed to start due to failures.
+ * - Value: `-1`
+ */
+Temasys.Room.prototype.SESSION_STATE_ENUM = {
+  CHECKING: 0,
+  STARTING: 1,
+  STARTED: 2,
+  WARNING: 3,
+  ENDED: 4,
+  ERROR: -1
+};
+
+/**
+ * The enum of room connection session start errors.
+ * @attribute SESSION_STATE_ENUM
+ * @param {Number} CHECKING The state when it is checking if client is eligible to start connection session.
+ * - Value: `0`
+ * @param {Number} STARTING The state when attempting to start connection session.
+ * - Value: `1`
+ * @param {Number} STARTED The state when session connection has started.
+ * - Value: `2`
+ * @param {Number} WARNING The state when session connection is alerted that it may end.
+ * - Value: `3`
+ * @param {Number} ENDED The state when session connection has ended.
+ * - Value: `4`
+ * @param {Number} ERROR The state when session connection has failed to start due to failures.
+ * - Value: `-1`
+ */
 
 /**
  * The enum of invoked `init()` method states.
