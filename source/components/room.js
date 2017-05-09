@@ -47,57 +47,87 @@ Temasys.Room = function (options) {
   ref._config.name = options.name && typeof options.name === 'string' ? options.name : options.appKey;
 
   /**
-   * Function to subscribe a callback function to an event once.
-   * - Parameters follows `.once()` method in returned object of `Temasys.Utils.createEventManager()` method.
-   * @method once
-   * @for Temasys.Room
-   * @since 0.7.0
-   */
-  ref.once = ref._eventManager.once;
+    * Function to subscribe to an event.
+    * @method on
+    * @param {String} eventName The event name.
+    * @param {Function} fn The callback function called when event is emitted.
+    * @example
+    * // Example: Subscribe to an event
+    * socket.on("activeStateChange", function (state, latency) {
+    *   console.log("active state ->", state);
+    * });
+    * @for Temasys.Socket
+    * @since 0.7.0
+    */
+   ref.on = ref._eventManager.on;
+
+   /**
+    * Function to subscribe to an event once.
+    * @method once
+    * @param {String} eventName The event name.
+    * @param {Function} fn The callback function called once when event is emitted, or after when condition is met.
+    * @param {Function} [fnCondition] The conditional function called each time event is emitted.
+    * - Return `true` to satisfy condition.
+    * - When not provided, the default value is `function () { return true; }`.
+    * @param {Boolean} [forever] The flag if callback function should not be called only once but each time
+    *   condition is met.
+    * - When not provided, the default value is `false`.
+    * @example
+    * // Example 1: Subscribe to an event once when emitted
+    * socket.once("activeStateChange", function (state, latency) {
+    *   console.log("active state ->", state);
+    * });
+    *
+    * // Example 2: Subscribe to an event that is emited once the condition is met
+    * socket.once("connectionStateChange", function (state) {
+    *   console.info("connected"); 
+    * }, function (state) {
+    *   return ["connect", "reconnect"].indexOf(state) > -1;
+    * });
+    *
+    * // Example 3: Subscribe to an event that is emited always once the condition is met
+    * socket.once("activeStateChange", function (state, latency) {
+    *   console.info("pong latency ->", latency); 
+    * }, function (state) {
+    *   return state === 'pong';
+    * }, true);
+    * @for Temasys.Socket
+    * @since 0.7.0
+    */
+   ref.once = ref._eventManager.once;
+
+   /**
+    * Function to unsubscribe to an event.
+    * @method off
+    * @param {String} [eventName] The event name to unsubscribe to.
+    * - When not provided, all events callback functions.
+    * @param {Function} [fn] The callback function to unsubscribe.
+    * - When not provided, all the event callback functions.
+    * @example
+    * // Example 1: Unsubscribe to all events
+    * socket.off();
+    *
+    * // Example 2: Unsubscribe "activeStateChange" event
+    * socket.once("activeStateChange");
+    *
+    * // Example 3: Unsubscribe to a single callback function for "activeStateChange" event
+    * var fn = function () {};
+    * socket.on("activeStateChange", fn);
+    * socket.off("activeStateChange", fn);
+    * @for Temasys.Socket
+    * @since 0.7.0
+    */
+   ref.off = ref._eventManager.off;
 
   /**
-   * Function to subscribe a callback function to an event.
-   * - Parameters follows `.on()` method in returned object of `Temasys.Utils.createEventManager()` method.
-   * @method on
-   * @for Temasys.Room
-   * @since 0.7.0
-   */
-  ref.on = ref._eventManager.on;
-
-  /**
-   * Function to unsubscribe a callback function to an event.
-   * - Parameters follows `.off()` method in returned object of `Temasys.Utils.createEventManager()` method.
-   * @method off
-   * @for Temasys.Room
-   * @since 0.7.0
-   */
-  ref.off = ref._eventManager.off;
-
-  if (!(typeof options.initTimeout === 'number' && options.initTimeout === -1)) {
-    setTimeout(function () {
-      ref.init();
-    }, typeof options.initTimeout === 'number' ? options.initTimeout : 1000);
-  }
-
-  /**
-   * Event triggered when invoked `init()` method state has changed.
-   * @event initStateChange
-   * @param {Number} state The current state.
-   * - This references the `INIT_STATE_ENUM` constant.
-   * @param {JSON} [error] The error result.
-   * - This is only defined when `state` is `INIT_STATE_ENUM.ERROR`.
-   * @param {Error} [error.error] The error object.
-   * @param {Number} [error.code] The error code.
-   * - This references the `INIT_ERROR_CODE_ENUM` constant.
-   * @for Temasys.Room
-   * @since 0.7.0
+   * 
    */
 };
 
 /**
  * The enum of room connection session states.
  * @attribute SESSION_STATE_ENUM
- * @param {Number} CHECKING The state when it is checking if client is eligible to start connection session.
+ * @param {Number} INIT The state when it is checking if client is eligible to start connection session.
  * @param {Number} STARTING The state when attempting to start connection session.
  * @param {Number} STARTED The state when session connection has started.
  * @param {Number} WARNING The state when session connection is alerted that it may end.
@@ -116,6 +146,47 @@ Temasys.Room.prototype.SESSION_STATE_ENUM = {
   ENDED: 4,
   ERROR: -1
 };
+
+/**
+ * The enum of room connection session codes.
+ * 
+ * NO_SOCKET_IO: 1,
+  NO_XMLHTTPREQUEST_SUPPORT: 2,
+  NO_WEBRTC_SUPPORT: 3,
+  PLUGIN_NOT_AVAILABLE: 4,
+  ADAPTER_NO_LOADED: 7,
+  PARSE_CODECS: 8,
+  WEBRTC_MIN_SUPPORTS_ERROR: 9
+
+  ????
+  API_INVALID: 4001,
+  API_DOMAIN_NOT_MATCH: 4002,
+  API_CORS_DOMAIN_NOT_MATCH: 4003,
+  API_CREDENTIALS_INVALID: 4004,
+  API_CREDENTIALS_NOT_MATCH: 4005,
+  API_INVALID_PARENT_KEY: 4006,
+  API_NO_MEETING_RECORD_FOUND: 4010,
+  API_OVER_SEAT_LIMIT: 4020,
+  API_RETRIEVAL_FAILED: 4021,
+  API_WRONG_ACCESS_DOMAIN: 5005,
+  ????
+
+  AUTH_FAILED
+
+  AUTH_FAILED: 403,
+
+ * CREDENTIALS_EXPIRED: 'oldTimeStamp',
+  CREDENTIALS_ERROR: 'credentialError',
+  DUPLICATED_LOGIN: 'duplicatedLogin',
+  ROOM_NOT_STARTED: 'notStart',
+  EXPIRED: 'expired',
+  ROOM_LOCKED: 'locked',
+  FAST_MESSAGE: 'fastmsg',
+  ROOM_CLOSING: 'toclose',
+  ROOM_CLOSED: 'roomclose',
+  SERVER_ERROR: 'serverError',
+  KEY_ERROR: 'keyFailed'
+ */
 
 /**
  * The enum of room connection session start errors.
