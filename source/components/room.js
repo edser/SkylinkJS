@@ -1,20 +1,17 @@
 /**
  * Handles the client room connection session.
  * @class Temasys.Room
- * @param {JSON} options The options.
- * @param {String} options.appKey The app key ID.
- * @param {String} [options.name] The room name.
- * - When not provided, the value of `.appKey` is used.
  * @constructor
  * @example
  * // Example: Create a room object
- * var room = new Temasys.Room({
- *   appKey: "MY_APP_KEY_ID_VALUE_HERE"
+ * var room = new Temasys.Room();
+ * room.connect({
+ *   appKey: "MY_APP_KEY_ID_VALUE_HERE",
+ *   name: "test"
  * });
- * room.connect();
  * @since 0.7.0
  */
-Temasys.Room = function (options) {
+Temasys.Room = function () {
   var ref = this;
   // The event manager
   ref._eventManager = Temasys.Utils.createEventManager();
@@ -53,10 +50,10 @@ Temasys.Room = function (options) {
     * @param {Function} fn The callback function called when event is emitted.
     * @example
     * // Example: Subscribe to an event
-    * socket.on("activeStateChange", function (state, latency) {
+    * room.on("sessionStateChange", function (state, latency) {
     *   console.log("active state ->", state);
     * });
-    * @for Temasys.Socket
+    * @for Temasys.Room
     * @since 0.7.0
     */
    ref.on = ref._eventManager.on;
@@ -74,7 +71,7 @@ Temasys.Room = function (options) {
     * - When not provided, the default value is `false`.
     * @example
     * // Example 1: Subscribe to an event once when emitted
-    * socket.once("activeStateChange", function (state, latency) {
+    * room.once("sessionStateChange", function (state, latency) {
     *   console.log("active state ->", state);
     * });
     *
@@ -91,7 +88,7 @@ Temasys.Room = function (options) {
     * }, function (state) {
     *   return state === 'pong';
     * }, true);
-    * @for Temasys.Socket
+    * @for Temasys.Room
     * @since 0.7.0
     */
    ref.once = ref._eventManager.once;
@@ -114,103 +111,47 @@ Temasys.Room = function (options) {
     * var fn = function () {};
     * socket.on("activeStateChange", fn);
     * socket.off("activeStateChange", fn);
-    * @for Temasys.Socket
+    * @for Temasys.Room
     * @since 0.7.0
     */
    ref.off = ref._eventManager.off;
 
-  /**
-   * 
-   */
+   /**
+    * Event triggered when room connection session state has changed.
+    * @event sessionStateChange
+    * @param {String} state The connection session state.
+    * - Reference [`SESSION_STATE_ENUM` constant](#docs+Temasys.Room+constants+SESSION_STATE_ENUM) for the list of available states.
+    * @param {JSON} [errorContent] The error information if any.
+    * @param {Error} errorContent.error The error object.
+    * @param {String} errorContent.code The error code.
+    * - Reference [`SESSION_ERROR_ENUM` constant](#docs+Temasys.Room+constants+SESSION_ERROR_ENUM) for the list of available codes.
+    * @for Temasys.Room
+    * @since 0.7.0
+    */
 };
 
 /**
  * The enum of room connection session states.
  * @attribute SESSION_STATE_ENUM
- * @param {Number} INIT The state when it is checking if client is eligible to start connection session.
- * @param {Number} STARTING The state when attempting to start connection session.
- * @param {Number} STARTED The state when session connection has started.
- * @param {Number} WARNING The state when session connection is alerted that it may end.
- * @param {Number} ENDING The state when session connection is going to end.
- * @param {Number} ENDED The state when session connection has ended.
- * @param {Number} REJECTED The state when session connection has been rejected.
- * @param {Number} TERMINATED The state when session connection has been terminated.
- * @param {Number} ERROR The state when session connection has failed to start due to failures.
- * - Value: `-1`
- */
-Temasys.Room.prototype.SESSION_STATE_ENUM = {
-  CHECKING: 0,
-  STARTING: 1,
-  STARTED: 2,
-  WARNING: 3,
-  ENDED: 4,
-  ERROR: -1
-};
-
-/**
- * The enum of room connection session codes.
- * 
- * NO_SOCKET_IO: 1,
-  NO_XMLHTTPREQUEST_SUPPORT: 2,
-  NO_WEBRTC_SUPPORT: 3,
-  PLUGIN_NOT_AVAILABLE: 4,
-  ADAPTER_NO_LOADED: 7,
-  PARSE_CODECS: 8,
-  WEBRTC_MIN_SUPPORTS_ERROR: 9
-
-  ????
-  API_INVALID: 4001,
-  API_DOMAIN_NOT_MATCH: 4002,
-  API_CORS_DOMAIN_NOT_MATCH: 4003,
-  API_CREDENTIALS_INVALID: 4004,
-  API_CREDENTIALS_NOT_MATCH: 4005,
-  API_INVALID_PARENT_KEY: 4006,
-  API_NO_MEETING_RECORD_FOUND: 4010,
-  API_OVER_SEAT_LIMIT: 4020,
-  API_RETRIEVAL_FAILED: 4021,
-  API_WRONG_ACCESS_DOMAIN: 5005,
-  ????
-
-  AUTH_FAILED
-
-  AUTH_FAILED: 403,
-
- * CREDENTIALS_EXPIRED: 'oldTimeStamp',
-  CREDENTIALS_ERROR: 'credentialError',
-  DUPLICATED_LOGIN: 'duplicatedLogin',
-  ROOM_NOT_STARTED: 'notStart',
-  EXPIRED: 'expired',
-  ROOM_LOCKED: 'locked',
-  FAST_MESSAGE: 'fastmsg',
-  ROOM_CLOSING: 'toclose',
-  ROOM_CLOSED: 'roomclose',
-  SERVER_ERROR: 'serverError',
-  KEY_ERROR: 'keyFailed'
- */
-
-/**
- * The enum of room connection session start errors.
- * @attribute SESSION_STATE_ENUM
- * @param {Number} CHECKING The state when it is checking if client is eligible to start connection session.
- * - Value: `0`
- * @param {Number} STARTING The state when attempting to start connection session.
- * - Value: `1`
- * @param {Number} STARTED The state when session connection has started.
- * - Value: `2`
- * @param {Number} WARNING The state when session connection is alerted that it may end.
- * - Value: `3`
- * @param {Number} ENDED The state when session connection has ended.
- * - Value: `4`
- * @param {Number} ERROR The state when session connection has failed to start due to failures.
- * - Value: `-1`
- */
-
-/**
- * The enum of invoked `init()` method states.
- * @attribute INIT_STATE_ENUM
- * @param {Number} LOADING The state when starting dependencies and supports requirements checks.
- * @param {Number} COMPLETED The state when dependencies and supports requirements have been checked and initialised.
- * @param {Number} ERROR The state when required dependencies or supports is missing, or initialisation has errors.
+ * @param {String} STARTING The state when attempting to start connection session.
+ * - Value: `"starting"`
+ * @param {String} STARTED The state when connection session has started.
+ * - Value: `"started"`
+ * @param {String} ENDING The state when connection session is ending soon, of which in about 5 minutes.
+ * - Value: `"ending"`
+ * - When `state` parameter is this value in [`sessionStateChange` event](#docs+Temasys.Room+events+sessionStateChange
+ *   ), the `errorContent` parameter is defined.
+ * @param {String} ENDED The state when connection session has ended.
+ * - Value: `"ended"`
+ * @param {String} ERROR The state when connection session failed to start.
+ * - Value: `"error"`
+ * - When `state` parameter is this value in [`sessionStateChange` event](#docs+Temasys.Room+events+sessionStateChange
+ *   ), the `errorContent` parameter is defined.
+ * @param {String} WARNING The state when connection session is potentially suspicious and
+ *   signaling server might potentially terminate the client's connection session.
+ * - Value: `"warning"`
+ * - When `state` parameter is this value in [`sessionStateChange` event](#docs+Temasys.Room+events+sessionStateChange
+ *   ), the `errorContent` parameter is defined.
  * @type JSON
  * @readOnly
  * @final
@@ -218,138 +159,150 @@ Temasys.Room.prototype.SESSION_STATE_ENUM = {
  * @since 0.7.0
  */
 Temasys.Room.prototype.SESSION_STATE_ENUM = {
-  // Brought over values from Skylink object READY_STATE_CHANGE
-  LOADING: 0,
-  COMPLETED: 1,
-  ERROR: -1
+  STARTING: 'starting',
+  STARTED: 'started',
+  ENDING: 'ending',
+  ENDED: 'ended',
+  ERROR: 'error',
+  WARNING: 'warning'
 };
 
 /**
- * The enum of Room dependency initialising error codes.
- * @attribute INIT_ERROR_CODE_ENUM
- * @param {Number} MISSING_SOCKETIO The error code when required socket.io-client dependency is not loaded.
- * @param {Number} MISSING_ADAPTERJS The error code when required AdapterJS dependency is not loaded.
- * @param {Number} XMLHTTPREQUEST_NOT_AVAILABLE The error code when XMLHttpRequest (or
- *   XDomainRequest for IE 8-9) API is not available when required.
- * @param {Number} WEBRTC_NOT_AVAILABLE The error code when WebRTC is not supported for browser or device.
- * - This state should only happen if `options.requireWebRTC` is enabled when constructing `Temasys.Room` object.
- * @param {Number} PLUGIN_NOT_AVAILABLE The error code when WebRTC plugin is not available
- *   (or inactive) when required.
- * - This state should only happen if `options.requireWebRTC` is enabled when constructing `Temasys.Room` object.
- * @param {Number} PARSE_SUPPORTS_ERROR The error code when retrieving of WebRTC supports fails
- *   hence initialisation fails.
- * - This state should only happen if `options.requireWebRTC` is enabled when constructing `Temasys.Room` object.
- * @param {Number} WEBRTC_MIN_SUPPORTS_ERROR The error code when browser version is lower than required
- *   minimum support.
- * - This state should only happen if `options.requireWebRTC` is enabled when constructing `Temasys.Room` object.
+ * The enum of room connection session error codes.
+ * @attribute SESSION_ERROR_ENUM
+ * @param {String} MISSING_SOCKETIO The code when socket.io-client dependency is not loaded.
+ * - Value: `"missing_io"`
+ * @param {String} MISSING_ADAPTERJS The code when AdapterJS dependency is not loaded.
+ * - Value: `"missing_adapterjs"`
+ * @param {String} NO_CORS_SUPPORT The code when support for cross-origin resource sharing (CORS) mechanism is not available when required.
+ * - Value: `"no_cors"`
+ * - Reference [CORS mechanism](https://en.wikipedia.org/wiki/Cross-origin_resource_sharing) for more information.
+ * @param {String} NO_WEBRTC_SUPPORT The code when support for WebRTC connections is not available when required.
+ * - Value: `"no_webrtc"`
+ * - Reference [WebRTC capabilties](https://webrtc.org/) for more information.
+ * - This error state should occur when WebRTC connections are required.
+ * @param {String} REQUIRE_CODECS The code when there are no codecs available to start WebRTC connections, which
+ *   may be a result of failing to parse the codecs.
+ * - Value: `"require_codecs"`
+ * - This error state should occur when WebRTC connections are required.
+ * @param {String} REQUIRE_MIN_VERSION The code when minimum version of the browser is required but not used.
+ * - Value: `"require_min_ver"`
+ * - This error state should occur when strict version requirements are required.
+ * @param {String} AUTH_FAILED The code when authentication of client's provided App key ID failed with auth server.
+ * - Value: `"auth_failed"
+ * @param {String} AUTH_TOKEN_EXPIRED The code when the token after aprovided from auth server has expired.
+ * - Value: `"oldTimeStamp"`
+ * @param {String} AUTH_TOKEN_INVALID The code when authentication token provided from auth server is invalid
+ * - Value: `"credentialError"`
+ * @param {String} AUTH_TOKEN_USED The code when authentication token provided from auth server has already been used.
+ * - Value: `"duplicatedLogin"
+ * @param {String} SESSION_NOT_STARTED The code when room connection session has not started yet.
+ * - Value: `"notStart"`
+ * @param {String} SESSION_EXPIRED The code when room connection session has already ended.
+ * - Value: `"expired"`
+ * @param {String} SESSION_LOCKED The code when room is locked, which prevent other clients from starting connection
+ *   session, and connection session cannot start.
+ * - Value: `"locked"`
+ * @param {String} SESSION_ENDING The code when room connection session is ending.
+ * - Value: `"toclose"`
+ * @param {String} RETRIEVE_CONFIG_FAILED The code when signaling server fails to retrieve ICE servers details.
+ * - Value: `"serverError"`
+ * @param {String} RETRIEVE_APP_FAILED The code when signaling server fails to retrieve the App settings.
+ * - Value: `"keyFailed"`
+ * @param {String} MESSAGE_SPAM The code when signaling server detects a flood of messages from client.
+ * - Value `"fastmsg"`
  * @type JSON
  * @readOnly
  * @final
  * @for Temasys.Room
  * @since 0.7.0
  */
-Temasys.Room.prototype.INIT_ERROR_CODE_ENUM = {
-  // Brought over values from Skylink object READY_STATE_CHANGE_ERROR
-  NO_SOCKET_IO: 1,
-  NO_XMLHTTPREQUEST_SUPPORT: 2,
-  NO_WEBRTC_SUPPORT: 3,
-  PLUGIN_NOT_AVAILABLE: 4,
-  ADAPTER_NO_LOADED: 7,
-  PARSE_CODECS: 8,
-  WEBRTC_MIN_SUPPORTS_ERROR: 9
+Temasys.Room.prototype.SESSION_ERROR_ENUM = {
+  MISSING_SOCKETIO: 'missing_io',
+  MISSING_ADAPTERJS: 'missing_adapterjs',
+  NO_CORS_SUPPORT: 'no_cors',
+  NO_WEBRTC_SUPPORT: 'no_webrtc',
+  REQUIRE_CODECS: 'require_codecs',
+  REQUIRE_MIN_VERSION: 'require_min_ver',
+  AUTH_FAILED: 'auth_failed',
+  AUTH_TOKEN_EXPIRED: 'oldTimeStamp',
+  AUTH_TOKEN_INVALID: 'credentialError',
+  AUTH_TOKEN_USED: 'duplicatedLogin',
+  SESSION_NOT_STARTED: 'notStart',
+  SESSION_EXPIRED: 'expired',
+  SESSION_LOCKED: 'locked',
+  SESSION_ENDING: 'toclose',
+  // SESSION_ENDED: 'roomclose',
+  RETRIEVE_CONFIG_FAILED: 'serverError',
+  RETRIEVE_APP_FAILED: 'keyFailed',
+  MESSAGE_SPAM: 'fastmsg'
 };
 
 /**
- * Function to initialise dependencies and check for supports.
- * @method init
- * @param {Number} [options.initTimeout=1000] The timeout to wait before `Temasys.Room.init()` method
- *   should be invoked when `Temasys.Room` object is constructed.
- * - When provided as `-1`, the `Temasys.Room.init()` method will not be invoked, and the method has
- *   to be invoked first by app first before invoking `Temasys.Room.connect()` method.
- * @param {Boolean} [options.requireWebRTC=true] The flag if client requires WebRTC to be supported in
- *   order to start a Room connection session.
- }
- * @param {Promise} return The promise for request completion.
- * @return {Promise}
+ * Function to start connection session.
+ * @method connect
+ * @param {JSON} [options] The options.
+ * @param {String} [options.server] The auth server.
+ * - Examples: `"api.temasys.io"`
+ * - When not provided, the default value is `"api.temasys.io"`.
+ * @param {String} options.appKey The app key ID.
+ * - Examples: `"xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"`
+ * @param {String} [options.name] The room name.
+ * - Examples: `"a123"`, `"test"`, `Date.now().toString()`
+ * - When not provided, the value of `.appKey` is used.
+ * @param {JSON} [options.hash] The options for hash authentication.
+ * - When not provided, the CORS authentication is used.
+ * @param {String} options.hash.start The starting Date timestamp (ISO-8601 format) for connection session.
+ * - Examples: `"2017-05-09T10:50:30.843Z"`
+ * @param {String} options.hash.duration The starting Date timestamp (ISO-8601 format) for connection session.
+ * - Range: above `0` - `24`
+ * - Examples: `0.005`, `2`, `5`
+ * @param {String} options.hash.output The output generated hash that is derived from provided `.duration` and `.start`.
+ * - Examples: `encodeURIComponent(CryptoJS.HmacSHA1(options.room + '_' + options.hash.duration + '_' + options.hash.start, appKeySecret).toString(CryptoJS.enc.Base64));`
+ * - Reference the [CryptoJS library](https://github.com/brix/crypto-js) (which is recommended) for more information.
+ * - Note that it is required that provided values of `.start` and `.duration` matches the `.output` provided.
+ * @param {JSON} [options.user] The client session settings.
+ * @param {String|JSON} [options.user.data] The client custom data for identification.
+ * - Examples: `"userA"`, `{ userId: "xxx", name: "xxx" }` 
  * @for Temasys.Room
  * @since 0.7.0
  */
-Temasys.Room.prototype.init = function (options) {
+Temasys.Room.prototype.connect = function (options) {
   var ref = this;
-
-  var fnEmitInitState = function (state, error) {
-    log.debug(['Room', ref._config.name, null, null, 'Init state ->'], state, error || null);
-    ref._states.init = state;
-    ref._eventManager.emit('initStateChange', state, error || null);
-    return error || null;
-  };
-
-  ref._supports = {
-    webrtc: false,
-    codecs: {
-      audio: {},
-      video: {}
-    }
-  };
-
-  return new Promise(function (resolve, reject) {
-    // Check for socket.io-client supports
-    if (!(_globals.io || window.io)) {
-      return reject(fnEmitInitState(ref.INIT_STATE_ENUM.ERROR, {
-        error: new Error('init(): socket.io-client dependency is not loaded'),
-        code: ref.INIT_ERROR_CODE_ENUM.MISSING_SOCKETIO
-      }));
-    }
-
-    // Check for AdapterJS supports
-    if (!(_globals.AdapterJS || window.AdapterJS)) {
-      return reject(fnEmitInitState(ref.INIT_STATE_ENUM.ERROR, {
-        error: new Error('init(): AdapterJS dependency is not loaded'),
-        code: ref.INIT_ERROR_CODE_ENUM.MISSING_ADAPTERJS
-      }));
-    }
-
-    // Check for XMLHttpRequest API supports
-    if (!(window.webrtcDetectedBrowser === 'IE' && [8,9].indexOf(window.webrtcDetectedVersion) > -1 ?
-      ['object', 'function'].indexOf(typeof window.XDomainRequest) > -1 :
-      typeof window.XMLHttpRequest === 'function')) {
-      return reject(fnEmitInitState(ref.INIT_STATE_ENUM.ERROR, {
-        error: new Error('init(): XMLHttpRequest (or XDomainRequest for IE 8-9) API is not available'),
-        code: ref.INIT_ERROR_CODE_ENUM.XMLHTTPREQUEST_NOT_AVAILABLE
-      }));
-    }
-
-    (_globals.AdapterJS || window.AdapterJS).webRTCReady(function () {
-      if (!window.RTCPeerConnection && ref._config.requireWebRTC) {
-        return reject(fnEmitInitState(ref.INIT_STATE_ENUM.ERROR, {
-          error: new Error('init(): WebRTC is not supported or available when requested'),
-          code: ref.INIT_ERROR_CODE_ENUM.WEBRTC_NOT_AVAILABLE
-        }));
-      }
-
-      if (window.RTCPeerConnection) {
-        // Check if plugin is active and available
-        if (['IE', 'safari'].indexOf(window.webrtcDetectedBrowser) > -1) {
-          try {
-            var pc = new window.RTCPeerConnection(null);
-            // IE returns as typeof object
-            ref._supports.webrtc = pc.createOffer !== null &&
-              ['object', 'function'].indexOf(typeof pc.createOffer) > -1;
-
-            if (ref._config.requireWebRTC) {
-              return reject(fnEmitInitState(ref.INIT_STATE_ENUM.ERROR, {
-                error: new Error('init(): WebRTC plugin is not available or active'),
-                code: ref.INIT_ERROR_CODE_ENUM.PLUGIN_NOT_AVAILABLE
-              }));
-            }
-          } catch (e) {}
-        }
-      }
-
-
-    });
-  });
 };
+
+/**
+ * Function to lock or unlock room.
+ * @method lock
+ * @param {Boolean} [lock] The flag if room should be locked.
+ * - When not provided, the default value is `false`.
+ * @for Temasys.Room
+ * @since 0.7.0
+ */
+Temasys.Room.prototype.lock = function (lock) {
+};
+
+/**
+ * The Room SM protocol version supports.
+ * @attribute SM_PROTOCOL_VERSION
+ * @type String
+ * @readOnly
+ * @final
+ * @for Temasys.Room
+ * @since 0.7.0
+ */
+Temasys.Room.prototype.SM_PROTOCOL_VERSION = '0.1.2.4';
+
+/**
+ * The Room DT protocol version supports.
+ * @attribute DT_PROTOCOL_VERSION
+ * @type String
+ * @readOnly
+ * @final
+ * @for Temasys.Room
+ * @since 0.7.0
+ */
+Temasys.Room.prototype.DT_PROTOCOL_VERSION = '0.1.3';
 
   /**
    * The Room ID.
@@ -589,13 +542,6 @@ Temasys.Room.prototype.init = function (options) {
    * @for Room
    * @since 0.7.0
    */
-  /**
-   * Event triggered when there are exceptions thrown in this event handlers.
-   * @event domError
-   * @param {Error} error The error object.
-   * @for Socket
-   * @since 0.7.0
-   */
   (function (ref) {
     /**
      * Function to subscribe to an event.
@@ -657,159 +603,8 @@ Temasys.Room.prototype.init = function (options) {
   }
 };
 
-/**
- * The Room SM protocol version supports.
- * @attribute SM_PROTOCOL_VERSION
- * @type String
- * @readOnly
- * @final
- * @for Room
- * @since 0.7.0
- */
-Temasys.Room.prototype.SM_PROTOCOL_VERSION = '0.1.2.3';
-
-/**
- * The Room DT protocol version supports.
- * @attribute DT_PROTOCOL_VERSION
- * @type String
- * @readOnly
- * @final
- * @for Room
- * @since 0.7.0
- */
-Room.prototype.DT_PROTOCOL_VERSION = '0.1.3';
 
 
-
-/**
- * The enum of Room authentication states, in which is used to validate the App Key ID before starting a session.
- * @attribute AUTH_STATE_ENUM
- * @param {Number} LOADING The state when Room is authenticating.
- * @param {Number} COMPLETED The state when Room has been authenticated successfully.
- * @param {Number} ERROR The state when Room failed to authenticate.
- * @type JSON
- * @readOnly
- * @final
- * @for Room
- * @since 0.7.0
- */
-Room.prototype.AUTH_STATE_ENUM = {
-  LOADING: 1,
-  COMPLETED: 2,
-  ERROR: -1
-};
-
-/**
- * The enum of Room authentication error codes.
- * @attribute AUTH_ERROR_CODE_ENUM
- * @param {Number} API_INVALID The error code when configured App Key does not exists.
- * @param {Number} API_DOMAIN_NOT_MATCH The error code when App Key `"domainName"` setting does not
- *   match accessing server IP address.
- * @param {Number} API_CORS_DOMAIN_NOT_MATCH The error code when App Key `"corsurl"` setting does not
- *   match app accessing CORS.
- * @param {Number} API_CREDENTIALS_INVALID The error code when there is no CORS present in the
- *   HTTP headers when required.
- * @param {Number} API_CREDENTIALS_NOT_MATCH The error code when `.authCreds.hash` does not match
- *   the Auth (API) server generated hash as part of authentication.
- * @param {Number} API_INVALID_PARENT_KEY The error code when configured App Key does not belong to any active Apps.
- * @param {Number} API_NO_MEETING_RECORD_FOUND The error code when persistent Room enabled App Key does not
- *   have any matching scheduled meetings as matched from the `.authCreds` setting.
- * @param {Number} API_OVER_SEAT_LIMIT The error code when App Key has reached its concurrent users limit.
- * @param {Number} API_RETRIEVAL_FAILED The error code when App Key encounters server errors during retrieval.
- * @param {Number} API_WRONG_ACCESS_DOMAIN The error code when `.server` is using
- *  `"https://developer.temasys.com.sg"` domain to authenticate App Key.
- * @param {Number} XML_HTTP_REQUEST_ERROR The error code when HTTP request failed to receive expected response.
- * @param {Number} NOT_INIT The error code when {{#crossLink "Room/init:method"}}{{/crossLink}} is not called
- *   before attempting {{#crossLink "Room/connect:method"}}{{/crossLink}} method.
- * @type JSON
- * @readOnly
- * @final
- * @for Room
- * @since 0.7.0
- */
-Room.prototype.AUTH_ERROR_CODE_ENUM = {
-  API_INVALID: 4001,
-  API_DOMAIN_NOT_MATCH: 4002,
-  API_CORS_DOMAIN_NOT_MATCH: 4003,
-  API_CREDENTIALS_INVALID: 4004,
-  API_CREDENTIALS_NOT_MATCH: 4005,
-  API_INVALID_PARENT_KEY: 4006,
-  API_NO_MEETING_RECORD_FOUND: 4010,
-  API_OVER_SEAT_LIMIT: 4020,
-  API_RETRIEVAL_FAILED: 4021,
-  API_WRONG_ACCESS_DOMAIN: 5005,
-  XML_HTTP_REQUEST_ERROR: -1,
-  NOT_INIT: -2
-};
-
-/**
- * The enum of Room connection session states.
- * @attribute SESSION_STATE_ENUM
- * @param {String} CONNECTING The state when Room connection session is attempting to start.
- * @param {String} CONNECT The state when Room connection session has started.
- * @param {String} REJECT The state when Room connection session was terminated from server.
- * @param {String} WARNING The state when Room connection session is warned which might result in
- *   `REJECT` state if not closely followed.
- * @param {String} DISCONNECT The state when Room connection session has ended.
- * @param {String} CONNECT_ERROR The state when Room connection session failed to start due
- *   to socket connection errors.
- * @type JSON
- * @readOnly
- * @final
- * @for Room
- * @since 0.7.0
- */
-Room.prototype.SESSION_STATE_ENUM = {
-  CONNECTING: 'connecting',
-  CONNECT: 'connect',
-  REJECT: 'reject',
-  WARNING: 'warning',
-  DISCONNECT: 'disconnect',
-  CONNECT_ERROR: 'connectError'
-};
-
-/**
- * The enum of Room connection session error codes.
- * @attribute SESSION_ERROR_ENUM
- * @param {String} CREDENTIALS_EXPIRED The error code when Room connection session failed to start
- *   because session credentials returned from Auth (API) has already expired.
- * @param {String} CREDENTIALS_ERROR The error code when Room connection session failed to start
- *   because session credentials returned from Auth (API) was invalid.
- * @param {String} DUPLICATED_LOGIN The error code when Room connection session failed to start
- *   because session credentials returned from Auth (API) has already been used.
- * @param {String} ROOM_NOT_STARTED The error code when Room connection session failed to start
- *   because session has not yet started based on the provided `.start`.
- * @param {String} EXPIRED The error code when Room connection session failed to start because it has already ended.
- * @param {String} ROOM_LOCKED The error code when Room connection session failed to start because the Room is locked.
- * @param {String} FAST_MESSAGE The error code that serves as a warning to current Room connection session
- *   as User is flooding the servers with lots of several socket messages. This might result in the User's Room
- *   connection session being terminated and messages sent to be dropped.
- * @param {String} ROOM_CLOSING The error code that serves as a warning to current Room connection session
- *   that the Room session is ending soon.
- * @param {String} ROOM_CLOSED The error code when current Room connection session has ended.
- * @param {String} SERVER_ERROR The error code when Room connection session failed to start
- *   because of internal server exceptions encountered while attempting to start.
- * @param {String} KEY_ERROR The error code when Room connection session failed to start
- *   because of some internal technical error pertaining to App Key initialisation.
- * @type JSON
- * @readOnly
- * @final
- * @for Room
- * @since 0.7.0
- */
-Room.prototype.SESSION_ERROR_ENUM = {
-  CREDENTIALS_EXPIRED: 'oldTimeStamp',
-  CREDENTIALS_ERROR: 'credentialError',
-  DUPLICATED_LOGIN: 'duplicatedLogin',
-  ROOM_NOT_STARTED: 'notStart',
-  EXPIRED: 'expired',
-  ROOM_LOCKED: 'locked',
-  FAST_MESSAGE: 'fastmsg',
-  ROOM_CLOSING: 'toclose',
-  ROOM_CLOSED: 'roomclose',
-  SERVER_ERROR: 'serverError',
-  KEY_ERROR: 'keyFailed'
-};
 
 /**
  * Function to get and check the connection availability.

@@ -7,13 +7,13 @@
  * - When not provided, the value of `window.location.protocol` is used.
  * @param {String} [options.server] The signaling server domain.
  * - Examples: `"signaling.temasys.io"`
- * - When not provided, the default value returned from Auth server is used.
+ * - When not provided, the default value returned from auth server is used.
  * @param {String} [options.path] The signaling server path if required.
  * - Examples: `"/"`, `"/socket.io"`
  * - When not provided, the default value is `"/socket.io"`.
  * @param {Array} [options.ports] The list of signaling ports - where each item is a _Number_.
  * - Examples: `new Array(80, 3000)`, `new Array(443, 3443)`
- * - When not provided, the default value returned from Auth server is used.
+ * - When not provided, the default value returned from auth server is used.
  * @param {Number} [options.reconnectionAttempts] The number of reconnection attempts for each port and transport pair.
  * - Range: `0` - `5`
  * - When not provided, the default value is `0`, which means no reconnection attempts should be made.
@@ -36,7 +36,7 @@
  * @param {Array} [options.transports] The list of signaling transports - where each item is a _String_.
  * - Examples: `new Array("polling")`, `new Array("websocket", "polling")`
  * - When not provided, the default value is `new Array("websocket", "polling")`.
- * - Reference [`TRANSPORT_ENUM`](#docs+Temasys.Socket+constants+TRANSPORT_ENUM) for the list of available transports.
+ * - Reference [`TRANSPORT_ENUM` constant](#docs+Temasys.Socket+constants+TRANSPORT_ENUM) for the list of available transports.
  * @param {Boolean} [options.compression] The flag if data compression should be enabled when sending messages.
  * - When not provided, the default value is `false`.
  * @constructor
@@ -196,14 +196,10 @@ Temasys.Socket = function (options, defaultOptions) {
    * Event triggered when socket connection state has changed.
    * @param connectionStateChange
    * @param {String} state The connection state.
-   * - Reference [`CONNECTION_STATE_ENUM`](#docs+Temasys.Socket+constants+CONNECTION_STATE_ENUM) for the list of available states.
+   * - Reference [`CONNECTION_STATE_ENUM` constant](#docs+Temasys.Socket+constants+CONNECTION_STATE_ENUM) for the list of available states.
    * @param {Error} [error] The error object if there are errors.
    * @param {JSON} session The state session.
-   * @param {Number} session.attempts The total number of reconnection attempts made for the current fallback attempt.
-   * @param {Number} session.fallbacks The total number of port and transport pairs tried.
-   * @param {Number} settings.port The port number.
-   * @param {String} settings.transport The transport used.
-   * - Reference [`TRANSPORT_ENUM`](#docs+Temasys.Socket+constants+TRANSPORT_ENUM) for the list of available transports.
+   * - Object signature matches returned `result.session` object in [`getCurrent()` method](#docs+Temasys.Socket+methods+getCurrent).
    * @for Temasys.Socket
    * @since 0.7.0
    */
@@ -211,7 +207,7 @@ Temasys.Socket = function (options, defaultOptions) {
    * Event triggered when socket connection "activeness" or keep-alive state has changed.
    * @event activeStateChange
    * @param {String} state The active state.
-   * - Reference [`ACTIVE_STATE_ENUM`](#docs+Temasys.Socket+constants+ACTIVE_STATE_ENUM) for the list of available states.
+   * - Reference [`ACTIVE_STATE_ENUM` constant](#docs+Temasys.Socket+constants+ACTIVE_STATE_ENUM) for the list of available states.
    * @param {Number} [latency] The number of miliseconds of response time latency when receiving `PONG` response packet.
    * @for Temasys.Socket
    * @since 0.7.0
@@ -350,14 +346,14 @@ Temasys.Socket.prototype.getConfig = function () {
  * @param {JSON} return The current states and connection session.
  * @param {JSON} return.states The current states.
  * @param {String} return.states.connectionState The socket connection state.
- * - Reference [`CONNECTION_STATE_ENUM`](#docs+Temasys.Socket+constants+CONNECTION_STATE_ENUM) for the list of available states.
+ * - Reference [`CONNECTION_STATE_ENUM` constant](#docs+Temasys.Socket+constants+CONNECTION_STATE_ENUM) for the list of available states.
  * @param {String} return.states.activeState The socket "activeness" or keep-alive state.
- * - Reference [`ACTIVE_STATE_ENUM`](#docs+Temasys.Socket+constants+ACTIVE_STATE_ENUM) for the list of available states.
+ * - Reference [`ACTIVE_STATE_ENUM` constant](#docs+Temasys.Socket+constants+ACTIVE_STATE_ENUM) for the list of available states.
  * @param {Boolean} return.states.connected The flag if socket is connected to signaling server.
  * @param {JSON} return.session The current connection session.
  * @param {Number} return.session.port The port number.
  * @param {String} return.session.transport The transport type.
- * - Reference [`TRANSPORT_ENUM`](#docs+Temasys.Socket+constants+TRANSPORT_ENUM) for the list of available transports.
+ * - Reference [`TRANSPORT_ENUM` constant](#docs+Temasys.Socket+constants+TRANSPORT_ENUM) for the list of available transports.
  * @param {Number} return.session.attempt The total number of attempts made for the current port and transport pair.
  * @param {Number} return.session.fallbacks The total number of port and transport pairs tried.
  * @return {JSON}  
@@ -397,7 +393,7 @@ Temasys.Socket.prototype.getCurrent = function () {
  * @param {Number} return.session.fallbacks.#index.attempts The total number of reconnection attempts made for this pair.
  * @param {Number} return.session.fallbacks.#index.port The port number.
  * @param {String} return.session.fallbacks.#index.transport The transport type.
- * - Reference [`TRANSPORT_ENUM`](#docs+Temasys.Socket+constants+TRANSPORT_ENUM) for the list of available transports.
+ * - Reference [`TRANSPORT_ENUM` constant](#docs+Temasys.Socket+constants+TRANSPORT_ENUM) for the list of available transports.
  * @param {JSON} return.active The "activeness" or keep-alive connection stats.
  * @param {JSON} return.active.pings The "ping" stats.
  * @param {Number} return.active.pings.total The total number of "ping" packets sent to signaling server.
