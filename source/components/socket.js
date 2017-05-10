@@ -194,7 +194,7 @@ Temasys.Socket = function (options, defaultOptions) {
 
    /**
    * Event triggered when socket connection state has changed.
-   * @param connectionStateChange
+   * @event connectionStateChange
    * @param {String} state The connection state.
    * - Reference [`CONNECTION_STATE_ENUM` constant](#docs+Temasys.Socket+constants+CONNECTION_STATE_ENUM) for the list of available states.
    * @param {Error} [error] The error object if there are errors.
@@ -218,7 +218,7 @@ Temasys.Socket = function (options, defaultOptions) {
    * @param {JSON|String} message The message object.
    * - When defined as type of _String_, this indicates that received message has parsing errors.
    * @param {Error} [error] The error object if there are errors.
-   * @param {Boolean} isSelf The flag if self is sending the message.
+   * @param {Boolean} isSelf The flag if client is sending the message.
    * @for Temasys.Socket
    * @since 0.7.0
    */
