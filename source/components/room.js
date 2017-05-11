@@ -1,13 +1,32 @@
 /**
  * Handles the client room connection session.
  * @class Temasys.Room
+ * @param {JSON} [options] The options.
+ * @param {String} [options.protocol] The auth server protocol.
+ * - Examples: `"https:"`, `"http:"`
+ * - When not provided, the value of `window.location.protocol` is used.
+ * @param {String} [options.server] The auth server domain.
+ * - Examples: `"api.temasys.io"`
+ * - When not provided, the default value is `"api.temasys.io"`.
+ * @param {String} options.appKey The app key ID.
+ * - Examples: `"xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"`
+ * @param {String} [options.name] The room name.
+ * - Examples: `"a123"`, `"test"`, `Date.now().toString()`
+ * - When not provided, the value of `.appKey` is used.
  * @constructor
  * @example
- * // Example: Create a room object
- * var room = new Temasys.Room();
- * room.connect({
- *   appKey: "MY_APP_KEY_ID_VALUE_HERE",
+ * // Example 1: Create room that connects to app key and room name "test"
+ * var room = new Temasys.Room({
+ *   appKey: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
  *   name: "test"
+ * });
+ * 
+ * // Example 2: Create room that connects to specific server and room name "test2"
+ * var room = new Temasys.Room({
+ *   server: "api.temasys.io",
+ *   protocol: "https:",
+ *   appKey: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+ *   name: "test2"
  * });
  * @since 0.7.0
  */
@@ -170,38 +189,21 @@ Temasys.Room.prototype.SESSION_ERROR_ENUM = {
 };
 
 /**
- * The room protocols implemented.
- * @attribute PROTOCOL_ENUM
- * @param {String} SM_VERSION The signaling messaging (SM) protocol version implemented.
+ * The room SM protocol implemented.
  * - Value: `"0.1.2.4"`
- * @param {String} DT_VERSION The data transfer (DT) protocol version implemented.
- * - Value: `"0.1.3"`
- * @type JSON
+ * @attribute SM_PROTOCOL_VERSION
+ * @type String
  * @readOnly
  * @final
  * @for Temasys.Room
  * @since 0.7.0
  */
-Temasys.Room.prototype.PROTOCOL_ENUM = {
-  SM_VERSION: '0.1.2.4',
-  DT_VERSION: '0.1.3'
-};
+Temasys.Room.prototype.SM_PROTOCOL_VERSION = '0.1.2.4';
 
 /**
  * Function to start connection session.
  * @method connect
  * @param {JSON} [options] The options.
- * @param {String} [options.protocol] The auth server protocol.
- * - Examples: `"https:"`, `"http:"`
- * - When not provided, the value of `window.location.protocol` is used.
- * @param {String} [options.server] The auth server domain.
- * - Examples: `"api.temasys.io"`
- * - When not provided, the default value is `"api.temasys.io"`.
- * @param {String} options.appKey The app key ID.
- * - Examples: `"xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"`
- * @param {String} [options.name] The room name.
- * - Examples: `"a123"`, `"test"`, `Date.now().toString()`
- * - When not provided, the value of `.appKey` is used.
  * @param {JSON} [options.hash] The options for hash authentication.
  * - When not provided, the CORS authentication is used.
  * @param {String} options.hash.start The starting Date timestamp (ISO-8601 format) for connection session.
@@ -214,11 +216,11 @@ Temasys.Room.prototype.PROTOCOL_ENUM = {
  * - Reference the [CryptoJS library](https://github.com/brix/crypto-js) (which is recommended) for more information.
  * - Note that it is required that provided values of `.start` and `.duration` matches the `.output` provided, and strongly recommended that
  *   generation of output hash should be done from an app server end.
- * @param {String|JSON} [options.data] The client custom data for identification.
+ * @param {String|JSON} [options.customData] The client custom data for identification.
  * - Examples: `"userA"`, `{ userId: "xxx", name: "xxx" }` 
- * @param {JSON} [options.socket] The socket connection options.
+ * @param {JSON} [options.socketObject] The socket connection options.
  * - Reference the `options` parameter in [`Temasys.Socket` constructor](#docs+Temasys.Socket+constructor+Temasys.Socket) for the detailed options.
- * @param {JSON} [options.peer] The peer connection options.
+ * @param {JSON} [options.peerObject] The peer connection options.
  * - Reference the `options` parameter in [`Temasys.Peer` constructor](#docs+Temasys.Peer+constructor+Temasys.Peer) for the detailed options.
  * @example
  * // Example 1: Connect with CORS authentication
@@ -260,6 +262,33 @@ Temasys.Room.prototype.connect = function (options, stream) {
 };
 
 /**
+ * Function to send message to peers.
+ * @method message
+ * @param {JSON|String} message The message.
+ * @param {JSON} [options] The options.
+ * @param {Boolean} [options.datachannel] The flag if message should use peer datachannel connections
+ *   to send message.
+ * - When not provided, the default value is `false`, which indicates sending message through the
+ *   signaling server.
+ * - Note that for this to work, datachannel connections has to be enabled. Signaling server messaging
+ *   has limitations with `100` miliseconds for targeted messages and `1000` miliseconds for broadcasted messages.
+ * @param {Array} [options.targets] The list of targeted peer IDs - where each item is a _String_.
+ * - When not provided, the message is broadcasted to all peers in the room.
+ * @example
+ * // Example 1: Lock the room
+ * room.lock(true);
+ * 
+ * // Example 2: Unlock the room
+ * room.lock();
+ * room.lock(false);
+ * @for Temasys.Room
+ * @since 0.7.0
+ */
+Temasys.Room.prototype.message = function (message, options) {
+  var ref = this;
+};
+
+/**
  * Function to lock or unlock room.
  * @method lock
  * @param {Boolean} [lock] The flag if room should be locked.
@@ -277,6 +306,8 @@ Temasys.Room.prototype.connect = function (options, stream) {
 Temasys.Room.prototype.lock = function (lock) {
   var ref = this;
 };
+
+
 
 /**
  * Function to stop connection session.

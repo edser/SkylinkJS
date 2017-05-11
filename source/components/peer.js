@@ -2,11 +2,11 @@
  * Handles the peer connection.
  * @class Temasys.Peer
  * @param {JSON} options The options.
- * @param {String} [options.rtcpMuxPolicy] The option for muxing or combining RTP and RTCP packets streaming.
+ * @param {String} [options.rtcpMuxPolicy] The option for muxing or combining RTP and RTCP packets streaming to a connection.
  * - Examples: `"negotiate"`, `"require"`
  * - When not provided, the default value is `"require"`.
  * - Reference [`RTCP_MUX_POLICY_ENUM` constant](#docs+Temasys.Peer+constants+RTCP_MUX_POLICY_ENUM) for the list of available policies.
- * @param {String} [options.bundlePolicy] The option for bundling or combining audio, video and data media streaming.
+ * @param {String} [options.bundlePolicy] The option for bundling or combining audio, video and datachannel media streaming to a connection.
  * - Examples: `"balanced"`, `"max-bundle"`
  * - When not provided, the default value is `"balanced"`.
  * - Reference [`BUNDLE_POLICY_ENUM` constant](#docs+Temasys.Peer+constants+BUNDLE_POLICY_ENUM) for the list of available policies.
@@ -52,7 +52,7 @@
  * @param {Array} [options.iceServers.turn.ports] The list of TURN ports - where each item is a _Number_.
  * - Examples: `new Array(443)`, `new Array(3478)`
  * - When not provided, the default value returned from signaling server is used.
- * @param {Number} [options.trickleICE] The flag if trickling of ICE candidates during gathering should enabled if available
+ * @param {Number} [options.trickleIce] The flag if trickling of ICE candidates during gathering should enabled if available
  *   for quicker ICE connection establishment.
  * - When not provided, the default value is `true`.
  * @param {JSON|Boolean} [options.audio] The audio media streaming options.
@@ -157,9 +157,9 @@
  * @param {Boolean} [options.mechanisms.fec] The flag if generic forward error correction (FEC) codecs
  *   like ulpfec and red for should be enabled if available.
  * - When not provided, the default value is `true`.
- * @param {Boolean} [options.mechanisms.rtx=true] The flag if re-transmission (RTX) should be enabled if available.
+ * @param {Boolean} [options.mechanisms.rtx] The flag if re-transmission (RTX) should be enabled if available.
  * - When not provided, the default value is `true`.
- * @param {Boolean} [options.mechanisms.remb=true] The flag if receiver estimated maximum bitrate (REMB) should be enabled if available.
+ * @param {Boolean} [options.mechanisms.remb] The flag if receiver estimated maximum bitrate (REMB) should be enabled if available.
  * - When not provided, the default value is `true`.
  * @constructor
  * @private
@@ -231,7 +231,7 @@ Temasys.Peer.prototype.RTCP_MUX_POLICY_ENUM = {
 };
 
 /**
- * The enum of policies for bundling audio, video and data media streaming.
+ * The enum of policies for bundling audio, video and datachannel media streaming.
  * @attribute BUNDLE_POLICY_ENUM
  * @param {String} BALANCED The policy to stream audio, video and data on the same connection, but switch to
  *   seperate connections if remote endpoint does not support bundling where media streaming uses the same connection.
@@ -443,19 +443,19 @@ Temasys.Peer.MEDIA_DIRECTION_ENUM = {
 /**
  * The enum of ICE connection states.
  * @attribute ICE_CONNECTION_STATE_ENUM
- * @param {String} NEW The ICE connection is in new state.
+ * @param {String} NEW The ICE transports are at its initial stage without attempting connections.
  * - Value: `"new"`
- * @param {String} CHECKING The ICE transports is checking for connections.
+ * @param {String} CHECKING The ICE transports are attempting and checking for connections.
  * - Value: `"checking"`
  * @param {String} CONNECTED The ICE transports are connected.
  * - Value: `"connected"`
- * @param {String} COMPLETED The ICE transports have selected the best candidate it could find.
+ * @param {String} COMPLETED The ICE transports are connected and have already selected the best pair of candidates.
  * - Value: `"completed"`
- * @param {String} FAILED The ICE transports failed.
+ * @param {String} FAILED The ICE transports failed to connect.
  * - Value: `"failed"`
- * @param {String} DISCONNECTED The ICE transports disconnected.
+ * @param {String} DISCONNECTED The ICE transports are disconnected.
  * - Value: `"disconnected"`
- * @param {String} CLOSED The ICE transports closed.
+ * @param {String} CLOSED The ICE transports are closed and would no longer reconnect.
  * - Value: `"closed"`
  * @type JSON
  * @readOnly
@@ -464,4 +464,167 @@ Temasys.Peer.MEDIA_DIRECTION_ENUM = {
  * @since 0.7.0
  */
 Temasys.Peer.prototype.ICE_CONNECTION_STATE_ENUM = {
+  NEW: 'new',
+  CHECKING: 'checking',
+  CONNECTED: 'connected',
+  COMPLETED: 'completed',
+  FAILED: 'failed',
+  DISCONNECTED: 'disconnected',
+  CLOSED: 'closed'
+};
+
+/**
+ * The enum of peer connection negotiation states.
+ * @attribute NEGOTIATION_STATE_ENUM
+ * @param {String} ENTER
+ * @type JSON
+ * @readOnly
+ * @final
+ * @for Temasys.Peer
+ * @since 0.7.0
+ */
+Temasys.Peer.prototype.NEGOTIATION_STATE_ENUM = {
+  ENTER: 'enter',
+  WELCOME: 'welcome',
+  WELCOME_RESEND: 'welcome-resend',
+  RESTART: 'restart',
+  RESTART_RESEND: 'restart-resend',
+  OFFER_LOCAL: 'have-local-offer',
+  OFFER_LOCAL_ERROR: 'offer_local_error',
+  OFFER_REMOTE: 'offer_remote',
+  OFFER_REMOTE_ERROR: 'offer_remote_error',
+  ANSWER_LOCAL: 'answer_local'
+  ANSWER_LOCAL_ERROR: 'answer_local_error',
+  ANSWER_REMOTE: 'answer_remote'
+  ANSWER_REMOTE_ERROR: 'answer_remote_error',
+  CLOSED: 'closed'
+};
+
+/**
+ * The enum of ICE gathering states.
+ * @attribute ICE_GATHERING_STATE_ENUM
+ * @type JSON
+ * @readOnly
+ * @final
+ * @for Temasys.Peer
+ * @since 0.7.0
+ */
+Temasys.Peer.prototype.ICE_GATHERING_STATE_ENUM = {
+};
+
+/**
+ * The enum of ICE gathering states.
+ * @attribute ICE_GATHERING_STATE_ENUM
+ * @type JSON
+ * @readOnly
+ * @final
+ * @for Temasys.Peer
+ * @since 0.7.0
+ */
+Temasys.Peer.prototype.ICE_GATHERING_STATE_ENUM = {
+};
+
+/**
+ * The enum of ICE candidate processing states.
+ * @attribute ICE_CANDIDATE_PROCESSING_STATE_ENUM
+ * @type JSON
+ * @readOnly
+ * @final
+ * @for Temasys.Peer
+ * @since 0.7.0
+ */
+Temasys.Peer.prototype.ICE_CANDIDATE_PROCESSING_STATE_ENUM = {
+};
+
+/**
+ * The enum of peer connection types.
+ * @attribute TYPE_ENUM
+ * @param {String} MCU The type that indicates it is a MCU peer connection.
+ * - Value: `"mcu"`
+ * @param {String} MCU_RELAYED The type that indicates it is a peer connection relayed from the MCU.
+ * - Value: `"mcu_relayed"`
+ * @param {String} NORMAL The type that indicates it is a normal peer connection.
+ * - Value: `"p2p"`
+ * @type JSON
+ * @readOnly
+ * @final
+ * @for Temasys.Peer
+ * @since 0.7.0
+ */
+Temasys.Peer.prototype.TYPE_ENUM = {
+  MCU: 'mcu',
+  MCU_RELAYED: 'mcu_relayed',
+  NORMAL: 'p2p'
+};
+
+/**
+ * Function that returns the peer information.
+ * @method getInfo
+ * @param {JSON} return The peer information.
+ * @param {String} return.id The peer ID.
+ * @param {String} [return.parentId] The peer parent ID its linked to if any.
+ * @param {JSON|String} [return.customData] The peer custom data.
+ * @param {String} return.type The peer connection type.
+ * - Reference [`TYPE_ENUM` constant](#docs+Temasys.Datachannel+constants+TYPE_ENUM) for the list of available types.
+ * @param {JSON} return.media The peer media settings.
+ * @param {JSON|Boolean} return.media.audio The peer audio media settings.
+ * @param {String} return.media.audio.direction The peer audio direction.
+ * - Reference [`MEDIA_DIRECTION_ENUM` constant](#docs+Temasys.Peer+constants+MEDIA_DIRECTION_ENUM) for the list of available directions.
+ * @param {JSON|Boolean} return.media.video The peer video media settings.
+ * @param {String} return.media.video.direction The peer video direction.
+ * - Reference [`MEDIA_DIRECTION_ENUM` constant](#docs+Temasys.Peer+constants+MEDIA_DIRECTION_ENUM) for the list of available directions.
+ * @param {JSON|Boolean} return.media.datachannel The peer datachannel media settings.
+ * @param {JSON} return.agent The peer agent information.
+ * @param {String} return.agent.name The peer agent name.
+ * @param {String} return.agent.version The peer agent version.
+ * @param {String} [return.agent.platform] The peer agent platform if any.
+ * @param {String} [return.agent.pluginVersion] The peer Temasys plugin version if any.
+ * @param {Boolean} return.trickleIce The flag if peer supports trickling of ICE connections.
+ * @param {Boolean} return.restartIce The flag if peer supports restarting of ICE connections.
+ * @return {JSON}  
+ * @example
+ *   console.log("info ->", datachannel.getInfo());
+ * @for Temasys.Peer
+ * @since 0.7.0
+ */
+Temasys.Peer.prototype.getInfo = function () {
+  var ref = this;
+};
+
+/**
+ * Function that returns the peer connection stats.
+ * @method getStats
+ * @param {JSON} return The full stats.
+ * @return {Promise}  
+ * @example
+ * peer.getStats().then(function (stats) {
+ *   console.info("stats ->", stats);
+ * });
+ * @for Temasys.Peer
+ * @since 0.7.0
+ */
+Temasys.Peer.prototype.getStats = function () {
+  var ref = this;
+};
+
+/**
+ * Function that returns the current datachannel states and connection session.
+ * @method getCurrent
+ * @param {JSON} return The current states and connection session.
+ * @param {JSON} return.states The current states.
+ * @param {String} return.states.iceConnectionState The ICE connection state.
+ * - Reference [`ICE_CONNECTION_STATE_ENUM` constant](#docs+Temasys.Peer+constants+ICE_CONNECTION_STATE_ENUM) for the list of available states.
+ * @param {String} return.states.iceGatheringState The ICE gathering state.
+ * - Reference [`ICE_GATHERING_STATE_ENUM` constant](#docs+Temasys.Peer+constants+ICE_GATHERING_STATE_ENUM) for the list of available states.
+ * @param {String} return.states.negotiationState The peer connection negotiation state.
+ * - Reference [`NEGOTIATION_STATE_ENUM` constant](#docs+Temasys.Peer+constants+NEGOTIATION_STATE_ENUM) for the list of available states.
+ * @param {Boolean} return.states.connected The flag if peer is connected.
+ * @return {JSON}  
+ * @example
+ *   console.log("current info ->", peer.getCurrent());
+ * @for Temasys.Peer
+ * @since 0.7.0
+ */
+Temasys.Peer.prototype.getCurrent = function () {
+  var ref = this;
 };

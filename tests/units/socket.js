@@ -581,5 +581,6 @@ describe('Temasys.Socket', function() {
 	 */
 	it('_send()', function (done) {
 		this.timeout(15000);
+		
 	});
 })

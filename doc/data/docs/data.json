@@ -13,8 +13,8 @@
                 "Temasys.Datachannel": 1
             },
             "fors": {
-                "Temasys": 1,
-                "Temasys.Datachannel": 1
+                "Temasys.Datachannel": 1,
+                "Temasys.Socket": 1
             },
             "namespaces": {}
         },
@@ -271,20 +271,141 @@
             "extension_for": [],
             "file": "source/components/datachannel.js",
             "line": 1,
-            "description": "Handles the Peer Datachannel connection.",
+            "description": "Handles the peer datachannel connection.",
+            "params": [
+                {
+                    "name": "options",
+                    "description": "The options.",
+                    "type": "JSON",
+                    "props": [
+                        {
+                            "name": "mechanism",
+                            "description": "The data buffer mechanism if available.\n- Examples: `\"polling\"`, `\"threshold\"`\n- When not provided, the default value is `\"threshold\"`.\n- Reference [`BUFFER_MECHANISM_ENUM` constant](#docs+Temasys.Datachannel+constants+BUFFER_MECHANISM_ENUM) for the list of available mechanisms.",
+                            "type": "String",
+                            "optional": true
+                        },
+                        {
+                            "name": "threshold",
+                            "description": "The buffer threshold limit in bytes.\n- When not provided, the default value is `81920`.",
+                            "type": "Number",
+                            "optional": true
+                        },
+                        {
+                            "name": "interval",
+                            "description": "The polling interval in miliseconds to check for the buffer length.\n- When not provided, the default value is `250`.",
+                            "type": "Number",
+                            "optional": true
+                        },
+                        {
+                            "name": "flushTimeout",
+                            "description": "The timeout in miliseconds to wait to consider that data has been sent.\n- When not provided, the default value is `100`.",
+                            "type": "Number",
+                            "optional": true
+                        },
+                        {
+                            "name": "completeFlushTimeout",
+                            "description": "The timeout in miliseconds to wait to consider that all the data\n  in the current buffer has been sent before closing the datachannel connection.\n- When not provided, the default value is `2000`.",
+                            "type": "Number",
+                            "optional": true
+                        }
+                    ]
+                }
+            ],
             "is_constructor": 1,
             "access": "private",
             "tagname": "",
             "since": "0.7.0"
         },
-        "Temasys": {
-            "name": "Temasys",
-            "shortname": "Temasys",
+        "Temasys.Socket": {
+            "name": "Temasys.Socket",
+            "shortname": "Temasys.Socket",
             "classitems": [],
             "plugins": [],
             "extensions": [],
             "plugin_for": [],
-            "extension_for": []
+            "extension_for": [],
+            "file": "source/components/socket.js",
+            "line": 1,
+            "description": "Handles the socket connection to the signaling server.",
+            "params": [
+                {
+                    "name": "options",
+                    "description": "The options.",
+                    "type": "JSON",
+                    "props": [
+                        {
+                            "name": "protocol",
+                            "description": "The signaling server protocol.\n- Examples: `\"https:\"`, `\"http:\"`\n- When not provided, the value of `window.location.protocol` is used.",
+                            "type": "String",
+                            "optional": true
+                        },
+                        {
+                            "name": "server",
+                            "description": "The signaling server domain.\n- Examples: `\"signaling.temasys.io\"`\n- When not provided, the default value returned from auth server is used.",
+                            "type": "String",
+                            "optional": true
+                        },
+                        {
+                            "name": "path",
+                            "description": "The signaling server path if required.\n- Examples: `\"/\"`, `\"/socket.io\"`\n- When not provided, the default value is `\"/socket.io\"`.",
+                            "type": "String",
+                            "optional": true
+                        },
+                        {
+                            "name": "ports",
+                            "description": "The list of signaling ports - where each item is a _Number_.\n- Examples: `new Array(80, 3000)`, `new Array(443, 3443)`\n- When not provided, the default value returned from auth server is used.",
+                            "type": "Array",
+                            "optional": true
+                        },
+                        {
+                            "name": "reconnectionAttempts",
+                            "description": "The number of reconnection attempts for each port and transport pair.\n- Range: `0` - `5`\n- When not provided, the default value is `0`, which means no reconnection attempts should be made.",
+                            "type": "Number",
+                            "optional": true
+                        },
+                        {
+                            "name": "reconnectionDelay",
+                            "description": "The number of miliseconds to wait before starting the\n  next reconnection attempt. This is tampered with the `.randomizationFactor` configured.\n- Range: `1` and above\n- When not provided, the default value is `1000`.",
+                            "type": "Number",
+                            "optional": true
+                        },
+                        {
+                            "name": "reconnectionDelayMax",
+                            "description": "The maximum number of miliseconds to wait before starting the\n  next reconnection attempt.\n- Range: `1` and above\n- When not provided, the default value is `5000`.",
+                            "type": "Number",
+                            "optional": true
+                        },
+                        {
+                            "name": "randomizationFactor",
+                            "description": "The randominzation factor (+/-) for each reconnection attempts.\n- Range: `0` - `1`\n- Output reconnection delay would be `800` or `1200` if value is `0.2` with `.reconnectionDelay` set to `1000`.\n- Output reconnection delay would be `500` or `1500` if value is `0.5` with `.reconnectionDelay` set to `1000`.",
+                            "type": "Number",
+                            "optional": true
+                        },
+                        {
+                            "name": "timeout",
+                            "description": "The number of miliseconds to wait without response before considering that\n  connection attempt has timed out and should consider reconnecting.\n- Range: `0` and above\n- When not provided, the default value is `20000`.",
+                            "type": "Number",
+                            "optional": true
+                        },
+                        {
+                            "name": "transports",
+                            "description": "The list of signaling transports - where each item is a _String_.\n- Examples: `new Array(\"polling\")`, `new Array(\"websocket\", \"polling\")`\n- When not provided, the default value is `new Array(\"websocket\", \"polling\")`.\n- Reference [`TRANSPORT_ENUM` constant](#docs+Temasys.Socket+constants+TRANSPORT_ENUM) for the list of available transports.",
+                            "type": "Array",
+                            "optional": true
+                        },
+                        {
+                            "name": "compression",
+                            "description": "The flag if data compression should be enabled when sending messages.\n- When not provided, the default value is `false`.",
+                            "type": "Boolean",
+                            "optional": true
+                        }
+                    ]
+                }
+            ],
+            "is_constructor": 1,
+            "access": "private",
+            "tagname": "",
+            "since": "0.7.0"
         },
         "Temasys.Datatransfer": {
             "name": "Temasys.Datatransfer",
@@ -331,13 +452,13 @@
                     "props": [
                         {
                             "name": "rtcpMuxPolicy",
-                            "description": "The option for muxing or combining RTP and RTCP packets streaming.\n- Examples: `\"negotiate\"`, `\"require\"`\n- When not provided, the default value is `\"require\"`.\n- Reference [`RTCP_MUX_POLICY_ENUM` constant](#docs+Temasys.Peer+constants+RTCP_MUX_POLICY_ENUM) for the list of available policies.",
+                            "description": "The option for muxing or combining RTP and RTCP packets streaming to a connection.\n- Examples: `\"negotiate\"`, `\"require\"`\n- When not provided, the default value is `\"require\"`.\n- Reference [`RTCP_MUX_POLICY_ENUM` constant](#docs+Temasys.Peer+constants+RTCP_MUX_POLICY_ENUM) for the list of available policies.",
                             "type": "String",
                             "optional": true
                         },
                         {
                             "name": "bundlePolicy",
-                            "description": "The option for bundling or combining audio, video and data media streaming.\n- Examples: `\"balanced\"`, `\"max-bundle\"`\n- When not provided, the default value is `\"balanced\"`.\n- Reference [`BUNDLE_POLICY_ENUM` constant](#docs+Temasys.Peer+constants+BUNDLE_POLICY_ENUM) for the list of available policies.",
+                            "description": "The option for bundling or combining audio, video and datachannel media streaming to a connection.\n- Examples: `\"balanced\"`, `\"max-bundle\"`\n- When not provided, the default value is `\"balanced\"`.\n- Reference [`BUNDLE_POLICY_ENUM` constant](#docs+Temasys.Peer+constants+BUNDLE_POLICY_ENUM) for the list of available policies.",
                             "type": "String",
                             "optional": true
                         },
@@ -416,7 +537,7 @@
                             ]
                         },
                         {
-                            "name": "trickleICE",
+                            "name": "trickleIce",
                             "description": "The flag if trickling of ICE candidates during gathering should enabled if available\n  for quicker ICE connection establishment.\n- When not provided, the default value is `true`.",
                             "type": "Number",
                             "optional": true
@@ -658,15 +779,13 @@
                                     "name": "rtx",
                                     "description": "The flag if re-transmission (RTX) should be enabled if available.\n- When not provided, the default value is `true`.",
                                     "type": "Boolean",
-                                    "optional": true,
-                                    "optdefault": "true"
+                                    "optional": true
                                 },
                                 {
                                     "name": "remb",
                                     "description": "The flag if receiver estimated maximum bitrate (REMB) should be enabled if available.\n- When not provided, the default value is `true`.",
                                     "type": "Boolean",
-                                    "optional": true,
-                                    "optdefault": "true"
+                                    "optional": true
                                 }
                             ]
                         }
@@ -689,101 +808,43 @@
             "file": "source/components/room.js",
             "line": 1,
             "description": "Handles the client room connection session.",
-            "is_constructor": 1,
-            "example": [
-                "\n// Example: Create a room object\nvar room = new Temasys.Room();\nroom.connect({\n  appKey: \"MY_APP_KEY_ID_VALUE_HERE\",\n  name: \"test\"\n});"
-            ],
-            "since": "0.7.0"
-        },
-        "Temasys.Socket": {
-            "name": "Temasys.Socket",
-            "shortname": "Temasys.Socket",
-            "classitems": [],
-            "plugins": [],
-            "extensions": [],
-            "plugin_for": [],
-            "extension_for": [],
-            "file": "source/components/socket.js",
-            "line": 1,
-            "description": "Handles the socket connection to the signaling server.",
             "params": [
                 {
                     "name": "options",
                     "description": "The options.",
                     "type": "JSON",
+                    "optional": true,
                     "props": [
                         {
                             "name": "protocol",
-                            "description": "The signaling server protocol.\n- Examples: `\"https:\"`, `\"http:\"`\n- When not provided, the value of `window.location.protocol` is used.",
+                            "description": "The auth server protocol.\n- Examples: `\"https:\"`, `\"http:\"`\n- When not provided, the value of `window.location.protocol` is used.",
                             "type": "String",
                             "optional": true
                         },
                         {
                             "name": "server",
-                            "description": "The signaling server domain.\n- Examples: `\"signaling.temasys.io\"`\n- When not provided, the default value returned from auth server is used.",
+                            "description": "The auth server domain.\n- Examples: `\"api.temasys.io\"`\n- When not provided, the default value is `\"api.temasys.io\"`.",
                             "type": "String",
                             "optional": true
                         },
                         {
-                            "name": "path",
-                            "description": "The signaling server path if required.\n- Examples: `\"/\"`, `\"/socket.io\"`\n- When not provided, the default value is `\"/socket.io\"`.",
+                            "name": "appKey",
+                            "description": "The app key ID.\n- Examples: `\"xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx\"`",
+                            "type": "String"
+                        },
+                        {
+                            "name": "name",
+                            "description": "The room name.\n- Examples: `\"a123\"`, `\"test\"`, `Date.now().toString()`\n- When not provided, the value of `.appKey` is used.",
                             "type": "String",
-                            "optional": true
-                        },
-                        {
-                            "name": "ports",
-                            "description": "The list of signaling ports - where each item is a _Number_.\n- Examples: `new Array(80, 3000)`, `new Array(443, 3443)`\n- When not provided, the default value returned from auth server is used.",
-                            "type": "Array",
-                            "optional": true
-                        },
-                        {
-                            "name": "reconnectionAttempts",
-                            "description": "The number of reconnection attempts for each port and transport pair.\n- Range: `0` - `5`\n- When not provided, the default value is `0`, which means no reconnection attempts should be made.",
-                            "type": "Number",
-                            "optional": true
-                        },
-                        {
-                            "name": "reconnectionDelay",
-                            "description": "The number of miliseconds to wait before starting the\n  next reconnection attempt. This is tampered with the `.randomizationFactor` configured.\n- Range: `1` and above\n- When not provided, the default value is `1000`.",
-                            "type": "Number",
-                            "optional": true
-                        },
-                        {
-                            "name": "reconnectionDelayMax",
-                            "description": "The maximum number of miliseconds to wait before starting the\n  next reconnection attempt.\n- Range: `1` and above\n- When not provided, the default value is `5000`.",
-                            "type": "Number",
-                            "optional": true
-                        },
-                        {
-                            "name": "randomizationFactor",
-                            "description": "The randominzation factor (+/-) for each reconnection attempts.\n- Range: `0` - `1`\n- Output reconnection delay would be `800` or `1200` if value is `0.2` with `.reconnectionDelay` set to `1000`.\n- Output reconnection delay would be `500` or `1500` if value is `0.5` with `.reconnectionDelay` set to `1000`.",
-                            "type": "Number",
-                            "optional": true
-                        },
-                        {
-                            "name": "timeout",
-                            "description": "The number of miliseconds to wait without response before considering that\n  connection attempt has timed out and should consider reconnecting.\n- Range: `0` and above\n- When not provided, the default value is `20000`.",
-                            "type": "Number",
-                            "optional": true
-                        },
-                        {
-                            "name": "transports",
-                            "description": "The list of signaling transports - where each item is a _String_.\n- Examples: `new Array(\"polling\")`, `new Array(\"websocket\", \"polling\")`\n- When not provided, the default value is `new Array(\"websocket\", \"polling\")`.\n- Reference [`TRANSPORT_ENUM` constant](#docs+Temasys.Socket+constants+TRANSPORT_ENUM) for the list of available transports.",
-                            "type": "Array",
-                            "optional": true
-                        },
-                        {
-                            "name": "compression",
-                            "description": "The flag if data compression should be enabled when sending messages.\n- When not provided, the default value is `false`.",
-                            "type": "Boolean",
                             "optional": true
                         }
                     ]
                 }
             ],
             "is_constructor": 1,
-            "access": "private",
-            "tagname": "",
+            "example": [
+                "\n// Example 1: Create room that connects to app key and room name \"test\"\nvar room = new Temasys.Room({\n  appKey: \"xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx\",\n  name: \"test\"\n});\n\n// Example 2: Create room that connects to specific server and room name \"test2\"\nvar room = new Temasys.Room({\n  server: \"api.temasys.io\",\n  protocol: \"https:\",\n  appKey: \"xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx\",\n  name: \"test2\"\n});"
+            ],
             "since": "0.7.0"
         },
         "Temasys.Stream": {
@@ -889,6 +950,15 @@
             ],
             "since": "0.7.0"
         },
+        "Temasys": {
+            "name": "Temasys",
+            "shortname": "Temasys",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": []
+        },
         "Temasys.Utils": {
             "name": "Temasys.Utils",
             "shortname": "Temasys.Utils",
@@ -924,134 +994,42 @@
     "classitems": [
         {
             "file": "source/components/datachannel.js",
-            "line": 11,
-            "description": "The Datachannel ID.",
-            "itemtype": "attribute",
-            "name": "id",
-            "type": "String",
-            "readonly": "",
-            "since": "0.7.0",
-            "class": "Temasys.Datachannel"
-        },
-        {
-            "file": "source/components/datachannel.js",
-            "line": 21,
-            "description": "The Datachannel type.\n- See {{#crossLink \"Temasys.Datachannel/TYPE_ENUM:attribute\"}}{{/crossLink}} for reference.",
-            "itemtype": "attribute",
-            "name": "type",
-            "type": "String",
-            "readonly": "",
+            "line": 25,
+            "description": "Event triggered when connection state has changed.",
+            "itemtype": "event",
+            "name": "connectionStateChange",
+            "params": [
+                {
+                    "name": "state",
+                    "description": "The connection state.",
+                    "type": "String"
+                }
+            ],
             "since": "0.7.0",
             "class": "Temasys.Datachannel"
         },
         {
             "file": "source/components/datachannel.js",
             "line": 32,
-            "description": "The Datachannel current states.",
-            "itemtype": "attribute",
-            "name": "$current",
-            "params": [
-                {
-                    "name": "state",
-                    "description": "The current Datachannel connection state.",
-                    "type": "String"
-                },
-                {
-                    "name": "connected",
-                    "description": "The flag if Datachannel is connected.",
-                    "type": "Boolean"
-                },
-                {
-                    "name": "streamId",
-                    "description": "The current Datatransfer streaming session ID.",
-                    "type": "String"
-                },
-                {
-                    "name": "transferId",
-                    "description": "The current Datatransfer transfer session ID.",
-                    "type": "String"
-                }
-            ],
-            "type": "JSON",
-            "readonly": "",
-            "since": "0.7.0",
-            "class": "Temasys.Datachannel"
-        },
-        {
-            "file": "source/components/datachannel.js",
-            "line": 68,
-            "description": "Event triggered when Datachannel connection state has been changed.",
-            "itemtype": "event",
-            "name": "stateChange",
-            "params": [
-                {
-                    "name": "state",
-                    "description": "The current Datachannel connection state.\n- See {{#crossLink \"Temasys.Datachannel/STATE_ENUM:attribute\"}}{{/crossLink}} for reference.",
-                    "type": "String"
-                }
-            ],
-            "since": "0.7.0",
-            "class": "Temasys.Datachannel"
-        },
-        {
-            "file": "source/components/datachannel.js",
-            "line": 76,
-            "description": "Event triggered when Datachannel connection has encountered errors.",
-            "itemtype": "event",
-            "name": "error",
-            "params": [
-                {
-                    "name": "error",
-                    "description": "The error object.",
-                    "type": "Error"
-                }
-            ],
-            "since": "0.7.0",
-            "class": "Temasys.Datachannel"
-        },
-        {
-            "file": "source/components/datachannel.js",
-            "line": 83,
-            "description": "Event triggered when Datachannel connection buffered amount threshold is low.",
-            "itemtype": "event",
-            "name": "bufferedAmountLow",
-            "params": [
-                {
-                    "name": "bufferedAmount",
-                    "description": "The current buffered amount in bytes.",
-                    "type": "Number"
-                },
-                {
-                    "name": "bufferedAmountLowThreshold",
-                    "description": "The current buffered amount threshold set in bytes.",
-                    "type": "Number"
-                }
-            ],
-            "since": "0.7.0",
-            "class": "Temasys.Datachannel"
-        },
-        {
-            "file": "source/components/datachannel.js",
-            "line": 91,
-            "description": "Event triggered when Datachannel connection sends or receives data.",
+            "description": "Event triggered when data is received.",
             "itemtype": "event",
             "name": "data",
             "params": [
                 {
                     "name": "data",
-                    "description": "The data.",
-                    "type": "JSON|Blob"
+                    "description": "The data chunk.",
+                    "type": "JSON|String|ArrayBuffer|Blob"
+                },
+                {
+                    "name": "error",
+                    "description": "The error object if there are errors.",
+                    "type": "Error",
+                    "optional": true
                 },
                 {
                     "name": "isSelf",
-                    "description": "The flag if data is sent from self.",
+                    "description": "The flag if client is the sender.",
                     "type": "Boolean"
-                },
-                {
-                    "name": "error",
-                    "description": "The error object.\n- This is defined when data failed to send or parse received data.",
-                    "type": "Error",
-                    "optional": true
                 }
             ],
             "since": "0.7.0",
@@ -1059,15 +1037,15 @@
         },
         {
             "file": "source/components/datachannel.js",
-            "line": 101,
-            "description": "Event triggered when there are exceptions thrown in this event handlers.",
+            "line": 41,
+            "description": "Event triggered when data buffer amount threshold is low.",
             "itemtype": "event",
-            "name": "domError",
+            "name": "bufferedAmountLow",
             "params": [
                 {
-                    "name": "error",
-                    "description": "The error object.",
-                    "type": "Error"
+                    "name": "buffer",
+                    "description": "The data buffer session.\n- Object signature matches returned `result.session` parameter in [`getCurrent()` method](#docs+Temasys.Datachannel+methods+getCurrent).",
+                    "type": "JSON"
                 }
             ],
             "since": "0.7.0",
@@ -1075,234 +1053,307 @@
         },
         {
             "file": "source/components/datachannel.js",
-            "line": 108,
-            "description": "Event triggered when {{#crossLink \"Temasys.Datachannel/getStats:method\"}}{{/crossLink}} state has changed.",
-            "itemtype": "event",
-            "name": "getStatsStateChange",
+            "line": 51,
+            "description": "The datachannel DT protocol implemented.\n- Value: `\"0.1.3\"`",
+            "itemtype": "attribute",
+            "name": "DT_PROTOCOL_VERSION",
+            "type": "String",
+            "readonly": "",
+            "final": 1,
+            "since": "0.7.0",
+            "class": "Temasys.Datachannel"
+        },
+        {
+            "file": "source/components/datachannel.js",
+            "line": 63,
+            "description": "The enum of datachannel connection states.",
+            "itemtype": "attribute",
+            "name": "CONNECTION_STATE_ENUM",
             "params": [
                 {
-                    "name": "state",
-                    "description": "The current stats retrieval state.\n- See {{#crossLink \"Temasys.Datachannel/GET_STATS_STATE_ENUM:attribute\"}}{{/crossLink}} for reference.",
+                    "name": "CONNECTING",
+                    "description": "The state when datachannel is attempting to establish connection.\n- Value: `\"connecting\"`",
                     "type": "String"
                 },
                 {
-                    "name": "stats",
-                    "description": "The stats.\n- This is defined when `state` is `SUCCESS`.",
+                    "name": "CONNECTED",
+                    "description": "The state when datachannel is connected.\n- Value: `\"open\"`",
+                    "type": "String"
+                },
+                {
+                    "name": "DISCONNECTING",
+                    "description": "The state when datachannel is disconnecting.\n- Value: `\"closing\"`",
+                    "type": "String"
+                },
+                {
+                    "name": "DISCONNECTED",
+                    "description": "The state when datachannel has disconnected.\n- Value: `\"closed\"`",
+                    "type": "String"
+                }
+            ],
+            "readonly": "",
+            "final": 1,
+            "since": "0.7.0",
+            "class": "Temasys.Datachannel"
+        },
+        {
+            "file": "source/components/datachannel.js",
+            "line": 86,
+            "description": "The enum of datachannel data buffer mechanisms.",
+            "itemtype": "attribute",
+            "name": "BUFFER_MECHANISM_ENUM",
+            "params": [
+                {
+                    "name": "THRESHOLD",
+                    "description": "The mechanism that uses the datachannel native threshold amount low event to handle data buffer.\n- Value: `\"threshold\"`",
+                    "type": "String"
+                },
+                {
+                    "name": "POLLING",
+                    "description": "The mechanism that uses the polling interval to check the buffer size to handle data buffer.\n- Value: `\"polling\"`",
+                    "type": "String"
+                }
+            ],
+            "type": "JSON",
+            "readonly": "",
+            "final": 1,
+            "since": "0.7.0",
+            "class": "Temasys.Datachannel"
+        },
+        {
+            "file": "source/components/datachannel.js",
+            "line": 104,
+            "description": "The enum of datachannel types.",
+            "itemtype": "attribute",
+            "name": "TYPE_ENUM",
+            "params": [
+                {
+                    "name": "PERSISTENT",
+                    "description": "The type that cannot be closed until peer connection closes, and is used primarily for sending messages.\n- Value: `\"messaging\"`",
+                    "type": "String"
+                },
+                {
+                    "name": "TEMPORARY",
+                    "description": "The type that closes once data transfer is completed or terminated and is opened only to send data transfers.\n- Value: `\"data\"`",
+                    "type": "String"
+                }
+            ],
+            "type": "JSON",
+            "readonly": "",
+            "final": 1,
+            "since": "0.7.0",
+            "class": "Temasys.Datachannel"
+        },
+        {
+            "file": "source/components/datachannel.js",
+            "line": 122,
+            "description": "Function that returns the socket configuration.",
+            "itemtype": "method",
+            "name": "getConfig",
+            "params": [
+                {
+                    "name": "return",
+                    "description": "The configuration settings.\n- Object signature matches `options` parameter in [`Temasys.Datachannel` constructor](#docs+Temasys.Datachannel+constructor+Temasys.Datachannel).",
+                    "type": "JSON"
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "JSON"
+            },
+            "example": [
+                "\n  console.log(\"config ->\", datachannel.getConfig());"
+            ],
+            "since": "0.7.0",
+            "class": "Temasys.Socket"
+        },
+        {
+            "file": "source/components/datachannel.js",
+            "line": 137,
+            "description": "Function that returns the datachannel information",
+            "itemtype": "method",
+            "name": "getInfo",
+            "params": [
+                {
+                    "name": "return",
+                    "description": "The datachannel information.",
                     "type": "JSON",
-                    "optional": true,
                     "props": [
                         {
-                            "name": "id",
-                            "description": "The native `RTCDataChannel` object `.id` property.",
+                            "name": "name",
+                            "description": "The datachannel ID.",
                             "type": "String"
                         },
                         {
-                            "name": "label",
-                            "description": "The native `RTCDataChannel` object `.label` property.",
+                            "name": "type",
+                            "description": "The datachannel type.\n- Reference [`TYPE_ENUM` constant](#docs+Temasys.Datachannel+constants+TYPE_ENUM) for the list of available types.",
                             "type": "String"
-                        },
+                        }
+                    ]
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "JSON"
+            },
+            "example": [
+                "\n  console.log(\"info ->\", datachannel.getInfo());"
+            ],
+            "since": "0.7.0",
+            "class": "Temasys.Datachannel"
+        },
+        {
+            "file": "source/components/datachannel.js",
+            "line": 154,
+            "description": "Function that returns the current datachannel states and connection session.",
+            "itemtype": "method",
+            "name": "getCurrent",
+            "params": [
+                {
+                    "name": "return",
+                    "description": "The current states and connection session.",
+                    "type": "JSON",
+                    "props": [
                         {
-                            "name": "binaryType",
-                            "description": "The native `RTCDataChannel` object `.binaryType` property.\n- This indicates the type of native object type it uses to send and pack received binary data.",
-                            "type": "String"
-                        },
-                        {
-                            "name": "bufferedAmount",
-                            "description": "The current Datachannel connection buffered amount in bytes.",
-                            "type": "Number"
-                        },
-                        {
-                            "name": "bufferedAmountLowThreshold",
-                            "description": "The current Datachannel connection\n  buffered amount low threshold in bytes.",
-                            "type": "Number"
-                        },
-                        {
-                            "name": "messages",
-                            "description": "The messages stats.",
+                            "name": "states",
+                            "description": "The current states.",
                             "type": "JSON",
                             "props": [
                                 {
-                                    "name": "sent",
-                                    "description": "The number of messages sent from this Datachannel connection.",
-                                    "type": "Number"
-                                },
-                                {
-                                    "name": "received",
-                                    "description": "The number of messages received from this Datachannel connection.",
-                                    "type": "Number"
-                                }
-                            ]
-                        },
-                        {
-                            "name": "bytes",
-                            "description": "The bytes stats.",
-                            "type": "JSON",
-                            "props": [
-                                {
-                                    "name": "sent",
-                                    "description": "The number of bytes sent from this Datachannel connection.",
-                                    "type": "Number"
-                                },
-                                {
-                                    "name": "received",
-                                    "description": "The number of bytes received from this Datachannel connection.",
-                                    "type": "Number"
-                                }
-                            ]
-                        },
-                        {
-                            "name": "bufferControlOptions",
-                            "description": "The current Datachannel connection buffer control settings.",
-                            "type": "JSON",
-                            "props": [
-                                {
-                                    "name": "method",
-                                    "description": "The current Datachannel connection buffer control method.\n- Available methods are: `\"polling\"` (Polling) and `\"bufferedAmount\"` (Buffer amount threshold).",
+                                    "name": "connectionState",
+                                    "description": "The datachannel connection state.\n- Reference [`CONNECTION_STATE_ENUM` constant](#docs+Temasys.Datachannel+constants+CONNECTION_STATE_ENUM) for the list of available states.",
                                     "type": "String"
                                 },
                                 {
-                                    "name": "block",
-                                    "description": "The current Datachannel connection buffer control full threshold block.",
+                                    "name": "connected",
+                                    "description": "The flag if datachannel is connected.",
+                                    "type": "Boolean"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "buffer",
+                            "description": "The current data buffer session.",
+                            "type": "JSON",
+                            "props": [
+                                {
+                                    "name": "mechanism",
+                                    "description": "The buffer mechanism used.\n- Reference [`BUFFER_MECHANISM_ENUM` constant](#docs+Temasys.Datachannel+constants+BUFFER_MECHANISM_ENUM) for the list of available mechanisms.",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "bufferedAmount",
+                                    "description": "The buffered amount in bytes.",
                                     "type": "Number"
                                 },
                                 {
-                                    "name": "interval",
-                                    "description": "The current Datachannel connection buffer control polling interval.\n- This is defined only for Polling method.",
+                                    "name": "bufferedAmountLowThreshold",
+                                    "description": "The buffered amount threshold to consider as low in bytes.",
                                     "type": "Number",
                                     "optional": true
                                 },
                                 {
-                                    "name": "flushTimeout",
-                                    "description": "The current Datachannel connection timeout to consider that\n  the packet has been sent.",
-                                    "type": "Number"
+                                    "name": "flushed",
+                                    "description": "The flag if all data in the buffer has been considered as sent.",
+                                    "type": "Boolean"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "session",
+                            "description": "The current data transfers sesions.",
+                            "type": "JSON",
+                            "props": [
+                                {
+                                    "name": "transferId",
+                                    "description": "The data transfer ID.",
+                                    "type": "String"
                                 },
                                 {
-                                    "name": "finalFlushTimeout",
-                                    "description": "The current Datachannel connection timeout\n  to consider that all the packets has been sent before the Datachannel connection closes explicitly.",
-                                    "type": "Number"
+                                    "name": "streamId",
+                                    "description": "The data stream ID.",
+                                    "type": "String"
                                 }
                             ]
                         }
                     ]
-                },
-                {
-                    "name": "error",
-                    "description": "The error object.\n- This is defined when `state` is `FAILED`.",
-                    "type": "Error",
-                    "optional": true
                 }
             ],
-            "since": "0.7.0",
-            "class": "Temasys.Datachannel"
-        },
-        {
-            "file": "source/components/datachannel.js",
-            "line": 143,
-            "description": "Event triggered when there are exceptions thrown in this event handlers.",
-            "itemtype": "event",
-            "name": "domError",
-            "params": [
-                {
-                    "name": "error",
-                    "description": "The error object.",
-                    "type": "Error"
-                }
-            ],
-            "since": "0.7.0",
-            "class": "Temasys.Datachannel"
-        },
-        {
-            "file": "source/components/datachannel.js",
-            "line": 152,
-            "description": "The enum of Datachannel connection states.",
-            "itemtype": "attribute",
-            "name": "STATE_ENUM",
-            "params": [
-                {
-                    "name": "CONNECTING",
-                    "description": "The state when Datachannel connection is connecting.",
-                    "type": "String"
-                },
-                {
-                    "name": "OPEN",
-                    "description": "The state when Datachannel connection has opened.",
-                    "type": "String"
-                },
-                {
-                    "name": "CLOSING",
-                    "description": "The state when Datachannel connection is closing.",
-                    "type": "String"
-                },
-                {
-                    "name": "CLOSED",
-                    "description": "The state when Datachannel connection has closed.",
-                    "type": "String"
-                }
-            ],
-            "readonly": "",
-            "final": 1,
-            "since": "0.7.0",
-            "class": "Temasys.Datachannel"
-        },
-        {
-            "file": "source/components/datachannel.js",
-            "line": 171,
-            "description": "The enum of {{#crossLink \"Temasys.Datachannel/getStats:method\"}}{{/crossLink}} states.",
-            "itemtype": "attribute",
-            "name": "GET_STATS_STATE_ENUM",
-            "params": [
-                {
-                    "name": "LOADING",
-                    "description": "The state when `getStats()` is retrieving stats.",
-                    "type": "String"
-                },
-                {
-                    "name": "SUCCESS",
-                    "description": "The state when `getStats()` has retrieved stats successfully.",
-                    "type": "String"
-                },
-                {
-                    "name": "FAILED",
-                    "description": "The state when `getStats()` has failed to retrieve stats.",
-                    "type": "String"
-                }
-            ],
-            "readonly": "",
-            "final": 1,
-            "since": "0.7.0",
-            "class": "Temasys.Datachannel"
-        },
-        {
-            "file": "source/components/datachannel.js",
-            "line": 188,
-            "description": "Function to retrieve Datachannel connection stats.",
-            "itemtype": "method",
-            "name": "getStats",
             "return": {
-                "description": "The Promise for function request completion.",
-                "type": "Promise"
+                "description": "",
+                "type": "JSON"
             },
             "example": [
-                "\n  channel.getStats().then(function (stats) {\n    console.log(\"Received stats ->\", stats);\n  }).catch(function (error) {\n    console.error(\"Received error ->\", error);\n  });"
+                "\n  console.log(\"current info ->\", datachannel.getCurrent());"
             ],
             "since": "0.7.0",
             "class": "Temasys.Datachannel"
         },
         {
             "file": "source/components/datachannel.js",
-            "line": 218,
+            "line": 181,
+            "description": "Function that returns the datachannel connection stats.",
+            "itemtype": "method",
+            "name": "getStats",
+            "params": [
+                {
+                    "name": "return",
+                    "description": "The full stats.",
+                    "type": "JSON",
+                    "props": [
+                        {
+                            "name": "componentId",
+                            "description": "The component ID.",
+                            "type": "String"
+                        },
+                        {
+                            "name": "propertyId",
+                            "description": "The peer datachannel property ID.",
+                            "type": "String"
+                        },
+                        {
+                            "name": "id",
+                            "description": "The peer datachannel ID.",
+                            "type": "Number"
+                        },
+                        {
+                            "name": "label",
+                            "description": "The peer datachannel label.",
+                            "type": "String"
+                        },
+                        {
+                            "name": "binaryType",
+                            "description": "The peer datachannel binary type.",
+                            "type": "String"
+                        }
+                    ]
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "JSON"
+            },
+            "example": [
+                "\n  console.log(\"stats ->\", datachannel.getStats());"
+            ],
+            "since": "0.7.0",
+            "class": "Temasys.Datachannel"
+        },
+        {
+            "file": "source/components/datachannel.js",
+            "line": 199,
             "description": "Function to start initializing events.",
             "class": "Temasys.Datachannel"
         },
         {
             "file": "source/components/datachannel.js",
-            "line": 289,
+            "line": 270,
             "description": "Function to send data.",
             "class": "Temasys.Datachannel"
         },
         {
             "file": "source/components/datachannel.js",
-            "line": 348,
+            "line": 329,
             "description": "Function to close connection.",
             "class": "Temasys.Datachannel"
         },
@@ -1923,7 +1974,7 @@
         {
             "file": "source/components/peer.js",
             "line": 233,
-            "description": "The enum of policies for bundling audio, video and data media streaming.",
+            "description": "The enum of policies for bundling audio, video and datachannel media streaming.",
             "itemtype": "attribute",
             "name": "BUNDLE_POLICY_ENUM",
             "params": [
@@ -2152,12 +2203,12 @@
             "params": [
                 {
                     "name": "NEW",
-                    "description": "The ICE connection is in new state.\n- Value: `\"new\"`",
+                    "description": "The ICE transports are at its initial stage without attempting connections.\n- Value: `\"new\"`",
                     "type": "String"
                 },
                 {
                     "name": "CHECKING",
-                    "description": "The ICE transports is checking for connections.\n- Value: `\"checking\"`",
+                    "description": "The ICE transports are attempting and checking for connections.\n- Value: `\"checking\"`",
                     "type": "String"
                 },
                 {
@@ -2167,22 +2218,22 @@
                 },
                 {
                     "name": "COMPLETED",
-                    "description": "The ICE transports have selected the best candidate it could find.\n- Value: `\"completed\"`",
+                    "description": "The ICE transports are connected and have already selected the best pair of candidates.\n- Value: `\"completed\"`",
                     "type": "String"
                 },
                 {
                     "name": "FAILED",
-                    "description": "The ICE transports failed.\n- Value: `\"failed\"`",
+                    "description": "The ICE transports failed to connect.\n- Value: `\"failed\"`",
                     "type": "String"
                 },
                 {
                     "name": "DISCONNECTED",
-                    "description": "The ICE transports disconnected.\n- Value: `\"disconnected\"`",
+                    "description": "The ICE transports are disconnected.\n- Value: `\"disconnected\"`",
                     "type": "String"
                 },
                 {
                     "name": "CLOSED",
-                    "description": "The ICE transports closed.\n- Value: `\"closed\"`",
+                    "description": "The ICE transports are closed and would no longer reconnect.\n- Value: `\"closed\"`",
                     "type": "String"
                 }
             ],
@@ -2193,8 +2244,285 @@
             "class": "Temasys.Peer"
         },
         {
+            "file": "source/components/peer.js",
+            "line": 476,
+            "description": "The enum of peer connection negotiation states.",
+            "itemtype": "attribute",
+            "name": "NEGOTIATION_STATE_ENUM",
+            "params": [
+                {
+                    "name": "ENTER",
+                    "description": "",
+                    "type": "String"
+                }
+            ],
+            "type": "JSON",
+            "readonly": "",
+            "final": 1,
+            "since": "0.7.0",
+            "class": "Temasys.Peer"
+        },
+        {
+            "file": "source/components/peer.js",
+            "line": 503,
+            "description": "The enum of ICE gathering states.",
+            "itemtype": "attribute",
+            "name": "ICE_GATHERING_STATE_ENUM",
+            "type": "JSON",
+            "readonly": "",
+            "final": 1,
+            "since": "0.7.0",
+            "class": "Temasys.Peer"
+        },
+        {
+            "file": "source/components/peer.js",
+            "line": 515,
+            "description": "The enum of ICE gathering states.",
+            "itemtype": "attribute",
+            "name": "ICE_GATHERING_STATE_ENUM",
+            "type": "JSON",
+            "readonly": "",
+            "final": 1,
+            "since": "0.7.0",
+            "class": "Temasys.Peer"
+        },
+        {
+            "file": "source/components/peer.js",
+            "line": 527,
+            "description": "The enum of ICE candidate processing states.",
+            "itemtype": "attribute",
+            "name": "ICE_CANDIDATE_PROCESSING_STATE_ENUM",
+            "type": "JSON",
+            "readonly": "",
+            "final": 1,
+            "since": "0.7.0",
+            "class": "Temasys.Peer"
+        },
+        {
+            "file": "source/components/peer.js",
+            "line": 539,
+            "description": "The enum of peer connection types.",
+            "itemtype": "attribute",
+            "name": "TYPE_ENUM",
+            "params": [
+                {
+                    "name": "MCU",
+                    "description": "The type that indicates it is a MCU peer connection.\n- Value: `\"mcu\"`",
+                    "type": "String"
+                },
+                {
+                    "name": "MCU_RELAYED",
+                    "description": "The type that indicates it is a peer connection relayed from the MCU.\n- Value: `\"mcu_relayed\"`",
+                    "type": "String"
+                },
+                {
+                    "name": "NORMAL",
+                    "description": "The type that indicates it is a normal peer connection.\n- Value: `\"p2p\"`",
+                    "type": "String"
+                }
+            ],
+            "type": "JSON",
+            "readonly": "",
+            "final": 1,
+            "since": "0.7.0",
+            "class": "Temasys.Peer"
+        },
+        {
+            "file": "source/components/peer.js",
+            "line": 560,
+            "description": "Function that returns the peer information.",
+            "itemtype": "method",
+            "name": "getInfo",
+            "params": [
+                {
+                    "name": "return",
+                    "description": "The peer information.",
+                    "type": "JSON",
+                    "props": [
+                        {
+                            "name": "id",
+                            "description": "The peer ID.",
+                            "type": "String"
+                        },
+                        {
+                            "name": "parentId",
+                            "description": "The peer parent ID its linked to if any.",
+                            "type": "String",
+                            "optional": true
+                        },
+                        {
+                            "name": "customData",
+                            "description": "The peer custom data.",
+                            "type": "JSON|String",
+                            "optional": true
+                        },
+                        {
+                            "name": "type",
+                            "description": "The peer connection type.\n- Reference [`TYPE_ENUM` constant](#docs+Temasys.Datachannel+constants+TYPE_ENUM) for the list of available types.",
+                            "type": "String"
+                        },
+                        {
+                            "name": "media",
+                            "description": "The peer media settings.",
+                            "type": "JSON",
+                            "props": [
+                                {
+                                    "name": "audio",
+                                    "description": "The peer audio media settings.",
+                                    "type": "JSON|Boolean"
+                                },
+                                {
+                                    "name": "audio.direction",
+                                    "description": "The peer audio direction.\n- Reference [`MEDIA_DIRECTION_ENUM` constant](#docs+Temasys.Peer+constants+MEDIA_DIRECTION_ENUM) for the list of available directions.",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "video",
+                                    "description": "The peer video media settings.",
+                                    "type": "JSON|Boolean"
+                                },
+                                {
+                                    "name": "video.direction",
+                                    "description": "The peer video direction.\n- Reference [`MEDIA_DIRECTION_ENUM` constant](#docs+Temasys.Peer+constants+MEDIA_DIRECTION_ENUM) for the list of available directions.",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "datachannel",
+                                    "description": "The peer datachannel media settings.",
+                                    "type": "JSON|Boolean"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "agent",
+                            "description": "The peer agent information.",
+                            "type": "JSON",
+                            "props": [
+                                {
+                                    "name": "name",
+                                    "description": "The peer agent name.",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "version",
+                                    "description": "The peer agent version.",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "platform",
+                                    "description": "The peer agent platform if any.",
+                                    "type": "String",
+                                    "optional": true
+                                },
+                                {
+                                    "name": "pluginVersion",
+                                    "description": "The peer Temasys plugin version if any.",
+                                    "type": "String",
+                                    "optional": true
+                                }
+                            ]
+                        },
+                        {
+                            "name": "trickleIce",
+                            "description": "The flag if peer supports trickling of ICE connections.",
+                            "type": "Boolean"
+                        },
+                        {
+                            "name": "restartIce",
+                            "description": "The flag if peer supports restarting of ICE connections.",
+                            "type": "Boolean"
+                        }
+                    ]
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "JSON"
+            },
+            "example": [
+                "\n  console.log(\"info ->\", datachannel.getInfo());"
+            ],
+            "since": "0.7.0",
+            "class": "Temasys.Peer"
+        },
+        {
+            "file": "source/components/peer.js",
+            "line": 594,
+            "description": "Function that returns the peer connection stats.",
+            "itemtype": "method",
+            "name": "getStats",
+            "params": [
+                {
+                    "name": "return",
+                    "description": "The full stats.",
+                    "type": "JSON"
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "Promise"
+            },
+            "example": [
+                "\npeer.getStats().then(function (stats) {\n  console.info(\"stats ->\", stats);\n});"
+            ],
+            "since": "0.7.0",
+            "class": "Temasys.Peer"
+        },
+        {
+            "file": "source/components/peer.js",
+            "line": 610,
+            "description": "Function that returns the current datachannel states and connection session.",
+            "itemtype": "method",
+            "name": "getCurrent",
+            "params": [
+                {
+                    "name": "return",
+                    "description": "The current states and connection session.",
+                    "type": "JSON",
+                    "props": [
+                        {
+                            "name": "states",
+                            "description": "The current states.",
+                            "type": "JSON",
+                            "props": [
+                                {
+                                    "name": "iceConnectionState",
+                                    "description": "The ICE connection state.\n- Reference [`ICE_CONNECTION_STATE_ENUM` constant](#docs+Temasys.Peer+constants+ICE_CONNECTION_STATE_ENUM) for the list of available states.",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "iceGatheringState",
+                                    "description": "The ICE gathering state.\n- Reference [`ICE_GATHERING_STATE_ENUM` constant](#docs+Temasys.Peer+constants+ICE_GATHERING_STATE_ENUM) for the list of available states.",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "negotiationState",
+                                    "description": "The peer connection negotiation state.\n- Reference [`NEGOTIATION_STATE_ENUM` constant](#docs+Temasys.Peer+constants+NEGOTIATION_STATE_ENUM) for the list of available states.",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "connected",
+                                    "description": "The flag if peer is connected.",
+                                    "type": "Boolean"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "JSON"
+            },
+            "example": [
+                "\n  console.log(\"current info ->\", peer.getCurrent());"
+            ],
+            "since": "0.7.0",
+            "class": "Temasys.Peer"
+        },
+        {
             "file": "source/components/room.js",
-            "line": 50,
+            "line": 69,
             "description": "Event triggered when room connection session state has changed.",
             "itemtype": "event",
             "name": "sessionStateChange",
@@ -2228,7 +2556,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 64,
+            "line": 83,
             "description": "The enum of room connection session states.",
             "itemtype": "attribute",
             "name": "SESSION_STATE_ENUM",
@@ -2272,7 +2600,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 101,
+            "line": 120,
             "description": "The enum of room connection session error codes.",
             "itemtype": "attribute",
             "name": "SESSION_ERROR_ENUM",
@@ -2371,23 +2699,11 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 172,
-            "description": "The room protocols implemented.",
+            "line": 191,
+            "description": "The room SM protocol implemented.\n- Value: `\"0.1.2.4\"`",
             "itemtype": "attribute",
-            "name": "PROTOCOL_ENUM",
-            "params": [
-                {
-                    "name": "SM_VERSION",
-                    "description": "The signaling messaging (SM) protocol version implemented.\n- Value: `\"0.1.2.4\"`",
-                    "type": "String"
-                },
-                {
-                    "name": "DT_VERSION",
-                    "description": "The data transfer (DT) protocol version implemented.\n- Value: `\"0.1.3\"`",
-                    "type": "String"
-                }
-            ],
-            "type": "JSON",
+            "name": "SM_PROTOCOL_VERSION",
+            "type": "String",
             "readonly": "",
             "final": 1,
             "since": "0.7.0",
@@ -2395,7 +2711,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 190,
+            "line": 203,
             "description": "Function to start connection session.",
             "itemtype": "method",
             "name": "connect",
@@ -2406,29 +2722,6 @@
                     "type": "JSON",
                     "optional": true,
                     "props": [
-                        {
-                            "name": "protocol",
-                            "description": "The auth server protocol.\n- Examples: `\"https:\"`, `\"http:\"`\n- When not provided, the value of `window.location.protocol` is used.",
-                            "type": "String",
-                            "optional": true
-                        },
-                        {
-                            "name": "server",
-                            "description": "The auth server domain.\n- Examples: `\"api.temasys.io\"`\n- When not provided, the default value is `\"api.temasys.io\"`.",
-                            "type": "String",
-                            "optional": true
-                        },
-                        {
-                            "name": "appKey",
-                            "description": "The app key ID.\n- Examples: `\"xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx\"`",
-                            "type": "String"
-                        },
-                        {
-                            "name": "name",
-                            "description": "The room name.\n- Examples: `\"a123\"`, `\"test\"`, `Date.now().toString()`\n- When not provided, the value of `.appKey` is used.",
-                            "type": "String",
-                            "optional": true
-                        },
                         {
                             "name": "hash",
                             "description": "The options for hash authentication.\n- When not provided, the CORS authentication is used.",
@@ -2453,19 +2746,19 @@
                             ]
                         },
                         {
-                            "name": "data",
+                            "name": "customData",
                             "description": "The client custom data for identification.\n- Examples: `\"userA\"`, `{ userId: \"xxx\", name: \"xxx\" }`",
                             "type": "String|JSON",
                             "optional": true
                         },
                         {
-                            "name": "socket",
+                            "name": "socketObject",
                             "description": "The socket connection options.\n- Reference the `options` parameter in [`Temasys.Socket` constructor](#docs+Temasys.Socket+constructor+Temasys.Socket) for the detailed options.",
                             "type": "JSON",
                             "optional": true
                         },
                         {
-                            "name": "peer",
+                            "name": "peerObject",
                             "description": "The peer connection options.\n- Reference the `options` parameter in [`Temasys.Peer` constructor](#docs+Temasys.Peer+constructor+Temasys.Peer) for the detailed options.",
                             "type": "JSON",
                             "optional": true
@@ -2481,7 +2774,46 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 262,
+            "line": 264,
+            "description": "Function to send message to peers.",
+            "itemtype": "method",
+            "name": "message",
+            "params": [
+                {
+                    "name": "message",
+                    "description": "The message.",
+                    "type": "JSON|String"
+                },
+                {
+                    "name": "options",
+                    "description": "The options.",
+                    "type": "JSON",
+                    "optional": true,
+                    "props": [
+                        {
+                            "name": "datachannel",
+                            "description": "The flag if message should use peer datachannel connections\n  to send message.\n- When not provided, the default value is `false`, which indicates sending message through the\n  signaling server.\n- Note that for this to work, datachannel connections has to be enabled. Signaling server messaging\n  has limitations with `100` miliseconds for targeted messages and `1000` miliseconds for broadcasted messages.",
+                            "type": "Boolean",
+                            "optional": true
+                        },
+                        {
+                            "name": "targets",
+                            "description": "The list of targeted peer IDs - where each item is a _String_.\n- When not provided, the message is broadcasted to all peers in the room.",
+                            "type": "Array",
+                            "optional": true
+                        }
+                    ]
+                }
+            ],
+            "example": [
+                "\n// Example 1: Lock the room\nroom.lock(true);\n\n// Example 2: Unlock the room\nroom.lock();\nroom.lock(false);"
+            ],
+            "since": "0.7.0",
+            "class": "Temasys.Room"
+        },
+        {
+            "file": "source/components/room.js",
+            "line": 291,
             "description": "Function to lock or unlock room.",
             "itemtype": "method",
             "name": "lock",
@@ -2501,7 +2833,7 @@
         },
         {
             "file": "source/components/room.js",
-            "line": 281,
+            "line": 312,
             "description": "Function to stop connection session.",
             "itemtype": "method",
             "name": "disconnect",
@@ -14072,15 +14404,15 @@
         },
         {
             "message": "Missing item type\nFunction to start initializing events.",
-            "line": " source/components/datachannel.js:218"
+            "line": " source/components/datachannel.js:199"
         },
         {
             "message": "Missing item type\nFunction to send data.",
-            "line": " source/components/datachannel.js:289"
+            "line": " source/components/datachannel.js:270"
         },
         {
             "message": "Missing item type\nFunction to close connection.",
-            "line": " source/components/datachannel.js:348"
+            "line": " source/components/datachannel.js:329"
         },
         {
             "message": "Missing item type\nFunction that checks the `options` provided and loops the log items. \n- Returns `true` if there's not a need to loop.",

@@ -1,167 +1,82 @@
 /**
- * Handles the Peer Datachannel connection.
+ * Handles the peer datachannel connection.
  * @class Temasys.Datachannel
+ * @param {JSON} options The options.
+ * @param {String} [options.mechanism] The data buffer mechanism if available.
+ * - Examples: `"polling"`, `"threshold"`
+ * - When not provided, the default value is `"threshold"`.
+ * - Reference [`BUFFER_MECHANISM_ENUM` constant](#docs+Temasys.Datachannel+constants+BUFFER_MECHANISM_ENUM) for the list of available mechanisms.
+ * @param {Number} [options.threshold] The buffer threshold limit in bytes.
+ * - When not provided, the default value is `81920`.
+ * @param {Number} [options.interval] The polling interval in miliseconds to check for the buffer length.
+ * - When not provided, the default value is `250`.
+ * @param {Number} [options.flushTimeout] The timeout in miliseconds to wait to consider that data has been sent.
+ * - When not provided, the default value is `100`.
+ * @param {Number} [options.completeFlushTimeout] The timeout in miliseconds to wait to consider that all the data
+ *   in the current buffer has been sent before closing the datachannel connection.
+ * - When not provided, the default value is `2000`.
  * @constructor
  * @private
- * @for Temasys
  * @since 0.7.0
  */
-function Datachannel (channel, peerId, propertyId) {
-  
-  /**
-   * The Datachannel ID.
-   * @attribute id
-   * @type String
-   * @readOnly
-   * @for Temasys.Datachannel
-   * @since 0.7.0
-   */
-  this.id = channel.label;
+Temasys.Datachannel = function (options, channel, propertyId, peerId) {
+  var ref = this;
 
   /**
-   * The Datachannel type.
-   * - See {{#crossLink "Temasys.Datachannel/TYPE_ENUM:attribute"}}{{/crossLink}} for reference.
-   * @attribute type
-   * @type String
-   * @readOnly
-   * @for Temasys.Datachannel
-   * @since 0.7.0
-   */
-  this.type = propertyId === 'main' ? this.TYPE_ENUM.MESSAGING : this.TYPE_ENUM.DATA;
-
-  /**
-   * The Datachannel current states.
-   * @attribute $current
-   * @param {String} state The current Datachannel connection state.
-   * @param {Boolean} connected The flag if Datachannel is connected.
-   * @param {String} streamId The current Datatransfer streaming session ID.
-   * @param {String} transferId The current Datatransfer transfer session ID.
-   * @type JSON
-   * @readOnly
-   * @for Temasys.Datachannel
-   * @since 0.7.0
-   */
-  this.$current = {
-    state: null,
-    connected: false,
-    streamId: null,
-    transferId: null
-  };
-  
-  // Public properties
-  this.name = channel.label;
-  this.peerId = peerId;
-  this.propertyId = propertyId;
-  // Private properties
-  this._connection = channel;
-  this._bufferControl = {
-    usePolling: typeof this._connection.bufferedAmountLowThreshold !== 'number',
-    bufferEvent: { block: 0.5 },
-    polling: { blocks: 8, interval: 250 },
-    messages: { timestamp: 0, flushTimeout: 100, finalFlushTimeout: 2000 }
-  };
-  this._stats = {
-    messages: { sent: 0, recv: 0 },
-    bytes: { sent: 0, recv: 0 }
-  };
-
-  /**
-   * Event triggered when Datachannel connection state has been changed.
-   * @event stateChange
-   * @param {String} state The current Datachannel connection state.
-   * - See {{#crossLink "Temasys.Datachannel/STATE_ENUM:attribute"}}{{/crossLink}} for reference.
+   * Event triggered when connection state has changed.
+   * @event connectionStateChange
+   * @param {String} state The connection state.
    * @for Temasys.Datachannel
    * @since 0.7.0
    */
   /**
-   * Event triggered when Datachannel connection has encountered errors.
-   * @event error
-   * @param {Error} error The error object.
-   * @for Temasys.Datachannel
-   * @since 0.7.0
-   */
-  /**
-   * Event triggered when Datachannel connection buffered amount threshold is low.
-   * @event bufferedAmountLow
-   * @param {Number} bufferedAmount The current buffered amount in bytes.
-   * @param {Number} bufferedAmountLowThreshold The current buffered amount threshold set in bytes.
-   * @for Temasys.Datachannel
-   * @since 0.7.0
-   */
-  /**
-   * Event triggered when Datachannel connection sends or receives data.
+   * Event triggered when data is received.
    * @event data
-   * @param {JSON|Blob} data The data.
-   * @param {Boolean} isSelf The flag if data is sent from self.
-   * @param {Error} [error] The error object.
-   * - This is defined when data failed to send or parse received data.
+   * @param {JSON|String|ArrayBuffer|Blob} data The data chunk.
+   * @param {Error} [error] The error object if there are errors.
+   * @param {Boolean} isSelf The flag if client is the sender.
    * @for Temasys.Datachannel
    * @since 0.7.0
    */
   /**
-   * Event triggered when there are exceptions thrown in this event handlers.
-   * @event domError
-   * @param {Error} error The error object.
+   * Event triggered when data buffer amount threshold is low.
+   * @event bufferedAmountLow
+   * @param {JSON} buffer The data buffer session.
+   * - Object signature matches returned `result.session` parameter in [`getCurrent()` method](#docs+Temasys.Datachannel+methods+getCurrent).
    * @for Temasys.Datachannel
    * @since 0.7.0
    */
-  /**
-   * Event triggered when {{#crossLink "Temasys.Datachannel/getStats:method"}}{{/crossLink}} state has changed.
-   * @event getStatsStateChange
-   * @param {String} state The current stats retrieval state.
-   * - See {{#crossLink "Temasys.Datachannel/GET_STATS_STATE_ENUM:attribute"}}{{/crossLink}} for reference.
-   * @param {JSON} [stats] The stats.
-   * - This is defined when `state` is `SUCCESS`.
-   * @param {String} stats.id The native `RTCDataChannel` object `.id` property.
-   * @param {String} stats.label The native `RTCDataChannel` object `.label` property.
-   * @param {String} stats.binaryType The native `RTCDataChannel` object `.binaryType` property.
-   * - This indicates the type of native object type it uses to send and pack received binary data.
-   * @param {Number} stats.bufferedAmount The current Datachannel connection buffered amount in bytes.
-   * @param {Number} stats.bufferedAmountLowThreshold The current Datachannel connection
-   *   buffered amount low threshold in bytes.
-   * @param {JSON} stats.messages The messages stats.
-   * @param {Number} stats.messages.sent The number of messages sent from this Datachannel connection.
-   * @param {Number} stats.messages.received The number of messages received from this Datachannel connection.
-   * @param {JSON} stats.bytes The bytes stats.
-   * @param {Number} stats.bytes.sent The number of bytes sent from this Datachannel connection.
-   * @param {Number} stats.bytes.received The number of bytes received from this Datachannel connection.
-   * @param {JSON} stats.bufferControlOptions The current Datachannel connection buffer control settings.
-   * @param {String} stats.bufferControlOptions.method The current Datachannel connection buffer control method.
-   * - Available methods are: `"polling"` (Polling) and `"bufferedAmount"` (Buffer amount threshold).
-   * @param {Number} stats.bufferControlOptions.block The current Datachannel connection buffer control full threshold block.
-   * @param {Number} [stats.bufferControlOptions.interval] The current Datachannel connection buffer control polling interval.
-   * - This is defined only for Polling method.
-   * @param {Number} stats.bufferControlOptions.flushTimeout The current Datachannel connection timeout to consider that
-   *   the packet has been sent.
-   * @param {Number} stats.bufferControlOptions.finalFlushTimeout The current Datachannel connection timeout
-   *   to consider that all the packets has been sent before the Datachannel connection closes explicitly.
-   * @param {Error} [error] The error object.
-   * - This is defined when `state` is `FAILED`.
-   * @for Temasys.Datachannel
-   * @since 0.7.0
-   */
-  /**
-   * Event triggered when there are exceptions thrown in this event handlers.
-   * @event domError
-   * @param {Error} error The error object.
-   * @for Temasys.Datachannel
-   * @since 0.7.0
-   */
-}
+};
 
 /**
- * The enum of Datachannel connection states.
- * @attribute STATE_ENUM
- * @param {String} CONNECTING The state when Datachannel connection is connecting.
- * @param {String} OPEN The state when Datachannel connection has opened.
- * @param {String} CLOSING The state when Datachannel connection is closing.
- * @param {String} CLOSED The state when Datachannel connection has closed.
+ * The datachannel DT protocol implemented.
+ * - Value: `"0.1.3"`
+ * @attribute DT_PROTOCOL_VERSION
+ * @type String
  * @readOnly
  * @final
  * @for Temasys.Datachannel
  * @since 0.7.0
  */
-Datachannel.prototype.STATE_ENUM = {
+Temasys.Datachannel.prototype.DT_PROTOCOL_VERSION = '0.1.3';
+
+/**
+ * The enum of datachannel connection states.
+ * @attribute CONNECTION_STATE_ENUM
+ * @param {String} CONNECTING The state when datachannel is attempting to establish connection.
+ * - Value: `"connecting"`
+ * @param {String} CONNECTED The state when datachannel is connected.
+ * - Value: `"open"`
+ * @param {String} DISCONNECTING The state when datachannel is disconnecting.
+ * - Value: `"closing"`
+ * @param {String} DISCONNECTED The state when datachannel has disconnected.
+ * - Value: `"closed"`
+ * @readOnly
+ * @final
+ * @for Temasys.Datachannel
+ * @since 0.7.0
+ */
+Temasys.Datachannel.prototype.CONNECTION_STATE_ENUM = {
 	CONNECTING: 'connecting',
   OPEN: 'open',
   CLOSING: 'closing',
@@ -169,56 +84,122 @@ Datachannel.prototype.STATE_ENUM = {
 };
 
 /**
- * The enum of {{#crossLink "Temasys.Datachannel/getStats:method"}}{{/crossLink}} states.
- * @attribute GET_STATS_STATE_ENUM
- * @param {String} LOADING The state when `getStats()` is retrieving stats.
- * @param {String} SUCCESS The state when `getStats()` has retrieved stats successfully.
- * @param {String} FAILED The state when `getStats()` has failed to retrieve stats.
+ * The enum of datachannel data buffer mechanisms.
+ * @attribute BUFFER_MECHANISM_ENUM
+ * @param {String} THRESHOLD The mechanism that uses the datachannel native threshold amount low event to handle data buffer.
+ * - Value: `"threshold"`
+ * @param {String} POLLING The mechanism that uses the polling interval to check the buffer size to handle data buffer.
+ * - Value: `"polling"`
+ * @type JSON
  * @readOnly
  * @final
  * @for Temasys.Datachannel
  * @since 0.7.0
  */
-Datachannel.prototype.GET_STATS_STATE_ENUM = {
-	LOADING: 'loading',
-  SUCCESS: 'success',
-  FAILED: 'failed'
+Temasys.Datachannel.prototype.BUFFER_MECHANISM_ENUM = {
+	POLLING: 'polling',
+  THRESHOLD: 'threshold'
 };
 
 /**
- * Function to retrieve Datachannel connection stats.
- * @method getStats
- * @return {Promise} The Promise for function request completion.
- * @example
- *   channel.getStats().then(function (stats) {
- *     console.log("Received stats ->", stats);
- *   }).catch(function (error) {
- *     console.error("Received error ->", error);
- *   });
+ * The enum of datachannel types.
+ * @attribute TYPE_ENUM
+ * @param {String} PERSISTENT The type that cannot be closed until peer connection closes, and is used primarily for sending messages.
+ * - Value: `"messaging"`
+ * @param {String} TEMPORARY The type that closes once data transfer is completed or terminated and is opened only to send data transfers.
+ * - Value: `"data"`
+ * @type JSON
+ * @readOnly
+ * @final
  * @for Temasys.Datachannel
  * @since 0.7.0
  */
-Datachannel.prototype.getStats = function () {
-  var self = this;
+Temasys.Datachannel.prototype.TYPE_ENUM = {
+  PERSISTENT: 'messaging',
+  TEMPORARY: 'data'
+};
 
-  return {
-    readyState: self._connection.readyState,
-    id: self._connection.id,
-    label: self._connection.label,
-    binaryType: self._connection.binaryType,
-    bufferedAmount: parseInt(self._connection.bufferedAmount, 10) || 0,
-    bufferedAmountLowThreshold: self._connection.bufferedAmountLowThreshold || 0,
-    messagesSent: self._stats.messages.sent,
-    messagesReceived: self._stats.messages.recv,
-    bytesSent: self._stats.bytes.sent,
-    bytesReceived: self._stats.bytes.recv
-  };
+/**
+ * Function that returns the socket configuration.
+ * @method getConfig
+ * @param {JSON} return The configuration settings.
+ * - Object signature matches `options` parameter in [`Temasys.Datachannel` constructor](#docs+Temasys.Datachannel+constructor+Temasys.Datachannel).
+ * @return {JSON}
+ * @example
+ *   console.log("config ->", datachannel.getConfig());
+ * @for Temasys.Socket
+ * @since 0.7.0
+ */
+Temasys.Datachannel.prototype.getConfig = function () {
+  var ref = this;
+};
+
+/**
+ * Function that returns the datachannel information
+ * @method getInfo
+ * @param {JSON} return The datachannel information.
+ * @param {String} return.name The datachannel ID.
+ * @param {String} return.type The datachannel type.
+ * - Reference [`TYPE_ENUM` constant](#docs+Temasys.Datachannel+constants+TYPE_ENUM) for the list of available types.
+ * @return {JSON}  
+ * @example
+ *   console.log("info ->", datachannel.getInfo());
+ * @for Temasys.Datachannel
+ * @since 0.7.0
+ */
+Temasys.Datachannel.prototype.getInfo = function () {
+  var ref = this;
+};
+
+/**
+ * Function that returns the current datachannel states and connection session.
+ * @method getCurrent
+ * @param {JSON} return The current states and connection session.
+ * @param {JSON} return.states The current states.
+ * @param {String} return.states.connectionState The datachannel connection state.
+ * - Reference [`CONNECTION_STATE_ENUM` constant](#docs+Temasys.Datachannel+constants+CONNECTION_STATE_ENUM) for the list of available states.
+ * @param {Boolean} return.states.connected The flag if datachannel is connected.
+ * @param {JSON} return.buffer The current data buffer session.
+ * @param {String} return.buffer.mechanism The buffer mechanism used.
+ * - Reference [`BUFFER_MECHANISM_ENUM` constant](#docs+Temasys.Datachannel+constants+BUFFER_MECHANISM_ENUM) for the list of available mechanisms.
+ * @param {Number} return.buffer.bufferedAmount The buffered amount in bytes.
+ * @param {Number} [return.buffer.bufferedAmountLowThreshold] The buffered amount threshold to consider as low in bytes.
+ * @param {Boolean} return.buffer.flushed The flag if all data in the buffer has been considered as sent.
+ * @param {JSON} return.session The current data transfers sesions.
+ * @param {String} return.session.transferId The data transfer ID.
+ * @param {String} return.session.streamId The data stream ID.
+ * @return {JSON}  
+ * @example
+ *   console.log("current info ->", datachannel.getCurrent());
+ * @for Temasys.Datachannel
+ * @since 0.7.0
+ */
+Temasys.Datachannel.prototype.getCurrent = function () {
+  var ref = this;
+};
+
+/**
+ * Function that returns the datachannel connection stats.
+ * @method getStats
+ * @param {JSON} return The full stats.
+ * @param {String} return.componentId The component ID.
+ * @param {String} return.propertyId The peer datachannel property ID.
+ * @param {Number} return.id The peer datachannel ID.
+ * @param {String} return.label The peer datachannel label.
+ * @param {String} return.binaryType The peer datachannel binary type.
+ * @return {JSON}
+ * @example
+ *   console.log("stats ->", datachannel.getStats());
+ * @for Temasys.Datachannel
+ * @since 0.7.0
+ */
+Temasys.Datachannel.prototype.getStats = function () {
 };
 
 /**
  * Function to start initializing events.
  */
-Datachannel.prototype.init = function () {
+Temasys.Datachannel.prototype._init = function () {
   var self = this;
 
   // Handle RTCDataChannel.onopen event
@@ -289,7 +270,7 @@ Datachannel.prototype.init = function () {
 /**
  * Function to send data.
  */
-Datachannel.prototype.send = function (data, useBufferControl) {
+Temasys.Datachannel.prototype._send = function (data, useBufferControl) {
   var self = this;
   var dataSize = data.byteLength || data.length || data.size || 0;
 
@@ -348,7 +329,7 @@ Datachannel.prototype.send = function (data, useBufferControl) {
 /**
  * Function to close connection.
  */
-Datachannel.prototype.close = function () {
+Temasys.Datachannel.prototype._close = function () {
   var self = this;
 
   if (['closed', 'closing'].indexOf(self._connection.readyState) === -1) {
