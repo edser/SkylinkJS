@@ -1843,7 +1843,7 @@ Skylink.prototype._createPeerConnection = function(targetMid, isScreenSharing, c
       constraints: constraints,
       optional: optional
     });
-    pc = new RTCPeerConnection(constraints, optional);
+    pc = new (self._edgeUseNativePC ? window.msRTCPeerConnection : RTCPeerConnection)(constraints, optional);
   } catch (error) {
     log.error([targetMid, null, null, 'Failed creating peer connection:'], error);
     self._trigger('handshakeProgress', self.HANDSHAKE_PROGRESS.ERROR, targetMid, error);
@@ -2248,7 +2248,7 @@ Skylink.prototype._signalingEndOfCandidates = function(targetMid) {
     log.debug([targetMid, 'RTCPeerConnection', null, 'Signaling of end-of-candidates remote ICE gathering.']);
     self._peerEndOfCandidatesCounter[targetMid].hasSet = true;
     try {
-      if (window.webrtcDetectedBrowser === 'edge') {
+      if (window.webrtcDetectedBrowser === 'edge' && !self._edgeUseNativePC) {
         var mLineCounter = -1;
         var addedMids = [];
         var sdpLines = self._peerConnections[targetMid].remoteDescription.sdp.split('\r\n');

@@ -1174,4 +1174,14 @@ function Skylink() {
    * @since 0.6.19
    */
   this._peerConnStatus = {};
+
+  /**
+   * Stores the flag for MS edge if native RTCPC should be used.
+   * @attribute _edgeUseNativePC
+   * @type Boolean
+   * @private
+   * @for Skylink
+   * @since 0.6.x
+   */
+  this._edgeUseNativePC = window.webrtcDetectedBrowser === 'edge' && !!window.msRTCPeerConnection;
 }

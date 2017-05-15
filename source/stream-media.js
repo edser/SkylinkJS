@@ -2053,7 +2053,8 @@ Skylink.prototype._addLocalMediaStreams = function(peerId) {
           }
 
           if (updatedStream !== null && !hasStream) {
-            if (window.webrtcDetectedBrowser === 'edge' && (!offerToReceiveVideo || !offerToReceiveAudio)) {
+            if (window.webrtcDetectedBrowser === 'edge' && !self._edgeUseNativePC && (!offerToReceiveVideo || !offerToReceiveAudio)) {
+              // Prevent adding track if not offering to receive audio or video
               try {
                 var cloneStream = updatedStream.clone();
                 var tracks = cloneStream.getTracks();
@@ -2072,7 +2073,7 @@ Skylink.prototype._addLocalMediaStreams = function(peerId) {
             } else {
               pc.addStream(updatedStream);
             }
-            pc.addStream(window.webrtcDetectedBrowser === 'edge' ? updatedStream.clone() : updatedStream);
+            //pc.addStream(window.webrtcDetectedBrowser === 'edge' ? updatedStream.clone() : updatedStream);
           }
         };
 

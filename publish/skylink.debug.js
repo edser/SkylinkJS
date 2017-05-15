@@ -1,4 +1,4 @@
-/*! skylinkjs - v0.6.21 - Wed May 03 2017 12:41:17 GMT+0800 (SGT) */
+/*! skylinkjs - v0.6.21 - Mon May 15 2017 19:56:25 GMT+0800 (+08) */
 
 (function(globals) {
 
@@ -1176,6 +1176,16 @@ function Skylink() {
    * @since 0.6.19
    */
   this._peerConnStatus = {};
+
+  /**
+   * Stores the flag for MS edge if native RTCPC should be used.
+   * @attribute _edgeUseNativePC
+   * @type Boolean
+   * @private
+   * @for Skylink
+   * @since 0.6.x
+   */
+  this._edgeUseNativePC = window.webrtcDetectedBrowser === 'edge' && !!window.msRTCPeerConnection;
 }
 Skylink.prototype.DATA_CHANNEL_STATE = {
   CONNECTING: 'connecting',
@@ -7208,7 +7218,7 @@ Skylink.prototype._createPeerConnection = function(targetMid, isScreenSharing, c
       constraints: constraints,
       optional: optional
     });
-    pc = new RTCPeerConnection(constraints, optional);
+    pc = new (self._edgeUseNativePC ? window.msRTCPeerConnection : RTCPeerConnection)(constraints, optional);
   } catch (error) {
     log.error([targetMid, null, null, 'Failed creating peer connection:'], error);
     self._trigger('handshakeProgress', self.HANDSHAKE_PROGRESS.ERROR, targetMid, error);
@@ -7613,7 +7623,7 @@ Skylink.prototype._signalingEndOfCandidates = function(targetMid) {
     log.debug([targetMid, 'RTCPeerConnection', null, 'Signaling of end-of-candidates remote ICE gathering.']);
     self._peerEndOfCandidatesCounter[targetMid].hasSet = true;
     try {
-      if (window.webrtcDetectedBrowser === 'edge') {
+      if (window.webrtcDetectedBrowser === 'edge' && !self._edgeUseNativePC) {
         var mLineCounter = -1;
         var addedMids = [];
         var sdpLines = self._peerConnections[targetMid].remoteDescription.sdp.split('\r\n');
@@ -17425,7 +17435,8 @@ Skylink.prototype._addLocalMediaStreams = function(peerId) {
           }
 
           if (updatedStream !== null && !hasStream) {
-            if (window.webrtcDetectedBrowser === 'edge' && (!offerToReceiveVideo || !offerToReceiveAudio)) {
+            if (window.webrtcDetectedBrowser === 'edge' && !self._edgeUseNativePC && (!offerToReceiveVideo || !offerToReceiveAudio)) {
+              // Prevent adding track if not offering to receive audio or video
               try {
                 var cloneStream = updatedStream.clone();
                 var tracks = cloneStream.getTracks();
@@ -17444,7 +17455,7 @@ Skylink.prototype._addLocalMediaStreams = function(peerId) {
             } else {
               pc.addStream(updatedStream);
             }
-            pc.addStream(window.webrtcDetectedBrowser === 'edge' ? updatedStream.clone() : updatedStream);
+            //pc.addStream(window.webrtcDetectedBrowser === 'edge' ? updatedStream.clone() : updatedStream);
           }
         };
 
